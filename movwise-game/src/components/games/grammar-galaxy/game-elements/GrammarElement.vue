@@ -47,14 +47,14 @@
       title="取り除く"
       :aria-label="`${element.word}を取り除く`"
     >
-      <Icon name="x" class="w-4 h-4" />
+      ×
     </button>
     
     <!-- Visual Feedback Effects -->
     <div v-if="showVisualFeedback" class="visual-feedback" :class="feedbackType">
       <div class="feedback-icon">
-        <Icon v-if="feedbackType === 'success'" name="check" class="w-6 h-6" />
-        <Icon v-if="feedbackType === 'error'" name="x" class="w-6 h-6" />
+        <span v-if="feedbackType === 'success'">✓</span>
+        <span v-if="feedbackType === 'error'">×</span>
       </div>
     </div>
   </div>
@@ -62,7 +62,6 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import Icon from '@/components/shared/Icon.vue'
 
 const props = defineProps({
   element: {
@@ -396,7 +395,21 @@ defineExpose({
 
 /* Remove button */
 .remove-button {
-  @apply absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md z-10;
+  @apply absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-lg z-20;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transform: scale(1);
+}
+
+.remove-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.remove-button:active {
+  transform: scale(0.95);
+}
 }
 
 /* Used state */
@@ -457,9 +470,16 @@ defineExpose({
 }
 
 .feedback-icon {
-  @apply p-2 rounded-full;
+  @apply p-2 rounded-full flex items-center justify-center;
   background: currentColor;
+  width: 3rem;
+  height: 3rem;
+}
+
+.feedback-icon span {
   color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 /* Animations */

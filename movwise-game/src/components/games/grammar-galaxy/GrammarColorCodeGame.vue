@@ -261,6 +261,7 @@
                   <GrammarElement 
                     :element="zone.element"
                     :is-dropped="true"
+                    :show-remove-button="true"
                     :kids-mode="gameMode === 'kids'"
                     :show-japanese-hint="gameMode === 'kids'"
                     @remove="removeFromZone(zone.id)"
@@ -996,16 +997,27 @@ const placeElementInZone = (element, zoneId) => {
 }
 
 const removeFromZone = (zoneId) => {
+  console.log(`[removeFromZone] 要素を削除: zoneId=${zoneId}`)
+  
   const zone = dropZones.value.find(z => z.id === zoneId)
-  if (!zone || !zone.element) return
+  if (!zone || !zone.element) {
+    console.warn(`[removeFromZone] ゾーンまたは要素が見つかりません: zoneId=${zoneId}`)
+    return
+  }
+  
+  console.log(`[removeFromZone] 削除する要素: ${zone.element.word}`)
   
   // Return element to pool
   const element = availableElements.value.find(e => e.id === zone.element.id)
   if (element) {
     element.isUsed = false
+    console.log(`[removeFromZone] 要素を使用可能に戻しました: ${element.word}`)
+  } else {
+    console.warn(`[removeFromZone] プール内に要素が見つかりません: ${zone.element.id}`)
   }
   
   zone.element = null
+  playSound('remove')
 }
 
 const isValidDrop = (element, zoneId) => {
