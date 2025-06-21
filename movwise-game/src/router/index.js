@@ -21,7 +21,9 @@ const SoundAdventureHub = () => import('../views/SoundAdventureHub.vue')
 // 文法ゲームの動的インポート
 const GrammarGalaxyFoundation = () => import('@/views/GrammarGalaxyFoundation.vue')
 const GrammarGalaxyHub = () => import('@/views/GrammarGalaxyHub.vue')
-const GrammarColorCodeGame = () => import('@/components/games/grammar-galaxy/GrammarColorCodeGame.vue')
+// Temporary fix for dynamic import issue
+import GrammarColorCodeGame from '@/components/games/grammar-galaxy/GrammarColorCodeGame.vue'
+// const GrammarColorCodeGame = () => import('@/components/games/grammar-galaxy/GrammarColorCodeGame.vue')
 const PatternHunterGame = () => import('@/components/games/grammar-galaxy/PatternHunterGame.vue')
 const GrammarReflexArena = () => import('@/components/games/grammar-galaxy/GrammarReflexArena.vue')
 
@@ -34,7 +36,17 @@ const router = createRouter({
       name: 'home',
       component: () => import('../views/HomeView.vue'),
       meta: {
-        title: 'MovWISE - 身体で覚える英語学習'
+        title: 'Sound Galaxy Academy - 音響銀河を救う英語学習'
+      }
+    },
+    
+    // 銀河マップ
+    {
+      path: '/galaxy-map',
+      name: 'galaxy-map',
+      component: () => import('../views/GalaxyMapView.vue'),
+      meta: {
+        title: '銀河マップ - Sound Galaxy Academy'
       }
     },
 
@@ -272,9 +284,9 @@ const router = createRouter({
     {
       path: '/games/word-family-tree',
       name: 'word-family-tree',
-      component: () => import('@/components/games/WordFamilyTreeGame.vue'), // 新規開発必要
+      component: () => import('@/components/games/GalaxyWordConnector.vue'),
       meta: {
-        title: 'ワード・ファミリー・ツリー',
+        title: 'ギャラクシー・ワードコネクター',
         stage: 'blendingMastery',
         stageOrder: 3,
         difficulty: 'intermediate',
@@ -470,7 +482,7 @@ const router = createRouter({
     {
       path: '/games/cvc/settings',
       name: 'cvc-settings',
-      component: () => import('../components/games/CvcGameSettings.vue'),
+      component: () => import('../components/games/CvcLevelSelector.vue'),
       meta: {
         title: 'CVC設定',
         stage: 'blendingMastery'
@@ -607,6 +619,88 @@ const router = createRouter({
         next()
       }
     },
+    {
+      path: '/grammar-galaxy/grammar-puzzle-cascade',
+      name: 'grammar-puzzle-cascade',
+      component: () => import('@/components/games/grammar-galaxy/GrammarPuzzleCascadeGame.vue'),
+      meta: {
+        title: 'Grammar Puzzle Cascade',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'grammarPuzzleCascade',
+        icon: '🧩',
+        description: 'テトリス風の文法パズルゲーム',
+        learningObjective: '文法要素の空間的配置理解',
+        unlockRequirement: '文法ギャラクシー基礎編 40%完了'
+      }
+    },
+
+    // === New Grammar Galaxy Games ===
+    {
+      path: '/grammar-galaxy/comparison-master',
+      name: 'comparison-master',
+      component: () => import('@/components/games/grammar-galaxy/ComparisonMasterGame.vue'),
+      meta: {
+        title: 'Comparison Master - 比較表現バトル',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'comparisonMaster',
+        icon: '📊',
+        description: '比較級・最上級・同等比較をマスターするバトルゲーム',
+        learningObjective: '比較表現の完全習得',
+        unlockRequirement: '文法ギャラクシー基礎編 40%完了'
+      }
+    },
+    {
+      path: '/grammar-galaxy/modal-verb-challenge',
+      name: 'modal-verb-challenge',
+      component: () => import('@/components/games/grammar-galaxy/ModalVerbChallengeGame.vue'),
+      meta: {
+        title: 'Modal Verb Challenge - 助動詞バトルアリーナ',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'modalVerbChallenge',
+        icon: '🛡️',
+        description: 'can/may/must/should を使いこなす助動詞バトル',
+        learningObjective: '助動詞の正しい使い分け習得',
+        unlockRequirement: '文法ギャラクシー基礎編 50%完了'
+      }
+    },
+    {
+      path: '/grammar-galaxy/conjunction-connection',
+      name: 'conjunction-connection',
+      component: () => import('@/components/games/grammar-galaxy/ConjunctionConnectionGame.vue'),
+      meta: {
+        title: 'Conjunction Connection - 接続表現パズル',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'conjunctionConnection',
+        icon: '🔗',
+        description: '文と文を正しい接続表現でつなげるパズルゲーム',
+        learningObjective: '接続表現の習得とネットワーク構築',
+        unlockRequirement: '文法ギャラクシー基礎編 60%完了'
+      }
+    },
+    {
+      path: '/grammar-galaxy/progressive-tense',
+      name: 'progressive-tense',
+      component: () => import('@/components/games/grammar-galaxy/ProgressiveTenseGame.vue'),
+      meta: {
+        title: 'Progressive Tense Flow - 進行形タイムライン',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'progressiveTense',
+        icon: '🌊',
+        description: '時間の流れをコントロールして進行形をマスター',
+        learningObjective: '進行形の時間軸理解と習得',
+        unlockRequirement: '文法ギャラクシー基礎編 70%完了'
+      }
+    },
 
     // === NEW: サウンド・アドベンチャー・ゾーン ===
     // 新しい体験型音素学習ゲーム群
@@ -710,7 +804,93 @@ const router = createRouter({
       }
     },
 
-    // === Co-Pilot Training Dock ===
+    // === Unified Learning Center ===
+    {
+      path: '/unified-learning-hub',
+      name: 'UnifiedLearningHub',
+      component: () => import('@/views/UnifiedLearningHub.vue'),
+      meta: {
+        title: 'MovWISE 学習司令部',
+        requiresAuth: false,
+        stage: 'unifiedLearning',
+        stageOrder: 1,
+        difficulty: 'adaptive',
+        gameId: 'unifiedLearningHub',
+        icon: '🎯',
+        description: '今日のミッション選択と最適な学習パス提案',
+        learningObjective: '効率的で体系的な学習進行',
+        unlockRequirement: '常時アクセス可能'
+      }
+    },
+
+    // === Multi-Layer Learning Engine ===
+    {
+      path: '/multi-layer',
+      name: 'MultiLayerHub',
+      component: () => import('@/components/multi-layer/MultiLayerHub.vue'),
+      meta: {
+        title: 'Multi-Layer Learning Galaxy - 学習ゾーン選択',
+        requiresAuth: false,
+        stage: 'multiLayerLearning',
+        stageOrder: 6,
+        difficulty: 'adaptive',
+        gameId: 'multiLayerHub',
+        icon: '🌌',
+        description: 'AI適応型学習エンジンで最適な学習ゾーンを選択',
+        learningObjective: '個別最適化された効率的学習',
+        unlockRequirement: '基礎学習50%完了'
+      }
+    },
+
+    // Rush Zone
+    {
+      path: '/multi-layer/rush-zone',
+      name: 'RushZone',
+      component: () => import('@/components/multi-layer/RushZoneGame.vue'),
+      meta: {
+        title: 'Rush Zone - 高速反復練習',
+        requiresAuth: false,
+        stage: 'multiLayerLearning',
+        difficulty: 'high-speed',
+        icon: '⚡',
+        description: '高速反復練習でスピードと正確性を向上',
+        learningObjective: '瞬発力と正確性の同時向上'
+      }
+    },
+
+    // Construction Zone
+    {
+      path: '/multi-layer/construction-zone',
+      name: 'ConstructionZone',
+      component: () => import('@/components/multi-layer/ConstructionZoneGame.vue'),
+      meta: {
+        title: 'Construction Zone - 協力構築学習',
+        requiresAuth: false,
+        stage: 'multiLayerLearning',
+        difficulty: 'collaborative',
+        icon: '🏗️',
+        description: 'じっくり理解を構築する丁寧な学習',
+        learningObjective: '段階的理解構築と協力学習'
+      }
+    },
+
+    // Battle Zone
+    {
+      path: '/multi-layer/battle-zone',
+      name: 'BattleZone',
+      component: () => import('@/components/multi-layer/BattleZoneGame.vue'),
+      meta: {
+        title: 'Battle Zone - リアルタイム対戦',
+        requiresAuth: false,
+        stage: 'multiLayerLearning',
+        difficulty: 'competitive',
+        icon: '⚔️',
+        description: '競争によるモチベーション向上と実戦練習',
+        learningObjective: '競争環境での実践的スキル向上'
+      }
+    },
+
+    // === Co-Learning Platform ===
     {
       path: '/co-pilot-dock',
       name: 'CoPilotDock',
@@ -726,6 +906,50 @@ const router = createRouter({
         description: '講師と協力してリアルタイム学習ミッションを実行',
         learningObjective: '協力学習による効率的な言語習得',
         unlockRequirement: '基礎学習完了または講師の推奨'
+      }
+    },
+
+    // Cooperative Games
+    {
+      path: '/cooperative/grammar-spacecraft',
+      name: 'GrammarSpacecraft',
+      component: () => import('@/components/cooperative/GrammarSpacecraft.vue'),
+      meta: {
+        title: '宇宙船協力修理ゲーム',
+        requiresAuth: false,
+        stage: 'cooperativeLearning',
+        icon: '🚀',
+        description: '講師と協力して宇宙船の文法エンジンを修理',
+        learningObjective: '協力による文法パーツ学習'
+      }
+    },
+
+    {
+      path: '/cooperative/sound-radar',
+      name: 'SoundRadarGame',
+      component: () => import('@/components/cooperative/SoundRadarGame.vue'),
+      meta: {
+        title: '音響レーダー協力ゲーム',
+        requiresAuth: false,
+        stage: 'cooperativeLearning',
+        icon: '📡',
+        description: '講師と協力して音響レーダーで音素を探知',
+        learningObjective: '協力による音素認識学習'
+      }
+    },
+
+    // === VR Academy Integration ===
+    {
+      path: '/vr-academy',
+      name: 'VRAcademy',
+      component: () => import('@/views/VRAcademyHub.vue'),
+      meta: {
+        title: 'VR Academy - Spatial.io Integration',
+        requiresAuth: false,
+        stage: 'vrLearning',
+        icon: '🥽',
+        description: 'VR空間での没入型英語学習体験',
+        learningObjective: '3D空間での実践的コミュニケーション'
       }
     },
 
@@ -1046,7 +1270,11 @@ const startGame = (gameId) => {
     'rhymingRush': 'rhyming-rush',
     'grammarColorCode': 'grammar-color-code',
     'patternHunter': 'pattern-hunter',
-    'beVerbRush': 'be-verb-rush'
+    'beVerbRush': 'be-verb-rush',
+    'comparisonMaster': 'comparison-master',
+    'modalVerbChallenge': 'modal-verb-challenge',
+    'conjunctionConnection': 'conjunction-connection',
+    'progressiveTense': 'progressive-tense'
   }
 
   const routeName = gameRoutes[gameId]
