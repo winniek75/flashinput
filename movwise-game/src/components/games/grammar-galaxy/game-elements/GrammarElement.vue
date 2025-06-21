@@ -401,9 +401,42 @@ defineExpose({
 
 /* Used state */
 .used {
-  @apply opacity-40;
-  filter: grayscale(0.4);
+  @apply relative;
+  opacity: 0.6;
+  filter: grayscale(0.8) brightness(0.7);
   cursor: not-allowed;
+  pointer-events: none;
+  transition: all 0.3s ease-out;
+}
+
+.used::before {
+  content: '';
+  @apply absolute inset-0 bg-gray-900 opacity-20 rounded-lg;
+  z-index: 5;
+}
+
+.used::after {
+  content: '✕';
+  @apply absolute inset-0 flex items-center justify-center text-6xl font-bold;
+  color: #dc2626;
+  z-index: 10;
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.9),
+    0 0 16px rgba(255, 255, 255, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.5);
+  transform: scale(1.2);
+  animation: crossFadeIn 0.3s ease-out;
+}
+
+@keyframes crossFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-180deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.2) rotate(0deg);
+  }
 }
 
 /* Visual Feedback */
