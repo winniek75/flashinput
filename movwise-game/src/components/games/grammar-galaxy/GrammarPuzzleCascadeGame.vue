@@ -39,17 +39,28 @@
           <div class="intro-icon cosmic-glow text-6xl mb-4">🧩✨</div>
           <h2 class="galaxy-text-primary text-3xl font-bold cosmic-glow mb-4">Grammar Puzzle Cascade</h2>
           <p class="text-galaxy-moon-silver text-lg mb-6">
-            テトリス風の文法パズルで、落ちてくる文法ブロックを組み合わせて文を完成させよう！
+            落ちてくる文法ブロックを配置して、正しい英文パターンを作り上げる文法パズルゲーム！
           </p>
           
           <div class="game-rules mb-6">
             <h3 class="text-lg font-bold mb-3 cosmic-glow galaxy-text-primary">ゲームの進め方</h3>
             <ol class="rules-list-galaxy text-left">
-              <li>落ちてくる文法ブロックを左右に移動させよう</li>
-              <li>同じ色のブロックを組み合わせて文を完成させよう</li>
-              <li>文が完成するとブロックが消えて得点獲得！</li>
+              <li>🟦 青=主語、🟥 赤=Be動詞、🟪 紫=一般動詞、🟩 緑=目的語・補語</li>
+              <li>正しい文法パターンを水平・垂直に3つ並べよう</li>
+              <li>例：「I am happy」「You are student」など</li>
+              <li>パターンが完成すると消去されて高得点！</li>
               <li>ブロックが上端に到達するとゲームオーバー</li>
             </ol>
+          </div>
+          
+          <div class="target-patterns mb-6">
+            <h4 class="text-md font-bold mb-2 cosmic-glow galaxy-text-primary">🎯 ターゲットパターン例</h4>
+            <div class="patterns-grid text-sm">
+              <div class="pattern-example">I am happy (300点)</div>
+              <div class="pattern-example">You are student (300点)</div>
+              <div class="pattern-example">I like cats (400点)</div>
+              <div class="pattern-example">We play games (400点)</div>
+            </div>
           </div>
 
           <button @click="startGame" class="galaxy-button galaxy-button-primary text-xl px-8 py-4">
@@ -141,8 +152,8 @@ const level = ref(1)
 const timeLeft = ref(300) // 5分
 
 // ゲームボード
-const BOARD_WIDTH = 10
-const BOARD_HEIGHT = 20
+const BOARD_WIDTH = 8
+const BOARD_HEIGHT = 12
 const gameBoard = ref([])
 
 // 現在のブロック
@@ -196,19 +207,48 @@ const startDropTimer = () => {
   }, dropInterval)
 }
 
+// 文法パターン定義
+const grammarPatterns = [
+  { pattern: ['I', 'am', 'happy'], points: 300, type: 'be_verb' },
+  { pattern: ['You', 'are', 'student'], points: 300, type: 'be_verb' },
+  { pattern: ['She', 'is', 'kind'], points: 300, type: 'be_verb' },
+  { pattern: ['I', 'like', 'cats'], points: 400, type: 'general_verb' },
+  { pattern: ['We', 'play', 'games'], points: 400, type: 'general_verb' },
+  { pattern: ['They', 'study', 'English'], points: 500, type: 'complex' }
+]
+
+// 文法ブロック定義（パターンに基づいて生成）
+const grammarBlocks = [
+  // 主語 (青)
+  { text: 'I', color: 'blue', type: 'subject' },
+  { text: 'You', color: 'blue', type: 'subject' },
+  { text: 'She', color: 'blue', type: 'subject' },
+  { text: 'We', color: 'blue', type: 'subject' },
+  { text: 'They', color: 'blue', type: 'subject' },
+  
+  // Be動詞 (赤)
+  { text: 'am', color: 'red', type: 'be_verb' },
+  { text: 'are', color: 'red', type: 'be_verb' },
+  { text: 'is', color: 'red', type: 'be_verb' },
+  
+  // 一般動詞 (紫)
+  { text: 'like', color: 'purple', type: 'verb' },
+  { text: 'play', color: 'purple', type: 'verb' },
+  { text: 'study', color: 'purple', type: 'verb' },
+  
+  // 補語・目的語 (緑)
+  { text: 'happy', color: 'green', type: 'complement' },
+  { text: 'kind', color: 'green', type: 'complement' },
+  { text: 'student', color: 'green', type: 'object' },
+  { text: 'cats', color: 'green', type: 'object' },
+  { text: 'games', color: 'green', type: 'object' },
+  { text: 'English', color: 'green', type: 'object' }
+]
+
 // 新しいブロックを生成
 const spawnNewBlock = () => {
-  const blockTypes = [
-    { text: 'I', color: 'blue' },
-    { text: 'am', color: 'red' },
-    { text: 'happy', color: 'green' },
-    { text: 'You', color: 'blue' },
-    { text: 'are', color: 'red' },
-    { text: 'student', color: 'green' }
-  ]
-  
-  const randomBlock = blockTypes[Math.floor(Math.random() * blockTypes.length)]
-  currentBlock.value = randomBlock
+  const randomBlock = grammarBlocks[Math.floor(Math.random() * grammarBlocks.length)]
+  currentBlock.value = { ...randomBlock }
   currentBlockPosition.value = { x: Math.floor(BOARD_WIDTH / 2), y: 0 }
   
   console.log('[GrammarPuzzleCascade] New block spawned:', randomBlock, 'at position:', currentBlockPosition.value)
@@ -283,24 +323,120 @@ const placeBlock = () => {
   }
 }
 
-// ライン消去チェック
-const checkLines = () => {
-  for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
-    if (gameBoard.value[y].every(cell => cell !== null)) {
-      // ラインを消去
-      gameBoard.value.splice(y, 1)
-      gameBoard.value.unshift(Array(BOARD_WIDTH).fill(null))
-      score.value += 100
+// 文法パターンをチェック
+const checkGrammarPatterns = () => {
+  let patternsFound = []
+  
+  // 水平方向のパターンチェック
+  for (let y = 0; y < BOARD_HEIGHT; y++) {
+    for (let x = 0; x <= BOARD_WIDTH - 3; x++) {
+      const sequence = []
+      for (let i = 0; i < 3; i++) {
+        if (gameBoard.value[y][x + i]) {
+          sequence.push(gameBoard.value[y][x + i].text)
+        }
+      }
       
-      // レベルアップ
-      if (score.value % 500 === 0) {
-        level.value++
-        // ドロップ速度を更新
-        clearInterval(dropTimer)
-        startDropTimer()
+      if (sequence.length === 3) {
+        const matchedPattern = grammarPatterns.find(p => 
+          JSON.stringify(p.pattern) === JSON.stringify(sequence)
+        )
+        
+        if (matchedPattern) {
+          patternsFound.push({
+            pattern: matchedPattern,
+            positions: [
+              { x: x, y: y },
+              { x: x + 1, y: y },
+              { x: x + 2, y: y }
+            ]
+          })
+        }
       }
     }
   }
+  
+  // 垂直方向のパターンチェック
+  for (let x = 0; x < BOARD_WIDTH; x++) {
+    for (let y = 0; y <= BOARD_HEIGHT - 3; y++) {
+      const sequence = []
+      for (let i = 0; i < 3; i++) {
+        if (gameBoard.value[y + i][x]) {
+          sequence.push(gameBoard.value[y + i][x].text)
+        }
+      }
+      
+      if (sequence.length === 3) {
+        const matchedPattern = grammarPatterns.find(p => 
+          JSON.stringify(p.pattern) === JSON.stringify(sequence)
+        )
+        
+        if (matchedPattern) {
+          patternsFound.push({
+            pattern: matchedPattern,
+            positions: [
+              { x: x, y: y },
+              { x: x, y: y + 1 },
+              { x: x, y: y + 2 }
+            ]
+          })
+        }
+      }
+    }
+  }
+  
+  // パターンを消去してスコア加算
+  patternsFound.forEach(found => {
+    score.value += found.pattern.points
+    found.positions.forEach(pos => {
+      gameBoard.value[pos.y][pos.x] = null
+    })
+    console.log(`[GrammarPuzzleCascade] Pattern found: ${found.pattern.pattern.join(' ')} (+${found.pattern.points} points)`)
+  })
+  
+  // ブロックを落下させる
+  if (patternsFound.length > 0) {
+    dropFloatingBlocks()
+    // 再帰的にパターンチェック
+    setTimeout(() => checkGrammarPatterns(), 300)
+  }
+  
+  return patternsFound.length > 0
+}
+
+// 浮いているブロックを落下させる
+const dropFloatingBlocks = () => {
+  for (let x = 0; x < BOARD_WIDTH; x++) {
+    const column = []
+    for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+      if (gameBoard.value[y][x]) {
+        column.push(gameBoard.value[y][x])
+        gameBoard.value[y][x] = null
+      }
+    }
+    
+    // 下から詰め直す
+    for (let i = 0; i < column.length; i++) {
+      gameBoard.value[BOARD_HEIGHT - 1 - i][x] = column[i]
+    }
+  }
+}
+
+// ライン消去チェック（従来のテトリス式は削除）
+const checkLines = () => {
+  // 文法パターンチェックに置き換え
+  const foundPatterns = checkGrammarPatterns()
+  
+  // レベルアップ
+  if (score.value >= level.value * 1000) {
+    level.value++
+    // ドロップ速度を更新
+    clearInterval(dropTimer)
+    startDropTimer()
+    console.log(`[GrammarPuzzleCascade] Level up! Now level ${level.value}`)
+  }
+  
+  return foundPatterns
 }
 
 // セルのクラスを取得
@@ -528,28 +664,28 @@ onUnmounted(() => {
 
 .game-grid {
   display: grid;
-  grid-template-rows: repeat(20, 1fr);
-  gap: 1px;
+  grid-template-rows: repeat(12, 1fr);
+  gap: 2px;
   background: rgba(15, 23, 42, 0.8);
   border: 2px solid rgba(59, 130, 246, 0.4);
   border-radius: 8px;
-  padding: 4px;
+  padding: 8px;
 }
 
 .grid-row {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 1px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
 }
 
 .grid-cell {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2px;
-  font-size: 10px;
+  border-radius: 4px;
+  font-size: 14px;
   font-weight: bold;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
@@ -658,6 +794,23 @@ onUnmounted(() => {
 
 .rules-list-galaxy li:last-child {
   border-bottom: none;
+}
+
+.patterns-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.pattern-example {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem;
+  text-align: center;
+  color: #60A5FA;
+  font-weight: 500;
 }
 
 .grid-container {
