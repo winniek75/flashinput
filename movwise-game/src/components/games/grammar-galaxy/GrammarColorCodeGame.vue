@@ -239,6 +239,7 @@
             <div class="drop-zones">
               <div 
                 v-for="zone in dropZones"
+                v-show="zone.id !== 'auxiliary' || zone.isVisible"
                 :key="zone.id"
                 class="drop-zone galaxy-card"
                 :class="{ 
@@ -470,7 +471,7 @@ const difficultyLevels = [
   {
     id: 'eiken5',
     name: '英検5級レベル',
-    timeLimit: 90,
+    timeLimit: 180,
     targetSentences: 3,
     level: 'beginner',
     eiken_level: '5',
@@ -479,7 +480,7 @@ const difficultyLevels = [
   {
     id: 'eiken4', 
     name: '英検4級レベル',
-    timeLimit: 60,
+    timeLimit: 150,
     targetSentences: 5,
     level: 'intermediate',
     eiken_level: '4',
@@ -488,7 +489,7 @@ const difficultyLevels = [
   {
     id: 'eiken3',
     name: '英検3級レベル',
-    timeLimit: 45,
+    timeLimit: 120,
     targetSentences: 7,
     level: 'advanced',
     eiken_level: '3',
@@ -499,6 +500,16 @@ const difficultyLevels = [
 // Game elements
 const availableElements = ref([])
 const dropZones = ref([
+  { 
+    id: 'auxiliary', 
+    label: '助動詞', 
+    hint: 'Do/Does/Are...', 
+    element: null, 
+    isActive: false, 
+    isValid: false, 
+    isInvalid: false,
+    isVisible: false // 必要に応じて表示
+  },
   { 
     id: 'subject', 
     label: '主語', 
@@ -547,7 +558,17 @@ const timeProgress = computed(() => {
 })
 
 const canValidate = computed(() => {
-  return dropZones.value.every(zone => zone.element !== null)
+  // Check if all visible zones have elements
+  const visibleZones = dropZones.value.filter(zone => {
+    // Show auxiliary zone only if needed for current problem
+    if (zone.id === 'auxiliary') {
+      return zone.isVisible && currentProblem.value?.words_pool?.some(w => w.position === 'auxiliary')
+    }
+    return true
+  })
+  
+  console.log('🔍 [canValidate] Checking zones:', visibleZones.map(z => ({ id: z.id, hasElement: !!z.element })))
+  return visibleZones.every(zone => zone.element !== null)
 })
 
 // Data loading methods
@@ -741,13 +762,31 @@ const startGame = async () => {
 
 const showCurrentProblem = async () => {
   try {
+    console.log('🔍 [showCurrentProblem] 問題表示開始')
     elementsLoading.value = true
     
     const problem = problems.value[currentProblemIndex.value]
+    console.log('🔍 [showCurrentProblem] Problem:', problem)
+    
+    if (!problem) {
+      console.error('❌ [showCurrentProblem] 問題が見つかりません')
+      return
+    }
+    
     currentProblem.value = {
       target_sentence: problem.targetSentence,
       hint_ja: problem.hintJapanese,
       words_pool: problem.elements?.filter(el => el.isCorrect) || []
+    }
+    
+    console.log('🔍 [showCurrentProblem] currentProblem設定完了:', currentProblem.value)
+    
+    // Check if auxiliary zone is needed
+    const hasAuxiliary = currentProblem.value.words_pool?.some(w => w.position === 'auxiliary')
+    const auxiliaryZone = dropZones.value.find(z => z.id === 'auxiliary')
+    if (auxiliaryZone) {
+      auxiliaryZone.isVisible = hasAuxiliary
+      console.log('🔍 [showCurrentProblem] Auxiliary zone visibility:', hasAuxiliary)
     }
     
     availableElements.value = problem.elements?.map((element, index) => ({
@@ -756,11 +795,14 @@ const showCurrentProblem = async () => {
       isUsed: false
     })) || []
     
+    console.log('🔍 [showCurrentProblem] availableElements設定完了:', availableElements.value.length)
+    console.log('🔍 [showCurrentProblem] words_pool positions:', currentProblem.value.words_pool?.map(w => ({ word: w.word, position: w.position })))
+    
     // ドロップゾーンをクリア
     clearDropZones()
     
   } catch (error) {
-    console.error('Error showing problem:', error)
+    console.error('❌ [showCurrentProblem] Error:', error)
     hasError.value = true
     errorMessage.value = '問題の表示に失敗しました'
   } finally {
@@ -769,8 +811,16 @@ const showCurrentProblem = async () => {
 }
 
 const startTimer = () => {
+  // 既存のタイマーをクリア
+  if (gameTimer) {
+    clearInterval(gameTimer)
+    gameTimer = null
+  }
+  
   gameTimer = setInterval(() => {
-    gameState.value.timeRemaining--
+    if (gameState.value.timeRemaining > 0) {
+      gameState.value.timeRemaining--
+    }
     
     if (gameState.value.timeRemaining <= 0) {
       endGame()
@@ -953,27 +1003,45 @@ const isValidDrop = (element, zoneId) => {
 }
 
 const validateSentence = async () => {
-  if (!canValidate.value) return
+  console.log('🔍 [validateSentence] 文の確認開始')
+  console.log('🔍 [validateSentence] canValidate:', canValidate.value)
+  
+  if (!canValidate.value) {
+    console.warn('❌ [validateSentence] canValidateがfalseのため終了')
+    return
+  }
+  
+  // ドロップゾーンの内容をログ出力
+  dropZones.value.forEach((zone, index) => {
+    console.log(`🔍 [validateSentence] Zone ${index} (${zone.id}):`, zone.element?.word || 'empty')
+  })
   
   const isCorrect = checkAnswer()
+  console.log('🔍 [validateSentence] checkAnswer結果:', isCorrect)
   
   if (isCorrect) {
+    console.log('✅ [validateSentence] 正解！次の問題へ')
     // 正解時の処理
     gameState.value.score += 10
     gameState.value.streak++
     gameState.value.completedSentences++
     
+    // ドロップゾーンをクリア
+    clearDropZones()
+    
     // 次の問題へ
     if (currentProblemIndex.value < problems.value.length - 1) {
       currentProblemIndex.value++
+      console.log(`🔍 [validateSentence] 次の問題へ移行: ${currentProblemIndex.value + 1}/${problems.value.length}`)
       await showCurrentProblem()
     } else {
-      // 全問題完了
+      console.log('🏁 [validateSentence] 全問題完了！')
       endGame()
     }
     
     playSound('correct')
   } else {
+    console.log('❌ [validateSentence] 不正解')
     // 不正解時の処理
     gameState.value.streak = 0
     playSound('incorrect')
@@ -981,28 +1049,99 @@ const validateSentence = async () => {
 }
 
 const checkAnswer = () => {
-  if (!currentProblem.value) return false
+  console.log('🔍 [checkAnswer] 回答チェック開始')
+  
+  if (!currentProblem.value) {
+    console.warn('❌ [checkAnswer] currentProblemがnull')
+    return false
+  }
+  
+  console.log('🔍 [checkAnswer] currentProblem:', currentProblem.value)
   
   const subject = dropZones.value[0].element
   const verb = dropZones.value[1].element
   const object = dropZones.value[2].element
   
-  if (!subject || !verb || !object) return false
+  console.log('🔍 [checkAnswer] 配置された要素:')
+  console.log('  - Subject:', subject?.word || 'empty')
+  console.log('  - Verb:', verb?.word || 'empty')
+  console.log('  - Object:', object?.word || 'empty')
+  
+  if (!subject || !verb || !object) {
+    console.warn('❌ [checkAnswer] 一部の要素が空です')
+    return false
+  }
   
   // Check against expected words in problem
   const expectedWords = currentProblem.value.words_pool || []
-  if (expectedWords.length === 3) {
-    const expectedSubject = expectedWords.find(w => w.position === 'subject')
-    const expectedVerb = expectedWords.find(w => w.position === 'verb')
-    const expectedObject = expectedWords.find(w => w.position === 'object')
-    
-    return (
-      expectedSubject && subject.word === expectedSubject.word &&
-      expectedVerb && verb.word === expectedVerb.word &&
-      expectedObject && object.word === expectedObject.word
-    )
+  console.log('🔍 [checkAnswer] 期待される単語:', expectedWords)
+  
+  if (expectedWords.length === 0) {
+    console.warn('❌ [checkAnswer] words_poolが空です')
+    return false
   }
   
+  // より柔軟な回答チェック
+  const expectedSubject = expectedWords.find(w => w.position === 'subject')
+  const expectedVerb = expectedWords.find(w => w.position === 'verb')
+  const expectedObject = expectedWords.find(w => w.position === 'object')
+  const expectedAuxiliary = expectedWords.find(w => w.position === 'auxiliary')
+  
+  console.log('🔍 [checkAnswer] 期待される配置:')
+  console.log('  - Expected Subject:', expectedSubject?.word || 'not found')
+  console.log('  - Expected Verb:', expectedVerb?.word || 'not found')
+  console.log('  - Expected Object:', expectedObject?.word || 'not found')
+  console.log('  - Expected Auxiliary:', expectedAuxiliary?.word || 'not found')
+  
+  // パターン1: 助動詞付き4要素文 (Do you like cats?)
+  if (expectedAuxiliary && expectedSubject && expectedVerb && expectedObject) {
+    const auxiliary = dropZones.value.find(z => z.id === 'auxiliary')?.element
+    if (auxiliary) {
+      const isCorrect = (
+        auxiliary.word === expectedAuxiliary.word &&
+        subject.word === expectedSubject.word &&
+        verb.word === expectedVerb.word &&
+        object.word === expectedObject.word
+      )
+      console.log('🔍 [checkAnswer] 4要素結果:', isCorrect)
+      return isCorrect
+    }
+  }
+  
+  // パターン2: 基本的な3要素チェック (I like cats)
+  if (expectedSubject && expectedVerb && expectedObject) {
+    const isCorrect = (
+      subject.word === expectedSubject.word &&
+      verb.word === expectedVerb.word &&
+      object.word === expectedObject.word
+    )
+    
+    console.log('🔍 [checkAnswer] 3要素結果:', isCorrect)
+    return isCorrect
+  }
+  
+  // パターン3: 2要素の場合（I am happy / She runs）
+  if (expectedSubject && expectedVerb && !expectedObject) {
+    const isCorrect = (
+      subject.word === expectedSubject.word &&
+      verb.word === expectedVerb.word
+    )
+    
+    console.log('🔍 [checkAnswer] 2要素結果:', isCorrect)
+    return isCorrect
+  }
+  
+  // パターン4: 柔軟なマッチング（position無視）
+  const allExpectedWords = expectedWords.map(w => w.word).sort()
+  const allPlacedWords = [subject.word, verb.word, object.word].filter(Boolean).sort()
+  
+  if (allExpectedWords.length === allPlacedWords.length) {
+    const isFlexibleMatch = allExpectedWords.every(word => allPlacedWords.includes(word))
+    console.log('🔍 [checkAnswer] 柔軟マッチング結果:', isFlexibleMatch)
+    if (isFlexibleMatch) return true
+  }
+  
+  console.warn('❌ [checkAnswer] 期待される要素構造が不明')
   return false
 }
 

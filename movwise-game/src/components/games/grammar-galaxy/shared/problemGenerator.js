@@ -228,16 +228,27 @@ export class ProblemGenerator {
     // 英検レベルフィルタ (より優先的にフィルタリング)
     if (criteria.eiken_level) {
       const beforeFilter = candidates.length
-      candidates = candidates.filter(ps => ps.eiken_level === criteria.eiken_level)
-      console.log(`📚 英検レベルフィルタ後 (${criteria.eiken_level}級): ${beforeFilter} → ${candidates.length}個`)
+      // eiken_levelの文字列マッチングを改善
+      candidates = candidates.filter(ps => {
+        const psLevel = ps.eiken_level || ps.level || ''
+        return psLevel === criteria.eiken_level || 
+               psLevel === criteria.eiken_level.toString() ||
+               psLevel.includes(criteria.eiken_level)
+      })
+      console.log(`📚 英検レベルフィルタ後 (${criteria.eiken_level}): ${beforeFilter} → ${candidates.length}個`)
       
-      // 英検レベル一致がない場合は警告
+      // 英検レベル一致がない場合のフォールバック
       if (candidates.length === 0) {
-        console.log(`⚠️ 英検「${criteria.eiken_level}級」の問題セットが見つからないため、英検レベルを無視して検索`)
-        // 英検レベルでフィルタした結果が0の場合は、レベルフィルタに戻す
+        console.log(`⚠️ 英検「${criteria.eiken_level}」の問題セットが見つからないため、フォールバック検索`)
+        
+        // フォールバック1: レベルフィルタに戻す
         candidates = this.problemSets.filter(ps => ps.level === criteria.level)
+        console.log(`🔄 レベルフィルタフォールバック: ${candidates.length}個`)
+        
+        // フォールバック2: 全ての問題セットを使用
         if (candidates.length === 0) {
           candidates = [...this.problemSets]
+          console.log(`🔄 全問題セットフォールバック: ${candidates.length}個`)
         }
       }
     }
@@ -352,9 +363,15 @@ export class ProblemGenerator {
       }
     } else {
       // フォールバック: targetWordsから作成
-      const positions = ['subject', 'verb', 'object']
+      // 4単語以上の場合は助動詞も含める (Do you like cats? など)
+      const positions = targetWords.length >= 4 ? 
+        ['auxiliary', 'subject', 'verb', 'object'] : 
+        ['subject', 'verb', 'object']
+      
       console.log('🎯 Creating correct elements for words:', targetWords)
-      for (let i = 0; i < Math.min(targetWords.length, 3); i++) {
+      console.log('🎯 Using positions:', positions)
+      
+      for (let i = 0; i < Math.min(targetWords.length, positions.length); i++) {
         const word = targetWords[i]
         const position = positions[i]
         console.log(`📍 Processing word ${i}: "${word}" → position: "${position}"`)
@@ -493,20 +510,25 @@ export class ProblemGenerator {
     // 基本的な推測ロジック
     let type = 'unknown'
     let color = 'blue'
+    
     // positionは引数で必ず受け取る
     if (['i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(word.toLowerCase())) {
       type = 'pronoun'
     } else if (['am', 'is', 'are', 'was', 'were'].includes(word.toLowerCase())) {
       type = 'be-verb'
+    } else if (['do', 'does', 'did', 'will', 'would', 'can', 'could', 'should', 'shall'].includes(word.toLowerCase())) {
+      type = 'auxiliary'
+      color = 'yellow'
     } else if (word.endsWith('s') && !['is', 'was'].includes(word.toLowerCase())) {
       type = 'general'
       color = 'red'
     }
+    
     const fallback = {
       word: word,
       type: type,
       color: color,
-      position: position, // 必ずsubject,verb,object
+      position: position, // 必ずsubject,verb,object,auxiliary
       japanese: `[${word}]`,
       hint: 'フォールバック要素',
       isCorrect: true,

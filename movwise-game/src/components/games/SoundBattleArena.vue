@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen galaxy-background">
+  <div class="min-h-screen galaxy-background overflow-hidden">
     <!-- Galaxy Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
       <div class="stars-layer-1"></div>
@@ -7,8 +7,9 @@
       <div class="stars-layer-3"></div>
     </div>
     
-    <!-- Battle arena effects -->
+    <!-- Dynamic battle effects -->
     <div class="battle-arena-effect"></div>
+    <div v-if="gameState === 'battle'" class="laser-effects"></div>
 
     <div class="relative z-10 container mx-auto px-4 py-6">
       <!-- Header -->
@@ -24,9 +25,9 @@
           
           <div class="text-center">
             <h1 class="text-4xl font-bold galaxy-text-primary cosmic-title mb-2">
-              ⚔️ サウンド・バトル・アリーナ
+              🚀 フォニーム・シューター
             </h1>
-            <p class="text-galaxy-moon-silver text-lg">音素の力で相手を倒せ！連続バトルで音韻マスターを目指そう</p>
+            <p class="text-galaxy-moon-silver text-lg">音素を発射して敵を撃墜せよ！リアルタイムアクションバトル</p>
           </div>
 
           <button 
@@ -37,213 +38,277 @@
           </button>
         </div>
 
-        <!-- Battle Status -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Game Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" v-if="gameState === 'battle'">
           <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">⚔️</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ battleData.wins }}</div>
-            <div class="text-sm text-galaxy-moon-silver">勝利数</div>
-          </div>
-          
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">🏆</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ battleData.streak }}</div>
-            <div class="text-sm text-galaxy-moon-silver">連勝記録</div>
-          </div>
-          
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">💪</div>
-            <div class="font-bold text-lg galaxy-text-primary">Level {{ battleData.level }}</div>
-            <div class="text-sm text-galaxy-moon-silver">戦士レベル</div>
+            <div class="text-2xl mb-1 cosmic-glow">💗</div>
+            <div class="font-bold text-lg galaxy-text-primary">{{ playerHealth }}</div>
+            <div class="text-sm text-galaxy-moon-silver">Health</div>
           </div>
           
           <div class="galaxy-stats-card">
             <div class="text-2xl mb-1 cosmic-glow">⚡</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ battleData.power }}</div>
-            <div class="text-sm text-galaxy-moon-silver">戦闘力</div>
+            <div class="font-bold text-lg galaxy-text-primary">{{ energy }}</div>
+            <div class="text-sm text-galaxy-moon-silver">Energy</div>
+          </div>
+
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1 cosmic-glow">🎯</div>
+            <div class="font-bold text-lg galaxy-text-primary">{{ score }}</div>
+            <div class="text-sm text-galaxy-moon-silver">Score</div>
+          </div>
+
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1 cosmic-glow">🔥</div>
+            <div class="font-bold text-lg galaxy-text-primary">{{ combo }}x</div>
+            <div class="text-sm text-galaxy-moon-silver">Combo</div>
+          </div>
+
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1 cosmic-glow">👾</div>
+            <div class="font-bold text-lg galaxy-text-primary">{{ enemiesDestroyed }}</div>
+            <div class="text-sm text-galaxy-moon-silver">Defeated</div>
           </div>
         </div>
       </div>
 
       <!-- Arena Selection -->
-      <div v-if="gameState === 'menu'" class="galaxy-card rounded-3xl p-8">
-        <h2 class="text-3xl font-bold galaxy-text-primary text-center mb-8">アリーナを選択</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div 
-            v-for="arena in arenas" 
-            :key="arena.id"
-            @click="selectArena(arena)"
-            :class="[
-              'galaxy-card p-6 cursor-pointer transition-all duration-200 hover:scale-105',
-              arena.locked ? 'opacity-50 cursor-not-allowed' : ''
-            ]"
-          >
-            <div class="text-center">
-              <div class="text-5xl mb-4">{{ arena.icon }}</div>
-              <h3 class="text-xl font-bold galaxy-text-primary mb-2">{{ arena.name }}</h3>
-              <p class="text-galaxy-moon-silver text-sm mb-4">{{ arena.description }}</p>
-              
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-galaxy-moon-silver">難易度:</span>
-                  <div class="flex gap-1">
-                    <span 
-                      v-for="i in 5" 
-                      :key="i"
-                      class="w-2 h-2 rounded-full"
-                      :class="i <= arena.difficulty ? 'bg-red-400' : 'bg-gray-600'"
-                    ></span>
-                  </div>
+      <div v-if="gameState === 'menu'" class="space-y-6">
+        <div class="galaxy-card rounded-3xl p-6">
+          <h2 class="text-2xl font-bold galaxy-text-primary cosmic-title mb-4 text-center">
+            🌟 戦闘モード選択
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              v-for="mode in gameModes"
+              :key="mode.id"
+              @click="selectGameMode(mode)"
+              class="galaxy-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 border-2 border-transparent hover:border-purple-400"
+            >
+              <div class="text-center">
+                <div class="text-6xl mb-4">{{ mode.icon }}</div>
+                <h3 class="text-xl font-bold galaxy-text-primary mb-2">{{ mode.name }}</h3>
+                <p class="text-galaxy-moon-silver mb-4">{{ mode.description }}</p>
+                <div class="text-sm text-yellow-400">
+                  <div>難易度: {{ mode.difficulty }}</div>
+                  <div>制限時間: {{ mode.timeLimit }}秒</div>
+                  <div>敵の数: {{ mode.enemyCount }}体</div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-galaxy-moon-silver">対戦相手:</span>
-                  <span class="text-yellow-400 font-bold">{{ arena.opponents }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-galaxy-moon-silver">報酬:</span>
-                  <span class="text-green-400 font-bold">{{ arena.reward }}</span>
-                </div>
-              </div>
-              
-              <div v-if="arena.locked" class="mt-4 text-red-400 text-sm">
-                🔒 {{ arena.unlockRequirement }}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Battle Screen -->
-      <div v-else-if="gameState === 'battle'" class="space-y-6">
-        <!-- Battle Info -->
-        <div class="galaxy-card rounded-3xl p-6">
-          <div class="flex justify-between items-center">
+      <!-- Battle Game Screen -->
+      <div v-else-if="gameState === 'battle'" class="space-y-4">
+        <!-- Game Canvas -->
+        <div class="galaxy-card rounded-3xl p-4 relative" style="height: 500px;">
+          <!-- Player Ship -->
+          <div 
+            class="player-ship absolute bottom-4 transition-all duration-100"
+            :style="{ left: playerPosition + 'px' }"
+          >
+            <div class="text-4xl">🚀</div>
+          </div>
+
+          <!-- Player Bullets -->
+          <div
+            v-for="bullet in playerBullets"
+            :key="bullet.id"
+            class="absolute w-2 h-6 bg-cyan-400 rounded-full bullet-glow"
+            :style="{ left: bullet.x + 'px', top: bullet.y + 'px' }"
+          ></div>
+
+          <!-- Enemies -->
+          <div
+            v-for="enemy in enemies"
+            :key="enemy.id"
+            class="absolute enemy transition-all duration-200"
+            :style="{ left: enemy.x + 'px', top: enemy.y + 'px' }"
+          >
             <div class="text-center">
-              <div class="text-lg font-bold galaxy-text-primary">プレイヤー</div>
-              <div class="flex justify-center mt-2">
-                <Heart 
-                  v-for="i in playerHealth" 
-                  :key="i"
-                  class="w-6 h-6 text-red-500 fill-current"
-                />
+              <div class="text-3xl mb-1">👾</div>
+              <div class="text-lg font-bold text-white bg-red-500/80 rounded px-2 py-1">
+                {{ enemy.phoneme }}
+              </div>
+              <div class="w-12 h-2 bg-gray-600 rounded mt-1">
+                <div 
+                  class="bg-red-500 h-2 rounded transition-all duration-200"
+                  :style="{ width: (enemy.health / enemy.maxHealth) * 100 + '%' }"
+                ></div>
               </div>
             </div>
-            
-            <div class="text-center">
-              <div class="text-2xl font-bold galaxy-text-primary">VS</div>
-              <div class="text-sm text-galaxy-moon-silver">Round {{ currentRound }}/{{ currentArena.opponents }}</div>
-            </div>
-            
-            <div class="text-center">
-              <div class="text-lg font-bold galaxy-text-primary">{{ currentOpponent.name }}</div>
-              <div class="flex justify-center mt-2">
-                <Heart 
-                  v-for="i in opponentHealth" 
-                  :key="i"
-                  class="w-6 h-6 text-blue-500 fill-current"
-                />
-              </div>
-            </div>
+          </div>
+
+          <!-- Enemy Bullets -->
+          <div
+            v-for="bullet in enemyBullets"
+            :key="bullet.id"
+            class="absolute w-2 h-6 bg-red-500 rounded-full"
+            :style="{ left: bullet.x + 'px', top: bullet.y + 'px' }"
+          ></div>
+
+          <!-- Power-ups -->
+          <div
+            v-for="powerup in powerups"
+            :key="powerup.id"
+            class="absolute text-2xl animate-bounce powerup-glow"
+            :style="{ left: powerup.x + 'px', top: powerup.y + 'px' }"
+          >
+            {{ powerup.icon }}
+          </div>
+
+          <!-- Explosions -->
+          <div
+            v-for="explosion in explosions"
+            :key="explosion.id"
+            class="absolute text-4xl animate-ping"
+            :style="{ left: explosion.x + 'px', top: explosion.y + 'px' }"
+          >
+            💥
           </div>
         </div>
 
-        <!-- Battle Arena -->
-        <div class="galaxy-card rounded-3xl p-8 text-center">
+        <!-- Game Controls -->
+        <div class="galaxy-card rounded-3xl p-6">
+          <!-- Target Phoneme Display -->
+          <div class="text-center mb-6">
+            <div class="text-lg galaxy-text-primary font-bold mb-2">🎯 Target Sound</div>
+            <div class="flex justify-center items-center gap-4">
+              <div class="text-4xl font-bold galaxy-text-primary cosmic-glow">
+                {{ currentTargetPhoneme?.symbol || '' }}
+              </div>
+              <button 
+                @click="playTargetPhoneme"
+                :disabled="isPlaying"
+                class="galaxy-button galaxy-button-primary px-4 py-2 text-white rounded-xl"
+              >
+                🔊 Listen
+              </button>
+            </div>
+            <div class="text-sm text-galaxy-moon-silver mt-2">
+              Shoot enemies with this phoneme to destroy them!
+            </div>
+          </div>
+
+          <!-- Weapon Selection -->
           <div class="mb-6">
-            <div class="text-2xl font-bold galaxy-text-primary mb-4">{{ currentOpponent.challenge }}</div>
-            <button 
-              @click="playBattleSound"
-              :disabled="isPlaying"
-              class="w-20 h-20 galaxy-button galaxy-button-primary rounded-full text-3xl font-bold text-white animate-pulse"
-            >
-              🔊
-            </button>
+            <div class="text-lg galaxy-text-primary font-bold text-center mb-4">🔫 Select Weapon (Phoneme)</div>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+              <button
+                v-for="weapon in availableWeapons"
+                :key="weapon.symbol"
+                @click="selectWeapon(weapon)"
+                :class="[
+                  'galaxy-card p-3 text-center transition-all duration-200 border-2',
+                  selectedWeapon?.symbol === weapon.symbol 
+                    ? 'border-cyan-400 bg-cyan-400/20 scale-110' 
+                    : 'border-transparent hover:border-blue-400'
+                ]"
+              >
+                <div class="text-2xl font-bold galaxy-text-primary">{{ weapon.symbol }}</div>
+                <div class="text-xs text-galaxy-moon-silver">{{ weapon.example }}</div>
+              </button>
+            </div>
           </div>
 
-          <!-- Battle Choices -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <button
-              v-for="(choice, index) in battleChoices"
-              :key="index"
-              @click="attack(choice)"
-              :class="[
-                'galaxy-card p-4 text-center cursor-pointer transition-all duration-200 hover:scale-105',
-                attackResult && attackResult.choice === choice ? 
-                  (attackResult.correct ? 'ring-4 ring-green-400' : 'ring-4 ring-red-400') : ''
-              ]"
-            >
-              <div class="text-2xl mb-2">{{ choice.symbol }}</div>
-              <div class="text-sm text-galaxy-moon-silver">{{ choice.example }}</div>
-            </button>
+          <!-- Mobile Controls -->
+          <div class="md:hidden">
+            <div class="flex justify-center gap-4 mb-4">
+              <button 
+                @touchstart="startMove('left')"
+                @touchend="stopMove"
+                @mousedown="startMove('left')"
+                @mouseup="stopMove"
+                class="galaxy-button galaxy-button-secondary px-6 py-3 text-2xl"
+              >
+                ←
+              </button>
+              <button 
+                @click="shoot"
+                :disabled="!selectedWeapon || energy < 10"
+                class="galaxy-button galaxy-button-primary px-6 py-3 text-2xl disabled:opacity-50"
+              >
+                🔫
+              </button>
+              <button 
+                @touchstart="startMove('right')"
+                @touchend="stopMove"
+                @mousedown="startMove('right')"
+                @mouseup="stopMove"
+                class="galaxy-button galaxy-button-secondary px-6 py-3 text-2xl"
+              >
+                →
+              </button>
+            </div>
           </div>
 
-          <!-- Battle Timer -->
-          <div class="mb-4">
-            <div class="w-full bg-gray-700 rounded-full h-3 mb-2">
+          <!-- Instructions -->
+          <div class="text-center text-sm text-galaxy-moon-silver">
+            <div class="md:block hidden">🖱️ Move mouse to aim, Click to shoot, WASD/Arrow keys to move</div>
+            <div class="md:hidden">👆 Use buttons to move and shoot</div>
+          </div>
+        </div>
+
+        <!-- Game Timer -->
+        <div class="galaxy-card rounded-3xl p-4">
+          <div class="flex justify-between items-center">
+            <div class="text-lg font-bold galaxy-text-primary">⏰ Time: {{ timeLeft }}s</div>
+            <div class="w-64 bg-gray-700 rounded-full h-4">
               <div 
-                class="bg-gradient-to-r from-yellow-400 to-red-500 h-3 rounded-full transition-all duration-1000"
-                :style="{ width: `${(timeLeft / maxTime) * 100}%` }"
+                class="bg-gradient-to-r from-green-400 to-yellow-400 h-4 rounded-full transition-all duration-1000"
+                :style="{ width: `${(timeLeft / gameTimeLimit) * 100}%` }"
               />
             </div>
-            <div class="text-lg font-bold galaxy-text-primary">{{ timeLeft }}秒</div>
+            <div class="text-lg font-bold galaxy-text-primary">Wave {{ currentWave }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Battle Result -->
-      <Transition name="battle-result">
-        <div 
-          v-if="showBattleResult" 
-          class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
-        >
-          <div 
-            :class="[
-              'rounded-3xl px-12 py-10 text-4xl font-bold shadow-2xl flex flex-col items-center backdrop-blur-md',
-              battleResultType === 'win' ? 'bg-green-500/90 text-white animate-victory' : 
-              battleResultType === 'lose' ? 'bg-red-500/90 text-white animate-defeat' : 
-              'bg-yellow-500/90 text-white animate-damage'
-            ]"
-          >
-            <div class="mb-2">
-              {{ battleResultMessages[battleResultType] }}
-            </div>
-            <div class="text-lg font-normal">{{ battleResultDetail }}</div>
+      <!-- Game Over Screen -->
+      <div v-else-if="gameState === 'gameOver'" class="galaxy-card rounded-3xl p-8 text-center">
+        <div class="text-6xl mb-4">{{ isVictory ? '🏆' : '💀' }}</div>
+        <h2 class="text-3xl font-bold galaxy-text-primary mb-4">
+          {{ isVictory ? 'Victory!' : 'Game Over!' }}
+        </h2>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 max-w-md mx-auto">
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="font-bold text-lg">{{ finalScore }}</div>
+            <div class="text-sm">Score</div>
+          </div>
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1">👾</div>
+            <div class="font-bold text-lg">{{ finalEnemiesDestroyed }}</div>
+            <div class="text-sm">Defeated</div>
+          </div>
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1">🔥</div>
+            <div class="font-bold text-lg">{{ maxCombo }}</div>
+            <div class="text-sm">Max Combo</div>
+          </div>
+          <div class="galaxy-stats-card">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="font-bold text-lg">{{ Math.round(accuracy * 100) }}%</div>
+            <div class="text-sm">Accuracy</div>
           </div>
         </div>
-      </Transition>
 
-      <!-- Victory Screen -->
-      <div v-if="gameState === 'victory'" class="galaxy-card rounded-3xl p-8 text-center">
-        <div class="w-32 h-32 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl mb-6 animate-victory">
-          <Crown class="w-16 h-16 text-white" />
-        </div>
-        
-        <h2 class="text-3xl font-bold galaxy-text-primary mb-4">アリーナ制覇！</h2>
-        <div class="grid grid-cols-2 gap-4 mb-8">
-          <div class="galaxy-stats-card">
-            <div class="text-2xl font-bold text-yellow-400">{{ victoryData.exp }}</div>
-            <div class="text-sm text-galaxy-moon-silver">獲得経験値</div>
-          </div>
-          <div class="galaxy-stats-card">
-            <div class="text-2xl font-bold text-green-400">{{ victoryData.reward }}</div>
-            <div class="text-sm text-galaxy-moon-silver">報酬</div>
-          </div>
-        </div>
-        
         <div class="flex gap-4 justify-center">
           <button 
-            @click="returnToMenu"
-            class="galaxy-button galaxy-button-secondary px-6 py-3 text-lg font-bold text-white rounded-xl"
+            @click="restartGame" 
+            class="galaxy-button galaxy-button-primary px-6 py-3 font-bold"
           >
-            メニューに戻る
+            🔄 Play Again
           </button>
           <button 
-            @click="nextArena"
-            v-if="hasNextArena"
-            class="galaxy-button galaxy-button-primary px-6 py-3 text-lg font-bold text-white rounded-xl"
+            @click="gameState = 'menu'" 
+            class="galaxy-button galaxy-button-secondary px-6 py-3 font-bold"
           >
-            次のアリーナ
+            📋 Select Mode
           </button>
         </div>
       </div>
@@ -251,386 +316,528 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, Settings, Heart, Crown } from 'lucide-vue-next'
+import { ArrowLeft, Settings } from 'lucide-vue-next'
+import { NATIVE_PHONEME_PROGRESSION, NATIVE_AUDIO_MAPPING } from '@/data/native-phoneme-database.js'
+import { useGameAudio } from '@/composables/useGameAudio.js'
 
-export default {
-  name: 'SoundBattleArena',
-  components: {
-    ArrowLeft,
-    Settings,
-    Heart,
-    Crown
+const router = useRouter()
+const { playSound, isPlaying } = useGameAudio()
+
+// Game State
+const gameState = ref('menu') // 'menu', 'battle', 'gameOver'
+const currentGameMode = ref(null)
+const showSettings = ref(false)
+
+// Game Modes
+const gameModes = ref([
+  {
+    id: 'easy',
+    name: 'ビギナーバトル',
+    icon: '🌱',
+    description: '初心者向け。ゆっくりとした敵、基本音素のみ',
+    difficulty: 'Easy',
+    timeLimit: 120,
+    enemyCount: 15,
+    enemySpeed: 1,
+    phonemeSet: 'stage1A'
   },
-  setup() {
-    const router = useRouter()
-    
-    const gameState = ref('menu') // menu, battle, victory
-    const showSettings = ref(false)
-    const showBattleResult = ref(false)
-    const battleResultType = ref('')
-    const battleResultDetail = ref('')
-    const isPlaying = ref(false)
-    const timeLeft = ref(10)
-    const maxTime = ref(10)
-    const currentRound = ref(1)
-    const playerHealth = ref(3)
-    const opponentHealth = ref(3)
-    let battleTimer = null
-    
-    const battleData = reactive({
-      wins: 15,
-      streak: 3,
-      level: 7,
-      power: 850
-    })
-    
-    const currentArena = ref(null)
-    const currentOpponent = ref(null)
-    const battleChoices = ref([])
-    const attackResult = ref(null)
-    
-    const arenas = ref([
-      {
-        id: 1,
-        name: '初心者の道場',
-        description: '基本音素での戦闘訓練',
-        icon: '🥋',
-        difficulty: 1,
-        opponents: 3,
-        reward: '100 EXP',
-        locked: false
-      },
-      {
-        id: 2,
-        name: '音素の竜宮城',
-        description: '水中音素バトル',
-        icon: '🌊',
-        difficulty: 3,
-        opponents: 5,
-        reward: '250 EXP',
-        locked: false
-      },
-      {
-        id: 3,
-        name: '炎の発音地獄',
-        description: '高難度音素の連続戦',
-        icon: '🔥',
-        difficulty: 5,
-        opponents: 7,
-        reward: '500 EXP',
-        locked: true,
-        unlockRequirement: 'Level 10で解放'
-      }
-    ])
-    
-    const opponents = [
-      { name: 'スラッシュ・S', challenge: 'この音は何？', phoneme: 's', sound: 's.m4a' },
-      { name: 'アタック・A', challenge: '短母音を選べ！', phoneme: 'a', sound: 'a1.m4a' },
-      { name: 'テラー・T', challenge: '破裂音はどれ？', phoneme: 't', sound: 't.m4a' },
-      { name: 'ブレード・B', challenge: '有声音を見つけよ', phoneme: 'b', sound: 'b.m4a' },
-      { name: 'マスター・M', challenge: '鼻音の力！', phoneme: 'm', sound: 'm.m4a' }
-    ]
-    
-    const victoryData = reactive({
-      exp: 0,
-      reward: ''
-    })
-    
-    const battleResultMessages = {
-      win: '🎉 勝利！',
-      lose: '💀 敗北...',
-      damage: '💥 ダメージ！'
-    }
-    
-    const hasNextArena = computed(() => {
-      const currentIndex = arenas.value.findIndex(arena => arena.id === currentArena.value?.id)
-      return currentIndex < arenas.value.length - 1 && !arenas.value[currentIndex + 1]?.locked
-    })
-    
-    const selectArena = (arena) => {
-      if (arena.locked) return
-      
-      currentArena.value = arena
-      currentRound.value = 1
-      playerHealth.value = 3
-      startBattle()
-    }
-    
-    const startBattle = () => {
-      gameState.value = 'battle'
-      loadOpponent()
-      resetBattleTimer()
-    }
-    
-    const loadOpponent = () => {
-      currentOpponent.value = opponents[Math.floor(Math.random() * opponents.length)]
-      opponentHealth.value = 3
-      generateBattleChoices()
-      attackResult.value = null
-    }
-    
-    const generateBattleChoices = () => {
-      const phonemes = [
-        { symbol: 'a', example: 'cat', sound: 'a1.m4a' },
-        { symbol: 'e', example: 'bed', sound: 'e1.m4a' },
-        { symbol: 's', example: 'sun', sound: 's.m4a' },
-        { symbol: 't', example: 'top', sound: 't.m4a' },
-        { symbol: 'b', example: 'boy', sound: 'b.m4a' },
-        { symbol: 'm', example: 'man', sound: 'm.m4a' }
-      ]
-      
-      const correct = phonemes.find(p => p.symbol === currentOpponent.value.phoneme)
-      const wrong = phonemes.filter(p => p.symbol !== currentOpponent.value.phoneme)
-        .sort(() => Math.random() - 0.5).slice(0, 3)
-      
-      battleChoices.value = [correct, ...wrong].sort(() => Math.random() - 0.5)
-    }
-    
-    const playBattleSound = async () => {
-      if (isPlaying.value) return
-      
-      isPlaying.value = true
-      try {
-        const audio = new Audio(`/sounds/${currentOpponent.value.sound}`)
-        await audio.play()
-        audio.onended = () => {
-          isPlaying.value = false
-        }
-      } catch (error) {
-        console.error('Failed to play sound:', error)
-        isPlaying.value = false
-      }
-    }
-    
-    const attack = (choice) => {
-      if (attackResult.value) return
-      
-      const isCorrect = choice.symbol === currentOpponent.value.phoneme
-      attackResult.value = { choice, correct: isCorrect }
-      
-      clearInterval(battleTimer)
-      
-      if (isCorrect) {
-        opponentHealth.value--
-        battleResultType.value = 'win'
-        battleResultDetail.value = `${currentOpponent.value.name}にダメージ！`
-        
-        if (opponentHealth.value <= 0) {
-          setTimeout(() => {
-            if (currentRound.value >= currentArena.value.opponents) {
-              completeArena()
-            } else {
-              currentRound.value++
-              loadOpponent()
-              resetBattleTimer()
-            }
-          }, 2000)
-        } else {
-          setTimeout(() => {
-            resetBattleTimer()
-            attackResult.value = null
-          }, 2000)
-        }
-      } else {
-        playerHealth.value--
-        battleResultType.value = 'damage'
-        battleResultDetail.value = `正解は "${currentOpponent.value.phoneme}" でした`
-        
-        if (playerHealth.value <= 0) {
-          battleResultType.value = 'lose'
-          battleResultDetail.value = '体力が尽きました...'
-          setTimeout(() => {
-            returnToMenu()
-          }, 3000)
-        } else {
-          setTimeout(() => {
-            resetBattleTimer()
-            attackResult.value = null
-          }, 2000)
-        }
-      }
-      
-      showBattleResult.value = true
-      setTimeout(() => {
-        showBattleResult.value = false
-      }, 2000)
-    }
-    
-    const resetBattleTimer = () => {
-      timeLeft.value = maxTime.value
-      battleTimer = setInterval(() => {
-        timeLeft.value--
-        if (timeLeft.value <= 0) {
-          // Time up - player loses health
-          playerHealth.value--
-          battleResultType.value = 'damage'
-          battleResultDetail.value = 'タイムアップ！'
-          
-          showBattleResult.value = true
-          setTimeout(() => {
-            showBattleResult.value = false
-            if (playerHealth.value <= 0) {
-              returnToMenu()
-            } else {
-              resetBattleTimer()
-              attackResult.value = null
-            }
-          }, 2000)
-        }
-      }, 1000)
-    }
-    
-    const completeArena = () => {
-      clearInterval(battleTimer)
-      
-      victoryData.exp = currentArena.value.opponents * 50
-      victoryData.reward = currentArena.value.reward
-      
-      battleData.wins++
-      battleData.streak++
-      battleData.power += 50
-      
-      gameState.value = 'victory'
-    }
-    
-    const returnToMenu = () => {
-      clearInterval(battleTimer)
-      gameState.value = 'menu'
-      currentArena.value = null
-    }
-    
-    const nextArena = () => {
-      const currentIndex = arenas.value.findIndex(arena => arena.id === currentArena.value.id)
-      if (currentIndex < arenas.value.length - 1) {
-        selectArena(arenas.value[currentIndex + 1])
-      }
-    }
-    
-    const handleBack = () => {
-      router.back()
-    }
-    
-    onUnmounted(() => {
-      if (battleTimer) {
-        clearInterval(battleTimer)
-      }
-    })
-    
-    return {
-      gameState,
-      showSettings,
-      showBattleResult,
-      battleResultType,
-      battleResultDetail,
-      isPlaying,
-      timeLeft,
-      maxTime,
-      currentRound,
-      playerHealth,
-      opponentHealth,
-      battleData,
-      currentArena,
-      currentOpponent,
-      battleChoices,
-      attackResult,
-      arenas,
-      victoryData,
-      battleResultMessages,
-      hasNextArena,
-      selectArena,
-      playBattleSound,
-      attack,
-      returnToMenu,
-      nextArena,
-      handleBack
-    }
+  {
+    id: 'normal',
+    name: 'アドバンスファイト',
+    icon: '⚔️',
+    description: '中級者向け。様々な音素、パワーアップあり',
+    difficulty: 'Normal',
+    timeLimit: 90,
+    enemyCount: 25,
+    enemySpeed: 2,
+    phonemeSet: 'stage1B'
+  },
+  {
+    id: 'hard',
+    name: 'エクストリームウォー',
+    icon: '🔥',
+    description: '上級者向け。高速敵、全音素、ボス戦あり',
+    difficulty: 'Hard',
+    timeLimit: 60,
+    enemyCount: 40,
+    enemySpeed: 3,
+    phonemeSet: 'all'
+  },
+  {
+    id: 'survival',
+    name: 'サバイバルモード',
+    icon: '♾️',
+    description: '無限モード。どこまで生き残れるか？',
+    difficulty: 'Extreme',
+    timeLimit: 999,
+    enemyCount: 999,
+    enemySpeed: 2,
+    phonemeSet: 'all'
+  }
+])
+
+// Game Variables
+const playerHealth = ref(100)
+const energy = ref(100)
+const score = ref(0)
+const combo = ref(0)
+const enemiesDestroyed = ref(0)
+const timeLeft = ref(120)
+const gameTimeLimit = ref(120)
+const currentWave = ref(1)
+const isVictory = ref(false)
+
+// Final stats
+const finalScore = ref(0)
+const finalEnemiesDestroyed = ref(0)
+const maxCombo = ref(0)
+const accuracy = ref(0)
+const totalShots = ref(0)
+const successfulHits = ref(0)
+
+// Player
+const playerPosition = ref(300)
+const selectedWeapon = ref(null)
+
+// Game Objects
+const enemies = ref([])
+const playerBullets = ref([])
+const enemyBullets = ref([])
+const powerups = ref([])
+const explosions = ref([])
+
+// Phonemes
+const currentTargetPhoneme = ref(null)
+const availableWeapons = ref([])
+
+// Input handling
+const keys = reactive({
+  left: false,
+  right: false,
+  up: false,
+  down: false
+})
+
+// Movement
+const moveSpeed = 5
+const isMoving = ref(false)
+const moveDirection = ref('')
+
+// Game Loop
+let gameLoop = null
+let enemySpawnTimer = null
+let gameTimer = null
+
+// Initialize phonemes based on game mode
+const initializePhonemes = (phonemeSet) => {
+  let phonemeList = []
+  
+  if (phonemeSet === 'stage1A') {
+    phonemeList = NATIVE_PHONEME_PROGRESSION.stage1A
+  } else if (phonemeSet === 'stage1B') {
+    phonemeList = [...NATIVE_PHONEME_PROGRESSION.stage1A, ...NATIVE_PHONEME_PROGRESSION.stage1B]
+  } else {
+    phonemeList = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
+  }
+  
+  availableWeapons.value = phonemeList.slice(0, 6) // Show 6 weapons at a time
+  setNewTargetPhoneme()
+}
+
+const setNewTargetPhoneme = () => {
+  const phonemeList = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
+  currentTargetPhoneme.value = phonemeList[Math.floor(Math.random() * phonemeList.length)]
+}
+
+const selectGameMode = (mode) => {
+  currentGameMode.value = mode
+  startGame()
+}
+
+const startGame = () => {
+  gameState.value = 'battle'
+  resetGameStats()
+  initializePhonemes(currentGameMode.value.phonemeSet)
+  
+  gameTimeLimit.value = currentGameMode.value.timeLimit
+  timeLeft.value = currentGameMode.value.timeLimit
+  
+  startGameLoop()
+  startEnemySpawning()
+  startGameTimer()
+}
+
+const resetGameStats = () => {
+  playerHealth.value = 100
+  energy.value = 100
+  score.value = 0
+  combo.value = 0
+  enemiesDestroyed.value = 0
+  currentWave.value = 1
+  
+  enemies.value = []
+  playerBullets.value = []
+  enemyBullets.value = []
+  powerups.value = []
+  explosions.value = []
+  
+  totalShots.value = 0
+  successfulHits.value = 0
+  playerPosition.value = 300
+}
+
+const selectWeapon = (weapon) => {
+  selectedWeapon.value = weapon
+}
+
+const playTargetPhoneme = async () => {
+  if (!currentTargetPhoneme.value || isPlaying.value) return
+  
+  try {
+    // Create a synthetic word for the phoneme
+    const phonemeWord = currentTargetPhoneme.value.examples?.[0] || 'sound'
+    await playSound('word', { word: phonemeWord })
+  } catch (error) {
+    console.error('Error playing target phoneme:', error)
   }
 }
+
+const shoot = () => {
+  if (!selectedWeapon.value || energy.value < 10) return
+  
+  totalShots.value++
+  energy.value -= 10
+  
+  // Create bullet
+  const bullet = {
+    id: Date.now() + Math.random(),
+    x: playerPosition.value + 15,
+    y: 450,
+    phoneme: selectedWeapon.value.symbol,
+    speed: 8
+  }
+  
+  playerBullets.value.push(bullet)
+  
+  // Play shoot sound
+  playSound('effect', 'button')
+}
+
+const spawnEnemy = () => {
+  const availablePhonemes = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
+  const randomPhoneme = availablePhonemes[Math.floor(Math.random() * availablePhonemes.length)]
+  
+  const enemy = {
+    id: Date.now() + Math.random(),
+    x: Math.random() * 550,
+    y: -50,
+    phoneme: randomPhoneme.symbol,
+    health: 1,
+    maxHealth: 1,
+    speed: currentGameMode.value?.enemySpeed || 2,
+    shootTimer: Math.random() * 3000 + 1000 // Random shoot interval
+  }
+  
+  enemies.value.push(enemy)
+}
+
+const spawnPowerup = () => {
+  if (Math.random() < 0.3) { // 30% chance
+    const powerup = {
+      id: Date.now() + Math.random(),
+      x: Math.random() * 550,
+      y: -30,
+      type: Math.random() < 0.5 ? 'health' : 'energy',
+      icon: Math.random() < 0.5 ? '💗' : '⚡',
+      speed: 2
+    }
+    powerups.value.push(powerup)
+  }
+}
+
+const createExplosion = (x, y) => {
+  const explosion = {
+    id: Date.now() + Math.random(),
+    x: x - 20,
+    y: y - 20
+  }
+  explosions.value.push(explosion)
+  
+  setTimeout(() => {
+    explosions.value = explosions.value.filter(e => e.id !== explosion.id)
+  }, 500)
+}
+
+const checkCollisions = () => {
+  // Player bullets vs enemies
+  playerBullets.value.forEach(bullet => {
+    enemies.value.forEach(enemy => {
+      if (Math.abs(bullet.x - enemy.x) < 30 && Math.abs(bullet.y - enemy.y) < 30) {
+        // Check if phoneme matches target
+        if (bullet.phoneme === currentTargetPhoneme.value?.symbol) {
+          // Correct hit
+          createExplosion(enemy.x, enemy.y)
+          enemies.value = enemies.value.filter(e => e.id !== enemy.id)
+          playerBullets.value = playerBullets.value.filter(b => b.id !== bullet.id)
+          
+          successfulHits.value++
+          combo.value++
+          enemiesDestroyed.value++
+          score.value += 100 + (combo.value * 10)
+          
+          if (combo.value > maxCombo.value) {
+            maxCombo.value = combo.value
+          }
+          
+          playSound('effect', 'correct')
+          
+          // Occasionally change target
+          if (Math.random() < 0.2) {
+            setNewTargetPhoneme()
+          }
+        } else {
+          // Wrong hit
+          playerBullets.value = playerBullets.value.filter(b => b.id !== bullet.id)
+          combo.value = 0
+          playSound('effect', 'incorrect')
+        }
+      }
+    })
+  })
+  
+  // Enemy bullets vs player
+  enemyBullets.value.forEach(bullet => {
+    if (Math.abs(bullet.x - (playerPosition.value + 15)) < 25 && bullet.y > 430) {
+      enemyBullets.value = enemyBullets.value.filter(b => b.id !== bullet.id)
+      playerHealth.value -= 10
+      combo.value = 0
+      
+      if (playerHealth.value <= 0) {
+        endGame(false)
+      }
+    }
+  })
+  
+  // Powerups vs player
+  powerups.value.forEach(powerup => {
+    if (Math.abs(powerup.x - (playerPosition.value + 15)) < 30 && powerup.y > 430) {
+      powerups.value = powerups.value.filter(p => p.id !== powerup.id)
+      
+      if (powerup.type === 'health') {
+        playerHealth.value = Math.min(100, playerHealth.value + 20)
+      } else if (powerup.type === 'energy') {
+        energy.value = Math.min(100, energy.value + 30)
+      }
+      
+      playSound('effect', 'levelUp')
+    }
+  })
+  
+  // Enemies reaching bottom
+  enemies.value.forEach(enemy => {
+    if (enemy.y > 500) {
+      enemies.value = enemies.value.filter(e => e.id !== enemy.id)
+      playerHealth.value -= 5
+      combo.value = 0
+    }
+  })
+}
+
+const updateGame = () => {
+  // Move player bullets
+  playerBullets.value.forEach(bullet => {
+    bullet.y -= bullet.speed
+  })
+  playerBullets.value = playerBullets.value.filter(bullet => bullet.y > -10)
+  
+  // Move enemies
+  enemies.value.forEach(enemy => {
+    enemy.y += enemy.speed
+    
+    // Enemy shooting
+    enemy.shootTimer -= 16
+    if (enemy.shootTimer <= 0 && Math.random() < 0.01) {
+      enemyBullets.value.push({
+        id: Date.now() + Math.random(),
+        x: enemy.x + 15,
+        y: enemy.y + 30,
+        speed: 4
+      })
+      enemy.shootTimer = Math.random() * 2000 + 1000
+    }
+  })
+  
+  // Move enemy bullets
+  enemyBullets.value.forEach(bullet => {
+    bullet.y += bullet.speed
+  })
+  enemyBullets.value = enemyBullets.value.filter(bullet => bullet.y < 520)
+  
+  // Move powerups
+  powerups.value.forEach(powerup => {
+    powerup.y += powerup.speed
+  })
+  powerups.value = powerups.value.filter(powerup => powerup.y < 520)
+  
+  // Handle player movement
+  if (keys.left && playerPosition.value > 0) {
+    playerPosition.value -= moveSpeed
+  }
+  if (keys.right && playerPosition.value < 570) {
+    playerPosition.value += moveSpeed
+  }
+  
+  // Mobile movement
+  if (isMoving.value) {
+    if (moveDirection.value === 'left' && playerPosition.value > 0) {
+      playerPosition.value -= moveSpeed
+    }
+    if (moveDirection.value === 'right' && playerPosition.value < 570) {
+      playerPosition.value += moveSpeed
+    }
+  }
+  
+  // Regenerate energy
+  if (energy.value < 100) {
+    energy.value = Math.min(100, energy.value + 0.5)
+  }
+  
+  checkCollisions()
+}
+
+const startGameLoop = () => {
+  gameLoop = setInterval(updateGame, 16) // 60 FPS
+}
+
+const startEnemySpawning = () => {
+  enemySpawnTimer = setInterval(() => {
+    if (enemies.value.length < 8) { // Max 8 enemies on screen
+      spawnEnemy()
+    }
+    spawnPowerup()
+  }, 1500)
+}
+
+const startGameTimer = () => {
+  gameTimer = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      endGame(true)
+    }
+    
+    // Increase wave every 20 seconds
+    if (timeLeft.value % 20 === 0) {
+      currentWave.value++
+    }
+  }, 1000)
+}
+
+const endGame = (victory) => {
+  isVictory.value = victory
+  gameState.value = 'gameOver'
+  
+  finalScore.value = score.value
+  finalEnemiesDestroyed.value = enemiesDestroyed.value
+  accuracy.value = totalShots.value > 0 ? successfulHits.value / totalShots.value : 0
+  
+  clearInterval(gameLoop)
+  clearInterval(enemySpawnTimer)
+  clearInterval(gameTimer)
+  
+  playSound('effect', victory ? 'complete' : 'gameEnd')
+}
+
+const restartGame = () => {
+  startGame()
+}
+
+// Input handling
+const handleKeyDown = (event) => {
+  switch(event.key.toLowerCase()) {
+    case 'a':
+    case 'arrowleft':
+      keys.left = true
+      break
+    case 'd':
+    case 'arrowright':
+      keys.right = true
+      break
+    case ' ':
+    case 'enter':
+      event.preventDefault()
+      shoot()
+      break
+  }
+}
+
+const handleKeyUp = (event) => {
+  switch(event.key.toLowerCase()) {
+    case 'a':
+    case 'arrowleft':
+      keys.left = false
+      break
+    case 'd':
+    case 'arrowright':
+      keys.right = false
+      break
+  }
+}
+
+// Mobile controls
+const startMove = (direction) => {
+  isMoving.value = true
+  moveDirection.value = direction
+}
+
+const stopMove = () => {
+  isMoving.value = false
+  moveDirection.value = ''
+}
+
+const handleBack = () => {
+  if (gameLoop) clearInterval(gameLoop)
+  if (enemySpawnTimer) clearInterval(enemySpawnTimer)
+  if (gameTimer) clearInterval(gameTimer)
+  router.back()
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+  document.addEventListener('keyup', handleKeyUp)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+  document.removeEventListener('keyup', handleKeyUp)
+  if (gameLoop) clearInterval(gameLoop)
+  if (enemySpawnTimer) clearInterval(enemySpawnTimer)
+  if (gameTimer) clearInterval(gameTimer)
+})
 </script>
 
 <style scoped>
-/* Inherit all galaxy styles and add battle-specific effects */
+/* Galaxy background - unified */
 .galaxy-background {
   background: var(--space-void);
   color: white;
 }
 
-.battle-arena-effect {
-  position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(ellipse at 30% 70%, rgba(255, 0, 0, 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 30%, rgba(255, 100, 0, 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(255, 200, 0, 0.1) 0%, transparent 50%);
-  animation: battle-pulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes battle-pulse {
-  0% { filter: brightness(1) contrast(1); }
-  100% { filter: brightness(1.2) contrast(1.1); }
-}
-
-.animate-victory {
-  animation: victory-dance 1s ease-out;
-}
-
-.animate-defeat {
-  animation: defeat-shake 0.8s ease-out;
-}
-
-.animate-damage {
-  animation: damage-flash 0.5s ease-out;
-}
-
-@keyframes victory-dance {
-  0% { transform: scale(0.5) rotate(-10deg); }
-  50% { transform: scale(1.2) rotate(5deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-
-@keyframes defeat-shake {
-  0%, 100% { transform: translateX(0); }
-  10% { transform: translateX(-10px) rotate(-2deg); }
-  20% { transform: translateX(10px) rotate(2deg); }
-  30% { transform: translateX(-8px) rotate(-1deg); }
-  40% { transform: translateX(8px) rotate(1deg); }
-  50% { transform: translateX(-6px); }
-  60% { transform: translateX(6px); }
-  70% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-  90% { transform: translateX(-2px); }
-}
-
-@keyframes damage-flash {
-  0%, 100% { background-color: rgba(255, 255, 0, 0.9); }
-  50% { background-color: rgba(255, 100, 0, 0.9); }
-}
-
-.battle-result-enter-active, .battle-result-leave-active {
-  transition: all 0.8s ease;
-}
-
-.battle-result-enter-from {
-  opacity: 0;
-  transform: scale(0.3) translateY(-100px);
-}
-
-.battle-result-leave-to {
-  opacity: 0;
-  transform: scale(1.5) translateY(100px);
-}
-
-/* Inherit galaxy component styles */
-.stars-layer-1, .stars-layer-2, .stars-layer-3 {
+/* Animated stars - unified */
+.stars-layer-1,
+.stars-layer-2,
+.stars-layer-3 {
   position: absolute;
   width: 100%;
   height: 100%;
   background: radial-gradient(2px 2px at 40px 60px, #fff, rgba(0,0,0,0)),
               radial-gradient(2px 2px at 20px 50px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 30px 100px, #fff, rgba(0,0,0,0));
+              radial-gradient(2px 2px at 30px 100px, #fff, rgba(0,0,0,0)),
+              radial-gradient(2px 2px at 40px 60px, #fff, rgba(0,0,0,0)),
+              radial-gradient(2px 2px at 110px 90px, #fff, rgba(0,0,0,0)),
+              radial-gradient(2px 2px at 190px 150px, #fff, rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 200px 200px;
   animation: twinkle 4s infinite;
@@ -655,12 +862,19 @@ export default {
   100% { opacity: 0.3; }
 }
 
+/* Galaxy-themed components - unified */
 .galaxy-text-primary {
-  background: linear-gradient(45deg, #60A5FA 0%, #A78BFA 25%, #F472B6 50%, #FBBF24 75%, #60A5FA 100%);
+  background: linear-gradient(45deg, 
+    #60A5FA 0%, 
+    #A78BFA 25%, 
+    #F472B6 50%, 
+    #FBBF24 75%, 
+    #60A5FA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 300% 300%;
   animation: cosmic-text-flow 4s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
 }
 
 .text-galaxy-moon-silver {
@@ -668,38 +882,78 @@ export default {
 }
 
 .galaxy-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.9) 100%);
   border: 1px solid rgba(59, 130, 246, 0.4);
   border-radius: 20px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.galaxy-stats-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  border-radius: 16px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.3s ease;
+.galaxy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.8) 50%, 
+    transparent 100%);
+  animation: data-stream 3s linear infinite;
 }
 
 .galaxy-button {
-  background: linear-gradient(135deg, rgba(79, 172, 254, 0.3) 0%, rgba(0, 242, 254, 0.3) 100%);
+  background: linear-gradient(135deg, 
+    rgba(79, 172, 254, 0.3) 0%, 
+    rgba(0, 242, 254, 0.3) 100%);
   border: 2px solid rgba(79, 172, 254, 0.8);
-  box-shadow: 0 0 20px rgba(79, 172, 254, 0.4), inset 0 0 20px rgba(0, 242, 254, 0.2);
+  box-shadow: 
+    0 0 20px rgba(79, 172, 254, 0.4),
+    inset 0 0 20px rgba(0, 242, 254, 0.2);
   position: relative;
   overflow: hidden;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  color: white;
+  padding: 0.5rem 1rem;
+}
+
+.galaxy-button::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: scan-line 2s linear infinite;
 }
 
 .galaxy-button-primary {
-  background: linear-gradient(135deg, rgba(79, 172, 254, 0.5) 0%, rgba(0, 242, 254, 0.5) 100%);
+  background: linear-gradient(135deg, 
+    rgba(79, 172, 254, 0.5) 0%, 
+    rgba(0, 242, 254, 0.5) 100%);
 }
 
 .galaxy-button-secondary {
-  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(0, 242, 254, 0.2) 100%);
+  background: linear-gradient(135deg, 
+    rgba(79, 172, 254, 0.2) 0%, 
+    rgba(0, 242, 254, 0.2) 100%);
+}
+
+.galaxy-stats-card {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.8) 0%, 
+    rgba(30, 41, 59, 0.6) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 
 .cosmic-glow {
@@ -707,13 +961,138 @@ export default {
   animation: pulsing-glow 2s ease-in-out infinite alternate;
 }
 
+.cosmic-title {
+  text-shadow: 0 0 20px rgba(96, 165, 250, 0.8);
+}
+
+/* Battle Arena Effects */
+.battle-arena-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, 
+    rgba(255, 0, 100, 0.1) 0%, 
+    transparent 50%);
+  animation: battle-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.laser-effects {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    rgba(0, 255, 255, 0.05) 25%, 
+    transparent 50%, 
+    rgba(255, 0, 255, 0.05) 75%, 
+    transparent 100%);
+  animation: laser-sweep 2s linear infinite;
+  pointer-events: none;
+}
+
+/* Game-specific animations */
+.bullet-glow {
+  box-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF;
+  animation: bullet-trail 0.1s linear infinite;
+}
+
+.powerup-glow {
+  filter: drop-shadow(0 0 10px currentColor);
+  animation: powerup-float 2s ease-in-out infinite;
+}
+
+.player-ship {
+  filter: drop-shadow(0 0 15px #00FFFF);
+  z-index: 10;
+}
+
+.enemy {
+  filter: drop-shadow(0 0 8px #FF0000);
+  animation: enemy-hover 1s ease-in-out infinite alternate;
+}
+
+/* Keyframe animations */
 @keyframes pulsing-glow {
   0% { filter: drop-shadow(0 0 5px currentColor); }
   100% { filter: drop-shadow(0 0 15px currentColor); }
 }
 
+@keyframes scan-line {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes data-stream {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @keyframes cosmic-text-flow {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+@keyframes battle-pulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes laser-sweep {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes bullet-trail {
+  0% { box-shadow: 0 0 5px #00FFFF; }
+  100% { box-shadow: 0 0 15px #00FFFF, 0 0 25px #00FFFF; }
+}
+
+@keyframes powerup-float {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-10px); }
+}
+
+@keyframes enemy-hover {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-5px); }
+}
+
+/* CSS Custom Properties for Space Theme */
+:root {
+  --space-void: linear-gradient(135deg, 
+    #0f0f23 0%, 
+    #1a1a3e 25%, 
+    #2d1b69 50%, 
+    #1e1e3f 75%, 
+    #0f0f23 100%);
+}
+
+/* Hover effects for galaxy cards */
+.galaxy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(79, 172, 254, 0.6);
+}
+
+/* Hover effects for buttons */
+.galaxy-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 25px rgba(79, 172, 254, 0.6),
+    inset 0 0 25px rgba(0, 242, 254, 0.3);
+}
+
+/* Transitions */
+.battle-result-enter-active, .battle-result-leave-active {
+  transition: all 0.5s ease;
+}
+
+.battle-result-enter-from, .battle-result-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
 }
 </style>
