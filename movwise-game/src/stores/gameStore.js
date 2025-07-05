@@ -3,6 +3,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useGameStore = defineStore('game', () => {
+  // オンボーディング完了フラグ
+  const hasCompletedOnboarding = ref(false)
+  
   // プレイヤーデータ（宇宙テーマ化）
   const playerData = ref({
     captainLevel: 1,
@@ -456,6 +459,12 @@ export const useGameStore = defineStore('game', () => {
 
     saveToLocalStorage()
   }
+  
+  // オンボーディング完了設定
+  const setOnboardingCompleted = () => {
+    hasCompletedOnboarding.value = true
+    saveToLocalStorage()
+  }
 
   // ローカルストレージ関連
   const saveToLocalStorage = () => {
@@ -464,6 +473,7 @@ export const useGameStore = defineStore('game', () => {
       gameProgress: gameProgress.value,
       gameStats: gameStats.value,
       achievements: achievements.value,
+      hasCompletedOnboarding: hasCompletedOnboarding.value,
       version: '1.0.0', // データバージョン管理
       lastSaved: new Date().toISOString()
     }
@@ -488,6 +498,7 @@ export const useGameStore = defineStore('game', () => {
           gameProgress.value = { ...gameProgress.value, ...parsed.gameProgress }
           gameStats.value = { ...gameStats.value, ...parsed.gameStats }
           achievements.value = { ...achievements.value, ...parsed.achievements }
+          hasCompletedOnboarding.value = parsed.hasCompletedOnboarding || false
           console.log('📂 データ読み込み完了')
         } else {
           console.log('⚠️ 古いデータ形式のため初期化')
@@ -668,6 +679,7 @@ export const useGameStore = defineStore('game', () => {
     gameStats,
     achievements,
     gameSettings,
+    hasCompletedOnboarding,
 
     // 計算プロパティ
     playerLevel,
@@ -690,6 +702,7 @@ export const useGameStore = defineStore('game', () => {
     trackWordRushResults,
     updateCrossGameAnalytics,
     analyzePhonicsVocabularyCorrelation,
-    calculateOverallVRReadiness
+    calculateOverallVRReadiness,
+    setOnboardingCompleted
   }
 })

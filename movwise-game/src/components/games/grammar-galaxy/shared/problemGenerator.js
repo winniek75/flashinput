@@ -12,6 +12,8 @@ export class ProblemGenerator {
     this.problemSets = []
     this.visualElements = []
     this.usedProblemIds = new Set()
+    this.recentProblemIds = [] // 🔧 最近使用した問題IDを追跡（重複防止）
+    this.maxRecentProblems = 2 // 最近の2問は除外（多様性を確保）
     this.difficultySettings = this.createDifficultySettings()
     this.isInitialized = false
   }
@@ -107,6 +109,14 @@ export class ProblemGenerator {
       if (excludeUsed) {
         this.usedProblemIds.add(problemSet.set_id)
       }
+      
+      // 🔧 最近使用した問題として追跡（重複防止）
+      this.recentProblemIds.push(problemSet.set_id)
+      
+      // 最大数を超えた場合、古い問題IDを削除
+      if (this.recentProblemIds.length > this.maxRecentProblems) {
+        this.recentProblemIds.shift()
+      }
 
       const problem = {
         id: `problem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -160,6 +170,7 @@ export class ProblemGenerator {
   async generateMultipleProblems(count, options = {}) {
     const problems = []
     const usedCategories = new Set()
+    const usedPatterns = new Set()
 
     for (let i = 0; i < count; i++) {
       try {
@@ -173,17 +184,30 @@ export class ProblemGenerator {
           }
         }
 
+        // 文パターンの多様性を確保
+        const sentencePattern = this.selectDiversePattern(usedPatterns, options.eiken_level)
+        categoryOptions.preferredPattern = sentencePattern
+
         const problem = await this.generateProblem({
           ...categoryOptions,
           excludeUsed: true
         })
 
-        problems.push(problem)
+        // パターンに基づいて問題を強化
+        const enhancedProblem = this.enhanceProblemWithPattern(problem, sentencePattern)
+
+        problems.push(enhancedProblem)
         usedCategories.add(problem.category)
+        usedPatterns.add(sentencePattern)
 
         // カテゴリリセット（全て使用した場合）
         if (usedCategories.size >= this.getAvailableCategories(options.level).length) {
           usedCategories.clear()
+        }
+
+        // パターンリセット（多様性のため）
+        if (usedPatterns.size >= 8) {
+          usedPatterns.clear()
         }
 
       } catch (error) {
@@ -193,6 +217,179 @@ export class ProblemGenerator {
 
     console.log(`🎲 ${count}問中${problems.length}問生成完了`)
     return problems
+  }
+
+  /**
+   * 多様な文パターンを選択
+   * @param {Set} usedPatterns - 使用済みパターン
+   * @param {string} eikenLevel - 英検レベル
+   * @returns {string} 選択されたパターン
+   */
+  selectDiversePattern(usedPatterns, eikenLevel) {
+    const patterns = this.getSentencePatterns(eikenLevel)
+    const availablePatterns = patterns.filter(pattern => !usedPatterns.has(pattern.id))
+    
+    if (availablePatterns.length === 0) {
+      return patterns[Math.floor(Math.random() * patterns.length)]
+    }
+    
+    return availablePatterns[Math.floor(Math.random() * availablePatterns.length)]
+  }
+
+  /**
+   * 英検レベルに応じた文パターンを取得
+   * @param {string} eikenLevel - 英検レベル
+   * @returns {Array} 文パターン配列
+   */
+  getSentencePatterns(eikenLevel) {
+    const basePatterns = [
+      { id: 'svo', name: 'Subject-Verb-Object', structure: ['subject', 'verb', 'object'], example: 'I like cats' },
+      { id: 'sv', name: 'Subject-Verb', structure: ['subject', 'verb'], example: 'She runs' },
+      { id: 'svc', name: 'Subject-Verb-Complement', structure: ['subject', 'verb', 'complement'], example: 'I am happy' },
+      { id: 'question_do', name: 'Do-Question', structure: ['auxiliary', 'subject', 'verb', 'object'], example: 'Do you like cats?' },
+      { id: 'question_be', name: 'Be-Question', structure: ['auxiliary', 'subject', 'complement'], example: 'Are you happy?' },
+      { id: 'negative', name: 'Negative', structure: ['subject', 'auxiliary', 'verb', 'object'], example: 'I do not like cats' },
+      { id: 'there_be', name: 'There-be Structure', structure: ['there', 'be', 'subject'], example: 'There is a cat' },
+      { id: 'imperative', name: 'Imperative', structure: ['verb', 'object'], example: 'Open the door' }
+    ]
+
+    const advancedPatterns = [
+      { id: 'present_perfect', name: 'Present Perfect', structure: ['subject', 'auxiliary', 'verb', 'object'], example: 'I have finished homework' },
+      { id: 'past_continuous', name: 'Past Continuous', structure: ['subject', 'auxiliary', 'verb'], example: 'I was reading' },
+      { id: 'future_will', name: 'Future with Will', structure: ['subject', 'auxiliary', 'verb', 'object'], example: 'I will study English' },
+      { id: 'modal_can', name: 'Modal Can', structure: ['subject', 'auxiliary', 'verb', 'object'], example: 'I can speak English' },
+      { id: 'comparative', name: 'Comparative', structure: ['subject', 'verb', 'comparative'], example: 'This is bigger' },
+      { id: 'superlative', name: 'Superlative', structure: ['subject', 'verb', 'superlative'], example: 'This is the biggest' }
+    ]
+
+    const expertPatterns = [
+      { id: 'passive', name: 'Passive Voice', structure: ['subject', 'auxiliary', 'verb'], example: 'The book was written' },
+      { id: 'conditional', name: 'Conditional', structure: ['if', 'subject', 'verb', 'subject', 'auxiliary', 'verb'], example: 'If I study, I will pass' },
+      { id: 'relative_clause', name: 'Relative Clause', structure: ['subject', 'relative', 'verb', 'verb', 'object'], example: 'The book that I read is interesting' },
+      { id: 'gerund', name: 'Gerund', structure: ['gerund', 'verb', 'complement'], example: 'Reading is fun' },
+      { id: 'infinitive', name: 'Infinitive', structure: ['subject', 'verb', 'to', 'verb'], example: 'I want to go' }
+    ]
+
+    switch (eikenLevel) {
+      case '5':
+        return basePatterns.slice(0, 6) // Basic patterns only
+      case '4':
+        return [...basePatterns, ...advancedPatterns.slice(0, 4)]
+      case '3':
+        return [...basePatterns, ...advancedPatterns, ...expertPatterns.slice(0, 3)]
+      default:
+        return [...basePatterns, ...advancedPatterns, ...expertPatterns]
+    }
+  }
+
+  /**
+   * パターンで問題を強化
+   * @param {Object} problem - 基本問題
+   * @param {Object} pattern - 文パターン
+   * @returns {Object} 強化された問題
+   */
+  enhanceProblemWithPattern(problem, pattern) {
+    const enhancedProblem = { ...problem }
+    
+    // パターン情報を追加
+    enhancedProblem.sentencePattern = pattern
+    enhancedProblem.patternHint = `文型: ${pattern.name} (例: ${pattern.example})`
+    
+    // 要素の位置をパターンに合わせて調整
+    if (enhancedProblem.elements) {
+      enhancedProblem.elements = enhancedProblem.elements.map(element => {
+        if (element.isCorrect) {
+          // パターンに基づいて位置を再調整
+          const newPosition = this.mapElementToPattern(element, pattern)
+          return { ...element, position: newPosition || element.position }
+        }
+        return element
+      })
+    }
+    
+    // 難易度調整
+    enhancedProblem.patternDifficulty = this.calculatePatternDifficulty(pattern)
+    enhancedProblem.estimatedDifficulty = (enhancedProblem.estimatedDifficulty || 1) * enhancedProblem.patternDifficulty
+    
+    return enhancedProblem
+  }
+
+  /**
+   * 要素をパターンにマッピング
+   * @param {Object} element - 要素
+   * @param {Object} pattern - パターン
+   * @returns {string} 新しい位置
+   */
+  mapElementToPattern(element, pattern) {
+    const { structure } = pattern
+    const { type, word } = element
+    
+    // 特定の単語タイプに基づいてマッピング
+    if (['do', 'does', 'did', 'will', 'can', 'could', 'should', 'would'].includes(word.toLowerCase())) {
+      return 'auxiliary'
+    }
+    
+    if (['i', 'you', 'he', 'she', 'it', 'we', 'they'].includes(word.toLowerCase())) {
+      return 'subject'
+    }
+    
+    if (type === 'be-verb' || type === 'general' || type === 'verb') {
+      return 'verb'
+    }
+    
+    // デフォルトは既存位置を保持
+    return element.position
+  }
+
+  /**
+   * パターンの難易度を計算
+   * @param {Object} pattern - パターン
+   * @returns {number} 難易度倍率
+   */
+  calculatePatternDifficulty(pattern) {
+    const complexityMap = {
+      'sv': 0.8,
+      'svo': 1.0,
+      'svc': 1.1,
+      'question_do': 1.3,
+      'question_be': 1.2,
+      'negative': 1.4,
+      'there_be': 1.3,
+      'imperative': 0.9,
+      'present_perfect': 1.6,
+      'past_continuous': 1.5,
+      'future_will': 1.4,
+      'modal_can': 1.3,
+      'comparative': 1.5,
+      'superlative': 1.6,
+      'passive': 1.8,
+      'conditional': 2.0,
+      'relative_clause': 2.2,
+      'gerund': 1.7,
+      'infinitive': 1.6
+    }
+    
+    return complexityMap[pattern.id] || 1.0
+  }
+
+  /**
+   * 利用可能なカテゴリを取得
+   * @param {string} level - レベル
+   * @returns {Array} カテゴリ配列
+   */
+  getAvailableCategories(level) {
+    if (!this.problemSets || this.problemSets.length === 0) {
+      return ['basic', 'questions', 'negative', 'time', 'daily']
+    }
+    
+    const categories = [...new Set(
+      this.problemSets
+        .filter(ps => !level || ps.level === level)
+        .map(ps => ps.category)
+        .filter(cat => cat && cat.length > 0)
+    )]
+    
+    return categories.length > 0 ? categories : ['basic', 'questions', 'negative', 'time', 'daily']
   }
 
   /**
@@ -208,6 +405,15 @@ export class ProblemGenerator {
       console.error('❌ 問題セットが初期化されていません')
       return null
     }
+    
+    // 統計情報を表示
+    const eikenStats = this.problemSets.reduce((stats, ps) => {
+      const level = ps.eiken_level || 'unknown'
+      stats[level] = (stats[level] || 0) + 1
+      return stats
+    }, {})
+    console.log('📊 英検レベル別問題数:', eikenStats)
+    console.log('🔍 使用済み問題数:', this.usedProblemIds.size)
 
     let candidates = [...this.problemSets]
     console.log('📋 初期候補数:', candidates.length)
@@ -228,14 +434,37 @@ export class ProblemGenerator {
     // 英検レベルフィルタ (より優先的にフィルタリング)
     if (criteria.eiken_level) {
       const beforeFilter = candidates.length
+      
+      // デバッグ: 使用可能な英検レベルを表示
+      const availableEikenLevels = [...new Set(this.problemSets.map(ps => ps.eiken_level).filter(Boolean))]
+      console.log(`📚 利用可能な英検レベル: [${availableEikenLevels.join(', ')}]`)
+      
       // eiken_levelの文字列マッチングを改善
       candidates = candidates.filter(ps => {
         const psLevel = ps.eiken_level || ps.level || ''
-        return psLevel === criteria.eiken_level || 
+        const matches = psLevel === criteria.eiken_level || 
                psLevel === criteria.eiken_level.toString() ||
                psLevel.includes(criteria.eiken_level)
+        
+        if (criteria.eiken_level === '4' && matches) {
+          console.log(`🎯 4級問題見つかった: ${ps.target_sentence} (eiken_level: ${ps.eiken_level})`)
+        }
+        
+        return matches
       })
       console.log(`📚 英検レベルフィルタ後 (${criteria.eiken_level}): ${beforeFilter} → ${candidates.length}個`)
+      
+      // 4級の場合、具体的な問題例を表示
+      if (criteria.eiken_level === '4' && candidates.length > 0) {
+        console.log(`📝 4級問題サンプル (最初の10個):`)
+        candidates.slice(0, 10).forEach((ps, i) => {
+          console.log(`  ${i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
+        })
+        console.log(`📝 4級問題サンプル (最後の5個):`)
+        candidates.slice(-5).forEach((ps, i) => {
+          console.log(`  ${candidates.length - 5 + i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
+        })
+      }
       
       // 英検レベル一致がない場合のフォールバック
       if (candidates.length === 0) {
@@ -262,14 +491,40 @@ export class ProblemGenerator {
     // 使用済み除外
     if (criteria.excludeUsed) {
       const beforeFilter = candidates.length
+      console.log(`🔍 使用済み問題リスト (${this.usedProblemIds.size}個):`, [...this.usedProblemIds])
+      
       candidates = candidates.filter(ps => !this.usedProblemIds.has(ps.set_id))
       console.log(`🚫 使用済み除外後: ${beforeFilter} → ${candidates.length}個`)
     }
+    
+    // 🔧 最近使用した問題を除外（重複防止）
+    const beforeRecentFilter = candidates.length
+    console.log(`🔍 最近使用した問題 (${this.recentProblemIds.length}個):`, this.recentProblemIds)
+    
+    candidates = candidates.filter(ps => !this.recentProblemIds.includes(ps.set_id))
+    console.log(`🚫 最近使用問題除外後: ${beforeRecentFilter} → ${candidates.length}個`)
+    
+    // 4級でフィルタリング後の候補を詳しく表示
+    if (criteria.eiken_level === '4' && candidates.length > 0) {
+      console.log(`📝 4級候補問題 (${candidates.length}個):`)
+      candidates.slice(0, 10).forEach((ps, i) => {
+        console.log(`  ${i + 1}. "${ps.target_sentence}" (ID: ${ps.set_id})`)
+      })
+      if (candidates.length > 10) {
+        console.log(`  ... and ${candidates.length - 10} more`)
+      }
+    }
 
-    // 候補がない場合は使用済みリセット
+    // 候補がない場合は使用済みリセット（但し警告を表示）
     if (candidates.length === 0 && criteria.excludeUsed) {
-      console.log('🔄 使用済み問題をリセット')
+      console.warn('⚠️ 使用済み問題をリセット - 全ての問題を一度プレイしました')
+      console.log(`📊 リセット前の使用済み問題数: ${this.usedProblemIds.size}`)
+      console.log(`📊 リセット前の最近使用問題数: ${this.recentProblemIds.length}`)
+      
+      // 🔧 使用済みリストと最近使用リストの両方をクリア
       this.usedProblemIds.clear()
+      this.recentProblemIds = []
+      
       return this.selectProblemSet({ ...criteria, excludeUsed: false })
     }
 
@@ -279,13 +534,46 @@ export class ProblemGenerator {
       return null
     }
 
-    const weightedCandidates = candidates.map(ps => ({
-      ...ps,
-      weight: this.calculateSelectionWeight(ps)
-    }))
-
-    const selected = this.selectWeightedRandom(weightedCandidates)
+    // 🔧 4級問題の多様性を向上させるため、90%の確率で純粋にランダム選択
+    const useRandomSelection = Math.random() < 0.9
+    
+    let selected
+    if (useRandomSelection && criteria.eiken_level === '4') {
+      // 純粋にランダム選択
+      selected = candidates[Math.floor(Math.random() * candidates.length)]
+      console.log('🎲 純粋ランダム選択使用')
+    } else {
+      // 従来の重み付き選択
+      const weightedCandidates = candidates.map(ps => ({
+        ...ps,
+        weight: this.calculateSelectionWeight(ps)
+      }))
+      selected = this.selectWeightedRandom(weightedCandidates)
+      console.log('⚖️ 重み付き選択使用')
+    }
+    
     console.log('✅ 選択された問題セット:', selected?.set_id, selected?.target_sentence)
+    
+    // 🔧 デバッグ情報を詳細に表示（常に表示）
+    if (selected) {
+      console.log('📊 4級問題選択詳細:')
+      console.log(`  - 全4級問題数: ${this.problemSets.filter(ps => ps.eiken_level === '4').length}`)
+      console.log(`  - 使用済み問題数: ${this.usedProblemIds.size}`)
+      console.log(`  - 最近使用問題数: ${this.recentProblemIds.length}`)
+      console.log(`  - 候補問題数: ${candidates.length}`)
+      console.log(`  - 選択方法: ${useRandomSelection ? '純粋ランダム' : '重み付き'}`)
+      console.log(`  - 選択された問題: "${selected.target_sentence}" (ID: ${selected.set_id})`)
+      
+      // 🎯 最近選ばれた問題の履歴を表示
+      if (this.recentProblemIds.length > 0) {
+        const recentProblems = this.recentProblemIds.map(id => {
+          const problem = this.problemSets.find(ps => ps.set_id === id)
+          return problem ? `"${problem.target_sentence}" (${id})` : `Unknown (${id})`
+        })
+        console.log(`  - 最近の問題履歴: [${recentProblems.join(', ')}]`)
+      }
+    }
+    
     return selected
   }
 
@@ -345,16 +633,26 @@ export class ProblemGenerator {
         const contentItem = this.findContentItem(word, problemSet.level, problemSet.category)
         
         if (contentItem) {
+          console.log(`[createCorrectElements] Creating element: word="${word}", poolPosition="${position}", contentPosition="${contentItem.position}"`)
+          
           elements.push({
-            word: contentItem.word,
+            word: word, // words_poolから取った元の単語（大文字小文字保持）
             type: contentItem.type,
             color: contentItem.color,
-            position: position,
+            position: position, // words_poolからのposition（文脈に応じた役割）を最優先
             japanese: contentItem.japanese,
             hint: contentItem.hint,
             isCorrect: true,
-            sourceType: 'content'
+            sourceType: 'content',
+            // 文脈情報を追加
+            contextualRole: position,
+            originalPosition: contentItem.position, // grammar_content.jsonの元のposition
+            // デバッグ情報
+            poolWord: word,
+            poolPosition: position
           })
+          
+          console.log(`[createCorrectElements] ✓ Element created with position="${position}" (from words_pool)`)
         } else {
           // フォールバック要素を作成
           const fallback = this.createFallbackElement(word, problemSet, position)
@@ -408,41 +706,50 @@ export class ProblemGenerator {
    */
   async createDistractorElements(correctElements, problemSet, count) {
     const distractors = []
-    const usedWords = new Set(correctElements.map(e => e.word))
-    // 同カテゴリの他の要素を取得
-    const sameCategory = this.contentData.filter(item =>
-      item.level === problemSet.level &&
-      item.category === problemSet.category &&
-      !usedWords.has(item.word)
+    const usedWords = new Set(correctElements.map(e => e.word.toLowerCase()))
+    
+    console.log('🔧 [createDistractorElements] 開始', {
+      correctElementsCount: correctElements.length,
+      targetCount: count,
+      usedWords: [...usedWords]
+    })
+    
+    // contentDataから候補を取得（レベル・カテゴリに関係なく幅広く選択）
+    const allCandidates = this.contentData.filter(item =>
+      item.word && 
+      !usedWords.has(item.word.toLowerCase()) &&
+      item.position // positionが設定されているもののみ
     )
-    // 異なるカテゴリの要素を取得
-    const differentCategory = this.contentData.filter(item =>
-      item.level === problemSet.level &&
-      item.category !== problemSet.category &&
-      !usedWords.has(item.word)
-    )
-    // バランス良く選択（同カテゴリ30%, 異カテゴリ70%）
-    const sameCategoryCount = Math.ceil(count * 0.3)
-    const differentCategoryCount = count - sameCategoryCount
-    // 同カテゴリから選択（positionを必ず割り当て）
-    const selectedSameCategory = this.shuffleArray(sameCategory)
-      .slice(0, sameCategoryCount)
+    
+    console.log('🔧 [createDistractorElements] 候補数:', allCandidates.length)
+    
+    if (allCandidates.length === 0) {
+      console.warn('⚠️ [createDistractorElements] 候補がないため、基本的なダミー要素を生成')
+      // フォールバック: 基本的なダミー要素を生成
+      const fallbackDistractors = [
+        { word: "cat", type: "noun", color: "blue", position: "object", japanese: "猫", isCorrect: false, sourceType: 'fallback' },
+        { word: "dog", type: "noun", color: "blue", position: "object", japanese: "犬", isCorrect: false, sourceType: 'fallback' },
+        { word: "run", type: "verb", color: "red", position: "verb", japanese: "走る", isCorrect: false, sourceType: 'fallback' },
+        { word: "big", type: "adjective", color: "blue", position: "object", japanese: "大きい", isCorrect: false, sourceType: 'fallback' },
+        { word: "small", type: "adjective", color: "blue", position: "object", japanese: "小さい", isCorrect: false, sourceType: 'fallback' }
+      ].slice(0, count)
+      
+      return fallbackDistractors
+    }
+    
+    // ランダムに選択（バランス重視）
+    const selectedDistractors = this.shuffleArray(allCandidates)
+      .slice(0, count)
       .map(item => ({
         ...item,
         isCorrect: false,
-        sourceType: 'same_category_distractor',
-        position: item.position || ['subject', 'verb', 'object'][Math.floor(Math.random() * 3)]
+        sourceType: 'content_distractor'
       }))
-    // 異カテゴリから選択（positionを必ず割り当て）
-    const selectedDifferentCategory = this.shuffleArray(differentCategory)
-      .slice(0, differentCategoryCount)
-      .map(item => ({
-        ...item,
-        isCorrect: false,
-        sourceType: 'different_category_distractor',
-        position: item.position || ['subject', 'verb', 'object'][Math.floor(Math.random() * 3)]
-      }))
-    return [...selectedSameCategory, ...selectedDifferentCategory]
+    
+    console.log('🔧 [createDistractorElements] 生成完了:', selectedDistractors.length, '個')
+    console.log('🔧 [createDistractorElements] 生成された要素:', selectedDistractors.map(d => ({ word: d.word, position: d.position })))
+    
+    return selectedDistractors
   }
 
   /**
@@ -473,6 +780,8 @@ export class ProblemGenerator {
    * @returns {Object|null} 見つかったアイテム
    */
   findContentItem(word, level, category) {
+    console.log(`[findContentItem] Searching for: word="${word}", level="${level}", category="${category}"`)
+    
     // 完全一致検索
     let found = this.contentData.find(item =>
       item.word.toLowerCase() === word.toLowerCase() &&
@@ -480,7 +789,10 @@ export class ProblemGenerator {
       item.category === category
     )
 
-    if (found) return found
+    if (found) {
+      console.log(`[findContentItem] ✓ Perfect match found:`, found)
+      return found
+    }
 
     // レベルを無視して検索
     found = this.contentData.find(item =>
@@ -488,7 +800,10 @@ export class ProblemGenerator {
       item.category === category
     )
 
-    if (found) return found
+    if (found) {
+      console.log(`[findContentItem] ✓ Category match found (ignoring level):`, found)
+      return found
+    }
 
     // カテゴリを無視して検索
     found = this.contentData.find(item =>
@@ -496,7 +811,23 @@ export class ProblemGenerator {
       item.level === level
     )
 
-    return found
+    if (found) {
+      console.log(`[findContentItem] ✓ Level match found (ignoring category):`, found)
+      return found
+    }
+
+    // 最終手段: 単語名のみで検索
+    found = this.contentData.find(item =>
+      item.word.toLowerCase() === word.toLowerCase()
+    )
+
+    if (found) {
+      console.log(`[findContentItem] ✓ Word-only match found:`, found)
+      return found
+    }
+
+    console.log(`[findContentItem] ✗ No match found for "${word}"`)
+    return null
   }
 
   /**
@@ -575,15 +906,12 @@ export class ProblemGenerator {
    * @returns {number} 重み値
    */
   calculateSelectionWeight(problemSet) {
+    // 🔧 より均等な選択のため、重み付けを簡素化
     let weight = 1
 
-    // 難易度による重み調整（簡単な問題を優先）
-    const difficulty = problemSet.estimated_difficulty || problemSet.difficulty_score || 1
-    weight = Math.max(0.1, 2 - (difficulty * 0.2))
-
-    // 使用頻度による重み調整（あまり使われていない問題を優先）
+    // 使用頻度による重み調整のみ（難易度による偏りを削除）
     const usageCount = this.getProblemUsageCount(problemSet.set_id)
-    weight *= Math.max(0.5, 2 - (usageCount * 0.3))
+    weight = Math.max(0.3, 1 - (usageCount * 0.1)) // より緩やかな重み調整
 
     return weight
   }
@@ -717,7 +1045,8 @@ export class ProblemGenerator {
    */
   resetUsedProblems() {
     this.usedProblemIds.clear()
-    console.log('🔄 使用済み問題をリセットしました')
+    this.recentProblemIds = []
+    console.log('🔄 使用済み問題をリセットしました（最近使用履歴もクリア）')
   }
 
   /**

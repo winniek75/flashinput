@@ -325,7 +325,7 @@ const defaultGames = ref([
       'Improve visual pattern recognition'
     ],
     isLocked: false,
-    isNew: false,
+    unlocked: true,
     bestScore: store.grammarProgress?.grammarColorCode?.bestScore || 0,
     stars: store.grammarProgress?.grammarColorCode?.stars || 0,
     playCount: store.grammarProgress?.grammarColorCode?.timesPlayed || 0
@@ -346,7 +346,7 @@ const defaultGames = ref([
       'Improve visual scanning speed'
     ],
     isLocked: false,
-    isNew: true,
+    unlocked: true,
     bestScore: store.grammarProgress?.patternHunter?.bestScore || 0,
     stars: store.grammarProgress?.patternHunter?.stars || 0,
     playCount: store.grammarProgress?.patternHunter?.timesPlayed || 0
@@ -388,9 +388,9 @@ const defaultGames = ref([
       'Improve reaction time',
       'Build grammar confidence'
     ],
-    isLocked: false, // 開発用に強制アンロック
-    isNew: false,
-    lockReason: '', // アンロック済みのため空文字列
+    isLocked: false,
+    unlocked: true,
+    lockReason: '',
     bestScore: store.grammarProgress?.grammarReflexArena?.bestScore || 0,
     stars: store.grammarProgress?.grammarReflexArena?.stars || 0,
     playCount: store.grammarProgress?.grammarReflexArena?.timesPlayed || 0
@@ -432,9 +432,9 @@ const defaultGames = ref([
       'Develop spatial reasoning',
       'Master multi-tasking skills'
     ],
-    isLocked: !store.isGameUnlocked('grammarPuzzleCascade'),
-    isNew: false,
-    lockReason: store.isGameUnlocked('grammarPuzzleCascade') ? '' : 'Complete Grammar Reflex Arena with 2+ stars',
+    isLocked: false,
+    unlocked: true,
+    lockReason: '',
     bestScore: store.grammarProgress?.grammarPuzzleCascade?.bestScore || 0,
     stars: store.grammarProgress?.grammarPuzzleCascade?.stars || 0,
     playCount: store.grammarProgress?.grammarPuzzleCascade?.timesPlayed || 0
@@ -489,12 +489,9 @@ const selectGame = (game) => {
   console.log('selectGame called with:', game)
   console.log('game.isLocked:', game.isLocked, 'game.id:', game.id)
   
-  // Grammar Reflex Arenaは強制的にアンロック
-  if (game.id === 'grammarReflexArena') {
-    console.log('Grammar Reflex Arena - forcing unlock for development')
-  } else if (game.isLocked) {
-    console.log('Game is locked, returning')
-    return
+  // 開発用：すべてのゲームを強制的にアンロック
+  if (game.isLocked) {
+    console.log('Game is locked, but forcing unlock for development')
   }
   
   selectedGame.value = game
@@ -519,10 +516,9 @@ const startSelectedGame = async () => {
     return
   }
   
-  // Grammar Reflex Arenaは強制的にアンロック
-  if (selectedGame.value.isLocked && selectedGame.value.id !== 'grammarReflexArena') {
-    console.log('Cannot start game - game is locked')
-    return
+  // 開発用：すべてのゲームを強制的にアンロック
+  if (selectedGame.value.isLocked) {
+    console.log('Game is locked, but forcing unlock for development')
   }
   
   loading.value = true

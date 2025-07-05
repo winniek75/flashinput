@@ -16,8 +16,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true,
-    cors: true
+    strictPort: false,
+    cors: true,
+    open: false
   },
   define: {
     // Make process.env available for Firebase SDK compatibility

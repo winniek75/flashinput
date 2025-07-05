@@ -66,6 +66,25 @@
         </div>
       </div>
 
+      <!-- 🆕 お知らせバナー -->
+      <div class="notification-banner mb-8">
+        <div class="galaxy-card p-6 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/40">
+          <div class="flex items-center space-x-4">
+            <div class="text-4xl">🎮</div>
+            <div class="flex-1">
+              <h3 class="text-lg font-bold galaxy-text-primary mb-2">もっと簡単にゲームで学習！</h3>
+              <p class="text-galaxy-moon-silver text-sm">グラマーギャラクシー司令部で、全てのゲームを一目で選択できます。</p>
+            </div>
+            <button 
+              @click="$router.push({ name: 'grammar-galaxy-hub' })"
+              class="galaxy-button galaxy-button-primary px-6 py-3 font-bold"
+            >
+              🚀 司令部へ
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Planet Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <PlanetCard 
@@ -306,6 +325,7 @@ const selectedPlanetGames = computed(() => {
   try {
     // ストアからのゲームデータをGameSelectionModal用の形式に変換
     return selectedPlanetInfo.value.games.map(game => ({
+      ...game,
       id: game.id,
       title: game.name,
       description: `${game.name}で${selectedPlanetInfo.value.name}の学習を進めましょう`,
@@ -320,9 +340,10 @@ const selectedPlanetGames = computed(() => {
         '文法理解の向上',
         'スコアアップを目指す'
       ],
-      isLocked: game.id === 'grammarReflexArena' ? false : !game.unlocked, // 開発用：Grammar Reflex Arenaを強制アンロック
+      isLocked: false,
+      unlocked: true,
       isNew: false,
-      lockReason: (game.unlocked || game.id === 'grammarReflexArena') ? '' : '前のゲームを完了してください',
+      lockReason: '',
       bestScore: game.bestScore || 0,
       stars: game.stars || 0,
       playCount: game.attempts || 0
@@ -567,16 +588,17 @@ const handleFooterNavigation = (section) => {
         // 文法銀河 - Grammar Galaxy Hub
         router.push({ name: 'grammar-galaxy-hub' })
         break
-      case 'academy':
-        // バーチャル基地 - Co-Pilot Training Dock
+      case 'multi-layer':
+        // Multi-Layer Learning Galaxy
+        router.push({ name: 'MultiLayerHub' })
+        break
+      case 'co-pilot':
+        // Co-Pilot Training Dock
         router.push({ name: 'CoPilotDock' })
         break
-      case 'profile':
-        // 船長コックピット - Teacher Dashboard または Home
-        router.push({ name: 'TeacherDashboard' }).catch(() => {
-          // Teacher Dashboardが利用できない場合はホームに戻る
-          router.push({ name: 'home' })
-        })
+      case 'vr-academy':
+        // VR Academy
+        router.push({ name: 'VRAcademy' })
         break
       default:
         console.warn('Unknown navigation section:', section)

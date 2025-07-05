@@ -25,8 +25,8 @@
         <div class="galaxy-card rounded-3xl p-6 shadow-2xl mb-6">
           <div class="flex justify-between items-center mb-6">
             <div class="text-center">
-              <div class="text-2xl font-bold galaxy-text-primary">レベル {{ currentLevel }}</div>
-              <div class="text-galaxy-moon-silver">{{ cvcWordData[currentLevel].name }}</div>
+              <div class="text-2xl font-bold galaxy-text-primary">レベル {{ store.currentLevel }}</div>
+              <div class="text-galaxy-moon-silver">{{ cvcWordData[store.currentLevel].name }}</div>
             </div>
             <div class="flex gap-4">
               <div class="text-center">
@@ -171,21 +171,6 @@ export default {
     // 参照
     let timerRef = null
 
-    // ストアからデータを取得
-    const {
-      gameMode,
-      currentLevel,
-      selectedCategory,
-      selectedSubcategory,
-      difficulty,
-      questionCount,
-      getQuestions
-    } = store
-
-    // 現在の問題を取得
-    const questions = computed(() => getQuestions())
-    const currentWord = computed(() => questions.value[currentWordIndex.value])
-
     // CVC単語データ（レベル別・テーマ別）
     const cvcWordData = reactive({
       1: { // レベル1: 基本的なCVC単語
@@ -249,6 +234,125 @@ export default {
             emoji: '🦊', 
             hint: 'オレンジ色でふわふわの尻尾の動物',
             category: 'animals'
+          },
+          {
+            word: 'bed',
+            sounds: ['b', 'e', 'd'],
+            emoji: '🛏️',
+            hint: '夜寝るときに使う家具',
+            category: 'items'
+          },
+          {
+            word: 'bus',
+            sounds: ['b', 'u', 's'],
+            emoji: '🚌',
+            hint: 'たくさんの人を運ぶ大きな車',
+            category: 'transport'
+          },
+          {
+            word: 'net',
+            sounds: ['n', 'e', 't'],
+            emoji: '🥅',
+            hint: '魚やボールを捕まえる道具',
+            category: 'items'
+          },
+          {
+            word: 'pig',
+            sounds: ['p', 'i', 'g'],
+            emoji: '🐷',
+            hint: 'ブーブーと鳴くピンクの動物',
+            category: 'animals'
+          },
+          {
+            word: 'map',
+            sounds: ['m', 'a', 'p'],
+            emoji: '🗺️',
+            hint: '道を調べるための紙',
+            category: 'items'
+          },
+          {
+            word: 'egg',
+            sounds: ['e', 'g', 'g'],
+            emoji: '🥚',
+            hint: '鳥が産む白い食べ物',
+            category: 'food'
+          },
+          {
+            word: 'fan',
+            sounds: ['f', 'a', 'n'],
+            emoji: '🪭',
+            hint: '風を送る道具',
+            category: 'items'
+          },
+          {
+            word: 'leg',
+            sounds: ['l', 'e', 'g'],
+            emoji: '🦵',
+            hint: '歩くときに使う体の部分',
+            category: 'body'
+          },
+          {
+            word: 'mop',
+            sounds: ['m', 'o', 'p'],
+            emoji: '🧹',
+            hint: '床を掃除する道具',
+            category: 'items'
+          },
+          {
+            word: 'bat',
+            sounds: ['b', 'a', 't'],
+            emoji: '🦇',
+            hint: '夜に飛ぶ黒い動物',
+            category: 'animals'
+          },
+          {
+            word: 'red',
+            sounds: ['r', 'e', 'd'],
+            emoji: '🔴',
+            hint: 'りんごやいちごの色',
+            category: 'colors'
+          },
+          {
+            word: 'ten',
+            sounds: ['t', 'e', 'n'],
+            emoji: '🔟',
+            hint: '9の次の数字',
+            category: 'numbers'
+          },
+          {
+            word: 'jam',
+            sounds: ['j', 'a', 'm'],
+            emoji: '🍓',
+            hint: 'パンに塗る甘い食べ物',
+            category: 'food'
+          },
+          {
+            word: 'pot',
+            sounds: ['p', 'o', 't'],
+            emoji: '🍲',
+            hint: '料理を作るための容器',
+            category: 'items'
+          },
+          {
+            word: 'van',
+            sounds: ['v', 'a', 'n'],
+            emoji: '🚐',
+            hint: '荷物を運ぶ車',
+            category: 'transport'
+          },
+          {
+            word: 'nut',
+            sounds: ['n', 'u', 't'],
+            emoji: '🥜',
+            hint: 'リスが好きな固い食べ物',
+            category: 'food'
+          },
+          {
+            word: 'wet',
+            sounds: ['w', 'e', 't'],
+            emoji: '💧',
+            hint: '水でぬれた状態',
+            category: 'concepts'
           }
         ]
       },
@@ -313,6 +417,111 @@ export default {
             emoji: '🎉', 
             hint: '楽しい気持ちや体験',
             category: 'concepts'
+          },
+          {
+            word: 'sit',
+            sounds: ['s', 'i', 't'],
+            emoji: '🪑',
+            hint: '椅子に腰かけること',
+            category: 'actions'
+          },
+          {
+            word: 'tap',
+            sounds: ['t', 'a', 'p'],
+            emoji: '👆',
+            hint: '指で軽く叩くこと',
+            category: 'actions'
+          },
+          {
+            word: 'mix',
+            sounds: ['m', 'i', 'x'],
+            emoji: '🥄',
+            hint: '材料を混ぜ合わせること',
+            category: 'actions'
+          },
+          {
+            word: 'cut',
+            sounds: ['c', 'u', 't'],
+            emoji: '✂️',
+            hint: 'はさみで切ること',
+            category: 'actions'
+          },
+          {
+            word: 'rub',
+            sounds: ['r', 'u', 'b'],
+            emoji: '🤚',
+            hint: 'こすること',
+            category: 'actions'
+          },
+          {
+            word: 'sad',
+            sounds: ['s', 'a', 'd'],
+            emoji: '😢',
+            hint: '悲しい気持ち',
+            category: 'emotions'
+          },
+          {
+            word: 'mad',
+            sounds: ['m', 'a', 'd'],
+            emoji: '😠',
+            hint: '怒った気持ち',
+            category: 'emotions'
+          },
+          {
+            word: 'hot',
+            sounds: ['h', 'o', 't'],
+            emoji: '🔥',
+            hint: '温度が高い状態',
+            category: 'concepts'
+          },
+          {
+            word: 'big',
+            sounds: ['b', 'i', 'g'],
+            emoji: '🐘',
+            hint: 'サイズが大きいこと',
+            category: 'concepts'
+          },
+          {
+            word: 'top',
+            sounds: ['t', 'o', 'p'],
+            emoji: '🔝',
+            hint: '一番上の部分',
+            category: 'concepts'
+          },
+          {
+            word: 'yes',
+            sounds: ['y', 'e', 's'],
+            emoji: '✅',
+            hint: '賛成を表す言葉',
+            category: 'words'
+          },
+          {
+            word: 'fit',
+            sounds: ['f', 'i', 't'],
+            emoji: '👔',
+            hint: 'サイズがぴったり合うこと',
+            category: 'concepts'
+          },
+          {
+            word: 'gap',
+            sounds: ['g', 'a', 'p'],
+            emoji: '🕳️',
+            hint: 'すき間や空間',
+            category: 'concepts'
+          },
+          {
+            word: 'let',
+            sounds: ['l', 'e', 't'],
+            emoji: '🤝',
+            hint: '許可すること',
+            category: 'actions'
+          },
+          {
+            word: 'set',
+            sounds: ['s', 'e', 't'],
+            emoji: '🍽️',
+            hint: '置くこと、準備すること',
+            category: 'actions'
           }
         ]
       },
@@ -363,12 +572,195 @@ export default {
             emoji: '📦', 
             hint: '物を入れる四角い容器',
             category: 'items'
+          },
+          {
+            word: 'dam',
+            sounds: ['d', 'a', 'm'],
+            emoji: '🦫',
+            hint: '川をせき止める建造物',
+            category: 'nature'
+          },
+          {
+            word: 'fog',
+            sounds: ['f', 'o', 'g'],
+            emoji: '🌫️',
+            hint: '視界を悪くする白い霧',
+            category: 'nature'
+          },
+          {
+            word: 'jet',
+            sounds: ['j', 'e', 't'],
+            emoji: '✈️',
+            hint: '速く飛ぶ飛行機',
+            category: 'transport'
+          },
+          {
+            word: 'lid',
+            sounds: ['l', 'i', 'd'],
+            emoji: '🍯',
+            hint: '容器のふた',
+            category: 'items'
+          },
+          {
+            word: 'rib',
+            sounds: ['r', 'i', 'b'],
+            emoji: '🍖',
+            hint: '胸の骨',
+            category: 'body'
+          },
+          {
+            word: 'tax',
+            sounds: ['t', 'a', 'x'],
+            emoji: '💰',
+            hint: '国に払うお金',
+            category: 'concepts'
+          },
+          {
+            word: 'wax',
+            sounds: ['w', 'a', 'x'],
+            emoji: '🕯️',
+            hint: 'ろうそくの材料',
+            category: 'items'
+          },
+          {
+            word: 'yam',
+            sounds: ['y', 'a', 'm'],
+            emoji: '🍠',
+            hint: 'さつまいもの仲間',
+            category: 'food'
+          },
+          {
+            word: 'zen',
+            sounds: ['z', 'e', 'n'],
+            emoji: '🧘',
+            hint: '瞑想や精神の平穏',
+            category: 'concepts'
+          },
+          {
+            word: 'cod',
+            sounds: ['c', 'o', 'd'],
+            emoji: '🐟',
+            hint: 'タラという魚',
+            category: 'animals'
+          },
+          {
+            word: 'elm',
+            sounds: ['e', 'l', 'm'],
+            emoji: '🌳',
+            hint: 'ニレという木',
+            category: 'nature'
+          },
+          {
+            word: 'fix',
+            sounds: ['f', 'i', 'x'],
+            emoji: '🔧',
+            hint: '修理すること',
+            category: 'actions'
+          },
+          {
+            word: 'gym',
+            sounds: ['g', 'y', 'm'],
+            emoji: '🏋️',
+            hint: '運動する場所',
+            category: 'places'
+          },
+          {
+            word: 'hex',
+            sounds: ['h', 'e', 'x'],
+            emoji: '🔮',
+            hint: '魔法の呪文',
+            category: 'concepts'
+          },
+          {
+            word: 'jog',
+            sounds: ['j', 'o', 'g'],
+            emoji: '🏃‍♂️',
+            hint: 'ゆっくり走ること',
+            category: 'actions'
+          },
+          {
+            word: 'kit',
+            sounds: ['k', 'i', 't'],
+            emoji: '🧰',
+            hint: '道具一式',
+            category: 'items'
+          },
+          {
+            word: 'mob',
+            sounds: ['m', 'o', 'b'],
+            emoji: '👥',
+            hint: '群衆',
+            category: 'concepts'
+          },
+          {
+            word: 'nod',
+            sounds: ['n', 'o', 'd'],
+            emoji: '😌',
+            hint: 'うなずくこと',
+            category: 'actions'
+          },
+          {
+            word: 'odd',
+            sounds: ['o', 'd', 'd'],
+            emoji: '🎲',
+            hint: '奇数または変わったこと',
+            category: 'concepts'
+          },
+          {
+            word: 'paw',
+            sounds: ['p', 'a', 'w'],
+            emoji: '🐾',
+            hint: '動物の足',
+            category: 'animals'
+          },
+          {
+            word: 'rim',
+            sounds: ['r', 'i', 'm'],
+            emoji: '⭕',
+            hint: '縁や周り',
+            category: 'concepts'
+          },
+          {
+            word: 'sap',
+            sounds: ['s', 'a', 'p'],
+            emoji: '🌴',
+            hint: '木の樹液',
+            category: 'nature'
+          },
+          {
+            word: 'tag',
+            sounds: ['t', 'a', 'g'],
+            emoji: '🏷️',
+            hint: '値札や名札',
+            category: 'items'
+          },
+          {
+            word: 'vat',
+            sounds: ['v', 'a', 't'],
+            emoji: '🛢️',
+            hint: '大きな容器',
+            category: 'items'
+          },
+          {
+            word: 'wig',
+            sounds: ['w', 'i', 'g'],
+            emoji: '👩‍🦰',
+            hint: 'かつら',
+            category: 'items'
           }
         ]
       }
     })
 
-    const currentLevelData = computed(() => cvcWordData[currentLevel.value])
+    const currentLevelData = computed(() => cvcWordData[store.currentLevel])
+
+    // 現在の問題を取得
+    const questions = computed(() => {
+      // CvcWordGameは独自のデータソースを使用
+      const levelData = cvcWordData[store.currentLevel] || cvcWordData[1]
+      return levelData.words.slice(0, store.questionCount)
+    })
+    const currentWord = computed(() => questions.value[currentWordIndex.value])
 
     // 文字の色分け
     const letterColors = {
@@ -399,7 +791,7 @@ export default {
       const selectedDistractors = []
       
       // レベルに応じてダミー文字数を調整
-      const numDistractors = currentLevel.value === 1 ? 6 : currentLevel.value === 2 ? 8 : 10
+      const numDistractors = store.currentLevel === 1 ? 6 : store.currentLevel === 2 ? 8 : 10
       
       for (let i = 0; i < numDistractors && selectedDistractors.length < numDistractors; i++) {
         const randomIndex = Math.floor(Math.random() * distractorLetters.length)
@@ -548,7 +940,7 @@ export default {
         const baseScore = 100
         const comboBonus = combo.value * 30
         const timeBonus = Math.max(0, timeLeft.value * 5)
-        const levelBonus = currentLevel.value * 50
+        const levelBonus = store.currentLevel * 50
         const hintPenalty = hintsUsed.value * 10
         const totalScore = Math.max(0, baseScore + comboBonus + timeBonus + levelBonus - hintPenalty)
         
@@ -588,7 +980,7 @@ export default {
     const nextWord = () => {
       const nextIndex = currentWordIndex.value + 1
       
-      if (nextIndex >= Math.min(questionCount.value, currentLevelData.value.words.length)) {
+      if (nextIndex >= Math.min(store.questionCount, currentLevelData.value.words.length)) {
         endGame()
         return
       }
@@ -626,7 +1018,7 @@ export default {
 
     // 結果評価の取得
     const getResultGrade = () => {
-      const accuracy = (correctAnswers.value / Math.min(questionCount.value, currentWordIndex.value + 1)) * 100
+      const accuracy = (correctAnswers.value / Math.min(store.questionCount, currentWordIndex.value + 1)) * 100
       const efficiency = Math.max(0, 100 - (hintsUsed.value * 5)) // ヒント使用による効率性評価
       const overallScore = (accuracy + efficiency) / 2
       
@@ -654,9 +1046,8 @@ export default {
 
     // エフェクト
     onMounted(() => {
-      if (currentWord.value) {
-        availableLetters.value = generateAvailableLetters()
-      }
+      // ゲームを自動的に開始
+      startGame()
     })
 
     onUnmounted(() => {
@@ -674,7 +1065,7 @@ export default {
 
     return {
       gamePhase,
-      currentLevel,
+      store,
       currentWordIndex,
       score,
       lives,
@@ -690,10 +1081,12 @@ export default {
       isPlaying,
       streak,
       correctAnswers,
-      questionCount,
       hintsUsed,
       showHint,
       currentWord,
+      questions,
+      cvcWordData,
+      currentLevelData,
       letterColors,
       getLetterColor,
       generateAvailableLetters,

@@ -537,6 +537,7 @@ const playAudio = () => {
   const text = currentQuestion.value.audioText
   
   currentUtterance = new SpeechSynthesisUtterance(text)
+  currentUtterance.lang = 'en-US'
   currentUtterance.rate = 0.8
   currentUtterance.pitch = 1.0
   

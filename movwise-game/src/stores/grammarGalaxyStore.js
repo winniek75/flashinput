@@ -49,7 +49,7 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
           name: 'Pattern Hunter',
           icon: '🔍',
           type: 'visual-search',
-          unlocked: false,
+          unlocked: true,
           stars: 0,
           maxStars: 3,
           bestScore: 0,
@@ -87,7 +87,7 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
           name: 'Grammar Puzzle Cascade',
           icon: '🧩',
           type: 'puzzle-game',
-          unlocked: false,
+          unlocked: true,
           stars: 0,
           maxStars: 3,
           bestScore: 0,
@@ -113,12 +113,69 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
           name: 'Sentence Architecture',
           icon: '🏗️',
           type: 'construction-game',
-          unlocked: false,
+          unlocked: true,
           stars: 0,
           maxStars: 3,
           bestScore: 0,
           completionTime: null,
           attempts: 0
+        }
+      ]
+    },
+    // Grammar Galaxy Foundation: Core grammar learning planets
+    grammarFoundation: {
+      id: 'grammarFoundation',
+      name: 'Grammar Foundation Galaxy',
+      icon: '🌌',
+      level: 1,
+      unlocked: true,
+      stars: 0,
+      maxStars: 9, // 3 games × 3 stars each
+      gamesCompleted: 0,
+      totalGames: 3,
+      description: '時制・疑問詞・文法構造の基礎を宇宙旅行を通じて習得します。Grammar Galaxyの中核となる学習エリアです。',
+      games: [
+        {
+          id: 'verbTimeMachine',
+          name: 'Verb Time Machine',
+          icon: '🕐',
+          type: 'time-travel-conjugation',
+          unlocked: true,
+          stars: 0,
+          maxStars: 3,
+          bestScore: 0,
+          completionTime: null,
+          attempts: 0,
+          route: '/grammar-galaxy/verb-time-machine',
+          description: '時代を旅して動詞の活用をマスターしよう！現在形・過去形・完了形を正確に選んでエネルギーを集めよう。'
+        },
+        {
+          id: 'questionWordDetective',
+          name: 'Question Word Detective',
+          icon: '🔍',
+          type: 'detective-question-words',
+          unlocked: true,
+          stars: 0,
+          maxStars: 3,
+          bestScore: 0,
+          completionTime: null,
+          attempts: 0,
+          route: '/grammar-galaxy/question-word-detective',
+          description: '写真を見て瞬時に正しい疑問詞を選ぼう！What, Who, When, Where, Why, How を使い分けて探偵スキルを磨こう。'
+        },
+        {
+          id: 'grammarConstructor',
+          name: 'Grammar Constructor',
+          icon: '🏗️',
+          type: 'sentence-construction',
+          unlocked: true,
+          stars: 0,
+          maxStars: 3,
+          bestScore: 0,
+          completionTime: null,
+          attempts: 0,
+          route: '/grammar-galaxy/grammar-constructor',
+          description: '文法ブロックをドラッグ&ドロップして正しい英文を建設しよう！主語・動詞・目的語を正しい順序で組み立てよう。'
         }
       ]
     }
@@ -199,16 +256,14 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
    * レベルがアンロック済みかチェック
    */
   const isLevelUnlocked = (level) => {
-    return level === 1 // Level 1は常時アンロック
+    return true // Development mode: all levels unlocked
   }
 
   /**
    * プラネットがアンロック済みかチェック
    */
   const isPlanetUnlocked = (planetId) => {
-    const planet = planetsData.value[planetId]
-    if (!planet) return false
-    return planet.unlocked && isLevelUnlocked(planet.level)
+    return true // Development mode: all planets unlocked
   }
 
   /**
@@ -243,11 +298,9 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
    * ゲームがアンロックされているかチェック
    */
   const isGameUnlocked = (gameId) => {
-    for (const planet of Object.values(planetsData.value)) {
-      const game = planet.games.find(g => g.id === gameId)
-      if (game) return game.unlocked
-    }
-    return false
+    // Development mode: all games unlocked
+    console.log(`🔓 Game unlock check: ${gameId} - UNLOCKED (development mode)`)
+    return true
   }
 
   /**
@@ -426,13 +479,8 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
         game.bestScore = 0
         game.completionTime = null
         game.attempts = 0
-        // 開発用に一部ゲームをアンロック状態を維持
-        if ((planet.id === 'beVerb' && game.id === 'grammarColorCode') ||
-            (planet.id === 'generalVerb' && game.id === 'grammarReflexArena')) {
-          game.unlocked = true
-        } else {
-          game.unlocked = false
-        }
+        // Development mode: keep all games unlocked
+        game.unlocked = true
       })
     })
 
@@ -447,12 +495,8 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
       rush.totalAttempts = 0
       rush.averageAccuracy = 0
       rush.lastPlayDate = null
-      // beVerbRush と verbRush は開発用にアンロック状態を維持
-      if (rush.id === 'beVerbRush' || rush.id === 'verbRush') {
-        rush.unlocked = true
-      } else {
-        rush.unlocked = false
-      }
+      // Development mode: keep all rush modes unlocked
+      rush.unlocked = true
     })
 
     saveProgress()
@@ -493,7 +537,7 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
       id: 'wordRush',
       name: 'Word Rush',
       icon: '🏃‍♂️',
-      unlocked: false,
+      unlocked: true,
       mastery: 0,
       todaySessions: 0,
       bestScore: 0,
@@ -587,17 +631,45 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
   // 初期化時にデータを読み込み
   loadProgress()
   
-  // 開発用: Grammar Reflex Arenaを強制的にアンロック（loadProgress後に実行）
+  // 開発用: 全ゲームを強制的にアンロック（loadProgress後に実行）
   setTimeout(() => {
-    if (planetsData.value.generalVerb?.games) {
-      const reflexArena = planetsData.value.generalVerb.games.find(g => g.id === 'grammarReflexArena')
-      if (reflexArena) {
-        reflexArena.unlocked = true
-        console.log('✅ Grammar Reflex Arena force unlocked for development')
-        // 変更を保存
-        saveProgress()
-      }
+    console.log('🔓 Force unlocking all games for development...')
+    
+    // Be動詞惑星のゲームをアンロック
+    if (planetsData.value.beVerb?.games) {
+      planetsData.value.beVerb.games.forEach(game => {
+        game.unlocked = true
+        console.log(`✅ ${game.name} force unlocked`)
+      })
     }
+    
+    // 一般動詞惑星のゲームをアンロック
+    if (planetsData.value.generalVerb?.games) {
+      planetsData.value.generalVerb.games.forEach(game => {
+        game.unlocked = true
+        console.log(`✅ ${game.name} force unlocked`)
+      })
+    }
+    
+    // 語順惑星のゲームをアンロック
+    if (planetsData.value.wordOrder?.games) {
+      planetsData.value.wordOrder.games.forEach(game => {
+        game.unlocked = true
+        console.log(`✅ ${game.name} force unlocked`)
+      })
+    }
+    
+    // Grammar Foundation惑星のゲームをアンロック
+    if (planetsData.value.grammarFoundation?.games) {
+      planetsData.value.grammarFoundation.games.forEach(game => {
+        game.unlocked = true
+        console.log(`✅ ${game.name} force unlocked`)
+      })
+    }
+    
+    // 変更を保存
+    saveProgress()
+    console.log('🎮 All games are now unlocked for everyone!')
   }, 100)
 
   return {

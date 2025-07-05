@@ -218,10 +218,79 @@
             </div>
           </div>
 
-          <!-- ゲーム一覧 -->
+          <!-- Special Command Center Section -->
+          <div v-if="island.id === 'dictationSpelling'" class="mb-8">
+            <!-- Mission Control Center Entrance -->
+            <div 
+              v-for="game in island.games.filter(g => g.id === 'dictationSpellingHub')"
+              :key="game.id"
+              @click="(game.unlocked && island.unlocked) && startGame(game.id)"
+              class="command-center-entrance cursor-pointer group"
+            >
+              <div class="command-center-container">
+                <!-- Command Center Header -->
+                <div class="command-header">
+                  <div class="status-indicator-container">
+                    <div class="status-light online"></div>
+                    <div class="status-rings"></div>
+                  </div>
+                  <div class="command-title">
+                    <h3 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2">
+                      🎯 MISSION CONTROL CENTER
+                    </h3>
+                    <p class="text-cyan-300 text-lg font-semibold tracking-wide">DICTATION & SPELLING COMMAND HUB</p>
+                    <p class="text-slate-400 text-sm mt-1">聴解・記述統合戦術システム - 全作戦指令部</p>
+                  </div>
+                  <div class="access-panel">
+                    <div class="access-code">ACCESS</div>
+                    <div class="access-status">GRANTED</div>
+                  </div>
+                </div>
+                
+                <!-- System Status Panel -->
+                <div class="system-status-panel">
+                  <div class="status-grid">
+                    <div class="status-module audio-system">
+                      <div class="module-icon">🎧</div>
+                      <div class="module-name">AUDIO SYS</div>
+                      <div class="module-status online">ONLINE</div>
+                    </div>
+                    <div class="status-module input-system">
+                      <div class="module-icon">⌨️</div>
+                      <div class="module-name">INPUT SYS</div>
+                      <div class="module-status online">ONLINE</div>
+                    </div>
+                    <div class="status-module database">
+                      <div class="module-icon">📊</div>
+                      <div class="module-name">DATABASE</div>
+                      <div class="module-status standby">STANDBY</div>
+                    </div>
+                    <div class="status-module analytics">
+                      <div class="module-icon">🔍</div>
+                      <div class="module-name">ANALYTICS</div>
+                      <div class="module-status development">DEV</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Launch Button -->
+                <div class="launch-section">
+                  <div class="launch-button-container">
+                    <button class="launch-button">
+                      <span class="launch-icon">🚀</span>
+                      <span class="launch-text">LAUNCH COMMAND CENTER</span>
+                    </button>
+                    <div class="launch-status">Ready for deployment</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Regular Games Grid -->
           <div class="grid md:grid-cols-2 gap-6">
             <div
-              v-for="game in island.games"
+              v-for="game in island.games.filter(g => g.id !== 'dictationSpellingHub')"
               :key="game.id"
               :class="[
                 'galaxy-card group relative p-6 rounded-2xl border-2 transition-all duration-300',
@@ -361,8 +430,10 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSpectatorStore } from '@/stores/spectatorStore'
+import { useSpectatorMode } from '@/composables/useSpectatorMode'
 import { 
   Volume2, Play, Star, Trophy, Target, Zap, Heart, ChevronRight, 
   RotateCcw, CheckCircle, XCircle, Award, Crown, Flame, Gem,
@@ -388,6 +459,10 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const spectatorStore = useSpectatorStore()
+    
+    // 観戦モード統合
+    const spectatorMode = useSpectatorMode('SoundAdventureHub')
 
     // ゲーム状態管理
     const playerData = reactive({
@@ -518,6 +593,45 @@ export default {
         ]
       },
 
+      // Stage 1.5: フォニックス・トレーニング・センター（発音練習）
+      phonicsTraining: {
+        id: 'phonicsTraining',
+        name: '🎤 フォニックス・トレーニング・センター',
+        description: 'CV発音練習と音素識別ゲーム！正確な発音を身につけよう',
+        learningFocus: 'Stage 1.5: 発音練習 → 音素の正確な発音と識別能力を身につける',
+        unlocked: true,
+        progress: 0,
+        unlockRequirement: 'Stage 1を50%完了',
+        games: [
+          {
+            id: 'cvPronunciationTrainer',
+            name: 'CV発音トレーナー',
+            description: '子音＋母音の組み合わせ発音を集中練習',
+            icon: '🗣️',
+            difficulty: 1,
+            bestScore: 0,
+            progress: 0,
+            unlocked: true,
+            featured: true,
+            isNew: true,
+            routeName: 'phonics-training-hub'
+          },
+          {
+            id: 'floatingLetterHunt',
+            name: '浮遊文字ハント',
+            description: '聞こえた音に対応する文字を素早く見つけてタッチ',
+            icon: '🎯',
+            difficulty: 1,
+            bestScore: 0,
+            progress: 0,
+            unlocked: true,
+            featured: true,
+            isNew: true,
+            routeName: 'phonics-training-hub'
+          }
+        ]
+      },
+
       // Stage 2: ブレンディング・ベーシック（音素合成）
       blendingBasic: {
         id: 'blendingBasic',
@@ -572,7 +686,7 @@ export default {
         name: '✍️ ディクテーション＆スペリング',
         description: '聞いた音を正確に文字化！スペリング能力を強化',
         learningFocus: 'Stage 3: 音声→文字 → 聞いた音を正確に書き取る',
-        unlocked: false,
+        unlocked: true,
         progress: 0,
         unlockRequirement: 'Stage 2を60%完了',
         games: [
@@ -584,7 +698,7 @@ export default {
             difficulty: 2,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: true,
             isNew: true
           },
@@ -596,7 +710,7 @@ export default {
             difficulty: 2,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           },
@@ -608,7 +722,7 @@ export default {
             difficulty: 3,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           }
@@ -621,7 +735,7 @@ export default {
         name: '🌙 スペシャル・サウンド・ルール',
         description: '特殊な音韻ルールをマスター！英語の音の秘密を解き明かそう',
         learningFocus: 'Stage 4: 特殊ルール → 音韻変化パターンを習得',
-        unlocked: false,
+        unlocked: true,
         progress: 0,
         unlockRequirement: 'Stage 3を70%完了',
         games: [
@@ -633,7 +747,7 @@ export default {
             difficulty: 3,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: true,
             isNew: true
           },
@@ -645,7 +759,7 @@ export default {
             difficulty: 3,
             bestScore: 1200,
             progress: 60,
-            unlocked: false,
+            unlocked: true,
             featured: true,
             routeName: 'magic-e-castle'
           },
@@ -657,7 +771,7 @@ export default {
             difficulty: 3,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           },
@@ -669,7 +783,7 @@ export default {
             difficulty: 3,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           }
@@ -682,7 +796,7 @@ export default {
         name: '🚀 アドバンスド・フォニックス',
         description: '複雑な音韻パターンに挑戦！上級レベルへの道',
         learningFocus: 'Stage 5: 上級音韻 → 複雑なパターンを習得',
-        unlocked: false,
+        unlocked: true,
         progress: 0,
         unlockRequirement: 'Stage 4を70%完了',
         games: [
@@ -694,7 +808,7 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: true,
             isNew: true
           },
@@ -706,7 +820,7 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           },
@@ -718,7 +832,7 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           }
@@ -731,7 +845,7 @@ export default {
         name: '🎭 プロソディ＆フルーエンシー',
         description: '英語の音楽性を習得！自然な英語のリズムをマスター',
         learningFocus: 'Stage 6: 韻律 → 自然な英語の音楽性を身につける',
-        unlocked: false,
+        unlocked: true,
         progress: 0,
         unlockRequirement: 'Stage 5を80%完了',
         games: [
@@ -743,7 +857,7 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: true,
             isNew: true
           },
@@ -755,7 +869,7 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
             featured: false,
             isNew: true
           },
@@ -767,7 +881,55 @@ export default {
             difficulty: 4,
             bestScore: 0,
             progress: 0,
-            unlocked: false,
+            unlocked: true,
+            featured: false,
+            isNew: true
+          }
+        ]
+      },
+
+      // ディクテーション＆スペリング・センター
+      dictationSpelling: {
+        id: 'dictationSpelling',
+        name: '📝 ディクテーション＆スペリング・センター',
+        description: '聞く力と書く力を同時に鍛える総合学習エリア',
+        learningFocus: 'Stage 4.5: 音声ディクテーション＆スペリング → 聴解とライティングを統合',
+        unlocked: true,
+        progress: 45,
+        games: [
+          {
+            id: 'dictationSpellingHub',
+            name: 'ディクテーション＆スペリング・ハブ',
+            description: '総合学習センター - すべての練習はここから！',
+            icon: '🎯',
+            difficulty: 2,
+            bestScore: 0,
+            progress: 0,
+            unlocked: true,
+            featured: true,
+            isNew: true
+          },
+          {
+            id: 'wordDictationChallenge',
+            name: 'ワード・ディクテーション・チャレンジ',
+            description: '音声を聞いて単語を正確にタイピング',
+            icon: '🎧',
+            difficulty: 2,
+            bestScore: 780,
+            progress: 65,
+            unlocked: true,
+            featured: false,
+            isNew: true
+          },
+          {
+            id: 'spellingBeeArena',
+            name: 'スペリング・ビー・アリーナ',
+            description: '競技形式のスペリング大会に挑戦！',
+            icon: '🏆',
+            difficulty: 3,
+            bestScore: 1250,
+            progress: 48,
+            unlocked: true,
             featured: false,
             isNew: true
           }
@@ -943,11 +1105,14 @@ export default {
         'pureSoundLab',
         'soundToSymbolMatch',
         'phonemePatternLab',
+        'cvPronunciationTrainer',
+        'floatingLetterHunt',
         'magicECastle',
         'magicCardBattle',
         'spellRacing',
         'magicCooking',
         'voicePuzzle',
+        'sequentialBlending',
         'cvcWordFactory',
         'wordFamilyTree',
         'sightWordMaster',
@@ -963,7 +1128,12 @@ export default {
         'soundBattleArena',
         'rhythmPhonicsDance',
         'phonicsPuzzleQuest',
-        'soundFarm'
+        'soundFarm',
+        // ディクテーション＆スペリング
+        'dictationSpellingHub',
+        'wordDictationChallenge',
+        'typingArena',
+        'spellingBeeArena'
       ]
       if (!implementedGames.includes(gameId)) {
         alert('🚧 このゲームは開発中です！\n\n近日公開予定ですので、もう少しお待ちください。')
@@ -974,12 +1144,15 @@ export default {
         'pureSoundLab': 'pure-sound-lab',
         'soundToSymbolMatch': 'sound-to-symbol',
         'phonemePatternLab': 'phoneme-pattern-lab',
+        'cvPronunciationTrainer': 'phonics-training-hub',
+        'floatingLetterHunt': 'phonics-training-hub',
         'magicECastle': 'magic-e-castle',
         'magicCardBattle': 'magic-card-battle',
         'spellRacing': 'spell-racing',
         'magicCooking': 'magic-cooking',
         'voicePuzzle': 'voice-puzzle',
-        'cvcWordFactory': 'cvc-word-factory',
+        'sequentialBlending': 'sequential-blending',
+        'cvcWordFactory': 'cvc-settings',
         'wordFamilyTree': 'word-family-tree',
         'sightWordMaster': 'sight-word-master',
         'wordRushArena': 'WordRushGame',
@@ -994,9 +1167,23 @@ export default {
         'soundBattleArena': 'sound-battle-arena',
         'rhythmPhonicsDance': 'rhythm-phonics-dance',
         'phonicsPuzzleQuest': 'phonics-puzzle-quest',
-        'soundFarm': 'sound-farm'
+        'soundFarm': 'sound-farm',
+        // ディクテーション＆スペリング
+        'dictationSpellingHub': 'dictation-spelling-hub',
+        'wordDictationChallenge': 'word-dictation-challenge',
+        'typingArena': 'typing-arena',
+        'spellingBeeArena': 'spelling-bee-arena'
       }
       if (routes[gameId]) {
+        // 観戦モードで状態同期
+        if (spectatorStore.isSpectatorMode && spectatorStore.isStudent) {
+          spectatorMode.sendGameAction('start-game', { 
+            gameId: gameId,
+            routeName: routes[gameId],
+            timestamp: Date.now() 
+          });
+        }
+        
         router.push({ name: routes[gameId] })
           .catch(error => {
             console.error('ナビゲーションエラー:', error)
@@ -1057,9 +1244,37 @@ export default {
     function handleFooterNav(target) {
       if (target === 'sound') router.push('/sound-adventure')
       if (target === 'grammar') router.push('/grammar-galaxy')
-      if (target === 'academy') router.push('/virtual-academy')
-      if (target === 'profile') router.push('/profile')
+      if (target === 'multi-layer') router.push('/multi-layer')
+      if (target === 'co-pilot') router.push('/co-pilot-dock')
+      if (target === 'vr-academy') router.push('/vr-academy')
     }
+
+    // 観戦モードでの状態監視
+    watch(() => spectatorStore.isSpectatorMode, (isSpectatorMode) => {
+      if (isSpectatorMode && spectatorStore.isStudent) {
+        console.log('Spectator mode activated in SoundAdventureHub');
+        spectatorMode.syncGameState({
+          currentPage: 'SoundAdventureHub',
+          playerLevel: playerData.level,
+          soundGems: playerData.soundGems,
+          timestamp: Date.now()
+        });
+      }
+    }, { immediate: true });
+
+    // マウント時に観戦モード状態を同期
+    onMounted(() => {
+      if (spectatorStore.isSpectatorMode && spectatorStore.isStudent) {
+        spectatorMode.notifyGameStart();
+        spectatorMode.syncGameState({
+          currentPage: 'SoundAdventureHub',
+          playerLevel: playerData.level,
+          soundGems: playerData.soundGems,
+          availableGames: soundMasteryIslands.length,
+          timestamp: Date.now()
+        });
+      }
+    });
 
     return {
       playerData,
@@ -1342,5 +1557,305 @@ export default {
 
 .quest-pending {
   border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Command Center Entrance Styles */
+.command-center-entrance {
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.command-center-entrance:hover {
+  transform: translateY(-4px);
+}
+
+.command-center-container {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.95) 50%, 
+    rgba(15, 23, 42, 0.95) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(6, 182, 212, 0.4);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 0 50px rgba(6, 182, 212, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.command-center-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+  transition: left 0.8s;
+}
+
+.command-center-entrance:hover .command-center-container::before {
+  left: 100%;
+}
+
+/* Command Header */
+.command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.status-indicator-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.status-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-light.online {
+  background: #10b981;
+  box-shadow: 0 0 20px #10b981;
+}
+
+.status-rings {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 50%;
+  animation: expandRing 3s infinite;
+}
+
+.status-rings::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 50%;
+  animation: expandRing 3s infinite 1s;
+}
+
+@keyframes expandRing {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.command-title {
+  text-align: center;
+  flex: 1;
+  margin: 0 2rem;
+}
+
+.access-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 100px;
+}
+
+.access-code {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.access-status {
+  font-size: 1rem;
+  color: #10b981;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+/* System Status Panel */
+.system-status-panel {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.status-module {
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.8) 0%, 
+    rgba(51, 65, 85, 0.8) 100%
+  );
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.status-module:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  transform: translateY(-2px);
+}
+
+.module-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.module-name {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.module-status {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.module-status.online {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.module-status.standby {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.module-status.development {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Launch Section */
+.launch-section {
+  position: relative;
+  z-index: 10;
+}
+
+.launch-button-container {
+  text-align: center;
+}
+
+.launch-button {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  border-radius: 16px;
+  padding: 1rem 2rem;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto 0.5rem;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.launch-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.launch-button:hover::before {
+  left: 100%;
+}
+
+.launch-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+  border-color: rgba(99, 102, 241, 0.8);
+}
+
+.launch-icon {
+  font-size: 1.5rem;
+  animation: rocketPulse 2s infinite;
+}
+
+@keyframes rocketPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.launch-status {
+  color: #10b981;
+  font-size: 0.9rem;
+  font-weight: semibold;
+}
+
+/* Responsive Design for Command Center */
+@media (max-width: 768px) {
+  .command-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .command-title {
+    margin: 0;
+  }
+  
+  .command-title h3 {
+    font-size: 2rem;
+  }
+  
+  .status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .launch-button {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .command-center-container {
+    padding: 1rem;
+  }
 }
 </style>

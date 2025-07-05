@@ -126,9 +126,9 @@
               </select>
             </div>
             <button 
-              @click="startGame"
+              @click="wrapClickHandler(startGame)"
               class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl font-bold text-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-              :disabled="!selectedCategory || (subLevels.length > 0 && !selectedSubLevel)"
+              :disabled="!selectedCategory || (subLevels.length > 0 && !selectedSubLevel) || isInteractionDisabled"
             >
               <div class="flex items-center justify-center gap-3">
                 <Play class="w-6 h-6" />
@@ -203,8 +203,8 @@
             <button
               v-for="(option, index) in currentQuestionData.options"
               :key="index"
-              @click="selectAnswer(option, index)"
-              :disabled="answerSelected"
+              @click="wrapClickHandler(() => selectAnswer(option, index))"
+              :disabled="answerSelected || isInteractionDisabled"
               :class="[
                 'p-6 rounded-2xl font-bold text-xl transition-all duration-300 transform',
                 answerSelected
@@ -342,7 +342,33 @@ import {
   Play, Volume2, ChevronRight
 } from 'lucide-vue-next'
 
+// === ネイティブ発音システムの導入 ===
+import { useGameAudio } from '@/composables/useGameAudio'
+import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database'
+
+// === 観戦モード統合 ===
+import { useSpectatorMode } from '@/composables/useSpectatorMode'
+
 const router = useRouter()
+
+// === 観戦モード初期化 ===
+const spectatorMode = useSpectatorMode('WordRushGame')
+const { 
+  isInteractionDisabled, 
+  isTeacher,
+  notifyGameStart, 
+  notifyAnswer, 
+  notifyScoreUpdate,
+  wrapClickHandler 
+} = spectatorMode
+
+// === ネイティブ発音システムの初期化 ===
+const {
+  playWord: playNativeWord,
+  playPhoneme: playNativePhoneme,
+  speakSentence: speakNativeSentence,
+  initializeAudio: initNativeAudio
+} = useGameAudio()
 
 // ゲーム定数
 const GAME_DURATION = 60 // 秒
@@ -505,8 +531,19 @@ const preloadNextImages = () => {
 watch(difficultyLevel, () => {
   preloadNextImages()
 })
-onMounted(() => {
+onMounted(async () => {
+  // 観戦モードでゲーム開始を通知
+  notifyGameStart()
+  
   preloadNextImages()
+  
+  // ネイティブ発音システムの初期化
+  try {
+    await initNativeAudio()
+    console.log('WordRushGame: ネイティブ発音システム初期化完了')
+  } catch (error) {
+    console.log('WordRushGame: ネイティブ発音システム初期化エラー:', error)
+  }
 })
 
 // 画像の遅延読み込み
@@ -583,6 +620,16 @@ const selectAnswer = (answer, index) => {
   answerSelected.value = true
   selectedAnswerIndex.value = index
   const correct = answer === currentQuestionData.value.correct
+  
+  // 観戦モード: 回答通知
+  notifyAnswer({
+    question: currentQuestionData.value.correct,
+    selectedAnswer: answer,
+    correctAnswer: currentQuestionData.value.correct,
+    isCorrect: correct,
+    questionIndex: currentQuestion.value
+  })
+  
   if (correct) {
     isCorrect.value = true
     correctAnswers.value++
@@ -594,10 +641,40 @@ const selectAnswer = (answer, index) => {
     const comboBonus = getComboBonus()
     const totalPoints = basePoints + timeBonus + comboBonus
     score.value += totalPoints
+    
+    // 観戦モード: スコア更新通知
+    notifyScoreUpdate({
+      currentScore: score.value,
+      questionScore: totalPoints,
+      streak: streak.value,
+      correctAnswers: correctAnswers.value
+    })
+    
+    // ネイティブ発音で正解を再生
+    setTimeout(() => {
+      playNativeWord({
+        word: answer,
+        type: 'vocabulary_celebration',
+        difficulty: difficultyLevel.value
+      }).catch(() => {
+        // フォールバック無し、正解フィードバックは視覚的のみ
+      })
+    }, 300)
   } else {
     isCorrect.value = false
     streak.value = 0
     score.value = Math.max(0, score.value - 50) // ペナルティ
+    
+    // 間違えた場合は正解をネイティブ発音で再生
+    setTimeout(() => {
+      playNativeWord({
+        word: currentQuestionData.value.correct,
+        type: 'vocabulary_correction',
+        difficulty: difficultyLevel.value
+      }).catch(() => {
+        // フォールバック無し
+      })
+    }, 500)
   }
   showFeedback.value = true
   // 1.5秒後に次の問題
@@ -722,36 +799,66 @@ const getFallbackEmoji = (word) => {
   return emojiMap[word?.toLowerCase?.()] || '❓'
 }
 
-// 音声再生
-const playAudio = () => {
-  if ('speechSynthesis' in window) {
-    isPlaying.value = true
-    const utterance = new SpeechSynthesisUtterance(currentQuestionData.value.correct)
-    utterance.lang = 'en-US'
-    utterance.volume = audioVolume.value
-    utterance.rate = 1.0
-    utterance.pitch = 1.0
+// 音声再生 - ネイティブ発音システム統合
+const playAudio = async () => {
+  if (!currentQuestionData.value.correct) return
+  
+  isPlaying.value = true
+  
+  try {
+    // ネイティブ発音を優先的に使用
+    await playNativeWord({
+      word: currentQuestionData.value.correct,
+      type: 'vocabulary',
+      difficulty: difficultyLevel.value,
+      volume: audioVolume.value
+    })
+  } catch (nativeError) {
+    console.log('ネイティブ発音システムエラー、フォールバック使用:', nativeError)
     
-    // 音声の品質を向上させるための設定
-    const voices = speechSynthesis.getVoices()
-    const englishVoice = voices.find(voice => 
-      voice.lang === 'en-US' && 
-      voice.name.includes('Google') || 
-      voice.name.includes('Microsoft') ||
-      voice.name.includes('Samantha')
-    )
-    
-    if (englishVoice) {
-      utterance.voice = englishVoice
+    // フォールバック: 従来のSpeech Synthesis API
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(currentQuestionData.value.correct)
+      utterance.lang = 'en-US'
+      utterance.volume = audioVolume.value
+      utterance.rate = 1.0
+      utterance.pitch = 1.0
+      
+      // 音声の品質を向上させるための設定
+      const voices = speechSynthesis.getVoices()
+      const englishVoice = voices.find(voice => 
+        voice.lang === 'en-US' && 
+        voice.name.includes('Google') || 
+        voice.name.includes('Microsoft') ||
+        voice.name.includes('Samantha')
+      )
+      
+      if (englishVoice) {
+        utterance.voice = englishVoice
+      }
+      
+      utterance.onend = () => {
+        isPlaying.value = false
+      }
+      
+      speechSynthesis.speak(utterance)
     }
-    
-    utterance.onend = () => {
-      isPlaying.value = false
-    }
-    
-    speechSynthesis.speak(utterance)
   }
+  
+  // 再生終了処理
+  setTimeout(() => {
+    isPlaying.value = false
+  }, 2000)
 }
+
+// ライフサイクルフック - 観戦モード通知
+onMounted(() => {
+  notifyGameStart({
+    gameName: 'ワード・ラッシュ・アリーナ',
+    gameType: 'vocabulary',
+    description: '高速語彙習得ゲーム'
+  })
+})
 </script>
 
 <style scoped>

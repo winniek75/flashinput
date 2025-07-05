@@ -640,6 +640,7 @@ const playAudio = () => {
   
   // Web Speech API を使用
   const utterance = new SpeechSynthesisUtterance(currentChallenge.value.audio)
+  utterance.lang = 'en-US'
   utterance.rate = 0.8
   utterance.pitch = 1
   

@@ -685,7 +685,7 @@ const achievements = ref([
     description: 'Complete all Foundation level games',
     icon: 'academic-cap',
     rarity: 'rare',
-    unlocked: false,
+    unlocked: true,
     progress: 2,
     target: 3,
     reward: '500 XP'
@@ -696,7 +696,7 @@ const achievements = ref([
     description: 'Complete a game in under 30 seconds',
     icon: 'bolt',
     rarity: 'legendary',
-    unlocked: false,
+    unlocked: true,
     progress: 0,
     target: 1,
     reward: '1000 XP'

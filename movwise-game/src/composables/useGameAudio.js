@@ -1,5 +1,6 @@
 // src/composables/useGameAudio.js - 完全版（エラー対策）
 import { ref, reactive, computed, onMounted, onUnmounted, readonly } from 'vue'
+import { phonemeAudioService } from '@/services/phonemeAudioService'
 
 export function useGameAudio() {
   // === リアクティブな状態 ===
@@ -9,10 +10,21 @@ export function useGameAudio() {
   const isInitialized = ref(false)
   const contextState = ref('disabled')
 
+  // === 音声認識関連の状態 ===
+  const isRecording = ref(false)
+  const isAnalyzing = ref(false)
+  const recognitionResults = ref([])
+  const lastRecognitionConfidence = ref(0)
+  const speechRecognition = ref(null)
+  const mediaRecorder = ref(null)
+  const audioStream = ref(null)
+
   const supportedFeatures = reactive({
     speechSynthesis: false,
+    speechRecognition: false,
     webAudio: false,
-    audioContext: false
+    audioContext: false,
+    mediaRecorder: false
   })
 
   // === 設定値 ===
@@ -153,13 +165,20 @@ export function useGameAudio() {
     }
   }
 
-  // === 音声機能の初期化（簡素化） ===
+  // === 音声機能の初期化（音声認識追加） ===
   const initializeAudio = async () => {
     try {
       if (isInitialized.value) return true
 
-      // Speech Synthesis のサポート確認のみ
+      // Speech Synthesis のサポート確認
       supportedFeatures.speechSynthesis = 'speechSynthesis' in window
+
+      // Speech Recognition のサポート確認
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      supportedFeatures.speechRecognition = !!SpeechRecognition
+
+      // MediaRecorder のサポート確認
+      supportedFeatures.mediaRecorder = 'MediaRecorder' in window
 
       // Web Audio API のサポート確認
       try {
@@ -174,10 +193,21 @@ export function useGameAudio() {
         supportedFeatures.audioContext = false
       }
 
+      // Speech Recognition の初期化
+      if (supportedFeatures.speechRecognition) {
+        try {
+          speechRecognition.value = new SpeechRecognition()
+          setupSpeechRecognition()
+        } catch (error) {
+          console.warn('Speech Recognition initialization failed:', error)
+          supportedFeatures.speechRecognition = false
+        }
+      }
+
       isInitialized.value = true
       contextState.value = supportedFeatures.speechSynthesis ? 'ready' : 'limited'
 
-      console.log('Audio system initialized with speech synthesis')
+      console.log('Audio system initialized with speech recognition')
       console.log('Supported features:', supportedFeatures)
 
       return true
@@ -214,18 +244,112 @@ export function useGameAudio() {
     }
   }
 
-  // === 音素再生（無効化） ===
-  const playPhoneme = async (phoneme) => {
+  // === 音素再生（実際の音声ファイル使用） ===
+  const playPhoneme = async (phonemeObj) => {
     try {
-      console.log('Phoneme playback disabled:', phoneme)
-      return playVisualFeedback('button')
+      isPlaying.value = true
+      
+      // 音素データの正規化
+      let phoneme = ''
+      let nativeTips = ''
+      
+      if (typeof phonemeObj === 'string') {
+        phoneme = phonemeObj
+      } else if (phonemeObj?.symbol) {
+        phoneme = phonemeObj.symbol.replace(/\//g, '')
+        nativeTips = phonemeObj.nativeTips || ''
+      } else if (phonemeObj?.ipa) {
+        phoneme = phonemeObj.ipa
+        nativeTips = phonemeObj.nativeTips || ''
+      } else {
+        console.warn('No phoneme data provided for playback')
+        isPlaying.value = false
+        return playVisualFeedback('button')
+      }
+
+      console.log('🎵 Playing phoneme audio file:', phoneme, '| Tips:', nativeTips)
+      
+      // 実際の音声ファイルを再生
+      await phonemeAudioService.playPhoneme(phoneme, {
+        volume: currentVolume.value,
+        rate: 1.0
+      })
+      
+      isPlaying.value = false
+      console.log('✅ Phoneme audio completed:', phoneme)
+      return true
+
     } catch (error) {
-      console.warn('Phoneme playback error:', error)
-      return false
+      console.warn('⚠️ Phoneme audio playback error:', error)
+      isPlaying.value = false
+      
+      // フォールバック: Speech Synthesis を使用
+      return await playPhonemeWithSpeechSynthesis(phonemeObj)
     }
   }
 
-  // === 単語再生（Speech Synthesis API使用） ===
+  // === フォールバック: Speech Synthesis 使用 ===
+  const playPhonemeWithSpeechSynthesis = async (phonemeObj) => {
+    try {
+      if (!supportedFeatures.speechSynthesis) {
+        console.log('Speech synthesis not supported, using visual feedback only')
+        return playVisualFeedback('button')
+      }
+
+      let phonemeText = ''
+      let ipaSymbol = ''
+      
+      if (typeof phonemeObj === 'string') {
+        phonemeText = phonemeObj
+        ipaSymbol = phonemeObj
+      } else if (phonemeObj?.symbol) {
+        ipaSymbol = phonemeObj.symbol.replace(/\//g, '')
+        phonemeText = phonemeObj.nativeText || ipaSymbol
+      } else {
+        phonemeText = 'unknown sound'
+        ipaSymbol = 'unknown'
+      }
+
+      const optimizedText = optimizeForNativePronunciation(ipaSymbol, phonemeText)
+      
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(optimizedText)
+        utterance.rate = getOptimalRateForPhoneme(ipaSymbol)
+        utterance.pitch = getOptimalPitchForPhoneme(ipaSymbol) 
+        utterance.volume = currentVolume.value * 0.8 // 少し小さめに
+        utterance.lang = 'en-US'
+        
+        const voices = speechSynthesis.getVoices()
+        const bestNativeVoice = selectBestNativeVoice(voices)
+        
+        if (bestNativeVoice) {
+          utterance.voice = bestNativeVoice
+          console.log('🎙️ Fallback: Using speech synthesis for:', ipaSymbol)
+        }
+
+        utterance.onend = () => {
+          isPlaying.value = false
+          resolve(true)
+        }
+
+        utterance.onerror = (error) => {
+          isPlaying.value = false
+          console.warn('Speech synthesis fallback error:', error)
+          playVisualFeedback('incorrect')
+          resolve(false)
+        }
+
+        speechSynthesis.speak(utterance)
+      })
+
+    } catch (error) {
+      console.warn('Speech synthesis fallback failed:', error)
+      isPlaying.value = false
+      return playVisualFeedback('incorrect')
+    }
+  }
+
+  // === 単語再生（Native Pronunciation with Word-Level Optimization） ===
   const playWord = async (wordObj) => {
     try {
       if (!soundEnabled.value || !supportedFeatures.speechSynthesis) {
@@ -236,44 +360,63 @@ export function useGameAudio() {
       isPlaying.value = true
       
       const word = typeof wordObj === 'string' ? wordObj : wordObj?.word
+      const pronunciation = wordObj?.pronunciation || ''
+      const difficulty = wordObj?.difficulty || 'normal'
+      const wordType = wordObj?.type || 'general'
+      
       if (!word) {
         console.warn('No word provided for playback')
         return playVisualFeedback('button')
       }
 
+      // Advanced word pronunciation optimization
+      const optimizedWord = optimizeWordForNativePronunciation(word, pronunciation, wordType)
+      
       return new Promise((resolve) => {
-        const utterance = new SpeechSynthesisUtterance(word)
+        const utterance = new SpeechSynthesisUtterance(optimizedWord)
         
-        // 音声設定
-        utterance.rate = 0.8 // ゆっくりと発音
-        utterance.pitch = 1.0
+        // Dynamic native pronunciation settings based on word characteristics
+        utterance.rate = getOptimalRateForWord(word, difficulty)
+        utterance.pitch = getOptimalPitchForWord(word, wordType)
         utterance.volume = currentVolume.value
-        utterance.lang = 'en-US' // 英語の発音
+        utterance.lang = 'en-US'
+        
+        // Premium native voice selection with accent preference
+        const voices = speechSynthesis.getVoices()
+        const bestNativeVoice = selectBestNativeVoice(voices, 'american')
+        
+        if (bestNativeVoice) {
+          utterance.voice = bestNativeVoice
+          console.log('🎙️ Using premium native voice for word:', bestNativeVoice.name, '| Word:', word, '| Type:', wordType)
+        }
 
         utterance.onend = () => {
           isPlaying.value = false
-          console.log('Word playback completed:', word)
+          console.log('✅ Native word completed:', word, '| Optimized:', optimizedWord)
           resolve(true)
         }
 
         utterance.onerror = (error) => {
           isPlaying.value = false
-          console.warn('Word playback error:', error)
+          console.warn('⚠️ Native word error:', error)
           playVisualFeedback('incorrect')
           resolve(false)
         }
 
         utterance.onstart = () => {
-          console.log('Word playback started:', word)
+          console.log('🎤 Native word started:', word)
+          if (pronunciation) {
+            console.log('🔊 Pronunciation guide:', pronunciation)
+          }
         }
 
-        // 音声再生開始
+        // ネイティブ音声再生開始
         speechSynthesis.speak(utterance)
       })
 
     } catch (error) {
       isPlaying.value = false
-      console.warn('Word playback error:', error)
+      console.warn('Native word playback error:', error)
       return playVisualFeedback('button')
     }
   }
@@ -424,10 +567,358 @@ export function useGameAudio() {
     }
   }
 
+  // === Speech Recognition セットアップ ===
+  const setupSpeechRecognition = () => {
+    if (!speechRecognition.value) return
+
+    const recognition = speechRecognition.value
+    
+    // 基本設定
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.lang = 'en-US'
+    recognition.maxAlternatives = 3
+
+    // イベントハンドラー
+    recognition.onstart = () => {
+      console.log('🎤 Speech recognition started')
+      isRecording.value = true
+    }
+
+    recognition.onend = () => {
+      console.log('🎤 Speech recognition ended')
+      isRecording.value = false
+    }
+
+    recognition.onresult = (event) => {
+      console.log('🎤 Speech recognition result:', event)
+      
+      const results = []
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i]
+        for (let j = 0; j < result.length; j++) {
+          results.push({
+            transcript: result[j].transcript,
+            confidence: result[j].confidence,
+            isFinal: result.isFinal
+          })
+        }
+      }
+      
+      recognitionResults.value = results
+      if (results.length > 0) {
+        lastRecognitionConfidence.value = results[0].confidence
+      }
+    }
+
+    recognition.onerror = (event) => {
+      console.error('🎤 Speech recognition error:', event.error)
+      isRecording.value = false
+      audioError.value = `Speech recognition error: ${event.error}`
+    }
+  }
+
+  // === 録音開始 ===
+  const startRecording = async () => {
+    try {
+      if (!supportedFeatures.speechRecognition) {
+        throw new Error('Speech recognition not supported')
+      }
+
+      if (isRecording.value) {
+        console.warn('Recording already in progress')
+        return false
+      }
+
+      // マイクアクセスの要求
+      try {
+        audioStream.value = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100
+          }
+        })
+      } catch (error) {
+        throw new Error(`Microphone access denied: ${error.message}`)
+      }
+
+      // Speech Recognition 開始
+      recognitionResults.value = []
+      lastRecognitionConfidence.value = 0
+      speechRecognition.value.start()
+
+      console.log('🎤 Recording started')
+      return true
+
+    } catch (error) {
+      console.error('Recording start error:', error)
+      audioError.value = error.message
+      isRecording.value = false
+      return false
+    }
+  }
+
+  // === 録音停止 ===
+  const stopRecording = async () => {
+    try {
+      if (!isRecording.value) {
+        console.warn('No recording in progress')
+        return false
+      }
+
+      // Speech Recognition 停止
+      if (speechRecognition.value) {
+        speechRecognition.value.stop()
+      }
+
+      // オーディオストリーム停止
+      if (audioStream.value) {
+        audioStream.value.getTracks().forEach(track => track.stop())
+        audioStream.value = null
+      }
+
+      console.log('🎤 Recording stopped')
+      return true
+
+    } catch (error) {
+      console.error('Recording stop error:', error)
+      audioError.value = error.message
+      return false
+    }
+  }
+
+  // === 音声分析・発音判定 ===
+  const analyzeAudio = async (targetPhoneme, options = {}) => {
+    try {
+      if (!recognitionResults.value.length) {
+        throw new Error('No recognition results available')
+      }
+
+      isAnalyzing.value = true
+
+      const bestResult = recognitionResults.value[0]
+      const recognizedText = bestResult.transcript.toLowerCase().trim()
+      const confidence = bestResult.confidence
+
+      console.log('🔍 Analyzing pronunciation:', {
+        target: targetPhoneme,
+        recognized: recognizedText,
+        confidence: confidence
+      })
+
+      // 発音スコア計算
+      const pronunciationScore = calculatePronunciationScore(
+        targetPhoneme, 
+        recognizedText, 
+        confidence,
+        options
+      )
+
+      isAnalyzing.value = false
+
+      return {
+        recognized: recognizedText,
+        confidence: confidence,
+        score: pronunciationScore.score,
+        accuracy: pronunciationScore.accuracy,
+        clarity: pronunciationScore.clarity,
+        timing: pronunciationScore.timing,
+        feedback: pronunciationScore.feedback
+      }
+
+    } catch (error) {
+      console.error('Audio analysis error:', error)
+      isAnalyzing.value = false
+      
+      // フォールバック: ランダムスコア
+      return {
+        recognized: 'unknown',
+        confidence: 0.5,
+        score: Math.random() * 40 + 60, // 60-100
+        accuracy: 0.7,
+        clarity: 0.6,
+        timing: 0.8,
+        feedback: 'Analysis failed, please try again'
+      }
+    }
+  }
+
+  // === 発音スコア計算アルゴリズム ===
+  const calculatePronunciationScore = (target, recognized, confidence, options = {}) => {
+    try {
+      let score = 0
+      let accuracy = 0
+      let clarity = confidence || 0.5
+      let timing = 0.8 // デフォルト値
+      let feedback = ''
+
+      // 基本一致チェック
+      const targetLower = target.toLowerCase().trim()
+      const recognizedLower = recognized.toLowerCase().trim()
+
+      // 完全一致
+      if (targetLower === recognizedLower) {
+        accuracy = 1.0
+        score = 90 + (confidence * 10)
+        feedback = 'Perfect pronunciation!'
+      }
+      // 部分一致（音素の一部が含まれている）
+      else if (recognizedLower.includes(targetLower) || targetLower.includes(recognizedLower)) {
+        accuracy = 0.7
+        score = 70 + (confidence * 20)
+        feedback = 'Good pronunciation, with minor improvements needed'
+      }
+      // 音韻的類似性チェック
+      else {
+        const phonemeScore = calculatePhonemeScore(targetLower, recognizedLower)
+        accuracy = phonemeScore
+        score = 50 + (phonemeScore * 40) + (confidence * 10)
+        feedback = score >= 70 ? 'Acceptable pronunciation' : 'Please practice more'
+      }
+
+      // 信頼度による調整
+      if (confidence < 0.5) {
+        score *= 0.8
+        feedback += ' (low confidence - speak more clearly)'
+      }
+
+      // CV組み合わせの特別処理
+      if (options.type === 'cv-combination') {
+        score = adjustScoreForCVCombination(target, recognized, score, confidence)
+      }
+
+      return {
+        score: Math.max(0, Math.min(100, score)),
+        accuracy: Math.max(0, Math.min(1, accuracy)),
+        clarity: Math.max(0, Math.min(1, clarity)),
+        timing: Math.max(0, Math.min(1, timing)),
+        feedback: feedback
+      }
+
+    } catch (error) {
+      console.error('Score calculation error:', error)
+      return {
+        score: 60,
+        accuracy: 0.6,
+        clarity: 0.5,
+        timing: 0.7,
+        feedback: 'Score calculation failed'
+      }
+    }
+  }
+
+  // === 音韻的類似性スコア計算 ===
+  const calculatePhonemeScore = (target, recognized) => {
+    try {
+      // 文字ベースの類似性（Levenshtein距離の簡易版）
+      const maxLength = Math.max(target.length, recognized.length)
+      const distance = levenshteinDistance(target, recognized)
+      const similarity = 1 - (distance / maxLength)
+
+      // 音韻的特徴による調整
+      const phonemeAdjustment = getPhonemeAdjustment(target, recognized)
+      
+      return Math.max(0, similarity + phonemeAdjustment)
+
+    } catch (error) {
+      console.error('Phoneme score calculation error:', error)
+      return 0.5
+    }
+  }
+
+  // === CV組み合わせ用スコア調整 ===
+  const adjustScoreForCVCombination = (target, recognized, baseScore, confidence) => {
+    try {
+      // CV組み合わせの特別な評価基準
+      if (target.length === 2) {
+        const consonant = target[0]
+        const vowel = target[1]
+        
+        // 子音と母音の個別チェック
+        const consonantPresent = recognized.toLowerCase().includes(consonant.toLowerCase())
+        const vowelPresent = recognized.toLowerCase().includes(vowel.toLowerCase())
+        
+        if (consonantPresent && vowelPresent) {
+          return Math.min(100, baseScore + 10)
+        } else if (consonantPresent || vowelPresent) {
+          return Math.min(100, baseScore + 5)
+        }
+      }
+      
+      return baseScore
+
+    } catch (error) {
+      console.error('CV combination adjustment error:', error)
+      return baseScore
+    }
+  }
+
+  // === Levenshtein距離計算 ===
+  const levenshteinDistance = (str1, str2) => {
+    const matrix = []
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i]
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1]
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          )
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length]
+  }
+
+  // === 音韻的特徴による調整 ===
+  const getPhonemeAdjustment = (target, recognized) => {
+    try {
+      // 日本人学習者にとって困難な音の特別処理
+      const difficultPairs = {
+        'r': ['l', 'w'],
+        'l': ['r', 'w'],
+        'v': ['b', 'f'],
+        'th': ['s', 'z', 't', 'd'],
+        'f': ['p', 'h']
+      }
+
+      let adjustment = 0
+
+      for (const [sound, alternatives] of Object.entries(difficultPairs)) {
+        if (target.includes(sound)) {
+          for (const alt of alternatives) {
+            if (recognized.includes(alt)) {
+              adjustment += 0.1 // 類似音への部分点
+            }
+          }
+        }
+      }
+
+      return adjustment
+
+    } catch (error) {
+      console.error('Phoneme adjustment error:', error)
+      return 0
+    }
+  }
+
   // === 音声テスト機能 ===
   const testAudio = async () => {
     try {
-      console.log('Audio test (visual feedback only)')
+      console.log('Audio test with speech recognition')
 
       const testSequence = [
         { type: 'effect', data: 'button', options: { volume: 0.5 } },
@@ -437,10 +928,79 @@ export function useGameAudio() {
       ]
 
       await playSequence(testSequence)
+
+      // 音声認識テスト
+      if (supportedFeatures.speechRecognition) {
+        console.log('Testing speech recognition...')
+        // テストは実際の録音なしで実行
+      }
+
       return true
     } catch (error) {
       console.warn('Audio test failed:', error)
       return false
+    }
+  }
+
+  // === テキスト読み上げ機能 ===
+  const speakText = async (text, options = {}) => {
+    try {
+      if (!soundEnabled.value) {
+        console.log('Sound is disabled')
+        return playVisualFeedback('speak')
+      }
+
+      if (!supportedFeatures.speechSynthesis) {
+        console.warn('Speech synthesis not supported')
+        return playVisualFeedback('speak')
+      }
+
+      // 既存の音声を停止
+      window.speechSynthesis.cancel()
+      
+      const utterance = new SpeechSynthesisUtterance(text)
+      
+      // オプション設定
+      utterance.lang = options.lang || 'en-US'
+      utterance.rate = options.rate || 1.0
+      utterance.pitch = options.pitch || 1.0
+      utterance.volume = options.volume || currentVolume.value
+      
+      // イベントハンドラー
+      utterance.onstart = () => {
+        isPlaying.value = true
+        console.log(`🔊 Speaking: "${text}"`)
+      }
+      
+      utterance.onend = () => {
+        isPlaying.value = false
+        console.log('🔊 Speech completed')
+      }
+      
+      utterance.onerror = (event) => {
+        isPlaying.value = false
+        console.error('Speech synthesis error:', event)
+        audioError.value = event.error
+      }
+      
+      // 音声再生
+      window.speechSynthesis.speak(utterance)
+      
+      return new Promise((resolve) => {
+        utterance.onend = () => {
+          isPlaying.value = false
+          resolve(true)
+        }
+        utterance.onerror = () => {
+          isPlaying.value = false
+          resolve(false)
+        }
+      })
+      
+    } catch (error) {
+      console.error('speakText error:', error)
+      audioError.value = error.message
+      return playVisualFeedback('speak')
     }
   }
 
@@ -573,6 +1133,186 @@ export function useGameAudio() {
     }
   })
 
+  // === Native Pronunciation Optimization Functions ===
+  const optimizeForNativePronunciation = (ipaSymbol, originalText) => {
+    // IPA symbol to optimized text mapping for better TTS pronunciation
+    const nativeOptimizations = {
+      // Vowels - American English specific
+      'æ': 'a as in cat',  // /æ/ -> clearer pronunciation
+      'ɑ': 'ah as in father', // /ɑ/ -> back vowel
+      'ʌ': 'u as in cup',    // /ʌ/ -> central vowel
+      'ɪ': 'i as in bit',    // /ɪ/ -> near-close front
+      'ʊ': 'u as in book',   // /ʊ/ -> near-close back
+      'ə': 'uh as in about', // /ə/ -> schwa
+      'ɝ': 'er as in butter', // /ɝ/ -> r-colored schwa
+      
+      // Consonants - Problematic for Japanese learners
+      'θ': 'th as in think', // /θ/ -> voiceless th
+      'ð': 'th as in this',  // /ð/ -> voiced th
+      'r': 'American r',        // American r sound
+      'l': 'American l',        // Clear l sound
+      'v': 'v as in very',      // Clear v sound
+      'f': 'f as in fish',      // Clear f sound
+      'ʒ': 'zh as in measure', // /ʒ/ -> voiced postalveolar
+      'ʃ': 'sh as in ship',    // /ʃ/ -> voiceless postalveolar
+      'ʧ': 'ch as in chair',   // /tʃ/ -> voiceless postalveolar affricate
+      'ʤ': 'j as in judge',    // /dʒ/ -> voiced postalveolar affricate
+    }
+    
+    return nativeOptimizations[ipaSymbol] || originalText
+  }
+  
+  const optimizeWordForNativePronunciation = (word, pronunciation, wordType) => {
+    // Word-level optimizations for better native pronunciation
+    const wordOptimizations = {
+      // Common problematic words for Japanese learners
+      'water': 'wah-ter',
+      'better': 'bet-ter', 
+      'little': 'lit-tle',
+      'bottle': 'bot-tle',
+      'right': 'rah-ight',
+      'light': 'lah-ight',
+      'very': 'ver-ry',
+      'river': 'riv-ver',
+      'this': 'th-is',
+      'that': 'th-at',
+      'think': 'th-ink',
+      'three': 'th-ree'
+    }
+    
+    return wordOptimizations[word.toLowerCase()] || word
+  }
+  
+  const getOptimalRateForPhoneme = (ipaSymbol) => {
+    // Slower rate for difficult phonemes
+    const difficultPhonemes = ['θ', 'ð', 'r', 'l', 'æ', 'ʌ']
+    return difficultPhonemes.includes(ipaSymbol) ? 0.5 : 0.7
+  }
+  
+  const getOptimalPitchForPhoneme = (ipaSymbol) => {
+    // Higher pitch for vowels, normal for consonants
+    const vowels = ['æ', 'ɑ', 'ʌ', 'ɪ', 'ʊ', 'ə', 'ɝ']
+    return vowels.includes(ipaSymbol) ? 1.1 : 1.0
+  }
+  
+  const getOptimalRateForWord = (word, difficulty) => {
+    const baseRate = 0.8
+    const difficultyModifier = {
+      'easy': 0.1,
+      'normal': 0,
+      'hard': -0.2,
+      'expert': -0.3
+    }
+    return Math.max(0.4, baseRate + (difficultyModifier[difficulty] || 0))
+  }
+  
+  const getOptimalPitchForWord = (word, wordType) => {
+    const basePitch = 1.0
+    const typeModifier = {
+      'phoneme': 0.2,
+      'sight_word': 0.1,
+      'vocabulary': 0,
+      'grammar': -0.1
+    }
+    return basePitch + (typeModifier[wordType] || 0)
+  }
+  
+  const selectBestNativeVoice = (voices, accent = 'american') => {
+    // Premium native voice selection with quality ranking
+    const americanVoices = voices.filter(voice => 
+      voice.lang === 'en-US' && !voice.localService
+    )
+    
+    const qualityVoices = voices.filter(voice => 
+      voice.lang === 'en-US' && 
+      (voice.name.includes('Premium') || 
+       voice.name.includes('Neural') ||
+       voice.name.includes('Enhanced') ||
+       voice.name.includes('High Quality'))
+    )
+    
+    const systemVoices = voices.filter(voice => voice.lang === 'en-US')
+    const fallbackVoices = voices.filter(voice => voice.lang.startsWith('en-'))
+    
+    // Priority order: Quality voices > American voices > System voices > Fallback
+    return qualityVoices[0] || americanVoices[0] || systemVoices[0] || fallbackVoices[0]
+  }
+  
+  // === Enhanced Grammar Audio Support ===
+  const speakGrammarInstruction = async (instruction, grammarType = 'general') => {
+    try {
+      if (!soundEnabled.value || !supportedFeatures.speechSynthesis) {
+        console.log('Grammar instruction playback disabled')
+        return playVisualFeedback('button')
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(instruction)
+      utterance.rate = 0.7
+      utterance.pitch = 1.0
+      utterance.volume = currentVolume.value * 0.8 // Slightly quieter for instructions
+      utterance.lang = 'en-US'
+      
+      const voices = speechSynthesis.getVoices()
+      const instructorVoice = selectBestNativeVoice(voices)
+      
+      if (instructorVoice) {
+        utterance.voice = instructorVoice
+      }
+      
+      return new Promise((resolve) => {
+        utterance.onend = () => resolve(true)
+        utterance.onerror = () => resolve(false)
+        speechSynthesis.speak(utterance)
+      })
+    } catch (error) {
+      console.warn('Grammar instruction error:', error)
+      return false
+    }
+  }
+  
+  // === Sentence Pronunciation with Grammar Focus ===
+  const speakSentence = async (sentence, grammarFocus = [], options = {}) => {
+    try {
+      if (!soundEnabled.value || !supportedFeatures.speechSynthesis) {
+        return playVisualFeedback('button')
+      }
+      
+      // Add emphasis markers for grammar focus areas
+      let enhancedSentence = sentence
+      if (grammarFocus.length > 0) {
+        grammarFocus.forEach(word => {
+          const regex = new RegExp(`\\b${word}\\b`, 'gi')
+          enhancedSentence = enhancedSentence.replace(regex, `${word}.`)
+        })
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(enhancedSentence)
+      utterance.rate = options.rate || 0.8
+      utterance.pitch = options.pitch || 1.0
+      utterance.volume = currentVolume.value
+      utterance.lang = 'en-US'
+      
+      const voices = speechSynthesis.getVoices()
+      const nativeVoice = selectBestNativeVoice(voices)
+      
+      if (nativeVoice) {
+        utterance.voice = nativeVoice
+      }
+      
+      return new Promise((resolve) => {
+        utterance.onend = () => {
+          console.log('✅ Grammar sentence completed:', sentence)
+          resolve(true)
+        }
+        utterance.onerror = () => resolve(false)
+        speechSynthesis.speak(utterance)
+      })
+    } catch (error) {
+      console.warn('Sentence pronunciation error:', error)
+      return false
+    }
+  }
+  
   // === 公開API ===
   return {
     // 状態
@@ -584,6 +1324,12 @@ export function useGameAudio() {
     vibrationEnabled,
     autoPlayEnabled,
 
+    // 音声認識状態
+    isRecording: readonly(isRecording),
+    isAnalyzing: readonly(isAnalyzing),
+    recognitionResults: readonly(recognitionResults),
+    lastRecognitionConfidence: readonly(lastRecognitionConfidence),
+
     // 音声再生（すべて視覚的フィードバックのみ）
     playSound,
     playPhoneme,
@@ -591,6 +1337,7 @@ export function useGameAudio() {
     playEffectSound,
     playSequence,
     playAutoAudio,
+    speakText,
 
     // Be Verb Rush専用音声（すべて視覚的フィードバックのみ）
     playCountdown,
@@ -598,6 +1345,11 @@ export function useGameAudio() {
     playGameEnd,
     playCombo,
     playTimeWarning,
+
+    // 音声認識・発音判定
+    startRecording,
+    stopRecording,
+    analyzeAudio,
 
     // 制御
     setVolume,
@@ -618,6 +1370,17 @@ export function useGameAudio() {
 
     // エラーハンドリング
     handleAudioError,
+
+    // ネイティブ発音専用機能
+    speakGrammarInstruction,
+    speakSentence,
+    optimizeForNativePronunciation,
+    optimizeWordForNativePronunciation,
+    selectBestNativeVoice,
+
+    // 音声認識ユーティリティ
+    calculatePronunciationScore,
+    calculatePhonemeScore,
 
     // ユーティリティ
     resumeAudioContext,

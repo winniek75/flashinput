@@ -469,6 +469,7 @@ const playWordAudio = () => {
   
   // Web Speech API を使用
   const utterance = new SpeechSynthesisUtterance(currentWord.value.word)
+  utterance.lang = 'en-US'
   utterance.rate = 0.8
   utterance.volume = settings.value.volume / 100
   

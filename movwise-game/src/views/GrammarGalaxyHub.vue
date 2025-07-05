@@ -144,6 +144,126 @@
               </div>
             </div>
 
+            <!-- Comparison Master Game -->
+            <div 
+              class="galaxy-card unlocked"
+              @click="startComparisonMaster"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">📊</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">Comparison Master</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button 
+                    class="rush-play-button"
+                    @click.stop="startComparisonMaster"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Verb Challenge Game -->
+            <div 
+              class="galaxy-card unlocked"
+              @click="startModalVerbChallenge"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🛡️</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">Modal Verb Challenge</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button 
+                    class="rush-play-button"
+                    @click.stop="startModalVerbChallenge"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conjunction Connection Game -->
+            <div 
+              class="galaxy-card unlocked"
+              @click="startConjunctionConnection"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🔗</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">Conjunction Connection</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button 
+                    class="rush-play-button"
+                    @click.stop="startConjunctionConnection"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progressive Tense Game -->
+            <div 
+              class="galaxy-card unlocked"
+              @click="startProgressiveTense"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🌊</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">Progressive Tense</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button 
+                    class="rush-play-button"
+                    @click.stop="startProgressiveTense"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Word Rush -->
             <div class="galaxy-card locked">
               <div class="rush-game-surface">
@@ -181,8 +301,149 @@
         </div>
       </div>
 
-      <!-- メイン学習パス -->
-      <div class="learning-path">
+      <!-- 🆕 直接ゲーム選択セクション -->
+      <div class="direct-games-section">
+        <div class="galaxy-card p-8 mb-8">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold galaxy-text-primary cosmic-title mb-2">🎮 文法ゲーム宇宙ステーション</h2>
+            <p class="text-galaxy-moon-silver text-lg">お気に入りのゲームを直接選んで、楽しく英文法をマスターしよう！</p>
+          </div>
+
+          <!-- Grammar Galaxy Foundation Games -->
+          <div class="featured-games mb-12">
+            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">🌌 Grammar Galaxy Foundation - 文法宇宙の基礎</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Verb Time Machine -->
+              <div class="game-card featured" @click="startDirectGame('verbTimeMachine')">
+                <div class="game-icon-large">🕐</div>
+                <h4 class="game-title">Verb Time Machine</h4>
+                <p class="game-description">時代を旅して動詞の活用をマスター</p>
+                <div class="difficulty-badge intermediate">中級 - 時制学習</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  時間旅行を開始！
+                </button>
+              </div>
+
+              <!-- Question Word Detective -->
+              <div class="game-card featured" @click="startDirectGame('questionWordDetective')">
+                <div class="game-icon-large">🔍</div>
+                <h4 class="game-title">Question Word Detective</h4>
+                <p class="game-description">疑問詞の使い分けを探偵ゲームで学習</p>
+                <div class="difficulty-badge intermediate">中級 - 疑問詞</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  捜査開始！
+                </button>
+              </div>
+
+              <!-- Grammar Constructor -->
+              <div class="game-card featured" @click="startDirectGame('grammarConstructor')">
+                <div class="game-icon-large">🏗️</div>
+                <h4 class="game-title">Grammar Constructor</h4>
+                <p class="game-description">ドラッグ&ドロップで正しい文を建設</p>
+                <div class="difficulty-badge intermediate">中級 - 文構造</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  建設開始！
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- その他のゲーム -->
+          <div class="other-games mb-12">
+            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">⭐ その他の文法ゲーム</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Grammar Color Code -->
+              <div class="game-card" @click="startDirectGame('grammarColorCode')">
+                <div class="game-icon-large">🎨</div>
+                <h4 class="game-title">Grammar Color Code</h4>
+                <p class="game-description">色分けで英文法を楽しく学習</p>
+                <div class="difficulty-badge beginner">初級 - 英検5級</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  今すぐプレイ！
+                </button>
+              </div>
+
+              <!-- Pattern Hunter -->
+              <div class="game-card" @click="startDirectGame('patternHunter')">
+                <div class="game-icon-large">🕵️‍♂️</div>
+                <h4 class="game-title">Pattern Hunter</h4>
+                <p class="game-description">文法パターンを探し出すミステリー</p>
+                <div class="difficulty-badge intermediate">中級 - 英検4級</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  今すぐプレイ！
+                </button>
+              </div>
+
+              <!-- Grammar Puzzle Cascade -->
+              <div class="game-card" @click="startDirectGame('grammarPuzzleCascade')">
+                <div class="game-icon-large">🧩</div>
+                <h4 class="game-title">Grammar Puzzle Cascade</h4>
+                <p class="game-description">落ちてくるブロックで文法パターン</p>
+                <div class="difficulty-badge advanced">上級 - 英検3級</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  今すぐプレイ！
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 全ゲーム一覧（シンプル表示） -->
+          <div class="all-games">
+            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">🌟 全ての文法ゲーム</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div class="mini-game-card" @click="startDirectGame('grammarReflexArena')">
+                <div class="mini-icon">⚔️</div>
+                <div class="mini-title">Grammar Reflex Arena</div>
+              </div>
+              
+              <div class="mini-game-card" @click="startDirectGame('comparisonMaster')">
+                <div class="mini-icon">📊</div>
+                <div class="mini-title">Comparison Master</div>
+              </div>
+              
+              <div class="mini-game-card" @click="startDirectGame('modalVerbChallenge')">
+                <div class="mini-icon">🛡️</div>
+                <div class="mini-title">Modal Verb Challenge</div>
+              </div>
+              
+              <div class="mini-game-card" @click="startDirectGame('conjunctionConnection')">
+                <div class="mini-icon">🔗</div>
+                <div class="mini-title">Conjunction Connection</div>
+              </div>
+              
+              <div class="mini-game-card" @click="startDirectGame('progressiveTense')">
+                <div class="mini-icon">🌊</div>
+                <div class="mini-title">Progressive Tense</div>
+              </div>
+              
+              <div class="mini-game-card" @click="goToRushZone()">
+                <div class="mini-icon">⚡</div>
+                <div class="mini-title">Rush Zone</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔽 学習レベル別惑星（オプション表示） -->
+      <div class="learning-path-toggle text-center">
+        <button @click="showAdvancedPath = !showAdvancedPath" class="galaxy-button galaxy-button-secondary mb-6">
+          <span v-if="!showAdvancedPath">🌌 詳細な学習パス表示（上級者向け）</span>
+          <span v-else">📱 シンプル表示に戻る</span>
+        </button>
+        <p v-if="!showAdvancedPath" class="text-galaxy-moon-silver text-sm mb-6">
+          ※ 上のゲーム一覧から直接選択することをお勧めします
+        </p>
+      </div>
+
+      <!-- メイン学習パス（折りたたみ可能） -->
+      <div v-show="showAdvancedPath" class="learning-path">
         <!-- Level 1: Grammar Foundation Solar System -->
         <div class="solar-system level-1" :class="{ 'unlocked': isLevelUnlocked(1) }">
           <h2 class="system-title">🌌 Level 1: ファウンデーション・ソーラーシステム</h2>
@@ -537,6 +798,10 @@ export default {
     const selectedPlanet = ref(null)
     const currentPlanet = ref('beVerb')
     const backgroundStars = ref([])
+    
+    // 🆕 UI制御
+    const showSimpleMode = ref(true) // デフォルトはシンプルモード
+    const showAdvancedPath = ref(false) // 詳細パスは初期状態で非表示
 
     // 計算されたプロパティ（安全性チェック付き）
     const playerData = computed(() => {
@@ -722,6 +987,148 @@ export default {
       }
     }
 
+    // 🆕 新しいゲーム開始関数群
+    const startComparisonMaster = () => {
+      console.log('startComparisonMaster called')
+      router.push({ name: 'comparison-master' }).catch(err => {
+        console.error('Navigation error:', err)
+        alert('Comparison Master の開始に失敗しました')
+      })
+    }
+
+    const startModalVerbChallenge = () => {
+      console.log('startModalVerbChallenge called')
+      router.push({ name: 'modal-verb-challenge' }).catch(err => {
+        console.error('Navigation error:', err)
+        alert('Modal Verb Challenge の開始に失敗しました')
+      })
+    }
+
+    const startConjunctionConnection = () => {
+      console.log('startConjunctionConnection called')
+      router.push({ name: 'conjunction-connection' }).catch(err => {
+        console.error('Navigation error:', err)
+        alert('Conjunction Connection の開始に失敗しました')
+      })
+    }
+
+    const startProgressiveTense = () => {
+      console.log('startProgressiveTense called')
+      router.push({ name: 'progressive-tense' }).catch(err => {
+        console.error('Navigation error:', err)
+        alert('Progressive Tense の開始に失敗しました')
+      })
+    }
+
+    // 🆕 直接ゲーム開始機能
+    const startDirectGame = (gameId) => {
+      console.log('startDirectGame called:', gameId)
+      
+      try {
+        // ゲームIDに基づいてルート設定
+        let routeConfig = null
+        
+        switch (gameId) {
+          // Grammar Galaxy Foundation Games
+          case 'verbTimeMachine':
+            routeConfig = { name: 'verb-time-machine' }
+            break
+          case 'questionWordDetective':
+            routeConfig = { name: 'question-word-detective' }
+            break
+          case 'grammarConstructor':
+            routeConfig = { name: 'grammar-constructor' }
+            break
+          // Other Grammar Games
+          case 'grammarColorCode':
+            // Grammar Color Code はplanetIdパラメータが必要
+            routeConfig = { 
+              name: 'grammar-color-code', 
+              params: { planetId: 'beVerb' } 
+            }
+            break
+          case 'patternHunter':
+            routeConfig = { name: 'pattern-hunter' }
+            break
+          case 'grammarPuzzleCascade':
+            routeConfig = { name: 'grammar-puzzle-cascade' }
+            break
+          case 'grammarReflexArena':
+            routeConfig = { name: 'grammar-reflex-arena' }
+            break
+          case 'comparisonMaster':
+            routeConfig = { name: 'comparison-master' }
+            break
+          case 'modalVerbChallenge':
+            routeConfig = { name: 'modal-verb-challenge' }
+            break
+          case 'conjunctionConnection':
+            routeConfig = { name: 'conjunction-connection' }
+            break
+          case 'progressiveTense':
+            routeConfig = { name: 'progressive-tense' }
+            break
+          default:
+            console.warn('Unknown game ID:', gameId)
+            alert('ゲームが見つかりません')
+            return
+        }
+        
+        if (routeConfig) {
+          console.log('Navigating with config:', routeConfig)
+          router.push(routeConfig).catch(err => {
+            console.error('Navigation error:', err)
+            alert(`${gameId} の開始に失敗しました`)
+          })
+        }
+      } catch (error) {
+        console.error('Error in startDirectGame:', error)
+        alert('ゲームの開始に失敗しました')
+      }
+    }
+
+    // 🆕 惑星IDを指定してゲーム開始
+    const startDirectGameWithPlanet = (gameId, planetId) => {
+      console.log('startDirectGameWithPlanet called:', { gameId, planetId })
+      
+      try {
+        let routeConfig = null
+        
+        switch (gameId) {
+          case 'grammarColorCode':
+            routeConfig = { 
+              name: 'grammar-color-code', 
+              params: { planetId: planetId || 'beVerb' } 
+            }
+            break
+          default:
+            // その他のゲームは通常の開始方法
+            return startDirectGame(gameId)
+        }
+        
+        if (routeConfig) {
+          console.log('Navigating with planet config:', routeConfig)
+          router.push(routeConfig).catch(err => {
+            console.error('Navigation error:', err)
+            alert(`${gameId} の開始に失敗しました`)
+          })
+        }
+      } catch (error) {
+        console.error('Error in startDirectGameWithPlanet:', error)
+        alert('ゲームの開始に失敗しました')
+      }
+    }
+
+    // 🆕 Rush Zone へのナビゲーション
+    const goToRushZone = () => {
+      console.log('goToRushZone called')
+      // Rush Zone は同じページの上部にあるのでスクロール
+      const rushSection = document.querySelector('.rush-zone-section')
+      if (rushSection) {
+        rushSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+
     // レベル・プラネットのアンロック状態チェック（安全性チェック付き）
     const isLevelUnlocked = (level) => {
       if (typeof grammarStore.isLevelUnlocked === 'function') {
@@ -780,22 +1187,9 @@ export default {
     const enterPlanet = (planetId) => {
       console.log('enterPlanet called:', planetId)
       try {
-        // 安全なチェックを追加
-        if (!grammarStore || typeof grammarStore.isPlanetUnlocked !== 'function') {
-          console.error('Grammar store not properly initialized')
-          return
-        }
-        if (!grammarStore.isPlanetUnlocked(planetId)) {
-          alert('🔒 この惑星はまだアンロックされていません')
-          return
-        }
-        // Router push を安全に実行
-        router.push({
-          name: 'grammar-galaxy-foundation',
-          query: { planet: planetId }
-        }).catch(err => {
-          console.error('Navigation error:', err)
-        })
+        // 惑星に複数のゲームがある場合は選択モーダルを表示
+        selectedPlanet.value = planetId
+        showPlanetModal.value = true
       } catch (error) {
         console.error('Error in enterPlanet:', error)
         alert('エラーが発生しました。ページを再読み込みしてください。')
@@ -819,16 +1213,47 @@ export default {
         alert('🔒 このゲームはまだアンロックされていません')
         return
       }
-      alert(`🎮 ${game.name}を開始します！\n\n（実装予定）`)
+      
+      console.log('startGame called:', game.id)
+      
+      // 選択された惑星のIDを使ってゲームを開始
+      const planetId = selectedPlanet.value
+      closePlanetModal() // モーダルを閉じる
+      
+      // ゲームIDに基づいて適切なルーティング
+      try {
+        if (game.id === 'grammarColorCode' && planetId) {
+          // Grammar Color Code は planetId が必要
+          router.push({ 
+            name: 'grammar-color-code', 
+            params: { planetId: planetId } 
+          })
+        } else {
+          // その他のゲームは直接開始
+          startDirectGame(game.id)
+        }
+      } catch (error) {
+        console.error('Navigation error:', error)
+        alert(`ゲームの開始に失敗しました: ${game.name}`)
+      }
     }
 
     // 推奨アクティビティに移動
     const goToRecommendedActivity = () => {
       const activity = recommendedActivity.value
+      console.log('goToRecommendedActivity called:', activity)
+      
       if (activity.type === 'game') {
-        alert(`🎯 推奨ゲーム: ${activity.name}\n\n（実装予定）`)
+        // ゲームタイプの場合は直接ゲーム開始
+        startDirectGame(activity.id)
       } else if (activity.type === 'planet') {
+        // 惑星タイプの場合は、ゲーム選択モーダルを表示
+        console.log(`Planet ${activity.id} -> Opening game selection modal`)
         enterPlanet(activity.id)
+      } else {
+        // フォールバック：Grammar Color Code を開始
+        console.log('Fallback: Starting Grammar Color Code')
+        startDirectGame('grammarColorCode')
       }
     }
 
@@ -846,11 +1271,14 @@ export default {
         case 'grammar':
           // 現在のページなので何もしない
           break
-        case 'academy':
-          alert('🏫 Virtual Academyは開発中です！')
+        case 'multi-layer':
+          router.push('/multi-layer')
           break
-        case 'profile':
-          alert('👤 プロフィール機能は開発中です！')
+        case 'co-pilot':
+          router.push('/co-pilot-dock')
+          break
+        case 'vr-academy':
+          router.push('/vr-academy')
           break
         default:
           console.warn('Unknown navigation section:', section)
@@ -896,6 +1324,19 @@ export default {
       totalRushTime,
       startBeVerbRush,
       startVerbRush,
+      
+      // 🆕 新しいゲーム関連
+      startComparisonMaster,
+      startModalVerbChallenge,
+      startConjunctionConnection,
+      startProgressiveTense,
+      
+      // 🆕 直接ナビゲーション機能
+      startDirectGame,
+      startDirectGameWithPlanet,
+      goToRushZone,
+      showSimpleMode,
+      showAdvancedPath,
       
       // Methods
       isLevelUnlocked,
@@ -1082,6 +1523,92 @@ export default {
   50% { background-position: 100% 50%; }
 }
 
+/* 🆕 直接ゲーム選択セクションのスタイル */
+.direct-games-section {
+  @apply relative z-10 max-w-7xl mx-auto mb-8;
+}
+
+.featured-games {
+  @apply mb-12;
+}
+
+.game-card.featured {
+  @apply relative p-8 rounded-3xl cursor-pointer transition-all duration-300 transform hover:scale-105;
+  background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(168,85,247,0.1) 100%);
+  border: 2px solid rgba(59,130,246,0.4);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(59,130,246,0.2);
+  text-align: center;
+}
+
+.game-card.featured:hover {
+  border-color: rgba(59,130,246,0.7);
+  box-shadow: 0 12px 40px rgba(59,130,246,0.3);
+}
+
+.game-icon-large {
+  @apply text-6xl mb-4 block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.game-title {
+  @apply text-xl font-bold galaxy-text-primary mb-3;
+}
+
+.game-description {
+  @apply text-galaxy-moon-silver text-sm mb-4;
+}
+
+.difficulty-badge {
+  @apply inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4;
+}
+
+.difficulty-badge.beginner {
+  @apply bg-green-500 bg-opacity-20 text-green-300 border border-green-500 border-opacity-30;
+}
+
+.difficulty-badge.intermediate {
+  @apply bg-yellow-500 bg-opacity-20 text-yellow-300 border border-yellow-500 border-opacity-30;
+}
+
+.difficulty-badge.advanced {
+  @apply bg-red-500 bg-opacity-20 text-red-300 border border-red-500 border-opacity-30;
+}
+
+.play-button-large {
+  @apply w-full py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-400 hover:to-purple-400 rounded-xl text-white font-bold transition-all duration-200 transform hover:scale-105;
+  box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+}
+
+.play-icon {
+  @apply mr-2 text-lg;
+}
+
+/* ミニゲームカード */
+.all-games {
+  @apply text-center;
+}
+
+.mini-game-card {
+  @apply p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-105;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.mini-game-card:hover {
+  border-color: rgba(59,130,246,0.5);
+  box-shadow: 0 4px 15px rgba(59,130,246,0.2);
+}
+
+.mini-icon {
+  @apply text-3xl mb-2;
+}
+
+.mini-title {
+  @apply text-xs font-semibold text-galaxy-moon-silver;
+}
+
 /* Rush Zone専用スタイル */
 .rush-zone-section {
   @apply relative z-10 max-w-6xl mx-auto mb-16 p-8 rounded-3xl border;
@@ -1241,6 +1768,38 @@ export default {
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
+  .direct-games-section {
+    @apply mx-4;
+  }
+  
+  .featured-games .grid {
+    @apply grid-cols-1;
+  }
+  
+  .game-card.featured {
+    @apply p-6;
+  }
+  
+  .game-icon-large {
+    @apply text-5xl;
+  }
+  
+  .game-title {
+    @apply text-lg;
+  }
+  
+  .all-games .grid {
+    @apply grid-cols-2;
+  }
+  
+  .mini-game-card {
+    @apply p-3;
+  }
+  
+  .mini-icon {
+    @apply text-2xl;
+  }
+  
   .rush-zone-section {
     @apply mx-4 p-4;
   }

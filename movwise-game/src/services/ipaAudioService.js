@@ -72,9 +72,13 @@ class IPAAudioService {
   loadVoices() {
     this.voices = this.synthesis.getVoices();
     
-    // 英語ネイティブ音声の優先選択
+    // 英語ネイティブ音声の優先選択（より厳密）
     this.preferredVoice = this.voices.find(voice => 
-      voice.lang.startsWith('en-') && voice.name.includes('Google')
+      voice.lang === 'en-US' && voice.localService === false
+    ) || this.voices.find(voice => 
+      voice.lang.startsWith('en-') && voice.localService === false
+    ) || this.voices.find(voice => 
+      voice.lang === 'en-US'
     ) || this.voices.find(voice => 
       voice.lang.startsWith('en-')
     ) || this.voices[0];

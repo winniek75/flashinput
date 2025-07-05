@@ -184,14 +184,28 @@
 @media (max-width: 768px) {
   .game-container {
     @apply px-2;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
   }
 
   .phoneme-display {
     @apply text-3xl py-4 px-6;
+    touch-action: manipulation;
   }
 
   .choice-button {
     @apply p-3 text-lg;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+  }
+  
+  /* スクロール可能エリア */
+  .scrollable-area {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    transform: translateZ(0);
   }
 }
 
@@ -222,4 +236,37 @@
 
 :root {
   --space-void: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* iOS Safari 専用最適化 */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  #app {
+    min-height: -webkit-fill-available;
+  }
+  
+  /* iOS でのスクロール問題解決 */
+  .ios-scroll-fix {
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    transform: translateZ(0);
+  }
+  
+  /* タッチ操作最適化 */
+  button, .button, .btn {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  /* ダブルタップズーム無効化 */
+  .no-zoom {
+    touch-action: manipulation;
+  }
 }

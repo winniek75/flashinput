@@ -132,6 +132,25 @@ const router = createRouter({
       }
     },
 
+    // === Stage 1.5: フォニックス・トレーニング・センター ===
+    // CV発音練習と音素識別ゲーム
+    {
+      path: '/games/phonics-training-hub',
+      name: 'phonics-training-hub',
+      component: () => import('@/components/games/PhonicsTrainingHub.vue'),
+      meta: {
+        title: 'フォニックス・トレーニング・センター',
+        stage: 'phonicsTraining',
+        stageOrder: 1.5,
+        difficulty: 'beginner',
+        gameId: 'phonicsTraining',
+        icon: '🎤',
+        description: 'CV発音練習と音素識別ゲーム！正確な発音を身につけよう',
+        learningObjective: '音素の正確な発音と識別能力の習得',
+        unlockRequirement: 'サウンド・ファウンデーション島 50%完了'
+      }
+    },
+
     // === Stage 2: サウンド・ルールズ島 ===
     // 音韻変化とルール学習
     {
@@ -314,6 +333,72 @@ const router = createRouter({
         description: '重要なサイトワード200語の瞬間認識',
         learningObjective: '高頻度語の自動認識',
         unlockRequirement: 'ブレンディング・マスタリー島 70%完了'
+      }
+    },
+
+    // === ディクテーション＆スペリング・センター ===
+    {
+      path: '/dictation-spelling-hub',
+      name: 'dictation-spelling-hub',
+      component: () => import('@/components/games/DictationSpellingHub.vue'),
+      meta: {
+        title: 'ディクテーション＆スペリング・センター',
+        stage: 'dictationSpelling',
+        stageOrder: 4.5,
+        difficulty: 'intermediate',
+        gameId: 'dictationSpellingHub',
+        icon: '📝',
+        description: '聞く力と書く力を同時に鍛える総合学習エリア',
+        learningObjective: 'ディクテーションとスペリングの統合学習',
+        unlockRequirement: 'ワード・ビルディング島 60%完了'
+      }
+    },
+    {
+      path: '/games/word-dictation-challenge',
+      name: 'word-dictation-challenge', 
+      component: () => import('@/components/games/WordDictationChallenge.vue'),
+      meta: {
+        title: 'ワード・ディクテーション・チャレンジ',
+        stage: 'dictationSpelling',
+        stageOrder: 4.5,
+        difficulty: 'intermediate',
+        gameId: 'wordDictationChallenge',
+        icon: '📝',
+        description: '音声を聞いて単語を正確にタイピング',
+        learningObjective: '聴解力とスペリング能力の向上',
+        unlockRequirement: 'ワード・ビルディング島 50%完了'
+      }
+    },
+    {
+      path: '/games/typing-arena',
+      name: 'typing-arena',
+      component: () => import('@/components/games/TypingArena.vue'),
+      meta: {
+        title: '英検タイピング・アリーナ',
+        stage: 'dictationSpelling',
+        stageOrder: 4.5,
+        difficulty: 'intermediate',
+        gameId: 'typingArena',
+        icon: '⌨️',
+        description: '英検レベル別タイピング練習場',
+        learningObjective: 'タイピングスキルと英語学習の統合',
+        unlockRequirement: 'ワード・ビルディング島 50%完了'
+      }
+    },
+    {
+      path: '/games/spelling-bee-arena',
+      name: 'spelling-bee-arena',
+      component: () => import('@/components/games/TypingArena.vue'),
+      meta: {
+        title: '英検タイピング・アリーナ',
+        stage: 'dictationSpelling',
+        stageOrder: 4.5,
+        difficulty: 'intermediate',
+        gameId: 'spellingBeeArena',
+        icon: '⌨️',
+        description: '英検レベル別・3Dタイピング練習場',
+        learningObjective: 'タイピングスピードと英語学習の統合',
+        unlockRequirement: 'ワード・ビルディング島 50%完了'
       }
     },
     {
@@ -636,6 +721,56 @@ const router = createRouter({
       }
     },
 
+    // === Grammar Galaxy Foundation Games ===
+    {
+      path: '/grammar-galaxy/verb-time-machine',
+      name: 'verb-time-machine',
+      component: () => import('@/components/grammar/games/VerbTimeMachine.vue'),
+      meta: {
+        title: 'Verb Time Machine - 動詞時空旅行',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'verbTimeMachine',
+        icon: '🕐',
+        description: '時代を旅して動詞の活用をマスターしよう！現在形・過去形・完了形を正確に選んでエネルギーを集めよう。',
+        learningObjective: '動詞活用の理解と時制感覚の習得',
+        unlockRequirement: 'Grammar Galaxy Foundation アクセス'
+      }
+    },
+    {
+      path: '/grammar-galaxy/question-word-detective',
+      name: 'question-word-detective',
+      component: () => import('@/components/grammar/games/QuestionWordDetective.vue'),
+      meta: {
+        title: 'Question Word Detective - 疑問詞探偵',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'questionWordDetective',
+        icon: '🔍',
+        description: '写真を見て瞬時に正しい疑問詞を選ぼう！What, Who, When, Where, Why, How を使い分けて探偵スキルを磨こう。',
+        learningObjective: '疑問詞の使い分けと瞬間認識能力の習得',
+        unlockRequirement: 'Grammar Galaxy Foundation アクセス'
+      }
+    },
+    {
+      path: '/grammar-galaxy/grammar-constructor',
+      name: 'grammar-constructor',
+      component: () => import('@/components/grammar/games/GrammarConstructor.vue'),
+      meta: {
+        title: 'Grammar Constructor - 文法建築家',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'grammarConstructor',
+        icon: '🏗️',
+        description: '文法ブロックをドラッグ&ドロップして正しい英文を建設しよう！主語・動詞・目的語を正しい順序で組み立てよう。',
+        learningObjective: '文構造の理解と正しい語順感覚の習得',
+        unlockRequirement: 'Grammar Galaxy Foundation アクセス'
+      }
+    },
+
     // === New Grammar Galaxy Games ===
     {
       path: '/grammar-galaxy/comparison-master',
@@ -952,6 +1087,21 @@ const router = createRouter({
         learningObjective: '3D空間での実践的コミュニケーション'
       }
     },
+    
+    // ECHO AI Practice System
+    {
+      path: '/vr-academy/echo-practice',
+      name: 'echo-practice',
+      component: () => import('@/components/ai-practice/ECHOPracticeBuddy.vue'),
+      meta: {
+        title: 'ECHO AI Practice - VR Academy',
+        requiresAuth: false,
+        stage: 'vrLearning',
+        icon: '🤖',
+        description: 'AI練習相手とVRシナリオで安全に会話練習',
+        learningObjective: '失敗を恐れない実践的会話能力の獲得'
+      }
+    },
 
     // === Teacher Dashboard ===
     {
@@ -1011,6 +1161,17 @@ const router = createRouter({
       props: true
     },
 
+    // 観戦モード
+    {
+      path: '/spectator-mode',
+      name: 'spectator-mode',
+      component: () => import('@/views/SpectatorModeView.vue'),
+      meta: {
+        title: '観戦モード - MovWISE Game',
+        requiresAuth: false
+      }
+    },
+
     // 404対応
     {
       path: '/:pathMatch(.*)*',
@@ -1023,18 +1184,22 @@ const router = createRouter({
 // ステージ順序とアンロック条件の定義
 const STAGE_ORDER = {
   'soundFoundation': 1,
+  'phonicsTraining': 1.5,
   'soundRules': 2,
   'blendingMastery': 3,
   'wordBuilding': 4,
+  'dictationSpelling': 4.5,
   'rhythmProsody': 5,
   'advancedPhonics': 6
 }
 
 const STAGE_UNLOCK_REQUIREMENTS = {
   'soundFoundation': { requirement: null, threshold: 0 }, // 常時アンロック
+  'phonicsTraining': { requirement: 'soundFoundation', threshold: 50 },
   'soundRules': { requirement: 'soundFoundation', threshold: 70 },
   'blendingMastery': { requirement: 'soundRules', threshold: 60 },
   'wordBuilding': { requirement: 'blendingMastery', threshold: 70 },
+  'dictationSpelling': { requirement: 'wordBuilding', threshold: 60 },
   'rhythmProsody': { requirement: 'wordBuilding', threshold: 70 },
   'advancedPhonics': { requirement: 'rhythmProsody', threshold: 80 }
 }
@@ -1043,25 +1208,8 @@ const STAGE_UNLOCK_REQUIREMENTS = {
 function checkGameUnlock(gameId, stageName) {
   console.log(`🔓 アンロック条件チェック: ${gameId} (Stage: ${stageName})`)
 
-  // 開発中は一部のゲームのみチェック
+  // 開発中は全ゲームアンロック
   if (import.meta.env.DEV) {
-    // pureSoundLabだけは常時アンロック
-    if (gameId === 'pureSoundLab') {
-      return true;
-    }
-    // 開発環境では基本的にアンロック（デバッグ用）
-    const restrictedGames = [
-      'pureSoundLab', 'silentLetterDetective', 'doubleLetterLab',
-      'sequentialBlending', 'wordFamilyTree', 'digraphMaster',
-      'rControlledVowels', 'stressPatternMaster', 'intonationWave',
-      'complexPhonemePatterns', 'phonicsBossChallenge'
-    ]
-
-    if (restrictedGames.includes(gameId)) {
-      console.warn(`⚠️ 開発中のゲーム: ${gameId}`)
-      return true // 開発環境では警告のみでアクセス可能に
-    }
-
     return true
   }
 
@@ -1263,6 +1411,8 @@ const startGame = (gameId) => {
     'pureSoundLab': 'pure-sound-lab',
     'soundToSymbolMatch': 'sound-to-symbol',
     'phonemePatternLab': 'phoneme-pattern-lab',
+    'cvPronunciationTrainer': 'phonics-training-hub',
+    'floatingLetterHunt': 'phonics-training-hub',
     'magicECastle': 'magic-e-castle',
     'cvcWordFactory': 'cvc-word-factory',
     'sightWordMaster': 'sight-word-master',
@@ -1274,7 +1424,14 @@ const startGame = (gameId) => {
     'comparisonMaster': 'comparison-master',
     'modalVerbChallenge': 'modal-verb-challenge',
     'conjunctionConnection': 'conjunction-connection',
-    'progressiveTense': 'progressive-tense'
+    'progressiveTense': 'progressive-tense',
+    'dictationSpellingHub': 'dictation-spelling-hub',
+    'wordDictationChallenge': 'word-dictation-challenge',
+    'typingArena': 'typing-arena',
+    // Grammar Galaxy Foundation Games
+    'verbTimeMachine': 'verb-time-machine',
+    'questionWordDetective': 'question-word-detective',
+    'grammarConstructor': 'grammar-constructor'
   }
 
   const routeName = gameRoutes[gameId]

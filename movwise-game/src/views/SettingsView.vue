@@ -375,7 +375,7 @@ const loadAvailableVoices = () => {
   if ('speechSynthesis' in window) {
     const voices = speechSynthesis.getVoices()
     availableVoices.value = voices.filter(voice => 
-      voice.lang.startsWith('en') || voice.lang.startsWith('ja')
+      voice.lang.startsWith('en')
     )
     
     // 音声リストが空の場合は、少し待ってから再試行

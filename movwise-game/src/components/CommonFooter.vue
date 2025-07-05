@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { Music, Globe, Building2, UserIcon } from 'lucide-vue-next'
+import { Music, Globe, Building2, UserIcon, Compass, BrainCircuit, Users2, MonitorPlay } from 'lucide-vue-next'
 
 defineProps({
   active: String
@@ -36,16 +36,22 @@ const navigation = [
     description: '言語構造征服' 
   },
   { 
-    name: 'academy', 
-    label: '🏫 バーチャル基地', 
-    icon: Building2, 
-    description: '実践訓練施設' 
+    name: 'multi-layer', 
+    label: '🧠 AI学習', 
+    icon: BrainCircuit, 
+    description: 'Multi-Layer Engine' 
   },
   { 
-    name: 'profile', 
-    label: '👨‍🚀 船長コックピット', 
-    icon: UserIcon, 
-    description: '個人管制室' 
+    name: 'co-pilot', 
+    label: '👥 協力学習', 
+    icon: Users2, 
+    description: 'Co-Pilot Dock' 
+  },
+  { 
+    name: 'vr-academy', 
+    label: '🥽 VR Academy', 
+    icon: MonitorPlay, 
+    description: 'AI/VR実践学習' 
   }
 ]
 </script>
@@ -157,6 +163,21 @@ const navigation = [
   
   .footer-nav-item {
     padding: 0.375rem;
+  }
+}
+
+/* iOS Safari 専用最適化 */
+@supports (-webkit-touch-callout: none) {
+  .common-footer {
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(15, 23, 42, 0.98);
+  }
+  
+  .footer-nav-item {
+    min-height: 44px; /* タッチターゲット最小サイズ */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
   }
 }
 

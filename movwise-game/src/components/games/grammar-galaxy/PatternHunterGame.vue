@@ -783,8 +783,8 @@ const selectCell = (index) => {
   
   console.log(`[selectCell] Selected elements:`, selectedElements.value.map(e => e.text))
   
-  // 自動的にパターンをチェック
-  checkPattern()
+  // 自動チェックを削除 - ユーザーが「確認」ボタンを押したときのみチェック
+  // checkPattern()
 }
 
 // パターンチェック
@@ -880,12 +880,12 @@ const handleIncorrectPattern = () => {
     gameGrid.value[cellIndex].isWrong = true
   })
   
-  // 1秒後に赤色を解除
+  // 1秒後に赤色を解除するが、選択はクリアしない
   setTimeout(() => {
     selectedCells.value.forEach(cellIndex => {
       gameGrid.value[cellIndex].isWrong = false
     })
-    clearSelection()
+    // clearSelection() を削除 - ユーザーが手動でクリアする必要がある
   }, 1000)
   audioStore.playIncorrect()
   audioStore.speak('Try again!')

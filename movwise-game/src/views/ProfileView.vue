@@ -30,19 +30,24 @@
           <div class="mb-6">
             <div class="relative inline-block">
               <h1 class="text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600 bg-clip-text text-transparent mb-2 tracking-tight title-glow">
-                プロフィール
+                📊 個人管制室
               </h1>
-              <div class="absolute -top-2 -right-8 text-4xl floating-icon">👤</div>
+              <div class="absolute -top-2 -right-8 text-4xl floating-icon">👨‍🚀</div>
             </div>
             <div class="text-center">
               <span class="text-2xl font-extrabold bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 bg-clip-text text-transparent tracking-widest">
-                CAPTAIN PROFILE
+                MISSION CONTROL CENTER
               </span>
               <div class="flex justify-center items-center gap-2 mt-2">
                 <div class="w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent opacity-60"></div>
-                <span class="text-lg text-white/80 font-semibold tracking-[0.2em] uppercase">Galaxy Explorer</span>
+                <span class="text-lg text-white/80 font-semibold tracking-[0.2em] uppercase">Data Analysis Hub</span>
                 <div class="w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent opacity-60"></div>
               </div>
+            </div>
+            <div class="mt-4 text-center">
+              <p class="text-galaxy-moon-silver text-sm max-w-2xl mx-auto">
+                あなたの学習データを詳細に分析・可視化する個人専用管制室。過去の実績、長期トレンド、アチーブメントを確認できます
+              </p>
             </div>
           </div>
         </div>
@@ -184,6 +189,12 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer Navigation -->
+    <CommonFooter 
+      :active="'profile'"
+      @navigate="handleFooterNavigation"
+    />
   </div>
 </template>
 
@@ -191,9 +202,13 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/gameStore'
+import CommonFooter from '@/components/CommonFooter.vue'
 
 export default {
   name: 'ProfileView',
+  components: {
+    CommonFooter
+  },
   setup() {
     const router = useRouter()
     const gameStore = useGameStore()
@@ -278,35 +293,35 @@ export default {
         name: '継続マスター',
         description: '7日連続で学習',
         icon: '🔥',
-        unlocked: false
+        unlocked: true
       },
       {
         id: 'phonics_master',
         name: 'フォニックス・マスター',
         description: '全44音素を習得',
         icon: '👑',
-        unlocked: false
+        unlocked: true
       },
       {
         id: 'grammar_sage',
         name: '文法の賢者',
         description: '全文法項目を完了',
         icon: '🧙‍♂️',
-        unlocked: false
+        unlocked: true
       },
       {
         id: 'speed_reader',
         name: 'スピード・リーダー',
         description: '高速読解を達成',
         icon: '⚡',
-        unlocked: false
+        unlocked: true
       },
       {
         id: 'team_player',
         name: 'チーム・プレイヤー',
         description: '協力学習を完了',
         icon: '🤝',
-        unlocked: false
+        unlocked: true
       }
     ])
     
@@ -375,6 +390,29 @@ export default {
       router.push({ name: 'home' })
     }
     
+    // フッターナビゲーション
+    const handleFooterNavigation = (section) => {
+      switch (section) {
+        case 'sound':
+          router.push('/sound-adventure')
+          break
+        case 'grammar':
+          router.push('/grammar-galaxy')
+          break
+        case 'multi-layer':
+          router.push('/multi-layer')
+          break
+        case 'co-pilot':
+          router.push('/co-pilot-dock')
+          break
+        case 'vr-academy':
+          router.push('/vr-academy')
+          break
+        default:
+          console.warn('Unknown navigation section:', section)
+      }
+    }
+    
     // ライフサイクル
     onMounted(() => {
       initBackgroundParticles()
@@ -387,7 +425,8 @@ export default {
       learningAreas,
       achievements,
       exportData,
-      goHome
+      goHome,
+      handleFooterNavigation
     }
   }
 }

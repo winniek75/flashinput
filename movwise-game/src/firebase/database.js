@@ -31,6 +31,9 @@ export const SESSION_STATES = {
   COMPLETED: 'completed'
 }
 
+// Game states (alias for SESSION_STATES for backward compatibility)
+export const GAME_STATES = SESSION_STATES
+
 // Game types
 export const GAME_TYPES = {
   SOUND_RADAR: 'soundRadar',

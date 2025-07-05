@@ -547,16 +547,19 @@ export default {
     const handleFooterNavigation = (section) => {
       switch (section) {
         case 'sound':
-          router.push('/sound-adventure-hub')
+          router.push('/sound-adventure')
           break
         case 'grammar':
           router.push('/grammar-galaxy-hub')
           break
-        case 'academy':
-          alert('🏫 Virtual Academyは開発中です！')
+        case 'multi-layer':
+          router.push('/multi-layer')
           break
-        case 'profile':
+        case 'co-pilot':
           // 現在のページ（Co-Pilot Dock）なので何もしない
+          break
+        case 'vr-academy':
+          router.push('/vr-academy')
           break
         default:
           console.warn('Unknown navigation section:', section)

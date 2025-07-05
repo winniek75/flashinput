@@ -388,6 +388,7 @@ export default {
       try {
         const utterance = new SpeechSynthesisUtterance()
         utterance.text = this.currentQuestion.examples[0] // 最初の例単語を再生
+        utterance.lang = 'en-US'
         utterance.rate = 0.8
         utterance.pitch = 1
         utterance.volume = 0.8
@@ -409,6 +410,7 @@ export default {
       try {
         const utterance = new SpeechSynthesisUtterance()
         utterance.text = word
+        utterance.lang = 'en-US'
         utterance.rate = 0.8
         utterance.pitch = 1
         utterance.volume = 0.8

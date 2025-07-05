@@ -292,7 +292,7 @@
           </div>
           <div class="galaxy-stats-card">
             <div class="text-2xl mb-1">🎯</div>
-            <div class="font-bold text-lg">{{ Math.round(accuracy * 100) }}%</div>
+            <div class="font-bold text-lg">{{ isNaN(accuracy.value) ? 0 : Math.round(accuracy.value * 100) }}%</div>
             <div class="text-sm">Accuracy</div>
           </div>
         </div>
@@ -448,8 +448,24 @@ const initializePhonemes = (phonemeSet) => {
 }
 
 const setNewTargetPhoneme = () => {
-  const phonemeList = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
-  currentTargetPhoneme.value = phonemeList[Math.floor(Math.random() * phonemeList.length)]
+  const availablePhonemes = getAvailablePhonemes()
+  
+  if (availablePhonemes.length === 0) {
+    console.warn('No phonemes available for target selection')
+    return
+  }
+  
+  // Select target from currently available enemies if possible
+  const enemyPhonemes = enemies.value.map(enemy => enemy.phoneme)
+  const availableEnemyPhonemes = availablePhonemes.filter(phoneme => 
+    enemyPhonemes.includes(phoneme.symbol)
+  )
+  
+  // If enemies exist with available phonemes, choose from them
+  // Otherwise choose randomly from available phonemes
+  const phonemesToChooseFrom = availableEnemyPhonemes.length > 0 ? availableEnemyPhonemes : availablePhonemes
+  
+  currentTargetPhoneme.value = phonemesToChooseFrom[Math.floor(Math.random() * phonemesToChooseFrom.length)]
 }
 
 const selectGameMode = (mode) => {
@@ -478,6 +494,9 @@ const resetGameStats = () => {
   enemiesDestroyed.value = 0
   currentWave.value = 1
   
+  // Clear anti-repetition system
+  recentlyUsedPhonemes.value = []
+  
   enemies.value = []
   playerBullets.value = []
   enemyBullets.value = []
@@ -486,6 +505,8 @@ const resetGameStats = () => {
   
   totalShots.value = 0
   successfulHits.value = 0
+  accuracy.value = 0
+  maxCombo.value = 0
   playerPosition.value = 300
 }
 
@@ -511,6 +532,12 @@ const shoot = () => {
   totalShots.value++
   energy.value -= 10
   
+  console.log('[SoundBattleArena] Shot fired:', {
+    totalShots: totalShots.value,
+    weapon: selectedWeapon.value.symbol,
+    target: currentTargetPhoneme.value?.symbol
+  })
+  
   // Create bullet
   const bullet = {
     id: Date.now() + Math.random(),
@@ -526,9 +553,67 @@ const shoot = () => {
   playSound('effect', 'button')
 }
 
+// Anti-repetition system
+const recentlyUsedPhonemes = ref([])
+const maxRecentPhonemes = 10
+
+const getAvailablePhonemes = () => {
+  if (!currentGameMode.value) return []
+  
+  let phonemes = []
+  
+  // Filter phonemes based on game mode
+  if (currentGameMode.value.phonemeSet === 'stage1A') {
+    phonemes = NATIVE_PHONEME_PROGRESSION.stage1A || []
+  } else if (currentGameMode.value.phonemeSet === 'stage1B') {
+    phonemes = NATIVE_PHONEME_PROGRESSION.stage1B || []
+  } else if (currentGameMode.value.phonemeSet === 'stage1C') {
+    phonemes = NATIVE_PHONEME_PROGRESSION.stage1C || []
+  } else {
+    // 'all' mode uses all phonemes
+    phonemes = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
+  }
+  
+  return phonemes
+}
+
+const selectRandomPhoneme = () => {
+  const availablePhonemes = getAvailablePhonemes()
+  
+  if (availablePhonemes.length === 0) {
+    console.warn('No phonemes available for current game mode')
+    return null
+  }
+  
+  // Filter out recently used phonemes
+  const unusedPhonemes = availablePhonemes.filter(phoneme => 
+    !recentlyUsedPhonemes.value.includes(phoneme.symbol)
+  )
+  
+  // If all phonemes have been used recently, use all available
+  const phonemesToChooseFrom = unusedPhonemes.length > 0 ? unusedPhonemes : availablePhonemes
+  
+  // Select random phoneme
+  const randomPhoneme = phonemesToChooseFrom[Math.floor(Math.random() * phonemesToChooseFrom.length)]
+  
+  // Add to recently used list
+  recentlyUsedPhonemes.value.push(randomPhoneme.symbol)
+  
+  // Keep only recent phonemes (limit list size)
+  if (recentlyUsedPhonemes.value.length > maxRecentPhonemes) {
+    recentlyUsedPhonemes.value.shift()
+  }
+  
+  return randomPhoneme
+}
+
 const spawnEnemy = () => {
-  const availablePhonemes = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
-  const randomPhoneme = availablePhonemes[Math.floor(Math.random() * availablePhonemes.length)]
+  const randomPhoneme = selectRandomPhoneme()
+  
+  if (!randomPhoneme) {
+    console.warn('Could not select phoneme for enemy')
+    return
+  }
   
   const enemy = {
     id: Date.now() + Math.random(),
@@ -587,6 +672,12 @@ const checkCollisions = () => {
           combo.value++
           enemiesDestroyed.value++
           score.value += 100 + (combo.value * 10)
+          
+          console.log('[SoundBattleArena] Successful hit:', {
+            successfulHits: successfulHits.value,
+            totalShots: totalShots.value,
+            currentAccuracy: (successfulHits.value / totalShots.value * 100).toFixed(1) + '%'
+          })
           
           if (combo.value > maxCombo.value) {
             maxCombo.value = combo.value
@@ -741,7 +832,20 @@ const endGame = (victory) => {
   
   finalScore.value = score.value
   finalEnemiesDestroyed.value = enemiesDestroyed.value
-  accuracy.value = totalShots.value > 0 ? successfulHits.value / totalShots.value : 0
+  
+  // Calculate accuracy with proper handling of edge cases
+  console.log('[SoundBattleArena] Calculating accuracy:', {
+    totalShots: totalShots.value,
+    successfulHits: successfulHits.value
+  })
+  
+  if (totalShots.value > 0) {
+    accuracy.value = successfulHits.value / totalShots.value
+  } else {
+    accuracy.value = 0
+  }
+  
+  console.log('[SoundBattleArena] Final accuracy:', accuracy.value)
   
   clearInterval(gameLoop)
   clearInterval(enemySpawnTimer)

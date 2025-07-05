@@ -3,13 +3,14 @@
 // Specifically designed for Japanese learners to achieve native-like pronunciation
 
 export const NATIVE_PHONEME_PROGRESSION = {
-  // Stage 1A: Foundation Phonemes (Critical for Japanese Learners)
+  // Stage 1A: Foundation Phonemes (Critical for Japanese Learners) - 50 Questions
   stage1A: [
+    // Core Foundation Phonemes
     {
       symbol: '/s/',
       ipa: 's',
       description: 'Voiceless alveolar fricative',
-      examples: ['sun', 'sit', 'bass'],
+      examples: ['sun', 'sit', 'bass', 'class', 'miss', 'across', 'person', 'loose', 'house', 'practice'],
       difficulty: 1,
       group: 'fricatives',
       confusingSounds: ['/z/', '/θ/', '/ʃ/'],
@@ -24,7 +25,7 @@ export const NATIVE_PHONEME_PROGRESSION = {
       symbol: '/æ/',
       ipa: 'æ',
       description: 'Near-open front unrounded vowel (Standard American /æ/)',
-      examples: ['cat', 'hat', 'bad'],
+      examples: ['cat', 'hat', 'bad', 'man', 'back', 'happy', 'apple', 'black', 'track', 'match'],
       difficulty: 3,
       group: 'short_vowels',
       confusingSounds: ['/ʌ/', '/ɑ/', '/ɛ/'],
@@ -39,7 +40,7 @@ export const NATIVE_PHONEME_PROGRESSION = {
       symbol: '/t/',
       ipa: 't',
       description: 'Voiceless alveolar plosive (with aspiration in initial position)',
-      examples: ['top', 'cat', 'better'],
+      examples: ['top', 'cat', 'better', 'water', 'time', 'little', 'about', 'white', 'night', 'center'],
       difficulty: 2,
       group: 'plosives',
       confusingSounds: ['/d/', '/k/', '/p/'],
@@ -49,6 +50,112 @@ export const NATIVE_PHONEME_PROGRESSION = {
       nativeTips: 'Strong aspiration when word-initial. Tongue tip contacts alveolar ridge.',
       commonErrors: 'Insufficient aspiration in initial position. Practice strong puff of air.',
       articulationGuide: 'Complete closure with tongue tip against alveolar ridge. Release with strong burst of air.'
+    },
+    // Additional phonemes for 50 questions total
+    {
+      symbol: '/ɪ/',
+      ipa: 'ɪ',
+      description: 'Near-close near-front unrounded vowel',
+      examples: ['sit', 'bit', 'ship', 'this', 'give', 'fish', 'quick', 'with', 'rich', 'pick'],
+      difficulty: 2,
+      group: 'short_vowels',
+      confusingSounds: ['/i/', '/e/', '/ə/'],
+      masteryThreshold: 0.85,
+      color: 'from-purple-400 to-purple-600',
+      audioFile: 'i1.m4a',
+      nativeTips: 'Shorter and more relaxed than Japanese /i/. Tongue position slightly lower.',
+      commonErrors: 'Making it too tense like Japanese /i/. Practice relaxed tongue position.',
+      articulationGuide: 'Tongue slightly lower and more central than for /i/. Lips unrounded.'
+    },
+    {
+      symbol: '/p/',
+      ipa: 'p',
+      description: 'Voiceless bilabial plosive',
+      examples: ['pen', 'cup', 'paper', 'apple', 'happy', 'top', 'stop', 'open', 'upper', 'people'],
+      difficulty: 1,
+      group: 'plosives',
+      confusingSounds: ['/b/', '/f/', '/m/'],
+      masteryThreshold: 0.85,
+      color: 'from-yellow-400 to-yellow-600',
+      audioFile: 'p.m4a',
+      nativeTips: 'Strong aspiration in initial position. Complete lip closure.',
+      commonErrors: 'Weak aspiration. Practice strong puff of air on release.',
+      articulationGuide: 'Complete closure of lips. Build up air pressure and release with aspiration.'
+    },
+    {
+      symbol: '/n/',
+      ipa: 'n',
+      description: 'Voiced alveolar nasal',
+      examples: ['no', 'can', 'name', 'then', 'want', 'nice', 'turn', 'green', 'thank', 'stand'],
+      difficulty: 1,
+      group: 'nasals',
+      confusingSounds: ['/m/', '/ŋ/', '/l/'],
+      masteryThreshold: 0.85,
+      color: 'from-teal-400 to-teal-600',
+      audioFile: 'n.m4a',
+      nativeTips: 'Tongue tip touches alveolar ridge. Air flows through nose.',
+      commonErrors: 'Confusing with /m/ in final position.',
+      articulationGuide: 'Tongue tip contacts alveolar ridge. Velum lowered for nasal airflow.'
+    },
+    {
+      symbol: '/m/',
+      ipa: 'm',
+      description: 'Voiced bilabial nasal',
+      examples: ['my', 'come', 'make', 'time', 'home', 'room', 'summer', 'woman', 'maybe', 'small'],
+      difficulty: 1,
+      group: 'nasals',
+      confusingSounds: ['/n/', '/b/', '/p/'],
+      masteryThreshold: 0.85,
+      color: 'from-indigo-400 to-indigo-600',
+      audioFile: 'm.m4a',
+      nativeTips: 'Complete lip closure. Air flows through nose.',
+      commonErrors: 'Very similar to Japanese /m/. Usually no problems.',
+      articulationGuide: 'Lips completely closed. Velum lowered for nasal airflow.'
+    },
+    {
+      symbol: '/k/',
+      ipa: 'k',
+      description: 'Voiceless velar plosive',
+      examples: ['key', 'back', 'make', 'look', 'work', 'book', 'take', 'walk', 'ask', 'like'],
+      difficulty: 2,
+      group: 'plosives',
+      confusingSounds: ['/g/', '/t/', '/x/'],
+      masteryThreshold: 0.85,
+      color: 'from-pink-400 to-pink-600',
+      audioFile: 'k.m4a',
+      nativeTips: 'Back of tongue contacts soft palate. Strong aspiration initially.',
+      commonErrors: 'Insufficient aspiration in initial position.',
+      articulationGuide: 'Back of tongue makes complete contact with velum. Strong release.'
+    },
+    {
+      symbol: '/l/',
+      ipa: 'l',
+      description: 'Voiced alveolar lateral approximant',
+      examples: ['love', 'all', 'like', 'will', 'also', 'well', 'call', 'only', 'feel', 'child'],
+      difficulty: 4,
+      group: 'liquids',
+      confusingSounds: ['/r/', '/n/', '/w/'],
+      masteryThreshold: 0.80,
+      color: 'from-orange-400 to-orange-600',
+      audioFile: 'l.m4a',
+      nativeTips: 'Tongue tip touches alveolar ridge. Air flows around sides of tongue.',
+      commonErrors: 'Japanese speakers often substitute /r/ sound. Practice lateral airflow.',
+      articulationGuide: 'Tongue tip contacts alveolar ridge. Air flows around one or both sides.'
+    },
+    {
+      symbol: '/r/',
+      ipa: 'r',
+      description: 'Voiced postalveolar approximant',
+      examples: ['run', 'car', 'red', 'very', 'more', 'here', 'three', 'try', 'bring', 'over'],
+      difficulty: 5,
+      group: 'liquids',
+      confusingSounds: ['/l/', '/w/', '/ɹ/'],
+      masteryThreshold: 0.75,
+      color: 'from-rose-400 to-rose-600',
+      audioFile: 'r.m4a',
+      nativeTips: 'Tongue tip curled back or bunched. Do not touch any part of mouth.',
+      commonErrors: 'Most difficult for Japanese speakers. Practice retroflex tongue position.',
+      articulationGuide: 'Tongue tip curled back or bunched up. No contact with roof of mouth.'
     }
   ],
 

@@ -1,0 +1,2629 @@
+<template>
+  <div class="min-h-screen galaxy-background">
+    <!-- Setup Screen -->
+    <main class="fixed inset-0 flex items-center justify-center z-10" v-if="gameState === 'setup'">
+      <div class="galaxy-card p-8 max-w-2xl w-full mx-4">
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-yellow-400 cosmic-title mb-2">
+            🚀 Progressive Dodge
+          </h1>
+        </div>
+        
+        <!-- Simple Difficulty Selection -->
+        <div class="mb-6">
+          <h3 class="text-lg font-bold text-cyan-400 mb-3 text-center">難易度選択</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button 
+              v-for="level in difficultyLevels" 
+              :key="level.id"
+              @click="selectedDifficulty = level.id"
+              class="compact-difficulty-card"
+              :class="{ 'selected': selectedDifficulty === level.id }"
+            >
+              <div class="text-3xl mb-2">{{ level.icon }}</div>
+              <div class="text-base font-bold mb-1">{{ level.name }}</div>
+              <div class="text-xs text-slate-400">{{ level.description }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button 
+            @click="startGame"
+            class="galaxy-button galaxy-button-large"
+            :disabled="!selectedDifficulty"
+          >
+            <span class="text-2xl mr-3">🚀</span>
+            <span>ドッジ開始！</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Game Screen (Racing) -->
+    <main class="fixed inset-0 z-10 flex flex-col" v-if="gameState === 'playing'">
+      <!-- Animated Space Background -->
+      <div class="space-background">
+        <div class="stars-field" :style="{ animationDuration: Math.max(10, 35 - autoSpeed * 5) + 's' }"></div>
+        <div class="nebula-clouds"></div>
+      </div>
+      
+      <div class="relative z-50 flex-1">
+        <!-- Racing Track with Player -->
+        <div class="racing-track" :data-speed="currentSpeed > baseSpeed + 20 ? 'fast' : currentSpeed < baseSpeed ? 'slow' : 'normal'">
+          <!-- Lane Indicators -->
+          <div class="lane-indicators">
+            <div class="lane-line lane-line-1" :style="{ animationDuration: Math.max(0.5, 2.5 - autoSpeed * 0.3) + 's' }"></div>
+            <div class="lane-line lane-line-2" :style="{ animationDuration: Math.max(0.5, 2.5 - autoSpeed * 0.3) + 's' }"></div>
+            <div class="lane-line lane-line-3" :style="{ animationDuration: Math.max(0.5, 2.5 - autoSpeed * 0.3) + 's' }"></div>
+            <div class="lane-line lane-line-4" :style="{ animationDuration: Math.max(0.5, 2.5 - autoSpeed * 0.3) + 's' }"></div>
+          </div>
+          
+          <!-- Road Surface Animation -->
+          <div class="road-surface"></div>
+          
+          <!-- Vehicle/Player (Fixed Position) -->
+          <div class="player-vehicle" :style="{ 
+            left: playerPosition.x + 'px',
+            bottom: '200px'
+          }">
+            <div class="vehicle-body" :class="{ 
+              'boosting': currentSpeed > baseSpeed + 20, 
+              'invulnerable': isInvulnerable,
+              'super-boost': currentSpeed > baseSpeed + 40
+            }">
+              🚀
+            </div>
+            <div class="vehicle-trail" v-if="currentSpeed > baseSpeed + 10" 
+                 :style="{ height: Math.min(120, 60 + (currentSpeed - baseSpeed)) + 'px' }"></div>
+            <div class="speed-lines" v-if="currentSpeed > baseSpeed + 30"></div>
+          </div>
+          
+          <!-- Lane-Based Obstacles -->
+          <div class="obstacle-lane" v-for="obstacle in obstacles" :key="obstacle.id" 
+               :style="{ 
+                 transform: `translateY(${obstacle.y}px) translateX(${obstacle.x}px)`,
+                 zIndex: obstacle.y > 400 ? 25 : 15
+               }">
+            <div class="obstacle-body" :class="[obstacle.type, {
+              'approaching': obstacle.y > 200 && obstacle.y < 500,
+              'danger-zone': obstacle.y > 350 && obstacle.y < 500
+            }]" 
+            :style="{ 
+              transform: `rotate(${obstacle.rotation}deg) scale(${Math.max(0.8, 1.5 - obstacle.y / 400)})`
+            }">
+              <div class="obstacle-icon">{{ obstacle.icon }}</div>
+            </div>
+          </div>
+          
+          <!-- Lane Guidelines (when answering) -->
+          <div class="lane-guidelines" v-if="isAnswering">
+            <div class="lane-guide lane-guide-0" :class="{ 'correct-guide': isLaneCorrect(0), 'player-guide': playerLane === 0 }"></div>
+            <div class="lane-guide lane-guide-1" :class="{ 'correct-guide': isLaneCorrect(1), 'player-guide': playerLane === 1 }"></div>
+            <div class="lane-guide lane-guide-2" :class="{ 'correct-guide': isLaneCorrect(2), 'player-guide': playerLane === 2 }"></div>
+          </div>
+        </div>
+
+        <!-- Racing Interface Overlay -->
+        <div class="racing-interface">
+          <!-- Speed and Distance Display -->
+          <div class="speed-display">
+            <div class="speed-meter" :class="{ 'boost': currentSpeed > baseSpeed + 20 }">
+              <span class="speed-value">{{ Math.round(currentSpeed) }}</span>
+              <span class="speed-unit">km/h</span>
+            </div>
+            <div class="distance-meter">
+              <span class="distance-value">{{ Math.round(forwardProgress / 5) }}</span>
+              <span class="distance-unit">m</span>
+            </div>
+            <div class="lives-display">
+              <span class="lives-icon">💖</span>
+              <span class="lives-value">{{ lives }}</span>
+            </div>
+            <div class="time-display">
+              <span class="time-icon">⏱️</span>
+              <span class="time-value">{{ Math.floor(timeRemaining / 60) }}:{{ String(timeRemaining % 60).padStart(2, '0') }}</span>
+            </div>
+          </div>
+          
+          <!-- Question is now displayed in the fixed answer panel -->
+          
+          <!-- Fixed Answer Panel at Bottom -->
+          <div class="fixed-answer-panel" v-if="isAnswering && currentChallenge">
+            <div class="answer-panel-header">
+              <div class="question-display">{{ currentChallenge.prompt }}</div>
+              <div class="time-bar">
+                <div class="time-fill" :style="{ width: (selectionTimeLeft / selectionTimeMax * 100) + '%' }"></div>
+              </div>
+            </div>
+            <div class="answer-options">
+              <button 
+                v-for="(option, index) in currentChallenge.options"
+                :key="option.id"
+                @click="selectAnswerAndMove(index, option)"
+                class="answer-option-button"
+                :class="{ 'selected': selectedOption === option.id }"
+              >
+                <div class="option-number">{{ index + 1 }}</div>
+                <div class="option-text">{{ option.form }}</div>
+                <div class="option-hint">Press {{ index + 1 }}</div>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Removed old answer control buttons - using fixed panel instead -->
+          
+          <!-- Controls hint removed - no longer needed -->
+
+          <!-- Instant Feedback Popups -->
+          <div class="instant-feedback" v-if="showBoostEffect">
+            <div class="boost-popup">
+              <div class="boost-icon">💥</div>
+              <div class="boost-text">DEFENDED!</div>
+              <div class="points-text">+100</div>
+            </div>
+          </div>
+          
+          <div class="instant-feedback" v-if="showCrashEffect">
+            <div class="crash-popup">
+              <div class="crash-icon">🔥</div>
+              <div class="crash-text">FAILED TO DODGE!</div>
+              <div class="damage-text">-1 Life</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Results Screen -->
+    <main class="relative z-10 px-6 pb-32" v-if="gameState === 'results'">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        <h2 class="text-3xl font-bold mb-6">Game Complete!</h2>
+        <p class="text-xl mb-4">Final Score: {{ totalScore }}</p>
+        <p class="text-lg mb-6">Accuracy: {{ Math.round(accuracy * 100) }}%</p>
+        
+        <div class="flex gap-4 justify-center">
+          <button @click="restartGame" class="galaxy-button galaxy-button-secondary">
+            🔄 もう一度
+          </button>
+          <button @click="$router.push('/grammar-galaxy-hub')" class="galaxy-button galaxy-button-primary">
+            🌌 文法銀河へ戻る
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+export default {
+  name: 'ProgressiveTenseGame',
+  setup() {
+    const router = useRouter()
+
+    // Game state
+    const gameState = ref('setup') // setup, playing, results
+    const selectedDifficulty = ref('beginner')
+    const selectedMode = ref('classic')
+    const currentRound = ref(1)
+    const totalRounds = ref(10)
+    const lives = ref(3)
+    const totalScore = ref(0)
+    const correctAnswers = ref(0)
+    const comboCount = ref(0)
+    const maxComboCount = ref(0)
+    const totalAttempts = ref(0)
+    const timeRemaining = ref(120) // 120 seconds time limit
+    const distanceTraveled = ref(0)
+    const fuel = ref(100)
+    const maxFuel = ref(100)
+    const fuelLost = ref(0)
+    const responseTimes = ref([])
+    const masteredTenses = ref([])
+    const earnedAchievements = ref([])
+    const usedQuestionIds = ref([]) // Track used questions to avoid repeats
+    
+    // Player state  
+    const playerPosition = ref({ x: 400, y: window.innerHeight * 0.8 }) // Fixed at 80% of screen height
+    const playerLane = ref(1) // 0=left, 1=center, 2=right
+    const targetX = ref(400) // Target position for smooth movement
+    const currentSpeed = ref(30) // Base auto-forward speed (much slower)
+    const autoSpeed = ref(1.5) // Constant forward movement speed (much slower)
+    const forwardProgress = ref(0) // Distance traveled forward
+    const isInvulnerable = ref(false)
+    const boostCharge = ref(0)
+    const showBoostEffect = ref(false)
+    const isBoosting = ref(false)
+    const showCrashEffect = ref(false)
+    const lastScoreGain = ref(0)
+    const maxSpeed = ref(80) // Reduced max speed
+    const baseSpeed = ref(30) // Much lower base speed
+    const lanes = [250, 400, 550] // X positions for left, center, right lanes
+    const approachingObstacle = ref(null) // Currently approaching obstacle
+    const isAnswering = ref(false) // Whether player is currently answering
+    
+    // Game objects
+    const obstacles = ref([])
+    const powerups = ref([])
+    const visibleObstacles = ref([])
+    const visiblePowerups = ref([])
+    const currentChallenge = ref(null)
+    const selectedOption = ref(null)
+    const showResult = ref(false)
+    const lastAnswerCorrect = ref(false)
+    const showCollisionEffect = ref(false)
+    const showVictoryScreen = ref(false)
+    const lastObstacleSpawn = ref(0) // Distance since last obstacle spawn
+    const obstacleSpawnDistance = ref(500) // Increased distance between obstacles for beginners
+    
+    // Game timing
+    const gameInterval = ref(null)
+    const animationFrameId = ref(null)
+    const obstacleSpeed = ref(2) // Much slower obstacle approach
+    const spawnRate = ref(0.02)
+    const questionStartTime = ref(0)
+    const selectionTimeLeft = ref(180) // More time to think (3 minutes)
+    const selectionTimeMax = ref(180)
+    const selectionTimer = ref(null)
+    const gameTimer = ref(null)
+    const lastFrameTime = ref(0)
+
+    // Difficulty-based speed configuration
+    const difficultySettings = {
+      beginner: {
+        baseSpeed: 20,
+        autoSpeed: 1.0,
+        maxSpeed: 50,
+        obstacleSpeed: 1.0,  // Much slower obstacles for beginners
+        spawnDistance: 400,   // Closer obstacles for more engagement
+        timeLimit: 120       // Generous time for learning
+      },
+      intermediate: {
+        baseSpeed: 40,
+        autoSpeed: 2.0,
+        maxSpeed: 80,
+        obstacleSpeed: 1.8,   // Slightly slower
+        spawnDistance: 350,
+        timeLimit: 120       // Generous time for learning
+      },
+      advanced: {
+        baseSpeed: 60,
+        autoSpeed: 3.0,
+        maxSpeed: 120,
+        obstacleSpeed: 2.5,   // Slower for better reaction time
+        spawnDistance: 300,
+        timeLimit: 120       // Generous time for learning
+      }
+    }
+    
+    const difficultyLevels = [
+      {
+        id: 'beginner',
+        name: '初級',
+        icon: '🟢',
+        description: 'ゆっくりペース'
+      },
+      {
+        id: 'intermediate', 
+        name: '中級',
+        icon: '🟡',
+        description: '標準ペース'
+      },
+      {
+        id: 'advanced',
+        name: '上級',
+        icon: '🔴',
+        description: '高速ペース'
+      }
+    ]
+
+    // Comprehensive challenge database with 50 questions per level
+    const challengeDatabase = {
+      beginner: [
+        // BEGINNER LEVEL - Present Simple vs Present Continuous (50 questions)
+        {
+          id: 'b1',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '子供たちは今公園で遊んでいます。',
+          options: [
+            { id: 'a', form: 'are playing', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'play', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'played', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」は現在進行形のサイン。'
+        },
+        {
+          id: 'b2',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '私は毎朝コーヒーを飲みます。',
+          options: [
+            { id: 'a', form: 'drink', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'am drinking', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'drank', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '習慣は現在形を使う。'
+        },
+        {
+          id: 'b3',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '彼女は今電話で話しています。',
+          options: [
+            { id: 'a', form: 'is talking', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'talks', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'talked', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b4',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '太陽は東から昇ります。',
+          options: [
+            { id: 'a', form: 'rises', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'is rising', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'rose', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '一般的事実は現在形。'
+        },
+        {
+          id: 'b5',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '私たちは今宿題をしています。',
+          options: [
+            { id: 'a', form: 'are doing', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'do', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'did', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b6',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '猫は魚を食べます。',
+          options: [
+            { id: 'a', form: 'eat', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'are eating', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'ate', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '一般的事実は現在形。'
+        },
+        {
+          id: 'b7',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '彼は今音楽を聞いています。',
+          options: [
+            { id: 'a', form: 'is listening', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'listens', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'listened', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b8',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '学校は9時に始まります。',
+          options: [
+            { id: 'a', form: 'starts', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'is starting', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'started', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: 'スケジュールは現在形。'
+        },
+        {
+          id: 'b9',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '母は今料理を作っています。',
+          options: [
+            { id: 'a', form: 'is cooking', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'cooks', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'cooked', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b10',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '私はよく本を読みます。',
+          options: [
+            { id: 'a', form: 'read', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'am reading', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'was reading', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '習慣は現在形。'
+        },
+        {
+          id: 'b11',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '犬は今庭で走っています。',
+          options: [
+            { id: 'a', form: 'is running', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'runs', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'ran', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b12',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '雨は空から落ちます。',
+          options: [
+            { id: 'a', form: 'falls', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'is falling', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'fell', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '一般的事実は現在形。'
+        },
+        {
+          id: 'b13',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '先生は今数学を教えています。',
+          options: [
+            { id: 'a', form: 'is teaching', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'teaches', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'taught', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b14',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '毎日運動します。',
+          options: [
+            { id: 'a', form: 'exercise', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'am exercising', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'exercised', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '毎日の習慣は現在形。'
+        },
+        {
+          id: 'b15',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '私たちは今ゲームをしています。',
+          options: [
+            { id: 'a', form: 'are playing', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'play', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'played', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b16',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '水は100度で沸騰します。',
+          options: [
+            { id: 'a', form: 'boils', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'is boiling', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'boiled', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '科学的事実は現在形。'
+        },
+        {
+          id: 'b17',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '彼は今手紙を書いています。',
+          options: [
+            { id: 'a', form: 'is writing', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'writes', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'wrote', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b18',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '彼女は毎週歌を歌います。',
+          options: [
+            { id: 'a', form: 'sings', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'is singing', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'sang', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '毎週の習慣は現在形。'
+        },
+        {
+          id: 'b19',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '私たちは今ばんごはんを食べています。',
+          options: [
+            { id: 'a', form: 'are eating', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'eat', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'ate', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b20',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '彼らはサッカーが好きです。',
+          options: [
+            { id: 'a', form: 'like', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'are liking', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'liked', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '感情は現在形。'
+        },
+        // Add more questions to reach 50
+        {
+          id: 'b21',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '彼女は今本を読んでいます。',
+          options: [
+            { id: 'a', form: 'is reading', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'reads', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'read', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b22',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '私は日曜日に教会に行きます。',
+          options: [
+            { id: 'a', form: 'go', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'am going', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'went', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: 'ルーティンは現在形。'
+        },
+        {
+          id: 'b23',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '私たちは今テレビを見ています。',
+          options: [
+            { id: 'a', form: 'are watching', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'watch', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'watched', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        {
+          id: 'b24',
+          level: 'beginner',
+          tenseType: 'present_simple',
+          obstacleType: 'debris',
+          prompt: '鳥は空を飛びます。',
+          options: [
+            { id: 'a', form: 'fly', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'are flying', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'flew', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '一般的事実は現在形。'
+        },
+        {
+          id: 'b25',
+          level: 'beginner',
+          tenseType: 'present_continuous',
+          obstacleType: 'asteroid',
+          prompt: '私は今歌を歌っています。',
+          options: [
+            { id: 'a', form: 'am singing', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'sing', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'sang', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '「今」の進行中の動作。'
+        },
+        // Continue adding more questions to reach 50
+        { id: 'b26', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼は毎日新聞を読みます。', options: [{ id: 'a', form: 'reads', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is reading', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'read', speedBoost: 0, isCorrect: false }], explanation: '毎日の習慣は現在形。' },
+        { id: 'b27', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '子供たちは今眠っています。', options: [{ id: 'a', form: 'are sleeping', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'sleep', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'slept', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b28', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '地球は太陽の周りを回ります。', options: [{ id: 'a', form: 'goes around', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is going around', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'went around', speedBoost: 0, isCorrect: false }], explanation: '科学的事実は現在形。' },
+        { id: 'b29', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私は今宿題をしています。', options: [{ id: 'a', form: 'am doing', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'do', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'did', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b30', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼女はフランス語を話します。', options: [{ id: 'a', form: 'speaks', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is speaking', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'spoke', speedBoost: 0, isCorrect: false }], explanation: '能力は現在形。' },
+        { id: 'b31', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '先生たちは今会議をしています。', options: [{ id: 'a', form: 'are having', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'have', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'had', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b32', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '雪は冬に降ります。', options: [{ id: 'a', form: 'falls', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is falling', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'fell', speedBoost: 0, isCorrect: false }], explanation: '季節の事実は現在形。' },
+        { id: 'b33', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私たちは今旅行の計画を立てています。', options: [{ id: 'a', form: 'are planning', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'plan', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'planned', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b34', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼は毎朝ジョギングします。', options: [{ id: 'a', form: 'jogs', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is jogging', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'jogged', speedBoost: 0, isCorrect: false }], explanation: '毎朝の習慣は現在形。' },
+        { id: 'b35', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私は今手紙を書いています。', options: [{ id: 'a', form: 'am writing', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'write', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'wrote', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b36', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '店は7時に開きます。', options: [{ id: 'a', form: 'opens', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is opening', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'opened', speedBoost: 0, isCorrect: false }], explanation: 'スケジュールは現在形。' },
+        { id: 'b37', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '彼らは今サッカーをしています。', options: [{ id: 'a', form: 'are playing', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'play', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'played', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b38', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '月は夜に光ります。', options: [{ id: 'a', form: 'shines', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is shining', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'shone', speedBoost: 0, isCorrect: false }], explanation: '一般的事実は現在形。' },
+        { id: 'b39', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私たちは今映画を見ています。', options: [{ id: 'a', form: 'are watching', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'watch', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'watched', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b40', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼女は英語を理解します。', options: [{ id: 'a', form: 'understands', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is understanding', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'understood', speedBoost: 0, isCorrect: false }], explanation: '理解は状態動詞。' },
+        { id: 'b41', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '彼は今コンピューターで作業しています。', options: [{ id: 'a', form: 'is working', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'works', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'worked', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b42', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '私はちょこれーとが好きです。', options: [{ id: 'a', form: 'like', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'am liking', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'liked', speedBoost: 0, isCorrect: false }], explanation: '好みは状態動詞。' },
+        { id: 'b43', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '雨が今降っています。', options: [{ id: 'a', form: 'is raining', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'rains', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'rained', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b44', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼は毎晩本を読みます。', options: [{ id: 'a', form: 'reads', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is reading', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'read', speedBoost: 0, isCorrect: false }], explanation: '毎晩の習慣は現在形。' },
+        { id: 'b45', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私たちは今友達とおしゃべりしています。', options: [{ id: 'a', form: 'are talking', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'talk', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'talked', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b46', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼女はいつも家族と夕食を食べます。', options: [{ id: 'a', form: 'eats', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is eating', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'ate', speedBoost: 0, isCorrect: false }], explanation: 'いつもの習慣は現在形。' },
+        { id: 'b47', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '学生たちは今テストを受けています。', options: [{ id: 'a', form: 'are taking', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'take', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'took', speedBoost: 0, isCorrect: false }], explanation: '「今」の進行中の動作。' },
+        { id: 'b48', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '私の妻は長時間働きます。', options: [{ id: 'a', form: 'works', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'is working', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'worked', speedBoost: 0, isCorrect: false }], explanation: '一般的事実は現在形。' },
+        { id: 'b49', level: 'beginner', tenseType: 'present_continuous', obstacleType: 'asteroid', prompt: '私は今日面接の準備をしています。', options: [{ id: 'a', form: 'am preparing', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'prepare', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'prepared', speedBoost: 0, isCorrect: false }], explanation: '現在進行中の準備。' },
+        { id: 'b50', level: 'beginner', tenseType: 'present_simple', obstacleType: 'debris', prompt: '彼らは助けが必要です。', options: [{ id: 'a', form: 'need', speedBoost: 25, isCorrect: true }, { id: 'b', form: 'are needing', speedBoost: 0, isCorrect: false }, { id: 'c', form: 'needed', speedBoost: 0, isCorrect: false }], explanation: '必要は状態動詞。' }
+      ],
+      intermediate: [
+        // INTERMEDIATE LEVEL - Past Simple vs Past Continuous (50 questions)
+        {
+          id: 'i1',
+          level: 'intermediate',
+          tenseType: 'past_continuous',
+          obstacleType: 'asteroid',
+          prompt: '昨日の夜、私は映画を見ていました。',
+          options: [
+            { id: 'a', form: 'was watching', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'watched', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'watch', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '過去の一定時間続いた動作。'
+        },
+        {
+          id: 'i2',
+          level: 'intermediate',
+          tenseType: 'past_simple',
+          obstacleType: 'debris',
+          prompt: '彼は去年日本に行きました。',
+          options: [
+            { id: 'a', form: 'went', speedBoost: 25, isCorrect: true },
+            { id: 'b', form: 'was going', speedBoost: 0, isCorrect: false },
+            { id: 'c', form: 'going', speedBoost: 0, isCorrect: false }
+          ],
+          explanation: '過去の完了した動作。'
+        },
+        { id: 'i3', prompt: '私が電話したとき、彼女は料理をしていました。', correctAnswer: 'was cooking', wrongAnswers: ['cooked', 'cook'], explanation: '過去の特定時点での進行動作。' },
+        { id: 'i4', prompt: '私たちは昨日公園で遊びました。', correctAnswer: 'played', wrongAnswers: ['were playing', 'playing'], explanation: '過去の完了した動作。' },
+        { id: 'i5', prompt: '雨が降っている間、私は家にいました。', correctAnswer: 'was staying', wrongAnswers: ['stayed', 'stay'], explanation: '雨が降っている間の継続動作。' },
+        // Add 45 more intermediate questions...
+        { id: 'i6', prompt: '彼は昨夜遅くまで勉強しました。', correctAnswer: 'studied', wrongAnswers: ['was studying', 'studying'], explanation: '過去の完了した動作。' },
+        { id: 'i7', prompt: '私が帰宅したとき、母は夕食を作っていました。', correctAnswer: 'was making', wrongAnswers: ['made', 'make'], explanation: '帰宅時点での進行動作。' },
+        { id: 'i8', prompt: '昨日、私たちは博物館を訪れました。', correctAnswer: 'visited', wrongAnswers: ['were visiting', 'visiting'], explanation: '過去の完了した動作。' },
+        { id: 'i9', prompt: '彼女は一日中本を読んでいました。', correctAnswer: 'was reading', wrongAnswers: ['read', 'reads'], explanation: '一日中続いた過去の動作。' },
+        { id: 'i10', prompt: '私は先週友達に会いました。', correctAnswer: 'met', wrongAnswers: ['was meeting', 'meeting'], explanation: '過去の完了した動作。' },
+        // Continue adding more intermediate questions to reach 50
+        { id: 'i11', prompt: '彼らは昨夜パーティーを開いていました。', correctAnswer: 'were having', wrongAnswers: ['had', 'have'], explanation: '昨夜の継続した動作。' },
+        { id: 'i12', prompt: '私は去年英語を習い始めました。', correctAnswer: 'started', wrongAnswers: ['was starting', 'starting'], explanation: '過去の開始点。' },
+        { id: 'i13', prompt: 'テレビを見ている間、彼は眠ってしまいました。', correctAnswer: 'fell asleep', wrongAnswers: ['was falling asleep', 'falling asleep'], explanation: '瞬間的な過去の動作。' },
+        { id: 'i14', prompt: '昨日の午後、私は買い物をしていました。', correctAnswer: 'was shopping', wrongAnswers: ['shopped', 'shop'], explanation: '午後の継続動作。' },
+        { id: 'i15', prompt: '彼女は昨日新しいドレスを買いました。', correctAnswer: 'bought', wrongAnswers: ['was buying', 'buying'], explanation: '過去の完了した動作。' },
+        { id: 'i16', prompt: '私がドアを開けたとき、猫が逃げていました。', correctAnswer: 'was running away', wrongAnswers: ['ran away', 'run away'], explanation: 'ドアを開けた時点での進行動作。' },
+        { id: 'i17', prompt: '彼は3年前にここに引っ越してきました。', correctAnswer: 'moved', wrongAnswers: ['was moving', 'moving'], explanation: '過去の完了した動作。' },
+        { id: 'i18', prompt: '雷が鳴っている間、私たちは家にいました。', correctAnswer: 'were staying', wrongAnswers: ['stayed', 'stay'], explanation: '雷の間の継続状態。' },
+        { id: 'i19', prompt: '昨日、私は古い友人と話しました。', correctAnswer: 'talked', wrongAnswers: ['was talking', 'talking'], explanation: '過去の完了した動作。' },
+        { id: 'i20', prompt: '彼女は朝から晩まで働いていました。', correctAnswer: 'was working', wrongAnswers: ['worked', 'work'], explanation: '朝から晩までの継続動作。' },
+        // Continue with more intermediate questions...
+        { id: 'i21', prompt: '私は昨夜早く寝ました。', correctAnswer: 'went to bed', wrongAnswers: ['was going to bed', 'going to bed'], explanation: '過去の完了した動作。' },
+        { id: 'i22', prompt: '彼が来たとき、私は掃除をしていました。', correctAnswer: 'was cleaning', wrongAnswers: ['cleaned', 'clean'], explanation: '彼が来た時点での進行動作。' },
+        { id: 'i23', prompt: '昨年、私たちは新しい家を建てました。', correctAnswer: 'built', wrongAnswers: ['were building', 'building'], explanation: '過去の完了した動作。' },
+        { id: 'i24', prompt: '雨が降っている間、子供たちは遊んでいました。', correctAnswer: 'were playing', wrongAnswers: ['played', 'play'], explanation: '雨の間の継続動作。' },
+        { id: 'i25', prompt: '彼女は昨日医者に行きました。', correctAnswer: 'went', wrongAnswers: ['was going', 'going'], explanation: '過去の完了した動作。' },
+        { id: 'i26', prompt: '私が宿題をしている間、母は夕食を作っていました。', correctAnswer: 'was making', wrongAnswers: ['made', 'make'], explanation: '宿題をしている間の同時動作。' },
+        { id: 'i27', prompt: '昨日、私は新しい車を買いました。', correctAnswer: 'bought', wrongAnswers: ['was buying', 'buying'], explanation: '過去の完了した動作。' },
+        { id: 'i28', prompt: '彼は一日中テレビを見ていました。', correctAnswer: 'was watching', wrongAnswers: ['watched', 'watch'], explanation: '一日中の継続動作。' },
+        { id: 'i29', prompt: '私たちは去年ヨーロッパを旅行しました。', correctAnswer: 'traveled', wrongAnswers: ['were traveling', 'traveling'], explanation: '過去の完了した動作。' },
+        { id: 'i30', prompt: '彼女が歌っている間、私は聞いていました。', correctAnswer: 'was listening', wrongAnswers: ['listened', 'listen'], explanation: '歌っている間の継続動作。' },
+        { id: 'i31', prompt: '昨日、私は図書館で勉強しました。', correctAnswer: 'studied', wrongAnswers: ['was studying', 'studying'], explanation: '過去の完了した動作。' },
+        { id: 'i32', prompt: '電話が鳴っているとき、私はシャワーを浴びていました。', correctAnswer: 'was taking', wrongAnswers: ['took', 'take'], explanation: '電話が鳴った時点での進行動作。' },
+        { id: 'i33', prompt: '彼は先月新しい仕事を始めました。', correctAnswer: 'started', wrongAnswers: ['was starting', 'starting'], explanation: '過去の完了した動作。' },
+        { id: 'i34', prompt: '私が料理している間、彼は皿を洗っていました。', correctAnswer: 'was washing', wrongAnswers: ['washed', 'wash'], explanation: '料理している間の同時動作。' },
+        { id: 'i35', prompt: '昨日、私たちは映画館に行きました。', correctAnswer: 'went', wrongAnswers: ['were going', 'going'], explanation: '過去の完了した動作。' },
+        { id: 'i36', prompt: '彼女は夜中まで本を読んでいました。', correctAnswer: 'was reading', wrongAnswers: ['read', 'reads'], explanation: '夜中までの継続動作。' },
+        { id: 'i37', prompt: '私は昨日友達と会いました。', correctAnswer: 'met', wrongAnswers: ['was meeting', 'meeting'], explanation: '過去の完了した動作。' },
+        { id: 'i38', prompt: '雪が降っている間、私たちは家でゲームをしていました。', correctAnswer: 'were playing', wrongAnswers: ['played', 'play'], explanation: '雪の間の継続動作。' },
+        { id: 'i39', prompt: '彼は昨夜遅く帰宅しました。', correctAnswer: 'came home', wrongAnswers: ['was coming home', 'coming home'], explanation: '過去の完了した動作。' },
+        { id: 'i40', prompt: '私が起きたとき、鳥が歌っていました。', correctAnswer: 'were singing', wrongAnswers: ['sang', 'sing'], explanation: '起きた時点での進行動作。' },
+        { id: 'i41', prompt: '昨年、彼女は大学を卒業しました。', correctAnswer: 'graduated', wrongAnswers: ['was graduating', 'graduating'], explanation: '過去の完了した動作。' },
+        { id: 'i42', prompt: '私が話している間、彼は聞いていました。', correctAnswer: 'was listening', wrongAnswers: ['listened', 'listen'], explanation: '話している間の継続動作。' },
+        { id: 'i43', prompt: '昨日、私は早起きしました。', correctAnswer: 'got up early', wrongAnswers: ['was getting up early', 'getting up early'], explanation: '過去の完了した動作。' },
+        { id: 'i44', prompt: '雨が止んだとき、私たちは外に出ていました。', correctAnswer: 'were going out', wrongAnswers: ['went out', 'go out'], explanation: '雨が止んだ時点での進行動作。' },
+        { id: 'i45', prompt: '彼は去年結婚しました。', correctAnswer: 'got married', wrongAnswers: ['was getting married', 'getting married'], explanation: '過去の完了した出来事。' },
+        { id: 'i46', prompt: '私が宿題をしている間、妹はテレビを見ていました。', correctAnswer: 'was watching', wrongAnswers: ['watched', 'watch'], explanation: '宿題をしている間の同時動作。' },
+        { id: 'i47', prompt: '昨日、私たちは海に行きました。', correctAnswer: 'went', wrongAnswers: ['were going', 'going'], explanation: '過去の完了した動作。' },
+        { id: 'i48', prompt: '彼女は朝から夕方まで働いていました。', correctAnswer: 'was working', wrongAnswers: ['worked', 'work'], explanation: '朝から夕方までの継続動作。' },
+        { id: 'i49', prompt: '私は先週新しい本を読み始めました。', correctAnswer: 'started reading', wrongAnswers: ['was starting to read', 'starting to read'], explanation: '過去の開始動作。' },
+        { id: 'i50', prompt: '彼が来る前、私は待っていました。', correctAnswer: 'was waiting', wrongAnswers: ['waited', 'wait'], explanation: '彼が来る前の継続状態。' }
+      ],
+      advanced: [
+        // Perfect Tenses and Complex Grammar - Advanced
+        { id: 'a1', prompt: '私は3年間英語を勉強しています。', correctAnswer: 'have been studying', wrongAnswers: ['have studied', 'am studying'], explanation: '現在完了進行形：継続中の動作。' },
+        { id: 'a2', prompt: '彼はすでに宿題を終えました。', correctAnswer: 'has already finished', wrongAnswers: ['already finished', 'is finishing'], explanation: '現在完了形：完了した動作。' },
+        { id: 'a3', prompt: 'もし雨が降ったら、私は家にいるでしょう。', correctAnswer: 'will stay', wrongAnswers: ['would stay', 'stayed'], explanation: '第一条件文：未来の可能性。' },
+        { id: 'a4', prompt: '私がここに来る前に、彼は出発していました。', correctAnswer: 'had left', wrongAnswers: ['has left', 'left'], explanation: '過去完了形：過去のより前の動作。' },
+        { id: 'a5', prompt: '来年までに、私は大学を卒業しているでしょう。', correctAnswer: 'will have graduated', wrongAnswers: ['will graduate', 'have graduated'], explanation: '未来完了形：未来のある時点までの完了。' },
+        // Add 45 more advanced questions...
+        { id: 'a6', prompt: 'もし私が鳥だったら、空を飛ぶでしょう。', correctAnswer: 'would fly', wrongAnswers: ['will fly', 'flew'], explanation: '第二条件文：非現実的な仮定。' },
+        { id: 'a7', prompt: '私は今までに日本を訪れたことがあります。', correctAnswer: 'have visited', wrongAnswers: ['visited', 'am visiting'], explanation: '現在完了形：経験。' },
+        { id: 'a8', prompt: '彼女は朝から働き続けています。', correctAnswer: 'has been working', wrongAnswers: ['has worked', 'is working'], explanation: '現在完了進行形：継続中の動作。' },
+        { id: 'a9', prompt: 'もし彼が早く来ていたら、会議に間に合ったでしょう。', correctAnswer: 'would have been', wrongAnswers: ['would be', 'had been'], explanation: '第三条件文：過去の非現実的な結果。' },
+        { id: 'a10', prompt: '私たちが到着したとき、映画はすでに始まっていました。', correctAnswer: 'had already started', wrongAnswers: ['has already started', 'already started'], explanation: '過去完了形：到着前の動作。' },
+        // Continue with more advanced questions...
+        { id: 'a11', prompt: '彼は昨日から体調が悪いです。', correctAnswer: 'has been sick', wrongAnswers: ['was sick', 'is sick'], explanation: '現在完了形：昨日からの継続状態。' },
+        { id: 'a12', prompt: '私は将来医者になるつもりです。', correctAnswer: 'am going to be', wrongAnswers: ['will be', 'would be'], explanation: 'be going to：計画された未来。' },
+        { id: 'a13', prompt: 'もし私がもっと勉強していたら、試験に合格していたでしょう。', correctAnswer: 'would have passed', wrongAnswers: ['would pass', 'had passed'], explanation: '第三条件文：過去の仮定の結果。' },
+        { id: 'a14', prompt: '彼女は2時間本を読んでいます。', correctAnswer: 'has been reading', wrongAnswers: ['has read', 'is reading'], explanation: '現在完了進行形：2時間の継続。' },
+        { id: 'a15', prompt: '私は昨日彼に会うはずでした。', correctAnswer: 'was supposed to meet', wrongAnswers: ['should meet', 'had to meet'], explanation: 'be supposed to：予定されていた義務。' },
+        { id: 'a16', prompt: '彼はちょうど家を出たところです。', correctAnswer: 'has just left', wrongAnswers: ['just left', 'is leaving'], explanation: '現在完了形：最近の動作。' },
+        { id: 'a17', prompt: 'もし明日晴れたら、私たちはピクニックに行きます。', correctAnswer: 'will go', wrongAnswers: ['would go', 'go'], explanation: '第一条件文：未来の計画。' },
+        { id: 'a18', prompt: '私は5年間この会社で働いています。', correctAnswer: 'have been working', wrongAnswers: ['have worked', 'am working'], explanation: '現在完了進行形：5年間の継続。' },
+        { id: 'a19', prompt: '彼らは昨夜までにプロジェクトを完成させていました。', correctAnswer: 'had completed', wrongAnswers: ['have completed', 'completed'], explanation: '過去完了形：昨夜までの完了。' },
+        { id: 'a20', prompt: '来週の今頃、私は飛行機の中にいるでしょう。', correctAnswer: 'will be', wrongAnswers: ['would be', 'am'], explanation: '未来進行形：来週の特定時点。' },
+        { id: 'a21', prompt: '私はまだ昼食を食べていません。', correctAnswer: "haven't eaten", wrongAnswers: ["didn't eat", "am not eating"], explanation: '現在完了形の否定：まだ〜していない。' },
+        { id: 'a22', prompt: 'もし彼女がもっと練習していたら、コンテストで優勝していたでしょう。', correctAnswer: 'would have won', wrongAnswers: ['would win', 'had won'], explanation: '第三条件文：過去の仮定の結果。' },
+        { id: 'a23', prompt: '私たちは来月までに新しい家に引っ越しているでしょう。', correctAnswer: 'will have moved', wrongAnswers: ['will move', 'have moved'], explanation: '未来完了形：来月までの完了。' },
+        { id: 'a24', prompt: '彼は子供の頃よく川で泳いだものでした。', correctAnswer: 'used to swim', wrongAnswers: ['would swim', 'was swimming'], explanation: 'used to：過去の習慣。' },
+        { id: 'a25', prompt: '私は今朝から彼を探しています。', correctAnswer: 'have been looking for', wrongAnswers: ['have looked for', 'am looking for'], explanation: '現在完了進行形：今朝からの継続。' },
+        { id: 'a26', prompt: 'もし私がお金を持っていたら、新しい車を買うでしょう。', correctAnswer: 'would buy', wrongAnswers: ['will buy', 'bought'], explanation: '第二条件文：非現実的な仮定。' },
+        { id: 'a27', prompt: '彼女は一度も海外に行ったことがありません。', correctAnswer: 'has never been', wrongAnswers: ['never went', 'never goes'], explanation: '現在完了形：経験の否定。' },
+        { id: 'a28', prompt: '私が電話したとき、彼はすでに寝ていました。', correctAnswer: 'had already gone to bed', wrongAnswers: ['has already gone to bed', 'already went to bed'], explanation: '過去完了形：電話前の動作。' },
+        { id: 'a29', prompt: '来年の今頃、私は大学生になっているでしょう。', correctAnswer: 'will be', wrongAnswers: ['would be', 'am'], explanation: '未来形：来年の状態。' },
+        { id: 'a30', prompt: '彼は昨日から風邪をひいています。', correctAnswer: 'has had a cold', wrongAnswers: ['had a cold', 'has a cold'], explanation: '現在完了形：昨日からの継続状態。' },
+        { id: 'a31', prompt: 'もし雨が降らなかったら、私たちは散歩に出かけるでしょう。', correctAnswer: 'will go for a walk', wrongAnswers: ['would go for a walk', 'go for a walk'], explanation: '第一条件文：否定条件。' },
+        { id: 'a32', prompt: '私は3時間宿題をやっています。', correctAnswer: 'have been doing', wrongAnswers: ['have done', 'am doing'], explanation: '現在完了進行形：3時間の継続。' },
+        { id: 'a33', prompt: '彼らは会議が始まる前に資料を準備していました。', correctAnswer: 'had prepared', wrongAnswers: ['have prepared', 'prepared'], explanation: '過去完了形：会議前の準備。' },
+        { id: 'a34', prompt: '私は将来宇宙飛行士になりたいです。', correctAnswer: 'want to become', wrongAnswers: ['will become', 'would become'], explanation: '現在形：将来の希望。' },
+        { id: 'a35', prompt: 'もし私が早く起きていたら、電車に間に合ったでしょう。', correctAnswer: 'would have caught', wrongAnswers: ['would catch', 'had caught'], explanation: '第三条件文：過去の仮定の結果。' },
+        { id: 'a36', prompt: '彼女は先週から新しい仕事を始めています。', correctAnswer: 'has been starting', wrongAnswers: ['has started', 'started'], explanation: '現在完了進行形：先週からの継続。' },
+        { id: 'a37', prompt: '私たちが到着するまでに、彼は出発しているでしょう。', correctAnswer: 'will have left', wrongAnswers: ['will leave', 'has left'], explanation: '未来完了形：到着までの完了。' },
+        { id: 'a38', prompt: '彼は昔この町に住んでいました。', correctAnswer: 'used to live', wrongAnswers: ['would live', 'was living'], explanation: 'used to：過去の状態。' },
+        { id: 'a39', prompt: '私は今日一日中掃除をしています。', correctAnswer: 'have been cleaning', wrongAnswers: ['have cleaned', 'am cleaning'], explanation: '現在完了進行形：一日中の継続。' },
+        { id: 'a40', prompt: 'もし彼女が医者だったら、私を治療してくれるでしょう。', correctAnswer: 'would treat', wrongAnswers: ['will treat', 'treated'], explanation: '第二条件文：非現実的な仮定。' },
+        { id: 'a41', prompt: '私はちょうど宿題を終えたところです。', correctAnswer: 'have just finished', wrongAnswers: ['just finished', 'am finishing'], explanation: '現在完了形：最近の完了。' },
+        { id: 'a42', prompt: '彼らは来る前に電話をかけるべきでした。', correctAnswer: 'should have called', wrongAnswers: ['should call', 'had called'], explanation: 'should have：過去の義務。' },
+        { id: 'a43', prompt: '来月までに、私はこの本を読み終えているでしょう。', correctAnswer: 'will have finished reading', wrongAnswers: ['will finish reading', 'have finished reading'], explanation: '未来完了形：来月までの完了。' },
+        { id: 'a44', prompt: '彼女は小さい頃よくピアノを弾いていました。', correctAnswer: 'used to play', wrongAnswers: ['would play', 'was playing'], explanation: 'used to：過去の習慣。' },
+        { id: 'a45', prompt: '私は朝から何も食べていません。', correctAnswer: "haven't eaten", wrongAnswers: ["didn't eat", "am not eating"], explanation: '現在完了形：朝からの継続状態。' },
+        { id: 'a46', prompt: 'もし時間があったら、映画を見に行くでしょう。', correctAnswer: 'would go to see', wrongAnswers: ['will go to see', 'went to see'], explanation: '第二条件文：時間の仮定。' },
+        { id: 'a47', prompt: '彼は2時間前から会議室で待っています。', correctAnswer: 'has been waiting', wrongAnswers: ['has waited', 'is waiting'], explanation: '現在完了進行形：2時間前からの継続。' },
+        { id: 'a48', prompt: '私たちが出発するとき、雨はすでに止んでいました。', correctAnswer: 'had already stopped', wrongAnswers: ['has already stopped', 'already stopped'], explanation: '過去完了形：出発前の完了。' },
+        { id: 'a49', prompt: '来年、私は新しい言語を学び始める予定です。', correctAnswer: 'am going to start learning', wrongAnswers: ['will start learning', 'would start learning'], explanation: 'be going to：計画された未来。' },
+        { id: 'a50', prompt: 'もし彼がもっと注意深く運転していたら、事故は起こらなかったでしょう。', correctAnswer: 'would not have happened', wrongAnswers: ['would not happen', 'had not happened'], explanation: '第三条件文：過去の仮定の結果。' }
+      ]
+    }
+
+    // Get current challenge set based on difficulty and ensure proper format
+    const getCurrentChallenges = () => {
+      const challenges = challengeDatabase[selectedDifficulty.value] || challengeDatabase.beginner
+      
+      // Convert old format to new format if needed and shuffle all options
+      return challenges.map((challenge, index) => {
+        if (challenge.options) {
+          // Already in correct format, but shuffle the options
+          const shuffled = [...challenge.options]
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+          }
+          return {
+            ...challenge,
+            options: shuffled
+          }
+        }
+        
+        // Convert from old format (correctAnswer/wrongAnswers) to new format
+        const options = []
+        options.push({ 
+          id: 'a', 
+          form: challenge.correctAnswer, 
+          speedBoost: 25, 
+          isCorrect: true 
+        })
+        
+        // Add wrong answers
+        challenge.wrongAnswers.forEach((wrong, idx) => {
+          options.push({ 
+            id: String.fromCharCode(98 + idx), // 'b', 'c', etc.
+            form: wrong, 
+            speedBoost: 0, 
+            isCorrect: false 
+          })
+        })
+        
+        // Properly shuffle options to randomize positions
+        const shuffled = [...options]
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        }
+        
+        return {
+          id: challenge.id,
+          level: selectedDifficulty.value,
+          tenseType: challenge.tenseType || 'mixed',
+          obstacleType: index % 2 === 0 ? 'asteroid' : 'debris',
+          prompt: challenge.prompt,
+          options: shuffled,
+          explanation: challenge.explanation
+        }
+      })
+    }
+
+    // Challenge generation
+    const generateChallenge = () => {
+      console.log('Generating challenge...')
+      const difficultyLevel = selectedDifficulty.value
+      console.log('Difficulty level:', difficultyLevel)
+      
+      // Get challenges for current difficulty level
+      const availableChallenges = getCurrentChallenges()
+      console.log('Available challenges:', availableChallenges.length)
+      
+      if (availableChallenges.length === 0) {
+        console.error('No challenges available for level:', difficultyLevel)
+        return
+      }
+      
+      // Select random challenge from available pool
+      const randomChallenge = availableChallenges[Math.floor(Math.random() * availableChallenges.length)]
+      
+      currentChallenge.value = {
+        ...randomChallenge,
+        // Shuffle options for variety
+        options: [...randomChallenge.options].sort(() => Math.random() - 0.5)
+      }
+      
+      selectedOption.value = null
+      showResult.value = false
+      questionStartTime.value = Date.now()
+      
+      // Reset selection timer for racing mode
+      selectionTimeLeft.value = selectionTimeMax.value
+      
+      // Console log for debugging
+      console.log(`Question ${currentRound.value}/${totalRounds.value}: ${randomChallenge.tenseType} - ${randomChallenge.prompt}`)
+      console.log('currentChallenge set:', currentChallenge.value)
+      console.log('showResult:', showResult.value)
+    }
+
+    // Game control functions
+    const startGame = () => {
+      console.log('Starting game with difficulty:', selectedDifficulty.value)
+      gameState.value = 'playing'
+      
+      // Reset game state
+      forwardProgress.value = 0
+      lastObstacleSpawn.value = 0
+      currentSpeed.value = baseSpeed.value
+      autoSpeed.value = 3
+      obstacles.value = []
+      resetAnsweringState()
+      timeRemaining.value = 120 // Reset timer to 120 seconds
+      
+      // Start main game loop with requestAnimationFrame
+      lastFrameTime.value = performance.now()
+      animationFrameId.value = requestAnimationFrame(updateGame)
+      
+      // Add keyboard listeners
+      window.addEventListener('keydown', handleKeyPress)
+      
+      // Start game timer (120 seconds)
+      if (gameTimer.value) clearInterval(gameTimer.value)
+      gameTimer.value = setInterval(() => {
+        timeRemaining.value--
+        if (timeRemaining.value <= 0) {
+          // Time's up - end game
+          gameState.value = 'results'
+          if (animationFrameId.value) {
+            cancelAnimationFrame(animationFrameId.value)
+            animationFrameId.value = null
+          }
+          if (selectionTimer.value) clearInterval(selectionTimer.value)
+          if (gameTimer.value) clearInterval(gameTimer.value)
+          window.removeEventListener('keydown', handleKeyPress)
+        }
+      }, 1000)
+      
+      // Spawn first obstacle quickly for immediate engagement
+      setTimeout(() => {
+        spawnObstacleWithProblem()
+      }, 500)
+    }
+
+    // Legacy functions - no longer needed with lane-based system
+    const selectOption = (optionId) => {
+      selectedOption.value = optionId
+    }
+
+    const submitAnswer = () => {
+      // Lane-based system handles answers automatically through collision detection
+    }
+    
+    // Legacy functions - now handled by lane system
+    const handleCorrectAnswer = () => {
+      // This is now handled by handleLaneAnswer
+    }
+    
+    const handleWrongAnswer = () => {
+      // This is now handled by handleLaneAnswer
+    }
+    
+    const resetAnsweringState = () => {
+      isAnswering.value = false
+      currentChallenge.value = null
+      approachingObstacle.value = null
+      selectedOption.value = null
+      showResult.value = false
+      
+      if (selectionTimer.value) {
+        clearInterval(selectionTimer.value)
+        selectionTimer.value = null
+      }
+    }
+    
+    // Helper function to check if a lane contains the correct answer
+    const isLaneCorrect = (laneIndex) => {
+      if (!isAnswering.value) return false
+      
+      const laneObstacle = obstacles.value.find(obs => 
+        obs.lane === laneIndex && 
+        obs.hasTriggeredQuestion && 
+        obs.y > 0 && obs.y < 600
+      )
+      
+      return laneObstacle ? laneObstacle.isCorrectAnswer : false
+    }
+    
+    // Get answer text for a specific lane
+    const getLaneAnswer = (laneIndex) => {
+      if (!isAnswering.value) return ''
+      
+      const laneObstacle = obstacles.value.find(obs => 
+        obs.lane === laneIndex && 
+        obs.hasTriggeredQuestion && 
+        obs.y > -200 && obs.y < 600
+      )
+      
+      return laneObstacle ? laneObstacle.option.form : ''
+    }
+    
+    // Select answer and automatically move to the corresponding lane
+    const selectAnswerAndMove = (laneIndex, option) => {
+      if (!isAnswering.value) return
+      
+      selectedOption.value = option.id
+      
+      // Automatically move to the selected lane
+      if (laneIndex >= 0 && laneIndex <= 2) {
+        playerLane.value = laneIndex
+        targetX.value = lanes[laneIndex]
+      }
+      
+      // Mark that an answer was selected
+      totalAttempts.value++
+    }
+
+    // Game end condition check (called from update loop)
+    const checkGameEnd = () => {
+      if (lives.value <= 0) {
+        gameState.value = 'results'
+        if (animationFrameId.value) {
+          cancelAnimationFrame(animationFrameId.value)
+          animationFrameId.value = null
+        }
+        if (selectionTimer.value) clearInterval(selectionTimer.value)
+        if (gameTimer.value) clearInterval(gameTimer.value)
+        window.removeEventListener('keydown', handleKeyPress)
+        return true
+      }
+      return false
+    }
+
+    // Main game loop using requestAnimationFrame for smooth performance
+    const updateGame = (currentTime = 0) => {
+      const deltaTime = currentTime - lastFrameTime.value
+      lastFrameTime.value = currentTime
+      
+      // Continuous auto-forward movement (never stops)
+      forwardProgress.value += autoSpeed.value
+      
+      // Smooth player movement between lanes
+      const currentX = playerPosition.value.x
+      const diff = targetX.value - currentX
+      if (Math.abs(diff) > 1) {
+        playerPosition.value.x += diff * 0.2 // Faster lane switching
+      } else {
+        playerPosition.value.x = targetX.value
+      }
+      
+      // Update all obstacles (they appear to move toward player)
+      obstacles.value.forEach(obstacle => {
+        obstacle.y += obstacleSpeed.value // Move obstacles down toward player
+        obstacle.rotation += obstacle.rotationSpeed || 3
+        
+        // Simple downward movement - no lateral movement
+        // Obstacles stay in their assigned lanes
+        
+        // Calculate distance from player
+        obstacle.distanceFromPlayer = Math.abs(obstacle.y - 500)
+      })
+      
+      // Auto-spawn obstacles at regular intervals
+      if (forwardProgress.value - lastObstacleSpawn.value >= obstacleSpawnDistance.value) {
+        spawnObstacleWithProblem()
+        lastObstacleSpawn.value = forwardProgress.value
+      }
+      
+      // Check for approaching obstacles and trigger questions
+      checkApproachingObstacles()
+      
+      // Check collisions
+      checkCollisions()
+      
+      // Remove obstacles that are off-screen
+      obstacles.value = obstacles.value.filter(obstacle => obstacle.y < 700)
+      
+      // Check game end conditions
+      if (checkGameEnd()) return
+      
+      // Continue game loop
+      if (gameState.value === 'playing') {
+        animationFrameId.value = requestAnimationFrame(updateGame)
+      }
+    }
+
+    // Lane-based collision detection with answer checking
+    const checkCollisions = () => {
+      if (isInvulnerable.value) return
+      
+      // Check collisions in player's current lane
+      obstacles.value.forEach((obstacle, index) => {
+        if (obstacle.lane === playerLane.value && 
+            obstacle.y >= 450 && obstacle.y <= 550) { // Collision zone
+          
+          if (isAnswering.value) {
+            // Player is answering - check if this lane is correct
+            handleLaneAnswer(obstacle, index)
+          } else {
+            // No active question - treat as collision
+            handleCollision(obstacle, index)
+          }
+        }
+      })
+    }
+    
+    const handleLaneAnswer = (obstacle, index) => {
+      const isCorrect = obstacle.isCorrectAnswer
+      
+      if (isCorrect) {
+        // Correct answer - DEFEND: destroy obstacle and boost
+        correctAnswers.value++
+        totalScore.value += 100
+        comboCount.value++
+        totalAttempts.value++
+        
+        // Speed boost for correct answer (difficulty-based)
+        const speedBoost = selectedDifficulty.value === 'beginner' ? 5 : 
+                          selectedDifficulty.value === 'intermediate' ? 8 : 12
+        currentSpeed.value = Math.min(currentSpeed.value + speedBoost, maxSpeed.value)
+        autoSpeed.value = Math.min(autoSpeed.value + 0.1, difficultySettings[selectedDifficulty.value].autoSpeed * 1.5)
+        
+        // Show DEFEND effect
+        showBoostEffect.value = true
+        setTimeout(() => {
+          showBoostEffect.value = false
+        }, 400) // Reduced from 800ms to 400ms
+        
+        // Remove all obstacles in this set (destroy them all)
+        const setId = obstacle.setId
+        obstacles.value = obstacles.value.filter(obs => obs.setId !== setId)
+        
+      } else {
+        // Wrong answer - FAILED TO DODGE: collision damage
+        totalAttempts.value++
+        handleCollision(obstacle, index)
+      }
+      
+      // Reset answering state
+      resetAnsweringState()
+    }
+    
+    const handleCollision = (obstacle, index) => {
+      // Collision effects - Failed to dodge or defend
+      lives.value--
+      showCrashEffect.value = true
+      isInvulnerable.value = true
+      comboCount.value = 0 // Reset combo on collision
+      
+      // Reduce speed (but never stop completely)
+      const minSpeed = Math.max(baseSpeed.value * 0.5, baseSpeed.value * 0.3)
+      currentSpeed.value = Math.max(currentSpeed.value * 0.7, minSpeed)
+      autoSpeed.value = Math.max(autoSpeed.value * 0.8, difficultySettings[selectedDifficulty.value].autoSpeed * 0.5)
+      
+      // Remove obstacle
+      obstacles.value.splice(index, 1)
+      
+      // Reset answering state if this was the current obstacle
+      if (approachingObstacle.value?.id === obstacle.id) {
+        resetAnsweringState()
+      }
+      
+      // Brief invulnerability (dodge recovery time)
+      setTimeout(() => {
+        showCrashEffect.value = false
+        isInvulnerable.value = false
+        // Gradually restore speed
+        const speedRestore = selectedDifficulty.value === 'beginner' ? 3 : 
+                           selectedDifficulty.value === 'intermediate' ? 5 : 8
+        currentSpeed.value = Math.min(currentSpeed.value + speedRestore, maxSpeed.value)
+        autoSpeed.value = Math.min(autoSpeed.value + 0.2, difficultySettings[selectedDifficulty.value].autoSpeed)
+      }, 800) // Reduced from 1500ms to 800ms
+    }
+
+    const updateSelectionTimer = () => {
+      if (selectionTimeLeft.value > 0 && isAnswering.value) {
+        selectionTimeLeft.value -= 0.1
+        if (selectionTimeLeft.value <= 0) {
+          // Time's up - automatically get wrong answer (collision)
+          const currentLaneObstacle = obstacles.value.find(obs => 
+            obs.lane === playerLane.value && 
+            obs.hasTriggeredQuestion &&
+            obs.y > 350 && obs.y < 550
+          )
+          
+          if (currentLaneObstacle && !currentLaneObstacle.isCorrectAnswer) {
+            // Player is in wrong lane when time runs out
+            handleCollision(currentLaneObstacle, obstacles.value.indexOf(currentLaneObstacle))
+          }
+          
+          resetAnsweringState()
+        }
+      }
+    }
+
+    // Spawn obstacle set with lane-based answers
+    const spawnObstacleWithProblem = () => {
+      const allChallenges = getCurrentChallenges()
+      
+      // Filter out already used questions
+      let availableChallenges = allChallenges.filter(c => !usedQuestionIds.value.includes(c.id))
+      
+      // If all questions used, reset the pool
+      if (availableChallenges.length === 0) {
+        usedQuestionIds.value = []
+        availableChallenges = allChallenges
+      }
+      
+      const randomChallenge = availableChallenges[Math.floor(Math.random() * availableChallenges.length)]
+      usedQuestionIds.value.push(randomChallenge.id) // Mark as used
+      
+      // Create obstacles in all 3 lanes with different answers
+      const obstacleSet = {
+        id: Math.random().toString(36).substr(2, 9),
+        challenge: randomChallenge,
+        hasTriggeredQuestion: false,
+        y: -100,
+        isActive: false
+      }
+      
+      // Shuffle options to randomize lane positions
+      const shuffledOptions = [...randomChallenge.options]
+      while (shuffledOptions.length < 3) {
+        // If less than 3 options, duplicate some
+        shuffledOptions.push(shuffledOptions[Math.floor(Math.random() * shuffledOptions.length)])
+      }
+      
+      // Create obstacle for each lane - simple fixed positions
+      lanes.forEach((laneX, laneIndex) => {
+        const option = shuffledOptions[laneIndex]
+        const obstacle = {
+          id: obstacleSet.id + '_' + laneIndex,
+          setId: obstacleSet.id,
+          x: laneX, // Fixed lane position
+          y: -100, // Fixed spawn position
+          lane: laneIndex,
+          type: option.isCorrect ? 'correct' : 'incorrect',
+          icon: '☄️', // Neutral meteor icon
+          rotation: 0,
+          challenge: randomChallenge,
+          option: option,
+          hasTriggeredQuestion: false,
+          distanceFromPlayer: 0,
+          isCorrectAnswer: option.isCorrect,
+          rotationSpeed: 3 // Fixed rotation speed
+        }
+        obstacles.value.push(obstacle)
+      })
+    }
+
+    // Check for obstacles approaching player and trigger questions
+    const checkApproachingObstacles = () => {
+      if (isAnswering.value) return
+      
+      // Find closest obstacle set in approach zone
+      const obstacleGroups = {}
+      obstacles.value.forEach(obstacle => {
+        if (!obstacleGroups[obstacle.setId]) {
+          obstacleGroups[obstacle.setId] = []
+        }
+        obstacleGroups[obstacle.setId].push(obstacle)
+      })
+      
+      // Find the closest set that hasn't triggered a question yet
+      for (const setId in obstacleGroups) {
+        const obstacleSet = obstacleGroups[setId]
+        const firstObstacle = obstacleSet[0]
+        
+        if (firstObstacle.y > -50 && firstObstacle.y < 150 && !firstObstacle.hasTriggeredQuestion) {
+          // Trigger question display for this set
+          currentChallenge.value = firstObstacle.challenge
+          isAnswering.value = true
+          
+          // Mark all obstacles in this set as having triggered
+          obstacleSet.forEach(obs => {
+            obs.hasTriggeredQuestion = true
+          })
+          
+          // Start countdown timer
+          selectionTimeLeft.value = selectionTimeMax.value
+          if (selectionTimer.value) clearInterval(selectionTimer.value)
+          selectionTimer.value = setInterval(updateSelectionTimer, 100)
+          break
+        }
+      }
+    }
+
+    // Player movement controls
+    const moveLeft = () => {
+      if (playerLane.value > 0) {
+        playerLane.value--
+        targetX.value = lanes[playerLane.value]
+      }
+    }
+
+    const moveRight = () => {
+      if (playerLane.value < 2) {
+        playerLane.value++
+        targetX.value = lanes[playerLane.value]
+      }
+    }
+
+    // Simplified keyboard controls for answer selection
+    const handleKeyPress = (event) => {
+      if (gameState.value !== 'playing' || !isAnswering.value || !currentChallenge.value) return
+      
+      switch(event.key) {
+        case '1':
+          event.preventDefault()
+          if (currentChallenge.value.options[0]) {
+            selectAnswerAndMove(0, currentChallenge.value.options[0])
+          }
+          break
+        case '2':
+          event.preventDefault()
+          if (currentChallenge.value.options[1]) {
+            selectAnswerAndMove(1, currentChallenge.value.options[1])
+          }
+          break
+        case '3':
+          event.preventDefault()
+          if (currentChallenge.value.options[2]) {
+            selectAnswerAndMove(2, currentChallenge.value.options[2])
+          }
+          break
+      }
+    }
+
+    // Touch controls for mobile
+    const handleSwipe = (direction) => {
+      if (direction === 'left') moveLeft()
+      if (direction === 'right') moveRight()
+    }
+
+    const restartGame = () => {
+      gameState.value = 'setup'
+      currentRound.value = 1
+      playerLane.value = 1
+      targetX.value = lanes[1]
+      forwardProgress.value = 0
+      playerPosition.value = { x: 400, y: window.innerHeight * 0.8 }
+      lives.value = 3
+      totalScore.value = 0
+      correctAnswers.value = 0
+      currentSpeed.value = baseSpeed.value
+      autoSpeed.value = 3
+      obstacles.value = []
+      usedQuestionIds.value = [] // Reset used questions
+      
+      // Clear intervals and animation frames
+      if (animationFrameId.value) {
+        cancelAnimationFrame(animationFrameId.value)
+        animationFrameId.value = null
+      }
+      if (selectionTimer.value) clearInterval(selectionTimer.value)
+      if (gameTimer.value) clearInterval(gameTimer.value)
+      
+      // Reset answering state
+      resetAnsweringState()
+      
+      // Remove keyboard listeners
+      window.removeEventListener('keydown', handleKeyPress)
+      
+      // Reset timer
+      timeRemaining.value = 120
+    }
+
+    // Lifecycle hooks
+    onMounted(() => {
+      // Event listeners will be added when game starts
+    })
+    
+    onUnmounted(() => {
+      // Clean up event listeners and intervals
+      window.removeEventListener('keydown', handleKeyPress)
+      if (animationFrameId.value) {
+        cancelAnimationFrame(animationFrameId.value)
+      }
+      if (selectionTimer.value) clearInterval(selectionTimer.value)
+    })
+
+    // Computed properties
+    const accuracy = computed(() => {
+      return correctAnswers.value > 0 ? correctAnswers.value / currentRound.value : 0
+    })
+
+    return {
+      // State
+      gameState,
+      selectedDifficulty,
+      selectedMode,
+      currentRound,
+      totalRounds,
+      lives,
+      totalScore,
+      correctAnswers,
+      comboCount,
+      maxComboCount,
+      totalAttempts,
+      timeRemaining,
+      distanceTraveled,
+      fuel,
+      maxFuel,
+      fuelLost,
+      responseTimes,
+      masteredTenses,
+      earnedAchievements,
+      playerPosition,
+      playerLane,
+      currentSpeed,
+      autoSpeed,
+      baseSpeed,
+      forwardProgress,
+      approachingObstacle,
+      isAnswering,
+      isInvulnerable,
+      boostCharge,
+      showBoostEffect,
+      isBoosting,
+      showCrashEffect,
+      lastScoreGain,
+      maxSpeed,
+      obstacles,
+      powerups,
+      visibleObstacles,
+      visiblePowerups,
+      currentChallenge,
+      selectedOption,
+      showResult,
+      lastAnswerCorrect,
+      showCollisionEffect,
+      showVictoryScreen,
+      
+      // Timing
+      questionStartTime,
+      selectionTimeLeft,
+      selectionTimeMax,
+      
+      // Configuration
+      difficultyLevels,
+      difficultySettings,
+      
+      // Computed
+      accuracy,
+      
+      // Methods
+      startGame,
+      selectOption,
+      submitAnswer,
+      restartGame,
+      handleKeyPress,
+      moveLeft,
+      moveRight,
+      checkGameEnd,
+      resetAnsweringState,
+      spawnObstacleWithProblem,
+      isLaneCorrect,
+      getLaneAnswer,
+      selectAnswerAndMove
+    }
+  }
+}
+</script>
+
+<style scoped>
+.galaxy-background {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  overflow: hidden;
+}
+
+.galaxy-card {
+  border-radius: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.compact-difficulty-card {
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.compact-difficulty-card:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.compact-difficulty-card.selected {
+  border-color: rgba(34, 197, 94, 0.8);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.galaxy-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.2);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.galaxy-button:hover {
+  background: rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.7);
+}
+
+.galaxy-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.galaxy-button-large {
+  padding: 16px 32px;
+  font-size: 18px;
+}
+
+.galaxy-button-primary {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.galaxy-button-primary:hover {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.7);
+}
+
+.galaxy-button-secondary {
+  border-color: rgba(156, 163, 175, 0.5);
+  background: rgba(156, 163, 175, 0.2);
+}
+
+.galaxy-button-secondary:hover {
+  background: rgba(156, 163, 175, 0.3);
+  border-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Space Background */
+.space-background {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  z-index: -1;
+}
+
+.stars-field {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+    radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+    radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: stars-move 20s linear infinite;
+}
+
+.nebula-clouds {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(239, 68, 68, 0.1) 0%, transparent 50%);
+  animation: nebula-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes stars-move {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-100px); }
+}
+
+@keyframes nebula-drift {
+  from { transform: scale(1) rotate(0deg); }
+  to { transform: scale(1.1) rotate(2deg); }
+}
+
+/* Racing Track */
+.racing-track {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.player-vehicle {
+  position: fixed;
+  bottom: 200px;
+  transform: translateX(-50%);
+  z-index: 100;
+  transition: left 0.3s ease;
+}
+
+.vehicle-body {
+  font-size: 64px;
+  filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.8));
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicle-body.boosting {
+  animation: boost-glow 0.5s ease-in-out;
+  filter: drop-shadow(0 0 25px rgba(34, 197, 94, 0.9));
+}
+
+@keyframes boost-glow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Obstacles and Powerups */
+.obstacle-lane, .powerup-lane {
+  position: absolute;
+  transition: transform 0.05s linear;
+}
+
+.obstacle-body {
+  font-size: 36px;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid rgba(239, 68, 68, 0.6);
+  border-radius: 50%;
+  display: inline-block;
+  animation: obstacle-rotate 2s linear infinite;
+}
+
+.obstacle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.powerup-body {
+  font-size: 32px;
+  padding: 8px;
+  background: rgba(34, 197, 94, 0.2);
+  border: 2px solid rgba(34, 197, 94, 0.6);
+  border-radius: 50%;
+  display: inline-block;
+  animation: powerup-pulse 1s ease-in-out infinite;
+}
+
+@keyframes obstacle-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes powerup-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.vehicle-trail {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(6, 182, 212, 0.8) 0%, transparent 100%);
+  animation: trail-flow 0.5s linear infinite;
+}
+
+/* Racing Interface */
+.racing-interface {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.racing-interface > * {
+  pointer-events: auto;
+}
+
+.current-challenge {
+  background: rgba(15, 23, 42, 0.95);
+  border: 3px solid rgba(239, 68, 68, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  animation: challenge-appear 0.5s ease-out;
+}
+
+.challenge-warning {
+  margin-bottom: 20px;
+}
+
+.warning-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.warning-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.challenge-instruction {
+  color: white;
+}
+
+.instruction-text {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.instruction-hint {
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+.quick-selection {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 3px solid rgba(6, 182, 212, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+}
+
+.rush-options {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rush-option {
+  background: rgba(30, 41, 59, 0.8);
+  border: 3px solid rgba(71, 85, 105, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  text-align: center;
+}
+
+.rush-option:hover {
+  border-color: rgba(59, 130, 246, 0.8);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.rush-option.selected {
+  border-color: rgba(34, 197, 94, 0.8);
+  background: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.option-number {
+  background: rgba(99, 102, 241, 0.8);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin: 0 auto 10px;
+}
+
+.option-content {
+  color: white;
+}
+
+.option-form {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.boost-button {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border: 3px solid rgba(16, 185, 129, 0.8);
+  border-radius: 20px;
+  padding: 20px 40px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+.boost-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+}
+
+.boost-button-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boost-icon {
+  font-size: 24px;
+}
+
+.boost-text {
+  font-size: 18px;
+}
+
+.rush-result {
+  background: rgba(15, 23, 42, 0.95);
+  border: 3px solid rgba(168, 85, 247, 0.6);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  max-width: 600px;
+}
+
+.result-animation.breakthrough {
+  animation: breakthrough-flash 0.5s ease-out;
+}
+
+.result-animation.crash {
+  animation: crash-shake 0.5s ease-out;
+}
+
+@keyframes breakthrough-flash {
+  0% { background: rgba(34, 197, 94, 0.3); }
+  100% { background: transparent; }
+}
+
+@keyframes crash-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.breakthrough-effect {
+  color: #22c55e;
+}
+
+.crash-effect {
+  color: #ef4444;
+}
+
+.speed-boost-text, .slow-down-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.points-gained {
+  font-size: 20px;
+  color: #fbbf24;
+}
+
+.result-header {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: white;
+}
+
+.result-explanation {
+  font-size: 16px;
+  color: #cbd5e1;
+  margin-bottom: 20px;
+}
+
+.continue-race-button {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  border: 3px solid rgba(168, 85, 247, 0.8);
+  border-radius: 15px;
+  padding: 15px 30px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto 0;
+}
+
+.continue-race-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
+}
+
+.auto-continue-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 15px;
+  color: white;
+  font-weight: bold;
+  margin: 20px auto 0;
+  animation: auto-continue-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes auto-continue-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Lane Indicators and Road Effects */
+.lane-indicators {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.lane-line {
+  position: absolute;
+  width: 4px;
+  height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.4) 0px,
+    rgba(255, 255, 255, 0.4) 40px,
+    transparent 40px,
+    transparent 80px
+  );
+  animation: lane-move 0.8s linear infinite;
+}
+
+.lane-line-1 { left: 200px; }
+.lane-line-2 { left: 350px; }
+.lane-line-3 { left: 450px; }
+.lane-line-4 { left: 600px; }
+
+@keyframes lane-move {
+  from { transform: translateY(-80px); }
+  to { transform: translateY(0px); }
+}
+
+/* Dynamic lane speed based on player speed */
+.racing-track[data-speed="fast"] .lane-line {
+  animation-duration: 0.4s;
+}
+
+.racing-track[data-speed="slow"] .lane-line {
+  animation-duration: 1.2s;
+}
+
+.road-surface {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(15, 23, 42, 0.6) 20%,
+    rgba(15, 23, 42, 0.4) 50%,
+    rgba(15, 23, 42, 0.6) 80%,
+    rgba(30, 41, 59, 0.8) 100%
+  );
+  z-index: 0;
+}
+
+.vehicle-body.invulnerable {
+  animation: invulnerable-flash 0.2s linear infinite;
+}
+
+.vehicle-body.super-boost {
+  animation: super-boost-glow 0.3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(34, 197, 94, 1));
+}
+
+@keyframes invulnerable-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes super-boost-glow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.speed-lines {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background: 
+    linear-gradient(90deg, transparent 48%, rgba(34, 197, 94, 0.6) 49%, rgba(34, 197, 94, 0.6) 51%, transparent 52%),
+    linear-gradient(90deg, transparent 45%, rgba(34, 197, 94, 0.4) 46%, rgba(34, 197, 94, 0.4) 54%, transparent 55%),
+    linear-gradient(90deg, transparent 42%, rgba(34, 197, 94, 0.3) 43%, rgba(34, 197, 94, 0.3) 57%, transparent 58%);
+  animation: speed-lines-flow 0.1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes speed-lines-flow {
+  0% { transform: translateX(-50%) translateY(0px); }
+  100% { transform: translateX(-50%) translateY(20px); }
+}
+
+/* Enhanced player positioning */
+.player-vehicle {
+  z-index: 35;
+}
+
+/* Speed-based trail effects */
+@keyframes trail-flow {
+  0% { height: 60px; opacity: 1; }
+  100% { height: 120px; opacity: 0; }
+}
+
+.vehicle-trail {
+  animation: trail-flow 0.3s linear infinite;
+}
+
+/* Lives Display */
+.lives-display {
+  border-color: rgba(236, 72, 153, 0.6);
+}
+
+.lives-icon {
+  display: block;
+  font-size: 16px;
+}
+
+.lives-value {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ec4899;
+  margin-top: 2px;
+}
+
+/* Lane Guidelines */
+.lane-guidelines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.lane-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.lane-guide-0 { left: 220px; }
+.lane-guide-1 { left: 370px; }
+.lane-guide-2 { left: 520px; }
+
+.lane-guide.correct-guide {
+  background: rgba(34, 197, 94, 0.3);
+  box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.lane-guide.player-guide {
+  background: rgba(251, 191, 36, 0.3);
+  box-shadow: inset 0 0 20px rgba(251, 191, 36, 0.5);
+  border-left: 3px solid rgba(251, 191, 36, 0.8);
+  border-right: 3px solid rgba(251, 191, 36, 0.8);
+}
+
+/* Instant Feedback */
+.instant-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 70;
+  text-align: center;
+  pointer-events: none;
+}
+
+.boost-popup, .crash-popup {
+  animation: feedback-popup 0.8s ease-out forwards;
+}
+
+.boost-popup {
+  color: #22c55e;
+}
+
+.crash-popup {
+  color: #ef4444;
+}
+
+.boost-icon, .crash-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.boost-text, .crash-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.points-text, .damage-text {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+@keyframes feedback-popup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1) translateY(-50px);
+  }
+}
+
+/* UI Elements - Enhanced Readability */
+.speed-display {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 15px;
+  z-index: 50;
+}
+
+.speed-meter, .distance-meter, .lives-display, .time-display {
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid rgba(6, 182, 212, 0.8);
+  border-radius: 12px;
+  padding: 10px 15px;
+  text-align: center;
+  min-width: 80px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.time-display {
+  border-color: rgba(251, 191, 36, 0.8);
+}
+
+.time-icon {
+  display: block;
+  font-size: 16px;
+}
+
+.time-value {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fbbf24;
+  margin-top: 2px;
+}
+
+.speed-meter.boost {
+  border-color: rgba(34, 197, 94, 0.8);
+  background: rgba(34, 197, 94, 0.1);
+  animation: speed-boost-glow 0.5s ease-in-out infinite;
+}
+
+.speed-value, .distance-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.speed-unit, .distance-unit {
+  display: block;
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-top: 2px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.controls-hint {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid rgba(99, 102, 241, 0.8);
+  border-radius: 12px;
+  padding: 15px 25px;
+  text-align: center;
+  z-index: 50;
+  animation: hint-pulse 2s ease-in-out infinite;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+}
+
+.hint-text {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  margin-bottom: 8px;
+}
+
+.sub-hint {
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Fixed Answer Panel */
+.fixed-answer-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  width: 90%;
+  max-width: 800px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 3px solid rgba(251, 191, 36, 1);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.answer-panel-header {
+  margin-bottom: 15px;
+}
+
+.question-display {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.time-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.answer-options {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.answer-option-button {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.9);
+  border: 3px solid rgba(71, 85, 105, 0.8);
+  border-radius: 15px;
+  padding: 15px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.answer-option-button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 1);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  background: rgba(30, 41, 59, 1);
+}
+
+.answer-option-button.selected {
+  border-color: rgba(251, 191, 36, 1);
+  background: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+  transform: translateY(-5px) scale(1.05);
+}
+
+.option-number {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(251, 191, 36, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: #000000;
+}
+
+.option-text {
+  font-size: 22px;
+  font-weight: 900;
+  margin: 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.option-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes speed-boost-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+}
+
+/* Compact Question Display - Enhanced Readability */
+.compact-question {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid rgba(251, 191, 36, 1);
+  border-radius: 15px;
+  padding: 20px 30px;
+  text-align: center;
+  z-index: 60;
+  max-width: 600px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.compact-question .question-text {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  line-height: 1.4;
+}
+
+.compact-question .instruction-hint {
+  color: #fbbf24;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.time-left-bar {
+  width: 300px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.time-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%);
+  transition: width 0.1s linear;
+  border-radius: 3px;
+}
+
+/* Lane-Based Obstacle Styling */
+.obstacle-body.correct-obstacle {
+  border-color: rgba(34, 197, 94, 0.8);
+  background: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+.obstacle-body.incorrect-obstacle {
+  border-color: rgba(239, 68, 68, 0.8);
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+}
+
+.obstacle-body.approaching {
+  animation: obstacle-pulse 1s ease-in-out infinite;
+}
+
+.obstacle-body.danger-zone {
+  animation: danger-flash 0.5s linear infinite;
+}
+
+@keyframes obstacle-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes danger-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Lane Answer Indicators */
+.lane-answers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.lane-answer-indicator {
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.answer-text {
+  background: rgba(0, 0, 0, 0.95);
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 900;
+  border: 3px solid rgba(71, 85, 105, 0.8);
+  margin-bottom: 8px;
+  backdrop-filter: blur(20px);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+  min-width: 120px;
+}
+
+.correct-lane .answer-text {
+  border-color: rgba(34, 197, 94, 1);
+  background: rgba(0, 0, 0, 0.95);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 5px 15px rgba(0, 0, 0, 0.6);
+  border-width: 4px;
+}
+
+.incorrect-lane .answer-text {
+  border-color: rgba(239, 68, 68, 1);
+  background: rgba(0, 0, 0, 0.95);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 5px 15px rgba(0, 0, 0, 0.6);
+  border-width: 4px;
+}
+
+.player-lane .answer-text {
+  transform: scale(1.1);
+  border-width: 3px;
+}
+
+.lane-indicator {
+  width: 40px;
+  height: 4px;
+  background: rgba(71, 85, 105, 0.6);
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.lane-indicator.active {
+  background: rgba(251, 191, 36, 0.9);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+  animation: lane-active-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes lane-active-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Answer Control Buttons */
+.answer-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  text-align: center;
+}
+
+.answer-instruction {
+  background: rgba(0, 0, 0, 0.95);
+  border: 3px solid rgba(251, 191, 36, 1);
+  border-radius: 12px;
+  padding: 10px 20px;
+  margin-bottom: 15px;
+  backdrop-filter: blur(15px);
+}
+
+.instruction-text {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.answer-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.answer-button {
+  background: rgba(0, 0, 0, 0.95);
+  border: 4px solid rgba(71, 85, 105, 0.8);
+  border-radius: 15px;
+  padding: 15px 20px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-width: 140px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+}
+
+.answer-button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 1);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.answer-button.correct-answer {
+  border-color: rgba(34, 197, 94, 1);
+  background: rgba(0, 0, 0, 0.95);
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.8);
+  animation: correct-glow 1s ease-in-out infinite;
+}
+
+.answer-button.player-selected {
+  border-color: rgba(251, 191, 36, 1);
+  background: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  transform: translateY(-5px) scale(1.05);
+}
+
+@keyframes correct-glow {
+  0%, 100% { border-color: rgba(34, 197, 94, 1); }
+  50% { border-color: rgba(34, 197, 94, 0.6); }
+}
+
+.button-arrow {
+  font-size: 24px;
+  margin-bottom: 5px;
+  color: #fbbf24;
+}
+
+.button-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #94a3b8;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.button-answer {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  min-height: 22px;
+}
+
+.button-keys {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.left-button .button-arrow {
+  color: #ef4444;
+}
+
+.center-button .button-arrow {
+  color: #06b6d4;
+}
+
+.right-button .button-arrow {
+  color: #10b981;
+}
+</style>

@@ -453,6 +453,7 @@ export default {
         
         if ('speechSynthesis' in window) {
           const utterance = new SpeechSynthesisUtterance(currentQuestion.value.rControlled)
+          utterance.lang = 'en-US'
           utterance.rate = 0.8
           utterance.pitch = 1.0
           utterance.volume = volume.value

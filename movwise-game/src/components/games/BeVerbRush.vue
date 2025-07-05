@@ -218,18 +218,27 @@
           <!-- 答え選択ボタンエリア（下部固定） -->
           <div class="answer-area">
             <div class="answer-buttons" v-if="currentQuestion">
-              <button 
-                v-for="(option, index) in currentQuestion.options"
-                :key="option + index"
-                @click="handleAnswer(index)"
-                @mousedown="playClick"
-                class="answer-button"
-                :class="getButtonClasses(option, index)"
-                :disabled="!currentQuestion || gameState === 'paused'"
-              >
-                <span class="button-key">{{ index + 1 }}</span>
-                <span class="button-text">{{ option }}</span>
-              </button>
+              <div class="answer-button-group" v-for="(option, index) in currentQuestion.options" :key="option + index">
+                <button 
+                  @click="handleAnswer(index)"
+                  @mousedown="playClick"
+                  class="answer-button"
+                  :class="getButtonClasses(option, index)"
+                  :disabled="!currentQuestion || gameState === 'paused'"
+                >
+                  <span class="button-key">{{ index + 1 }}</span>
+                  <span class="button-text">{{ option }}</span>
+                </button>
+                <button 
+                  @click="playPronunciation(option)"
+                  @mousedown="playClick"
+                  class="pronunciation-button"
+                  :disabled="!currentQuestion || gameState === 'paused'"
+                  title="ネイティブ発音を聞く"
+                >
+                  🔊
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -312,6 +321,8 @@
 import { ref, computed, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSounds } from '@/composables/useGameSounds' // 完全自動生成音響システム
+import { useGameAudio } from '@/composables/useGameAudio' // ネイティブ発音システム
+import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database'
 import {
   ArrowLeftIcon,
   PlayIcon,
@@ -350,6 +361,14 @@ const {
   getSoundList
 } = useGameSounds()
 
+// === ネイティブ発音システムの初期化 ===
+const {
+  playWord: playNativeWord,
+  playPhoneme: playNativePhoneme,
+  speakSentence: speakNativeSentence,
+  initializeAudio: initNativeAudio
+} = useGameAudio()
+
 // === ゲームの定数 ===
 const GAME_DURATION = 90000 // 90秒
 const MAX_LIVES = 3
@@ -357,22 +376,22 @@ const MAX_LIVES = 3
 // レベル別ゲーム設定
 const LEVEL_SETTINGS = {
   beginner: {
-    spawnInterval: 12000, // 12秒間隔（初級）- 子供向けに延長
-    questionLifetime: 15000, // 15秒表示（初級）- 十分な時間確保
+    spawnInterval: 18000, // 18秒間隔（初級）- さらにゆっくりと
+    questionLifetime: 25000, // 25秒表示（初級）- 十分すぎる時間確保
     name: '初級',
     icon: '🐣',
     description: 'ゆっくり学習'
   },
   intermediate: {
-    spawnInterval: 8000, // 8秒間隔（中級）- より余裕を持った間隔
-    questionLifetime: 10000, // 10秒表示（中級）- 十分な考慮時間
+    spawnInterval: 15000, // 15秒間隔（中級）- 余裕を持った間隔
+    questionLifetime: 20000, // 20秒表示（中級）- 十分な考慮時間
     name: '中級',
     icon: '🚀',
     description: 'バランス良く'
   },
   advanced: {
-    spawnInterval: 5000, // 5秒間隔（上級）- 少し余裕を持った間隔
-    questionLifetime: 7000, // 7秒表示（上級）- 十分な反応時間
+    spawnInterval: 12000, // 12秒間隔（上級）- 適度な間隔
+    questionLifetime: 15000, // 15秒表示（上級）- 適切な反応時間
     name: '上級',
     icon: '🔥',
     description: '高速チャレンジ'
@@ -690,6 +709,11 @@ const clearTimers = () => {
       clearTimeout(spawnTimer.value)
       spawnTimer.value = null
     }
+    // 現在の問題のタイムアウトもクリア
+    if (currentQuestion.value && currentQuestion.value.timeoutId) {
+      clearTimeout(currentQuestion.value.timeoutId)
+      currentQuestion.value.timeoutId = null
+    }
   } catch (error) {
     console.warn('Clear timers error:', error)
   }
@@ -758,15 +782,21 @@ const spawnNextQuestion = () => {
     }, 50)
     
     // 問題のタイムアウト処理（レベル別時間）
+    const questionId = currentQuestion.value.id
     const timeoutId = setTimeout(() => {
-      if (currentQuestion.value && currentQuestion.value.id === currentQuestion.value.id) {
-        console.log('⏰ Question timeout')
+      if (currentQuestion.value && currentQuestion.value.id === questionId) {
+        console.log('⏰ Question timeout for ID:', questionId)
         handleQuestionTimeout()
       }
     }, currentLevelSettings.questionLifetime)
     
     // 問題にタイムアウトIDを保存（正解時にクリアするため）
     currentQuestion.value.timeoutId = timeoutId
+    
+    // 既存のspawnTimerをクリアしてから新しいタイマーを設定
+    if (spawnTimer.value) {
+      clearTimeout(spawnTimer.value)
+    }
     
     // 次の問題をスケジュール（レベル別間隔）
     spawnTimer.value = setTimeout(() => {
@@ -807,6 +837,12 @@ const handleAnswer = (selectedIndex) => {
       // 正解音（コンボ考慮）
       if (soundEnabled.value) {
         playCorrectCombo(currentCombo.value)
+        // ネイティブ発音で正解を再生
+        playNativeWord({ 
+          word: selectedAnswer.toLowerCase(), 
+          type: 'be_verb',
+          difficulty: 'normal' 
+        })
       }
       
       // 正解時は問題を即座に消去（成功エフェクト付き）
@@ -818,9 +854,17 @@ const handleAnswer = (selectedIndex) => {
       handleIncorrectAnswer()
       sessionStats.incorrectAnswers++
       
-      // 不正解音
+      // 不正解音 + 正しい答えをネイティブ発音で再生
       if (soundEnabled.value) {
         playIncorrect()
+        // 1秒後に正しい答えをネイティブ発音で再生
+        setTimeout(() => {
+          playNativeWord({ 
+            word: correctAnswer.toLowerCase(), 
+            type: 'be_verb',
+            difficulty: 'normal' 
+          })
+        }, 1000)
       }
       
       // 不正解時も問題を消去（失敗エフェクト付き）
@@ -836,6 +880,13 @@ const handleAnswer = (selectedIndex) => {
     currentQuestion.value = null
     
     console.log(`📊 Answer: ${selectedAnswer} - ${isCorrect ? 'Correct' : 'Incorrect'}`)
+    
+    // 次の問題を即座に生成（遅延を入れて視覚的フィードバックの後に）
+    setTimeout(() => {
+      if (gameState.value === 'playing') {
+        spawnNextQuestion()
+      }
+    }, 800) // フィードバック表示時間の後に次の問題を生成
     
   } catch (error) {
     console.error('Handle answer error:', error)
@@ -863,6 +914,42 @@ const handleCorrectAnswer = (reactionTime) => {
   }
 }
 
+// === ネイティブ発音機能 ===
+const playPronunciation = async (word) => {
+  try {
+    if (soundEnabled.value) {
+      // Be動詞の音素データを使用してネイティブ発音
+      await playNativeWord({ 
+        word: word.toLowerCase(), 
+        type: 'be_verb',
+        difficulty: 'clear' // クリアな発音設定
+      })
+    }
+  } catch (error) {
+    console.error('Pronunciation error:', error)
+  }
+}
+
+// === Be動詞の音素分析機能 ===
+const analyzeBEVerbPhonemes = (word) => {
+  const beVerbPhonemes = {
+    'am': [
+      { symbol: '/æ/', ipa: 'æ', tips: 'Mouth wide, tongue low and front' },
+      { symbol: '/m/', ipa: 'm', tips: 'Close lips, hum sound' }
+    ],
+    'is': [
+      { symbol: '/ɪ/', ipa: 'ɪ', tips: 'Tongue high, but not as high as /i/' },
+      { symbol: '/z/', ipa: 'z', tips: 'Voiced fricative, vibrate vocal cords' }
+    ],
+    'are': [
+      { symbol: '/ɑ/', ipa: 'ɑ', tips: 'Tongue low and back, mouth open' },
+      { symbol: '/r/', ipa: 'r', tips: 'American R: tongue curled up slightly' }
+    ]
+  }
+  
+  return beVerbPhonemes[word.toLowerCase()] || []
+}
+
 const handleIncorrectAnswer = () => {
   try {
     currentCombo.value = 0
@@ -883,6 +970,15 @@ const handleQuestionTimeout = () => {
       console.log('⏰ Question timeout')
       handleIncorrectAnswer()
       currentQuestion.value = null
+      
+      // 次の問題を生成（ライフが残っている場合）
+      if (currentLives.value > 0 && gameState.value === 'playing') {
+        setTimeout(() => {
+          if (gameState.value === 'playing') {
+            spawnNextQuestion()
+          }
+        }, 1000) // タイムアウト後少し待ってから次の問題
+      }
     }
   } catch (error) {
     console.error('Handle question timeout error:', error)
@@ -2265,5 +2361,32 @@ watch(() => gameState.value, async (newState) => {
   100% {
     transform: scale(1);
   }
+}
+
+/* === ネイティブ発音機能スタイル === */
+.answer-button-group {
+  @apply flex flex-col items-center gap-2 flex-1 max-w-xs;
+}
+
+.pronunciation-button {
+  @apply bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 transform hover:scale-105 active:scale-95;
+  box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  min-height: 32px;
+}
+
+.pronunciation-button:hover {
+  box-shadow: 0 6px 15px rgba(147, 51, 234, 0.5);
+}
+
+.pronunciation-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  transform: none !important;
+}
+
+.pronunciation-button:disabled:hover {
+  box-shadow: 0 4px 10px rgba(147, 51, 234, 0.3);
 }
 </style>

@@ -538,6 +538,7 @@ export default {
       try {
         // Web Speech API を使用した音声合成
         const utterance = new SpeechSynthesisUtterance(currentWord.value.word)
+        utterance.lang = 'en-US'
         utterance.rate = 0.8
         utterance.pitch = 1.0
         utterance.volume = 0.8

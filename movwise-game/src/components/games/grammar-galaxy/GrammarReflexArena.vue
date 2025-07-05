@@ -127,6 +127,15 @@
             <div class="transmission-content">
               {{ currentQuestion.sentence }}
             </div>
+            <div class="transmission-audio">
+              <button 
+                @click="playQuestionAudio" 
+                class="audio-button"
+                title="ネイティブ発音で聞く"
+              >
+                🔊 音声再生
+              </button>
+            </div>
             <div v-if="showingAnswer && !currentQuestion.isCorrect" class="correction-data">
               <span class="data-label">修正された信号:</span>
               {{ currentQuestion.correction }}
@@ -333,6 +342,8 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import { useGameAudio } from '@/composables/useGameAudio'
+import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database'
 
 // Props & Emits
 const emit = defineEmits(['back', 'complete'])
@@ -340,6 +351,15 @@ const emit = defineEmits(['back', 'complete'])
 // Router
 const router = useRouter()
 const route = useRoute()
+
+// === ネイティブ発音システム ===
+const {
+  playWord: playNativeWord,
+  playPhoneme: playNativePhoneme,
+  speakSentence: speakNativeSentence,
+  speakGrammarInstruction,
+  initializeAudio: initNativeAudio
+} = useGameAudio()
 
 const handleBack = () => {
   console.log('handleBack called')
@@ -407,9 +427,10 @@ const difficultyLevels = [
   }
 ]
 
-// 改良されたゲームデータ（レベル別）
+// 改良されたゲームデータ（レベル別・英検レベル対応）
 const grammarQuestions = {
   beginnerQuestions: [
+    // 英検5級レベル
     {
       sentence: "She are happy today",
       isCorrect: false,
@@ -417,7 +438,8 @@ const grammarQuestions = {
       errorType: "subject_verb_agreement",
       difficulty: 1,
       explanation: "三人称単数の主語にはisを使います",
-      category: "be_verbs"
+      category: "be_verbs",
+      eiken: 5
     },
     {
       sentence: "I am studying English",
@@ -425,7 +447,8 @@ const grammarQuestions = {
       errorType: null,
       difficulty: 1,
       explanation: "正しい文です",
-      category: "be_verbs"
+      category: "be_verbs",
+      eiken: 5
     },
     {
       sentence: "He don't like pizza",
@@ -434,7 +457,8 @@ const grammarQuestions = {
       errorType: "auxiliary_verb",
       difficulty: 1,
       explanation: "三人称単数にはdoesn'tを使います",
-      category: "general_verbs"
+      category: "general_verbs",
+      eiken: 5
     },
     {
       sentence: "They are playing soccer",
@@ -442,7 +466,8 @@ const grammarQuestions = {
       errorType: null,
       difficulty: 1,
       explanation: "正しい文です",
-      category: "present_continuous"
+      category: "present_continuous",
+      eiken: 5
     },
     {
       sentence: "We was at the park",
@@ -451,10 +476,160 @@ const grammarQuestions = {
       errorType: "subject_verb_agreement", 
       difficulty: 1,
       explanation: "複数の主語の過去形にはwereを使います",
-      category: "past_tense"
+      category: "past_tense",
+      eiken: 5
+    },
+    {
+      sentence: "This is my book",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 1,
+      explanation: "正しい文です",
+      category: "demonstratives",
+      eiken: 5
+    },
+    {
+      sentence: "That are my pens",
+      isCorrect: false,
+      correction: "Those are my pens",
+      errorType: "demonstrative_plural",
+      difficulty: 1,
+      explanation: "複数のものにはthoseを使います",
+      category: "demonstratives",
+      eiken: 5
+    },
+    {
+      sentence: "I like apple",
+      isCorrect: false,
+      correction: "I like apples",
+      errorType: "countable_noun",
+      difficulty: 1,
+      explanation: "可算名詞は複数形または冠詞が必要です",
+      category: "nouns",
+      eiken: 5
+    },
+    {
+      sentence: "She have a dog",
+      isCorrect: false,
+      correction: "She has a dog",
+      errorType: "subject_verb_agreement",
+      difficulty: 1,
+      explanation: "三人称単数にはhasを使います",
+      category: "general_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "I go to school yesterday",
+      isCorrect: false,
+      correction: "I went to school yesterday",
+      errorType: "past_tense",
+      difficulty: 1,
+      explanation: "昨日のことなので過去形wentを使います",
+      category: "past_tense",
+      eiken: 5
+    },
+    {
+      sentence: "My mother is a teacher",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 1,
+      explanation: "正しい文です",
+      category: "be_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "How many book do you have?",
+      isCorrect: false,
+      correction: "How many books do you have?",
+      errorType: "plural_form",
+      difficulty: 1,
+      explanation: "How manyの後は複数形を使います",
+      category: "questions",
+      eiken: 5
+    },
+    // 英検4級レベル
+    {
+      sentence: "I will going to the store",
+      isCorrect: false,
+      correction: "I will go to the store",
+      errorType: "future_tense",
+      difficulty: 2,
+      explanation: "willの後は動詞の原形を使います",
+      category: "future_tense",
+      eiken: 4
+    },
+    {
+      sentence: "Did you went to school?",
+      isCorrect: false,
+      correction: "Did you go to school?",
+      errorType: "interrogative_past",
+      difficulty: 2,
+      explanation: "疑問文のDidの後は動詞の原形を使います",
+      category: "questions",
+      eiken: 4
+    },
+    {
+      sentence: "She can speaks English",
+      isCorrect: false,
+      correction: "She can speak English",
+      errorType: "modal_verb",
+      difficulty: 2,
+      explanation: "助動詞canの後は動詞の原形を使います",
+      category: "modals",
+      eiken: 4
+    },
+    {
+      sentence: "I am going to visit my friend tomorrow",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 2,
+      explanation: "正しい文です",
+      category: "future_tense",
+      eiken: 4
+    },
+    {
+      sentence: "There is many students in the class",
+      isCorrect: false,
+      correction: "There are many students in the class",
+      errorType: "there_be",
+      difficulty: 2,
+      explanation: "複数名詞の前にはThere areを使います",
+      category: "there_be",
+      eiken: 4
+    },
+    {
+      sentence: "I have been study English for two years",
+      isCorrect: false,
+      correction: "I have been studying English for two years",
+      errorType: "present_perfect_continuous",
+      difficulty: 2,
+      explanation: "現在完了進行形はhave been + -ingを使います",
+      category: "perfect_tenses",
+      eiken: 4
+    },
+    {
+      sentence: "He is more tall than me",
+      isCorrect: false,
+      correction: "He is taller than me",
+      errorType: "comparative",
+      difficulty: 2,
+      explanation: "短い形容詞は-erを付けて比較級を作ります",
+      category: "comparatives",
+      eiken: 4
+    },
+    {
+      sentence: "I want to buying a new car",
+      isCorrect: false,
+      correction: "I want to buy a new car",
+      errorType: "infinitive",
+      difficulty: 2,
+      explanation: "want to の後は動詞の原形を使います",
+      category: "infinitives",
+      eiken: 4
     }
   ],
   intermediateQuestions: [
+    // 英検3級レベル
     {
       sentence: "If I was you, I would go",
       isCorrect: false,
@@ -462,7 +637,8 @@ const grammarQuestions = {
       errorType: "subjunctive_mood",
       difficulty: 3,
       explanation: "仮定法過去ではbe動詞はすべてwereを使います",
-      category: "conditionals"
+      category: "conditionals",
+      eiken: 3
     },
     {
       sentence: "She said that she can help",
@@ -471,7 +647,8 @@ const grammarQuestions = {
       errorType: "reported_speech",
       difficulty: 3,
       explanation: "間接話法では時制を一つ過去にします",
-      category: "reported_speech"
+      category: "reported_speech",
+      eiken: 3
     },
     {
       sentence: "The book which I bought is interesting",
@@ -479,17 +656,161 @@ const grammarQuestions = {
       errorType: null,
       difficulty: 3,
       explanation: "正しい文です",
-      category: "relative_clauses"
+      category: "relative_clauses",
+      eiken: 3
+    },
+    {
+      sentence: "I have lived here since five years",
+      isCorrect: false,
+      correction: "I have lived here for five years",
+      errorType: "since_for",
+      difficulty: 3,
+      explanation: "期間を表すときはforを使います",
+      category: "perfect_tenses",
+      eiken: 3
+    },
+    {
+      sentence: "She is enough old to drive",
+      isCorrect: false,
+      correction: "She is old enough to drive",
+      errorType: "enough_position",
+      difficulty: 3,
+      explanation: "enoughは形容詞の後に置きます",
+      category: "adjectives",
+      eiken: 3
+    },
+    {
+      sentence: "I used to living in Tokyo",
+      isCorrect: false,
+      correction: "I used to live in Tokyo",
+      errorType: "used_to",
+      difficulty: 3,
+      explanation: "used toの後は動詞の原形を使います",
+      category: "habits",
+      eiken: 3
+    },
+    {
+      sentence: "The man who car is red is my father",
+      isCorrect: false,
+      correction: "The man whose car is red is my father",
+      errorType: "relative_pronoun_possessive",
+      difficulty: 3,
+      explanation: "所有を表す関係代名詞はwhoseを使います",
+      category: "relative_clauses",
+      eiken: 3
+    },
+    {
+      sentence: "I finished to do my homework",
+      isCorrect: false,
+      correction: "I finished doing my homework",
+      errorType: "gerund_infinitive",
+      difficulty: 3,
+      explanation: "finishの後は動名詞(-ing)を使います",
+      category: "gerunds",
+      eiken: 3
+    },
+    {
+      sentence: "By the time he arrived, we have left",
+      isCorrect: false,
+      correction: "By the time he arrived, we had left",
+      errorType: "past_perfect",
+      difficulty: 3,
+      explanation: "過去の時点より前のことは過去完了形を使います",
+      category: "perfect_tenses",
+      eiken: 3
+    },
+    {
+      sentence: "Would you mind to open the window?",
+      isCorrect: false,
+      correction: "Would you mind opening the window?",
+      errorType: "mind_gerund",
+      difficulty: 3,
+      explanation: "mindの後は動名詞(-ing)を使います",
+      category: "gerunds",
+      eiken: 3
+    },
+    {
+      sentence: "Neither Tom nor his friends was there",
+      isCorrect: false,
+      correction: "Neither Tom nor his friends were there",
+      errorType: "neither_nor_agreement",
+      difficulty: 3,
+      explanation: "neither...norでは後の主語に動詞を合わせます",
+      category: "correlative_conjunctions",
+      eiken: 3
+    },
+    {
+      sentence: "I am looking forward to see you",
+      isCorrect: false,
+      correction: "I am looking forward to seeing you",
+      errorType: "phrasal_verb_gerund",
+      difficulty: 3,
+      explanation: "look forward toの後は動名詞(-ing)を使います",
+      category: "phrasal_verbs",
+      eiken: 3
+    },
+    // 英検準2級レベル
+    {
+      sentence: "I wish I was taller",
+      isCorrect: false,
+      correction: "I wish I were taller",
+      errorType: "wish_subjunctive",
+      difficulty: 4,
+      explanation: "wishの後の仮定法ではwereを使います",
+      category: "conditionals",
+      eiken: "pre-2"
+    },
+    {
+      sentence: "The house is being paint right now",
+      isCorrect: false,
+      correction: "The house is being painted right now",
+      errorType: "passive_progressive",
+      difficulty: 4,
+      explanation: "受動態の進行形はis being + 過去分詞です",
+      category: "passives",
+      eiken: "pre-2"
+    },
+    {
+      sentence: "I would rather you don't smoke here",
+      isCorrect: false,
+      correction: "I would rather you didn't smoke here",
+      errorType: "would_rather_subjunctive",
+      difficulty: 4,
+      explanation: "would rather + 人 + 動詞の過去形を使います",
+      category: "preferences",
+      eiken: "pre-2"
+    },
+    {
+      sentence: "Having been studied for years, he passed the exam",
+      isCorrect: false,
+      correction: "Having studied for years, he passed the exam",
+      errorType: "perfect_participle",
+      difficulty: 4,
+      explanation: "能動態の場合はHaving + 過去分詞を使います",
+      category: "participles",
+      eiken: "pre-2"
+    },
+    {
+      sentence: "I made him to do the work",
+      isCorrect: false,
+      correction: "I made him do the work",
+      errorType: "causative_make",
+      difficulty: 4,
+      explanation: "makeの使役動詞では原形不定詞を使います",
+      category: "causatives",
+      eiken: "pre-2"
     }
   ],
   advancedQuestions: [
+    // 英検2級レベル
     {
       sentence: "Having finished the work, he went home",
       isCorrect: true,
       errorType: null,
       difficulty: 5,
       explanation: "正しい文です",
-      category: "participles"
+      category: "participles",
+      eiken: 2
     },
     {
       sentence: "Not only does he speak English, but also French",
@@ -497,7 +818,85 @@ const grammarQuestions = {
       errorType: null,
       difficulty: 5,
       explanation: "正しい文です",
-      category: "advanced_structures"
+      category: "advanced_structures",
+      eiken: 2
+    },
+    {
+      sentence: "Should you need any help, please contact me",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 5,
+      explanation: "正しい文です。Should you = If you shouldの倒置",
+      category: "conditionals_inversion",
+      eiken: 2
+    },
+    {
+      sentence: "The more hard you study, the better you become",
+      isCorrect: false,
+      correction: "The harder you study, the better you become",
+      errorType: "comparative_structure",
+      difficulty: 5,
+      explanation: "The + 比較級の構文では形容詞の比較級を使います",
+      category: "comparatives",
+      eiken: 2
+    },
+    {
+      sentence: "Were it not for your help, I would fail",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 5,
+      explanation: "正しい文です。Were it not for = If it were not forの倒置",
+      category: "conditionals_inversion",
+      eiken: 2
+    },
+    {
+      sentence: "I can't help but to worry about him",
+      isCorrect: false,
+      correction: "I can't help but worry about him",
+      errorType: "cant_help_but",
+      difficulty: 5,
+      explanation: "can't help butの後は動詞の原形を使います",
+      category: "idioms",
+      eiken: 2
+    },
+    {
+      sentence: "So beautiful the sunset was that everyone stopped",
+      isCorrect: false,
+      correction: "So beautiful was the sunset that everyone stopped",
+      errorType: "so_adjective_inversion",
+      difficulty: 5,
+      explanation: "So + 形容詞で始まる文では主語と動詞が倒置されます",
+      category: "inversions",
+      eiken: 2
+    },
+    // 英検準1級レベル
+    {
+      sentence: "Little did I know that he was famous",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 6,
+      explanation: "正しい文です。否定的な副詞で始まる倒置文",
+      category: "inversions",
+      eiken: "pre-1"
+    },
+    {
+      sentence: "I insist that he comes to the meeting",
+      isCorrect: false,
+      correction: "I insist that he come to the meeting",
+      errorType: "subjunctive_that_clause",
+      difficulty: 6,
+      explanation: "insistの後のthat節では動詞の原形(仮定法現在)を使います",
+      category: "subjunctives",
+      eiken: "pre-1"
+    },
+    {
+      sentence: "Try as he might, he couldn't solve the problem",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 6,
+      explanation: "正しい文です。譲歩を表すas構文",
+      category: "concessive_clauses",
+      eiken: "pre-1"
     }
   ]
 }
@@ -508,7 +907,7 @@ const selectedLevel = ref('cadet')
 const currentQuestions = ref([])
 const currentQuestion = ref(null)
 const questionIndex = ref(0)
-const totalQuestions = ref(10)
+const totalQuestions = ref(15)
 
 // Game Stats
 const score = ref(0)
@@ -567,7 +966,18 @@ const startGame = () => {
   
   const level = currentLevel.value
   const questions = grammarQuestions[level.questions] || grammarQuestions.beginnerQuestions
-  currentQuestions.value = shuffleArray([...questions]).slice(0, totalQuestions.value)
+  // レベルに応じて問題数を調整
+  let questionLimit = totalQuestions.value
+  if (selectedLevel.value === 'cadet') {
+    questionLimit = Math.min(15, questions.length) // 初級者は15問
+  } else if (selectedLevel.value === 'ranger') {
+    questionLimit = Math.min(20, questions.length) // 中級者は20問
+  } else {
+    questionLimit = Math.min(25, questions.length) // 上級者は25問
+  }
+  
+  currentQuestions.value = shuffleArray([...questions]).slice(0, questionLimit)
+  totalQuestions.value = questionLimit
   
   startGameTimer()
   showNextQuestion()
@@ -666,6 +1076,11 @@ const handleCorrectAnswer = (reactionTime) => {
     time: reactionTime
   }
   
+  // ネイティブ発音で正しい文を読み上げ
+  if (currentQuestion.value.isCorrect) {
+    speakNativeSentence(currentQuestion.value.sentence)
+  }
+  
   createCosmicParticles('victory')
 }
 
@@ -679,6 +1094,16 @@ const handleWrongAnswer = () => {
     type: 'wrong',
     message: '宇宙船にダメージ！',
     time: 0
+  }
+  
+  // ネイティブ発音で正しい答えを説明
+  if (currentQuestion.value.correction) {
+    setTimeout(() => {
+      speakGrammarInstruction(currentQuestion.value.explanation)
+      setTimeout(() => {
+        speakNativeSentence(currentQuestion.value.correction)
+      }, 2000)
+    }, 1000)
   }
   
   createCosmicParticles('damage')
@@ -696,6 +1121,13 @@ const triggerFeverMode = () => {
   }, 10000)
   
   createCosmicParticles('cosmic_fury')
+}
+
+// === ネイティブ発音機能 ===
+const playQuestionAudio = async () => {
+  if (currentQuestion.value) {
+    await speakNativeSentence(currentQuestion.value.sentence)
+  }
 }
 
 const createCosmicParticles = (type) => {
@@ -1120,6 +1552,57 @@ onUnmounted(() => {
   0% { transform: translateY(0%); opacity: 0; }
   50% { opacity: 1; }
   100% { transform: translateY(100%); opacity: 0; }
+}
+
+/* === 音声再生ボタンのスタイル === */
+.transmission-audio {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.audio-button {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.audio-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.audio-button:hover::before {
+  left: 100%;
+}
+
+.audio-button:active {
+  transform: translateY(0);
+}
+
+.audio-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .hologram-content h2 {
