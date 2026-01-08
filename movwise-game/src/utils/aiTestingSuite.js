@@ -2,7 +2,7 @@
 import { useLearningRecommendationEngine } from '@/services/learningRecommendationEngine'
 import { useAdaptiveDifficultySystem } from '@/services/adaptiveDifficultySystem'
 import { useBehaviorAnalysisStore } from '@/stores/behaviorAnalysisStore'
-import { useAIPredictionEngine } from '@/services/aiPredictionEngine'
+import { useAIPrediction } from '@/services/aiPredictionEngine'
 import logger from '@/utils/logger'
 
 export class AITestingSuite {

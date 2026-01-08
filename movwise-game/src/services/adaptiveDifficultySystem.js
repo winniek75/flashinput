@@ -1,6 +1,6 @@
 // src/services/adaptiveDifficultySystem.js - リアルタイム適応的難易度調整システム
 import { useLearningRecommendationEngine } from '@/services/learningRecommendationEngine'
-import { useAIPredictionEngine } from '@/services/aiPredictionEngine'
+import { useAIPrediction } from '@/services/aiPredictionEngine'
 import { useBehaviorAnalysisStore } from '@/stores/behaviorAnalysisStore'
 import logger from '@/utils/logger'
 

@@ -152,7 +152,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useLearningRecommendationEngine } from '@/services/learningRecommendationEngine'
 import { useAdaptiveDifficultySystem } from '@/services/adaptiveDifficultySystem'
 import { useBehaviorAnalysisStore } from '@/stores/behaviorAnalysisStore'
-import { useAIPredictionEngine } from '@/services/aiPredictionEngine'
+import { useAIPrediction } from '@/services/aiPredictionEngine'
 import logger from '@/utils/logger'
 
 const props = defineProps({
@@ -176,7 +176,7 @@ const emit = defineEmits(['recommendationSelected', 'difficultyChanged'])
 const recommendationEngine = useLearningRecommendationEngine()
 const difficultySystem = useAdaptiveDifficultySystem()
 const behaviorStore = useBehaviorAnalysisStore()
-const aiEngine = useAIPredictionEngine()
+const aiEngine = useAIPrediction()
 
 // Reactive state
 const recommendations = ref([])
