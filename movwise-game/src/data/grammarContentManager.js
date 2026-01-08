@@ -5,7 +5,8 @@
 
 import Papa from 'papaparse'
 import fallbackData from '@/data/fallback_data.json'
-import { validateGrammarContent, validateProblemSets, validateVisualElements } from '@/data/csvSchemas.js'
+import { validateGrammarContent, validateProblemSets, validateVisualElements } from './csvSchemas.js'
+import logger from '@/utils/logger'
 
 class GrammarContentManager {
   constructor() {
@@ -31,7 +32,7 @@ class GrammarContentManager {
 
   async _performLoad() {
     try {
-      console.log('🔄 Loading CSV data...')
+      logger.log('🔄 Loading CSV data...')
       const startTime = performance.now()
 
       // JSONファイルから並行読み込み
@@ -60,8 +61,8 @@ class GrammarContentManager {
       this.errorState = null
 
       const loadTime = performance.now() - startTime
-      console.log(`✅ CSV data loaded successfully in ${loadTime.toFixed(2)}ms`)
-      console.log(`📊 Loaded: ${grammarContent.length} grammar items, ${problemSets.length} problem sets, ${visualElements.length} visual elements`)
+      logger.log(`✅ CSV data loaded successfully in ${loadTime.toFixed(2)}ms`)
+      logger.log(`📊 Loaded: ${grammarContent.length} grammar items, ${problemSets.length} problem sets, ${visualElements.length} visual elements`)
 
       return {
         grammarContent: this.grammarContent,
@@ -70,7 +71,7 @@ class GrammarContentManager {
       }
 
     } catch (error) {
-      console.error('❌ Failed to load CSV data:', error)
+      logger.error('❌ Failed to load CSV data:', error)
       this.errorState = error
 
       // フォールバックデータを使用
@@ -83,18 +84,18 @@ class GrammarContentManager {
    */
   async _loadJSON(filePath) {
     try {
-      console.log(`[GrammarContentManager] Fetching JSON: ${filePath}`)
+      logger.log(`[GrammarContentManager] Fetching JSON: ${filePath}`)
       const response = await fetch(filePath)
       if (!response.ok) {
         throw new Error(`Failed to fetch ${filePath}: ${response.status} (${response.statusText})`)
       }
       const jsonData = await response.json()
-      console.log(`[GrammarContentManager] Successfully loaded ${jsonData.length} items from ${filePath}`)
-      console.log(`[GrammarContentManager] Sample data from ${filePath}:`, jsonData.slice(0, 2))
+      logger.log(`[GrammarContentManager] Successfully loaded ${jsonData.length} items from ${filePath}`)
+      logger.log(`[GrammarContentManager] Sample data from ${filePath}:`, jsonData.slice(0, 2))
       return jsonData
     } catch (error) {
-      console.error(`[GrammarContentManager] JSONファイルの読み込みに失敗: ${filePath}`, error)
-      console.warn(`[GrammarContentManager] ファイルが存在しないか、パスが間違っている可能性があります: ${filePath}`)
+      logger.error(`[GrammarContentManager] JSONファイルの読み込みに失敗: ${filePath}`, error)
+      logger.warn(`[GrammarContentManager] ファイルが存在しないか、パスが間違っている可能性があります: ${filePath}`)
       throw new Error(`Failed to load JSON ${filePath}: ${error.message}（ファイルが存在しないか、パスが間違っている可能性があります）`)
     }
   }
@@ -104,7 +105,7 @@ class GrammarContentManager {
    */
   async _loadCSV(filePath) {
     try {
-      console.log(`[GrammarContentManager] Fetching CSV: ${filePath}`)
+      logger.log(`[GrammarContentManager] Fetching CSV: ${filePath}`)
       const response = await fetch(filePath)
       if (!response.ok) {
         throw new Error(`Failed to fetch ${filePath}: ${response.status} (${response.statusText})`)
@@ -124,7 +125,7 @@ class GrammarContentManager {
           },
           complete: (results) => {
             if (results.errors.length > 0) {
-              console.warn(`⚠️ CSV parsing warnings for ${filePath}:`, results.errors)
+              logger.warn(`⚠️ CSV parsing warnings for ${filePath}:`, results.errors)
             }
             resolve(results.data)
           },
@@ -134,8 +135,8 @@ class GrammarContentManager {
         })
       })
     } catch (error) {
-      console.error(`[GrammarContentManager] CSVファイルの読み込みに失敗: ${filePath}`, error)
-      console.warn(`[GrammarContentManager] ファイルが存在しないか、パスが間違っている可能性があります: ${filePath}`)
+      logger.error(`[GrammarContentManager] CSVファイルの読み込みに失敗: ${filePath}`, error)
+      logger.warn(`[GrammarContentManager] ファイルが存在しないか、パスが間違っている可能性があります: ${filePath}`)
       throw new Error(`Failed to load CSV ${filePath}: ${error.message}（ファイルが存在しないか、パスが間違っている可能性があります）`)
     }
   }
@@ -176,7 +177,7 @@ class GrammarContentManager {
    * フォールバックデータを読み込み
    */
   async _loadFallbackData() {
-    console.log('📦 Loading fallback data...')
+    logger.log('📦 Loading fallback data...')
 
     try {
       this.grammarContent = fallbackData.grammarContent
@@ -184,14 +185,14 @@ class GrammarContentManager {
       this.visualElements = fallbackData.visualElements
       this.isLoaded = true
 
-      console.log('✅ Fallback data loaded successfully')
+      logger.log('✅ Fallback data loaded successfully')
       return {
         grammarContent: this.grammarContent,
         problemSets: this.problemSets,
         visualElements: this.visualElements
       }
     } catch (error) {
-      console.error('💥 Failed to load fallback data:', error)
+      logger.error('💥 Failed to load fallback data:', error)
       throw new Error('Failed to load both CSV and fallback data')
     }
   }

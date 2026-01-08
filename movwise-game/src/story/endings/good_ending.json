@@ -1,0 +1,346 @@
+{
+  "id": "good_ending",
+  "type": "good_ending",
+  "title": "永遠の絆 - Eternal Bonds",
+  "duration": 1200000,
+  "scenes": [
+    {
+      "id": "friendship_triumph",
+      "title": "友情の勝利",
+      "background": "/images/backgrounds/friendship_galaxy.jpg",
+      "duration": 150000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "grateful",
+          "size": "medium"
+        },
+        {
+          "id": "all_friends",
+          "position": "circle",
+          "emotion": "joyful",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "みんな...本当にありがとう",
+          "emotion": "emotional",
+          "duration": 3000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "わしらこそ感謝じゃ。素晴らしい冒険じゃった",
+          "emotion": "proud",
+          "duration": 3500
+        },
+        {
+          "speaker": "lexia",
+          "text": "ずっとずっと友達だよ！",
+          "emotion": "tearful_joy",
+          "duration": 3000
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "この絆は...最も美しい構造だ",
+          "emotion": "moved",
+          "duration": 3000
+        }
+      ],
+      "effects": [
+        {
+          "type": "friendship_aura",
+          "duration": 150000,
+          "intensity": 0.9
+        }
+      ]
+    },
+    {
+      "id": "translator_peace",
+      "title": "Translatorとの和解",
+      "background": "/images/backgrounds/peaceful_core.jpg",
+      "duration": 180000,
+      "characters": [
+        {
+          "id": "the_translator",
+          "position": "center",
+          "emotion": "peaceful",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "understanding",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "友情の力...それが答えだったのか",
+          "emotion": "enlightened",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "一人じゃ何もできない。でもみんなとなら...",
+          "emotion": "wise",
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "私も...もう一人じゃない",
+          "emotion": "grateful",
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "共に、新しい道を歩もう",
+          "emotion": "hopeful",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "harmony_light",
+          "duration": 180000,
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "promise_ceremony",
+      "title": "永遠の約束",
+      "background": "/images/backgrounds/promise_shrine.jpg",
+      "duration": 240000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "determined",
+          "size": "medium"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "ceremonial",
+          "size": "medium"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "excited",
+          "size": "medium"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "solemn",
+          "size": "medium"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "pumped",
+          "size": "medium"
+        },
+        {
+          "id": "unity",
+          "position": "back-center",
+          "emotion": "blessing",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "今ここに、永遠の絆を結びましょう",
+          "emotion": "ceremonial",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "どんなに離れていても、心はいつも一緒",
+          "emotion": "promise",
+          "duration": 3500
+        },
+        {
+          "speaker": "all_friends",
+          "text": "永遠に！",
+          "emotion": "unified",
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "この約束は...宇宙の記憶に刻まれました",
+          "emotion": "mystical",
+          "duration": 4000
+        }
+      ],
+      "effects": [
+        {
+          "type": "promise_seal",
+          "duration": 240000,
+          "intensity": 0.9
+        },
+        {
+          "type": "particles",
+          "count": 300,
+          "symbols": ["💖", "🤝", "✨", "🌟"],
+          "duration": 240000
+        }
+      ]
+    },
+    {
+      "id": "new_adventures",
+      "title": "新たな冒険へ",
+      "background": "/images/backgrounds/sunrise_galaxy.jpg",
+      "duration": 210000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "adventurous",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "supportive",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "この絆を胸に、新しい世界を探検しよう",
+          "emotion": "excited",
+          "duration": 3500
+        },
+        {
+          "speaker": "aura",
+          "text": "みんなとの思い出が、永遠の力になります",
+          "emotion": "wise",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "いつか必ず、また会おう",
+          "emotion": "promise",
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "その時まで...みんなの分も頑張るよ！",
+          "emotion": "determined",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "sunrise",
+          "duration": 210000,
+          "intensity": 0.8
+        }
+      ]
+    }
+  ],
+  "epilogue": {
+    "title": "みんなのその後",
+    "scenes": [
+      {
+        "id": "phonix_school",
+        "title": "Professor Phonixの音楽学校",
+        "description": "若い世代に音の美しさを教える日々",
+        "image": "/images/epilogue/phonix_school.jpg",
+        "character_message": "音は永遠じゃ。君との思い出と共に"
+      },
+      {
+        "id": "lexia_library",
+        "title": "Lexiaの言葉の図書館",
+        "description": "新しい言葉を集めて回る楽しい毎日",
+        "image": "/images/epilogue/lexia_library.jpg",
+        "character_message": "新しい言葉を見つけるたび、あなたを思い出すの！"
+      },
+      {
+        "id": "grammar_academy",
+        "title": "Grammar Guardianの文法院",
+        "description": "美しい文法構造を守り続ける",
+        "image": "/images/epilogue/grammar_academy.jpg",
+        "character_message": "君との出会いが、私の構造を変えた"
+      },
+      {
+        "id": "speed_championship",
+        "title": "Speed Racerの新記録",
+        "description": "仲間の力を信じて更なる高みへ",
+        "image": "/images/epilogue/speed_championship.jpg",
+        "character_message": "お前との競争が俺を強くした！"
+      },
+      {
+        "id": "unity_sanctuary",
+        "title": "Unityの調和の聖域",
+        "description": "すべての絆を見守り続ける",
+        "image": "/images/epilogue/unity_sanctuary.jpg",
+        "character_message": "あなたたちの絆は、永遠に輝いている"
+      }
+    ],
+    "final_message": {
+      "speaker": "captain_nova",
+      "text": "離れていても、心はいつも一緒。\n学ぶたびに、成長するたびに、\nみんなの声が聞こえるんだ。\n\n本当にありがとう、{playerName}。\nまた必ず会おうね！",
+      "signature": "永遠の仲間たちより"
+    }
+  },
+  "rewards": {
+    "immediate": [
+      {
+        "type": "title",
+        "value": "絆の守護者",
+        "description": "深い友情を築いた証"
+      },
+      {
+        "type": "mode",
+        "value": "Friendship Mode",
+        "description": "キャラクターとの特別な交流"
+      }
+    ],
+    "unlocks": [
+      {
+        "type": "newgame_plus",
+        "value": "Bond Strengthening Mode",
+        "description": "より深い絆を築くモード"
+      },
+      {
+        "type": "stories",
+        "value": "Character Side Stories",
+        "description": "各キャラクターの秘密エピソード"
+      },
+      {
+        "type": "gallery",
+        "value": "Friendship Gallery",
+        "description": "仲間との思い出アルバム"
+      }
+    ],
+    "special": {
+      "friendship_certificates": true,
+      "character_letters": true,
+      "reunion_promise": true
+    }
+  },
+  "statistics_shown": [
+    "総プレイ時間",
+    "最高親密度キャラクター",
+    "交わした約束の数",
+    "助け合った回数",
+    "笑顔になった瞬間",
+    "一緒に過ごした時間"
+  ],
+  "credits": {
+    "special_thanks": [
+      "友情を大切にした{playerName}へ",
+      "仲間との絆を育ててくれてありがとう",
+      "あなたの優しさが世界を変えました"
+    ]
+  }
+}

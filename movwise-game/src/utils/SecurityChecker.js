@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * MovWISE Security Checker
  * セキュリティチェックとルール設定
@@ -17,14 +19,14 @@ class SecurityChecker {
     this.securityScore = 100
     this.lastScanTime = null
     
-    console.log('🔒 SecurityChecker initialized')
+    logger.log('🔒 SecurityChecker initialized')
   }
 
   /**
    * 包括的セキュリティスキャンを実行
    */
   async runSecurityScan() {
-    console.log('🔍 Starting comprehensive security scan...')
+    logger.log('🔍 Starting comprehensive security scan...')
     this.vulnerabilities = []
     this.securityScore = 100
     this.lastScanTime = new Date().toISOString()
@@ -61,12 +63,12 @@ class SecurityChecker {
       await this.checkSessionManagement()
       
       const report = this.generateSecurityReport()
-      console.log('✅ Security scan completed')
+      logger.log('✅ Security scan completed')
       
       return report
       
     } catch (error) {
-      console.error('❌ Security scan failed:', error)
+      logger.error('❌ Security scan failed:', error)
       throw error
     }
   }
@@ -75,7 +77,7 @@ class SecurityChecker {
    * XSS脆弱性チェック
    */
   async checkXSSVulnerabilities() {
-    console.log('🛡️ Checking XSS vulnerabilities...')
+    logger.log('🛡️ Checking XSS vulnerabilities...')
     
     const xssPatterns = [
       '<script>',
@@ -134,7 +136,7 @@ class SecurityChecker {
    * データサニタイゼーションチェック
    */
   async checkDataSanitization() {
-    console.log('🧼 Checking data sanitization...')
+    logger.log('🧼 Checking data sanitization...')
     
     // ローカルストレージ内のデータをチェック
     for (let i = 0; i < localStorage.length; i++) {
@@ -163,7 +165,7 @@ class SecurityChecker {
    * ローカルストレージセキュリティチェック
    */
   async checkLocalStorageSecurity() {
-    console.log('💾 Checking localStorage security...')
+    logger.log('💾 Checking localStorage security...')
     
     const sensitiveKeys = [
       'password', 'token', 'secret', 'key', 'auth', 'credential',
@@ -217,7 +219,7 @@ class SecurityChecker {
    * 入力値検証チェック
    */
   async checkInputValidation() {
-    console.log('✅ Checking input validation...')
+    logger.log('✅ Checking input validation...')
     
     const inputs = document.querySelectorAll('input, textarea')
     inputs.forEach(input => {
@@ -267,7 +269,7 @@ class SecurityChecker {
    * CSPヘッダーチェック
    */
   async checkCSPHeaders() {
-    console.log('🛡️ Checking CSP headers...')
+    logger.log('🛡️ Checking CSP headers...')
     
     const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]')
     
@@ -311,7 +313,7 @@ class SecurityChecker {
    * HTTPS チェック
    */
   async checkHTTPS() {
-    console.log('🔐 Checking HTTPS configuration...')
+    logger.log('🔐 Checking HTTPS configuration...')
     
     if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
       this.addVulnerability('HTTPS', 'critical', 'Site not served over HTTPS', {
@@ -346,7 +348,7 @@ class SecurityChecker {
    * 外部リソースチェック
    */
   async checkExternalResources() {
-    console.log('🌐 Checking external resources...')
+    logger.log('🌐 Checking external resources...')
     
     // 外部スクリプトのチェック
     const scripts = document.querySelectorAll('script[src]')
@@ -404,14 +406,14 @@ class SecurityChecker {
    * Firebase セキュリティチェック
    */
   async checkFirebaseSecurity() {
-    console.log('🔥 Checking Firebase security...')
+    logger.log('🔥 Checking Firebase security...')
     
     // Firebase設定の確認
     const firebaseConfig = this.getFirebaseConfig()
     if (firebaseConfig) {
       // APIキーの公開チェック
       if (firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith('AIza')) {
-        console.warn('Firebase API key is exposed (this is normal for web apps)')
+        logger.warn('Firebase API key is exposed (this is normal for web apps)')
       }
       
       // プロジェクト設定の検証
@@ -430,7 +432,7 @@ class SecurityChecker {
    * 認証・認可チェック
    */
   async checkAuthentication() {
-    console.log('🔑 Checking authentication...')
+    logger.log('🔑 Checking authentication...')
     
     // セッション情報のチェック
     const sessionData = localStorage.getItem('movwise_session') || 
@@ -474,7 +476,7 @@ class SecurityChecker {
    * セッション管理チェック
    */
   async checkSessionManagement() {
-    console.log('📝 Checking session management...')
+    logger.log('📝 Checking session management...')
     
     // セッション固定攻撃の対策チェック
     const sessionKeys = ['sessionId', 'authToken', 'userId']
@@ -522,7 +524,7 @@ class SecurityChecker {
     const originalInnerHTML = Element.prototype.innerHTML
     Element.prototype.innerHTML = function(value) {
       if (arguments.length > 0) {
-        console.warn('innerHTML usage detected - potential XSS risk')
+        logger.warn('innerHTML usage detected - potential XSS risk')
       }
       return originalInnerHTML.apply(this, arguments)
     }
@@ -758,7 +760,7 @@ class SecurityChecker {
     
     this.securityScore = Math.max(0, this.securityScore - (scoreReduction[severity] || 0))
     
-    console.log(`🚨 Security Issue [${severity}]: ${description}`)
+    logger.log(`🚨 Security Issue [${severity}]: ${description}`)
   }
 
   /**
@@ -774,7 +776,7 @@ class SecurityChecker {
       firebaseSecurityRules: this.generateFirebaseSecurityRules()
     }
     
-    console.log('📊 Security Report:', report)
+    logger.log('📊 Security Report:', report)
     return report
   }
 
@@ -937,7 +939,7 @@ service cloud.firestore {
    * セキュリティ設定の適用
    */
   applySecurityMeasures() {
-    console.log('🔒 Applying security measures...')
+    logger.log('🔒 Applying security measures...')
     
     // CSP の設定
     this.setContentSecurityPolicy()
@@ -951,7 +953,7 @@ service cloud.firestore {
     // XSS 保護の実装
     this.implementXSSProtection()
     
-    console.log('✅ Security measures applied')
+    logger.log('✅ Security measures applied')
   }
 
   /**
@@ -963,7 +965,7 @@ service cloud.firestore {
       meta.httpEquiv = 'Content-Security-Policy'
       meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://firebaseapp.com https://*.firebaseio.com"
       document.head.appendChild(meta)
-      console.log('🛡️ CSP header added')
+      logger.log('🛡️ CSP header added')
     }
   }
 
@@ -983,7 +985,7 @@ service cloud.firestore {
     frameOptions.content = 'DENY'
     document.head.appendChild(frameOptions)
     
-    console.log('🔒 Security headers added')
+    logger.log('🔒 Security headers added')
   }
 
   /**
@@ -997,7 +999,7 @@ service cloud.firestore {
       return div.innerHTML
     }
     
-    console.log('🧼 Input sanitization implemented')
+    logger.log('🧼 Input sanitization implemented')
   }
 
   /**
@@ -1011,13 +1013,13 @@ service cloud.firestore {
           if (node.nodeType === Node.ELEMENT_NODE) {
             // script タグの動的追加を検出
             if (node.tagName === 'SCRIPT') {
-              console.warn('Dynamic script injection detected')
+              logger.warn('Dynamic script injection detected')
             }
             
             // インラインイベントハンドラーを検出
             for (const attr of node.attributes || []) {
               if (attr.name.startsWith('on')) {
-                console.warn('Inline event handler detected:', attr.name)
+                logger.warn('Inline event handler detected:', attr.name)
               }
             }
           }
@@ -1031,7 +1033,7 @@ service cloud.firestore {
       attributes: true
     })
     
-    console.log('🛡️ XSS protection implemented')
+    logger.log('🛡️ XSS protection implemented')
   }
 }
 

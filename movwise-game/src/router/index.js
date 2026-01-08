@@ -1,52 +1,374 @@
-// src/router/index.js - 科学的学習順序対応版
+// src/router/index.js - VR対応マイグレーション統合版
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGameSettingsStore } from '../stores/gameSettings'
 import { useGameStore } from '../stores/gameStore'
+import DataMigrationSystem from '@/utils/dataMigration'
+import logger from '@/utils/logger'
+
+// Word Galaxy Integration
+import { wordGalaxyRoutes, setupWordGalaxyGuards } from './wordGalaxy'
 
 // ゲームコンポーネントの動的インポート
 const RhymingGame = () => import('@/components/games/RhymingGame.vue')
 const RhythmTapperGame = () => import('@/components/games/RhythmTapperGame.vue')
+const RhythmPhonicsMini = () => import('@/components/games/RhythmPhonicsMini.vue')
 const SinglePhonemeGame = () => import('@/components/games/SinglePhonemeGame.vue')
 const BlendingBuilderGame = () => import('@/components/games/BlendingBuilderGame.vue')
 const CvcWordGame = () => import('@/components/games/CvcWordGame.vue')
 const SoundHunterGame = () => import('@/components/games/SoundHunterGame.vue')
-const MagicCastleJumpGame = () => import('@/components/games/MagicCastleJumpGame.vue')
+// MagicESpaceJump component removed - replaced with MagicEGalaxyBuilder
 const SightWordMaster = () => import('@/components/games/SightWordMaster.vue')
 const WordRushGame = () => import('@/components/games/WordRushGame.vue')
 const BeVerbRushGame = () => import('@/components/games/BeVerbRush.vue')
+// EnhancedMagicEGalaxyBuilder component removed
 
-// サウンドアドベンチャーハブ
-const SoundAdventureHub = () => import('../views/SoundAdventureHub.vue')
+// サウンドアドベンチャーハブ - 削除済み（PhonicsAdventureに移行）
+
+// Word Building Hub
+const WordBuildingHub = () => import('../views/WordBuildingHub.vue')
+
+// 前置詞ゲームの動的インポート
+const PrepositionSpaceStation = () => import('@/components/games/grammar-galaxy/preposition/PrepositionSpaceStationFallback.vue')
+const PrepositionGamePlay = () => import('@/components/games/grammar-galaxy/preposition/PrepositionGamePlay.vue')
 
 // 文法ゲームの動的インポート
 const GrammarGalaxyFoundation = () => import('@/views/GrammarGalaxyFoundation.vue')
-const GrammarGalaxyHub = () => import('@/views/GrammarGalaxyHub.vue')
 // Temporary fix for dynamic import issue
 import GrammarColorCodeGame from '@/components/games/grammar-galaxy/GrammarColorCodeGame.vue'
 // const GrammarColorCodeGame = () => import('@/components/games/grammar-galaxy/GrammarColorCodeGame.vue')
 const PatternHunterGame = () => import('@/components/games/grammar-galaxy/PatternHunterGame.vue')
 const GrammarReflexArena = () => import('@/components/games/grammar-galaxy/GrammarReflexArena.vue')
+const SentenceBuilderMaster = () => import('@/components/games/SentenceBuilderMaster.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // Word Galaxy Routes - Advanced Vocabulary Learning System - 保持（VocabularyWorldから参照）
+    ...wordGalaxyRoutes,
+
+    // ===== AI TESTING SUITE =====
+    {
+      path: '/ai-testing',
+      name: 'AITesting',
+      component: () => import('@/views/AITestingView.vue'),
+      meta: {
+        title: 'AI System Testing Suite',
+        requiresMigrationCheck: false,
+        devOnly: true
+      }
+    },
+    {
+      path: '/ai-demo',
+      name: 'AIGameDemo',
+      component: () => import('@/views/AIGameDemo.vue'),
+      meta: {
+        title: 'AI Game Demo',
+        requiresMigrationCheck: false,
+        devOnly: true
+      }
+    },
+
+    // ===== UNIFIED PLATFORM ROUTES =====
+    // Consolidated platform approach - Option A implementation
+
+    // Phonics Adventure Platform
+    {
+      path: '/platforms/phonics-adventure',
+      name: 'PhonicsAdventure',
+      component: () => import('@/components/platforms/PhonicsAdventure.vue'),
+      meta: {
+        title: 'Phonics Adventure - フォニックス・アドベンチャー',
+        requiresMigrationCheck: false,
+        platform: 'phonics'
+      }
+    },
+
+    // Grammar Galaxy Platform
+    {
+      path: '/platforms/grammar-galaxy',
+      name: 'GrammarGalaxy',
+      component: () => import('@/components/platforms/GrammarGalaxy.vue'),
+      meta: {
+        title: 'Grammar Galaxy - 文法銀河',
+        requiresMigrationCheck: false,
+        platform: 'grammar'
+      }
+    },
+
+    // Vocabulary World Platform
+    {
+      path: '/platforms/vocabulary-world',
+      name: 'VocabularyWorld',
+      component: () => import('@/components/platforms/VocabularyWorld.vue'),
+      meta: {
+        title: 'Vocabulary World - 語彙の世界',
+        requiresMigrationCheck: false,
+        platform: 'vocabulary'
+      }
+    },
+
+    // Typing Arena Platform
+    {
+      path: '/platforms/typing-arena',
+      name: 'TypingArena',
+      component: () => import('@/components/games/TypingArenaEnhanced.vue'),
+      meta: {
+        title: 'Typing Arena - タイピング・アリーナ',
+        requiresMigrationCheck: false,
+        platform: 'typing'
+      }
+    },
+
+    // Integrated Skills Challenge Platform
+    {
+      path: '/platforms/integrated-challenge',
+      name: 'IntegratedChallenge',
+      component: () => import('@/components/platforms/IntegratedChallenge.vue'),
+      meta: {
+        title: 'Integrated Challenge - 総合スキル・チャレンジ',
+        requiresMigrationCheck: false,
+        platform: 'integrated'
+      }
+    },
+
+    // Dynamic game route for grammar games
+    {
+      path: '/grammar-game/:gameId',
+      name: 'GrammarGame',
+      beforeEnter: (to, from, next) => {
+        const gameComponent = to.query.component
+        if (gameComponent) {
+          // Navigate to the specific grammar game component
+          import(`@/components/games/grammar-galaxy/${gameComponent}.vue`)
+            .then(() => {
+              next()
+            })
+            .catch(() => {
+              import(`@/components/grammar/games/${gameComponent}.vue`)
+                .then(() => {
+                  next()
+                })
+                .catch(() => {
+                  console.error('Grammar game component not found:', gameComponent)
+                  next('/platforms/grammar-galaxy')
+                })
+            })
+        } else {
+          next('/platforms/grammar-galaxy')
+        }
+      },
+      component: () => import('@/components/games/grammar-galaxy/GrammarGameWrapper.vue'),
+      meta: {
+        title: 'Grammar Game - 文法ゲーム',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // Dynamic game route for vocabulary games
+    {
+      path: '/vocabulary-game/:gameId',
+      name: 'VocabularyGame',
+      beforeEnter: (to, from, next) => {
+        const gameComponent = to.query.component
+        if (gameComponent) {
+          // Navigate to the specific vocabulary game component
+          import(`@/components/games/${gameComponent}.vue`)
+            .then(() => {
+              next()
+            })
+            .catch(() => {
+              import(`@/components/word-galaxy/${gameComponent}.vue`)
+                .then(() => {
+                  next()
+                })
+                .catch(() => {
+                  console.error('Vocabulary game component not found:', gameComponent)
+                  next('/platforms/vocabulary-world')
+                })
+            })
+        } else {
+          next('/platforms/vocabulary-world')
+        }
+      },
+      component: () => import('@/components/games/VocabularyGameWrapper.vue'),
+      meta: {
+        title: 'Vocabulary Game - 語彙ゲーム',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // Dynamic game route for phonics games
+    {
+      path: '/phonics-game/:gameId',
+      name: 'PhonicsGame',
+      beforeEnter: (to, from, next) => {
+        const gameComponent = to.query.component
+        if (gameComponent) {
+          // Navigate to the specific phonics game component
+          import(`@/components/games/${gameComponent}.vue`)
+            .then(() => {
+              next()
+            })
+            .catch(() => {
+              console.error('Phonics game component not found:', gameComponent)
+              next('/platforms/phonics-adventure')
+            })
+        } else {
+          next('/platforms/phonics-adventure')
+        }
+      },
+      component: () => import('@/components/games/PhonicsGameWrapper.vue'),
+      meta: {
+        title: 'Phonics Game - フォニックスゲーム',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // ===== END UNIFIED PLATFORM ROUTES =====
+
+    // 生徒用ダッシュボード
+    {
+      path: '/dashboard/student',
+      name: 'DashboardStudent',
+      component: () => import('../views/DashboardStudent.vue'),
+      meta: {
+        title: 'サウンド・ガーディアン司令部 - MovWISE',
+        requiresUserType: 'student',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // 講師用ダッシュボード
+    {
+      path: '/dashboard/teacher',
+      name: 'DashboardTeacher',
+      component: () => import('../views/DashboardTeacher.vue'),
+      meta: {
+        title: 'MovWISE 講師ダッシュボード',
+        requiresUserType: 'teacher',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // 保護者用ダッシュボード
+    {
+      path: '/dashboard/parent',
+      name: 'DashboardParent',
+      component: () => import('../views/DashboardParent.vue'),
+      meta: {
+        title: 'MovWISE 保護者ポータル',
+        requiresUserType: 'parent',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // ゲームライブラリ（優先度別表示）
+    {
+      path: '/game-library',
+      name: 'GameLibrary',
+      component: () => import('../views/GameLibraryView.vue'),
+      meta: {
+        title: 'ゲームライブラリ - MovWISE',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // データマイグレーション画面
+    {
+      path: '/migration',
+      name: 'migration',
+      component: () => import('../views/MigrationScreen.vue'),
+      meta: {
+        title: 'MovWISE データ移行',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // デモログイン画面 - Simple version
+    {
+      path: '/demo-login',
+      name: 'demo-login',
+      component: () => import('../views/SimpleDemoLogin.vue'),
+      meta: {
+        title: 'Demo Login - MovWISE Game',
+        requiresMigrationCheck: false
+      }
+    },
+    
+    // Apple Planet - CVC Word Game with Galaxy Trading integration
+    {
+      path: '/apple-planet',
+      name: 'apple-planet',
+      component: () => import('@/views/ApplePlanetView.vue'),
+      meta: {
+        title: 'Apple Garden Planet - CVC単語農園',
+        requiresMigrationCheck: false
+      }
+    },
+    
+    // Robot Planet - Blending Builder Game with Galaxy Trading integration
+    {
+      path: '/robot-planet',
+      name: 'robot-planet',
+      component: () => import('@/views/RobotPlanetView.vue'),
+      meta: {
+        title: 'Robot Tech Planet - 音素ブレンドファクトリー',
+        requiresMigrationCheck: false
+      }
+    },
+    
+    // Grammar Moon - Pattern Hunter Game with Galaxy Trading integration
+    {
+      path: '/grammar-moon',
+      name: 'grammar-moon',
+      component: () => import('@/views/GrammarMoonView.vue'),
+      meta: {
+        title: 'Grammar Moon Academy - 文法パターン研究所',
+        requiresMigrationCheck: false
+      }
+    },
+    
+    // VR QR Code Generator
+    {
+      path: '/vr-qr-generator',
+      name: 'vr-qr-generator',
+      component: () => import('@/components/vr/VRQRCodeGenerator.vue'),
+      meta: {
+        title: 'VR Academy Portal Generator - QRコード生成',
+        requiresMigrationCheck: false
+      }
+    },
+    
+    // VR Readiness Assessment
+    {
+      path: '/vr-readiness',
+      name: 'vr-readiness',
+      component: () => import('@/components/vr/VRReadinessAssessment.vue'),
+      meta: {
+        title: 'VR Readiness Assessment - VR準備度評価',
+        requiresMigrationCheck: false
+      }
+    },
+    
     // ホーム
     {
       path: '/',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
       meta: {
-        title: 'Sound Galaxy Academy - 音響銀河を救う英語学習'
+        title: 'Sound Galaxy Academy - 音響銀河を救う英語学習',
+        requiresMigrationCheck: true
       }
     },
-    
-    // 銀河マップ
+
+    // アリーナハブ
     {
-      path: '/galaxy-map',
-      name: 'galaxy-map',
-      component: () => import('../views/GalaxyMapView.vue'),
+      path: '/arena-hub',
+      name: 'arena-hub',
+      component: () => import('../views/ArenaHub.vue'),
       meta: {
-        title: '銀河マップ - Sound Galaxy Academy'
+        title: 'バトルアリーナ - 学習バトル場',
+        requiresMigrationCheck: false
       }
     },
 
@@ -70,13 +392,108 @@ const router = createRouter({
       }
     },
 
-    // サウンド・マスタリー・アーキペラゴ メインハブ
+    // サブスクリプション管理
+    {
+      path: '/subscription',
+      name: 'subscription',
+      component: () => import('../views/SubscriptionView.vue'),
+      meta: {
+        title: 'プラン管理 - MovWISE Galaxy',
+        requiresAuth: false
+      }
+    },
+
+    // サブスクリプション成功ページ
+    {
+      path: '/subscription/success',
+      name: 'subscription-success',
+      component: () => import('../views/SubscriptionView.vue'),
+      meta: {
+        title: '決済完了 - MovWISE Galaxy',
+        requiresAuth: false
+      }
+    },
+
+    // サブスクリプションキャンセルページ
+    {
+      path: '/subscription/cancel',
+      name: 'subscription-cancel',
+      component: () => import('../views/SubscriptionView.vue'),
+      meta: {
+        title: '決済キャンセル - MovWISE Galaxy',
+        requiresAuth: false
+      }
+    },
+
+    // ログイン・サインアップ
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+      meta: {
+        title: 'ログイン - MovWISE Academy',
+        requiresAuth: false
+      }
+    },
+
+    // ログアウト
+    {
+      path: '/logout',
+      name: 'logout',
+      beforeEnter: async (to, from, next) => {
+        const { useAuthStore } = await import('@/stores/auth')
+        const authStore = useAuthStore()
+        await authStore.signOut()
+        next('/')
+      }
+    },
+
+    // カスタマイズ可能なフォニックス・ジャーニー
+    {
+      path: '/customizable-phonics',
+      name: 'customizable-phonics',
+      component: () => import('@/components/games/CustomizablePhonicsJourney.vue'),
+      meta: {
+        title: 'カスタマイズ・フォニックス・ジャーニー - Jolly Phonics',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // サウンド・マスタリー・アーキペラゴ メインハブ - PhonicsAdventureへリダイレクト
     {
       path: '/sound-adventure',
-      name: 'SoundAdventureHub',
-      component: () => import('../views/SoundAdventureHub.vue'),
+      redirect: '/platforms/phonics-adventure'
+    },
+
+    // Word Building Hub - 語彙構築惑星
+    {
+      path: '/word-building',
+      name: 'WordBuildingHub',
+      component: WordBuildingHub,
       meta: {
-        title: 'サウンド・マスタリー・アーキペラゴ',
+        title: 'Word Building City - 単語構築惑星',
+        requiresAuth: false
+      }
+    },
+
+    // 前置詞ゲーム - 宇宙ステーション（エントリーポイント）
+    {
+      path: '/grammar-galaxy/preposition-master',
+      name: 'PrepositionSpaceStation',
+      component: PrepositionSpaceStation,
+      meta: {
+        title: '前置詞マスター：宇宙の旅 - Preposition Master',
+        requiresAuth: false
+      }
+    },
+
+    // 前置詞ゲーム - 各惑星でのゲームプレイ
+    {
+      path: '/grammar-galaxy/preposition-master/play/:category',
+      name: 'PrepositionGamePlay',
+      component: PrepositionGamePlay,
+      meta: {
+        title: '前置詞ゲーム - プレイ中',
         requiresAuth: false
       }
     },
@@ -86,15 +503,15 @@ const router = createRouter({
     {
       path: '/games/pure-sound-lab',
       name: 'pure-sound-lab',
-      component: () => import('@/components/games/PureSoundLab.vue'),
+      component: () => import('@/components/games/PureSoundLabBeatSaber.vue'),
       meta: {
         title: 'ピュア・サウンド・ラボ',
         stage: 'soundFoundation',
         stageOrder: 1,
         difficulty: 'beginner',
         gameId: 'pureSoundLab',
-        icon: '🔬',
-        description: '文字を見ずに音だけで44音素を段階的に学習',
+        icon: '🎵',
+        description: 'ビートセイバー風フォニックス学習ゲーム',
         learningObjective: '音素認識能力の基礎構築',
         unlockRequirement: '常時アンロック（学習の出発点）'
       }
@@ -132,8 +549,112 @@ const router = createRouter({
       }
     },
 
+    // Sound Master Tower - 音の門番タワー
+    {
+      path: '/games/sound-master-game',
+      name: 'sound-master-game',
+      component: () => import('@/components/games/SoundMasterGame.vue'),
+      meta: {
+        title: '音の門番タワー',
+        stage: 'soundPlanet',
+        difficulty: 'intermediate',
+        gameId: 'soundMasterGame',
+        icon: '🗼',
+        description: '音声を聞いて正しい文字を選ぶ音素マスターゲーム',
+        learningObjective: '音素の聴覚識別と文字対応',
+        unlockRequirement: '音素研究所 60%完了'
+      }
+    },
+
+    // Rhythm Phonics Mini - 3分リズムフォニックス
+    {
+      path: '/games/rhythm-phonics-mini',
+      name: 'rhythm-phonics-mini',
+      component: RhythmPhonicsMini,
+      meta: {
+        title: '3分リズムフォニックス',
+        stage: 'soundFoundation',
+        difficulty: 'beginner',
+        gameId: 'rhythmPhonicsMini',
+        icon: '🎵',
+        description: 'リズムに合わせて音素を学ぶ3分間ミニゲーム',
+        learningObjective: 'リズム感覚と音素認識の統合',
+        unlockRequirement: 'なし（いつでも利用可能）'
+      }
+    },
+
+    // Cosmic Sound Chain - 音素ブレンディング練習
+    {
+      path: '/games/cosmic-sound-chain',
+      name: 'cosmic-sound-chain',
+      component: () => import('@/components/games/CosmicSoundChain.vue'),
+      meta: {
+        title: 'コズミック・サウンドチェーン',
+        stage: 'soundFoundation',
+        stageOrder: 1,
+        difficulty: 'beginner',
+        gameId: 'cosmicSoundChain',
+        icon: '🔗',
+        description: '音素を繋げて単語を作るブレンディング練習',
+        learningObjective: '2文字〜4文字の音素結合と単語構築',
+        unlockRequirement: 'Phoneme Pattern Lab 50%完了'
+      }
+    },
+
+    // Phonics Path Game - 音声認識双六ゲーム
+    {
+      path: '/games/phonics-path-game',
+      name: 'phonics-path-game',
+      component: () => import('@/components/games/PhonicsPathGame.vue'),
+      meta: {
+        title: 'フォニックス・パス・アドベンチャー',
+        stage: 'soundFoundation',
+        stageOrder: 1,
+        difficulty: 'beginner',
+        gameId: 'phonicsPathGame',
+        icon: '🎯',
+        description: '音声認識で進む双六スタイルのフォニックスゲーム',
+        learningObjective: '子音+母音から3文字単語まで段階的発話練習',
+        unlockRequirement: '常時アンロック'
+      }
+    },
+
     // === Stage 1.5: フォニックス・トレーニング・センター ===
     // CV発音練習と音素識別ゲーム
+    {
+      path: '/games/cv-pronunciation-trainer',
+      name: 'cv-pronunciation-trainer',
+      component: () => import('@/components/games/CvPronunciationTrainer.vue'),
+      meta: {
+        title: 'CV発音トレーナー',
+        stage: 'phonicsTraining',
+        stageOrder: 1.5,
+        difficulty: 'beginner',
+        gameId: 'cvPronunciationTrainer',
+        icon: '🗣️',
+        description: '子音＋母音の組み合わせ発音を集中練習',
+        learningObjective: '音素の正確な発音と識別能力の習得',
+        unlockRequirement: 'サウンド・ファウンデーション島 50%完了'
+      }
+    },
+
+    {
+      path: '/games/true-sound-impact',
+      name: 'true-sound-impact',
+      component: () => import('@/components/games/TrueSoundImpact.vue'),
+      meta: {
+        title: '浮遊文字ハント',
+        stage: 'phonicsTraining',
+        stageOrder: 1.6,
+        difficulty: 'beginner',
+        gameId: 'floatingLetterHunt',
+        icon: '🎯',
+        description: '聞こえた音に対応する文字を素早く見つけてタッチ',
+        learningObjective: '音素と文字の対応関係の習得',
+        unlockRequirement: 'サウンド・ファウンデーション島 50%完了'
+      }
+    },
+
     {
       path: '/games/phonics-training-hub',
       name: 'phonics-training-hub',
@@ -153,69 +674,10 @@ const router = createRouter({
 
     // === Stage 2: サウンド・ルールズ島 ===
     // 音韻変化とルール学習
+    // Old route redirected to new game
     {
-      path: '/games/magic-e-castle',
-      name: 'magic-e-castle',
-      component: () => import('@/components/games/MagicCastleJumpGame.vue'), // 既存ゲームを活用
-      meta: {
-        title: 'マジック・E・キャッスル',
-        stage: 'soundRules',
-        stageOrder: 2,
-        difficulty: 'intermediate',
-        gameId: 'magicECastle',
-        icon: '🏰',
-        description: '長母音変化の魔法をマスター（can→cane, bit→bite）',
-        learningObjective: 'Magic Eルールの習得',
-        unlockRequirement: 'サウンド・ファウンデーション島 70%完了'
-      }
-    },
-    {
-      path: '/games/magic-card-battle',
-      name: 'magic-card-battle',
-      component: () => import('@/components/games/MagicCardBattleGame.vue'),
-      meta: {
-        title: '魔法カードバトル',
-        stage: 'soundRules',
-        stageOrder: 2,
-        difficulty: 'intermediate',
-        gameId: 'magicCardBattle',
-        icon: '🃏',
-        description: '音声でカードを発動！魔法のバトルゲーム',
-        learningObjective: 'Magic E音声練習',
-        unlockRequirement: 'Magic E Castle 30%完了'
-      }
-    },
-    {
-      path: '/games/spell-racing',
-      name: 'spell-racing',
-      component: () => import('@/components/games/SpellRacingGame.vue'),
-      meta: {
-        title: 'スペル・レーシング',
-        stage: 'soundRules',
-        stageOrder: 2,
-        difficulty: 'intermediate',
-        gameId: 'spellRacing',
-        icon: '🚀',
-        description: '音声で宇宙船を操縦！高速レースゲーム',
-        learningObjective: '音声コントロール技術',
-        unlockRequirement: 'Magic E Castle 50%完了'
-      }
-    },
-    {
-      path: '/games/magic-cooking',
-      name: 'magic-cooking',
-      component: () => import('@/components/games/MagicCookingGame.vue'),
-      meta: {
-        title: '宇宙魔法クッキング',
-        stage: 'soundRules',
-        stageOrder: 2,
-        difficulty: 'intermediate',
-        gameId: 'magicCooking',
-        icon: '👨‍🍳',
-        description: '魔法で材料を変身させて料理を作ろう',
-        learningObjective: '材料変身魔法練習',
-        unlockRequirement: 'Magic E Castle 70%完了'
-      }
+      path: '/games/magic-e-space-jump',
+      redirect: '/games/magic-e-galaxy-builder'
     },
     {
       path: '/games/voice-puzzle',
@@ -234,18 +696,18 @@ const router = createRouter({
       }
     },
     {
-      path: '/games/silent-letter-detective',
-      name: 'silent-letter-detective',
-      component: () => import('@/components/games/SilentLetterDetectiveGame.vue'), // 新規開発必要
+      path: '/games/ghost-letter-hunters',
+      name: 'ghost-letter-hunters',
+      component: () => import('@/components/games/GhostLetterHunters.vue'),
       meta: {
-        title: 'サイレント・レター探偵',
+        title: 'ゴーストレターハンターズ',
         stage: 'soundRules',
         stageOrder: 2,
         difficulty: 'intermediate',
-        gameId: 'silentLetterDetective',
-        icon: '🕵️',
-        description: '無音文字のパターンを発見（knife, knee, write等）',
-        learningObjective: '無音文字パターンの認識',
+        gameId: 'ghostLetterHunters',
+        icon: '👻',
+        description: 'サイレントレターを捕獲する音声認識ゲーム',
+        learningObjective: 'サイレントレター認識・発音練習',
         unlockRequirement: 'Voice Puzzle 50%完了'
       }
     },
@@ -300,22 +762,6 @@ const router = createRouter({
         unlockRequirement: 'Sequential Blending 60%完了'
       }
     },
-    {
-      path: '/games/word-family-tree',
-      name: 'word-family-tree',
-      component: () => import('@/components/games/GalaxyWordConnector.vue'),
-      meta: {
-        title: 'ギャラクシー・ワードコネクター',
-        stage: 'blendingMastery',
-        stageOrder: 3,
-        difficulty: 'intermediate',
-        gameId: 'wordFamilyTree',
-        icon: '🌳',
-        description: '-at family（cat, hat, bat）等の音韻パターン学習',
-        learningObjective: '語族パターンの認識と応用',
-        unlockRequirement: 'CVC Word Factory 50%完了'
-      }
-    },
 
     // === Stage 4: ワード・ビルディング島 ===
     // 語彙拡張と単語認識（SightWordはここに配置）
@@ -338,24 +784,8 @@ const router = createRouter({
 
     // === ディクテーション＆スペリング・センター ===
     {
-      path: '/dictation-spelling-hub',
-      name: 'dictation-spelling-hub',
-      component: () => import('@/components/games/DictationSpellingHub.vue'),
-      meta: {
-        title: 'ディクテーション＆スペリング・センター',
-        stage: 'dictationSpelling',
-        stageOrder: 4.5,
-        difficulty: 'intermediate',
-        gameId: 'dictationSpellingHub',
-        icon: '📝',
-        description: '聞く力と書く力を同時に鍛える総合学習エリア',
-        learningObjective: 'ディクテーションとスペリングの統合学習',
-        unlockRequirement: 'ワード・ビルディング島 60%完了'
-      }
-    },
-    {
       path: '/games/word-dictation-challenge',
-      name: 'word-dictation-challenge', 
+      name: 'word-dictation-challenge',
       component: () => import('@/components/games/WordDictationChallenge.vue'),
       meta: {
         title: 'ワード・ディクテーション・チャレンジ',
@@ -367,6 +797,22 @@ const router = createRouter({
         description: '音声を聞いて単語を正確にタイピング',
         learningObjective: '聴解力とスペリング能力の向上',
         unlockRequirement: 'ワード・ビルディング島 50%完了'
+      }
+    },
+    {
+      path: '/handwriting-dictation',
+      name: 'handwriting-dictation',
+      component: () => import('@/components/games/HandwritingDictation.vue'),
+      meta: {
+        title: '手書きディクテーション',
+        stage: 'dictationSpelling',
+        stageOrder: 4.6,
+        difficulty: 'intermediate',
+        gameId: 'handwritingDictation',
+        icon: '✍️',
+        description: '音声を聞いて単語を手書き',
+        learningObjective: '筆記スキルとスペリング能力の向上',
+        unlockRequirement: 'ワード・ビルディング島 30%完了'
       }
     },
     {
@@ -402,34 +848,18 @@ const router = createRouter({
       }
     },
     {
-      path: '/games/digraph-master',
-      name: 'digraph-master',
-      component: () => import('@/components/games/DigraphMasterGame.vue'), // 新規開発必要
+      path: '/games/sound-magic-arena',
+      name: 'sound-magic-arena',
+      component: () => import('@/components/games/SoundMagicArena.vue'),
       meta: {
-        title: 'ダイグラフ・マスター',
+        title: 'サウンドマジックアリーナ',
         stage: 'wordBuilding',
         stageOrder: 4,
         difficulty: 'advanced',
-        gameId: 'digraphMaster',
-        icon: '👯',
-        description: 'ch, sh, th, wh, phの二文字一音パターン',
-        learningObjective: 'ダイグラフパターンの習得',
-        unlockRequirement: 'Sight Word Master 40%完了'
-      }
-    },
-    {
-      path: '/games/r-controlled-vowels',
-      name: 'r-controlled-vowels',
-      component: () => import('@/components/games/RControlledVowelsGame.vue'), // 新規開発必要
-      meta: {
-        title: 'Rコントロール・ボウルティックス',
-        stage: 'wordBuilding',
-        stageOrder: 4,
-        difficulty: 'advanced',
-        gameId: 'rControlledVowels',
-        icon: '🎪',
-        description: 'ar, er, ir, or, urの音変化をマスター',
-        learningObjective: 'R制御母音の理解',
+        gameId: 'soundMagicArena',
+        icon: '⚔️',
+        description: 'R制御母音の魔法でバトル！リズム音声認識ゲーム',
+        learningObjective: 'R制御母音の習得・発音練習',
         unlockRequirement: 'Digraph Master 50%完了'
       }
     },
@@ -556,7 +986,11 @@ const router = createRouter({
     },
     {
       path: '/games/magic-castle-jump',
-      redirect: '/games/magic-e-castle'
+      redirect: '/games/magic-e-galaxy-builder'
+    },
+    {
+      path: '/games/magic-e-castle',
+      redirect: '/games/magic-e-galaxy-builder'
     },
     {
       path: '/games/rhyming',
@@ -577,7 +1011,7 @@ const router = createRouter({
     // 旧ルートのリダイレクト
     {
       path: '/sound-master',
-      redirect: '/sound-adventure'
+      redirect: '/platforms/phonics-adventure'
     },
 
     // 削除されたゲームのリダイレクト（適切な代替ルートに誘導）
@@ -602,14 +1036,22 @@ const router = createRouter({
       redirect: '/grammar-galaxy'
     },
 
-    // 新しいルート追加
+
+    // === 新規代名詞学習ゲーム ===
     {
-      path: '/grammar-galaxy',
-      name: 'grammar-galaxy-hub',
-      component: GrammarGalaxyHub,
+      path: '/grammar-galaxy/holographic-story-deck',
+      name: 'holographic-story-deck',
+      component: () => import('@/components/games/HolographicStoryDeck.vue'),
       meta: {
-        title: 'Grammar Galaxy Hub',
-        requiresAuth: false
+        title: 'Holographic Story Deck - 代名詞学習',
+        stage: 'grammarFoundation',
+        stageOrder: 3,
+        difficulty: 'intermediate',
+        gameId: 'holographicStoryDeck',
+        icon: '🎥',
+        description: 'ホロデッキで代名詞学習シナリオを体験',
+        learningObjective: '代名詞の正しい使い方を学習',
+        unlockRequirement: 'Grammar Galaxy 基礎編 30%完了'
       }
     },
 
@@ -630,15 +1072,48 @@ const router = createRouter({
       component: GrammarColorCodeGame,
       props: true,
       meta: {
-        title: '文法カラーコードゲーム',
+        title: 'Galaxy Grammar Station - 宇宙文法ステーション',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'galaxyGrammarStation',
+        icon: '🛸',
+        description: '色分けされたモジュールで宇宙ステーションを建設し、文法構造を学習',
+        learningObjective: '文法要素の視覚的認識と文構造の理解',
+        unlockRequirement: '文法ギャラクシー基礎編 50%完了'
+      }
+    },
+    {
+      path: '/grammar-game/parts-of-speech',
+      name: 'grammar-parts-of-speech',
+      component: GrammarColorCodeGame,
+      props: route => ({ component: route.query.component }),
+      meta: {
+        title: 'Grammar Parts of Speech - 品詞マスター',
         stage: 'grammarFoundation',
         stageOrder: 2,
         difficulty: 'intermediate',
         gameId: 'grammarColorCode',
-        icon: '🎨',
-        description: '色分けで文法要素を視覚的に理解',
-        learningObjective: '文法要素の視覚的認識',
+        icon: '🛸',
+        description: '品詞を色分けして文法構造を学習',
+        learningObjective: '品詞の視覚的認識と文構造の理解',
         unlockRequirement: '文法ギャラクシー基礎編 50%完了'
+      }
+    },
+    {
+      path: '/sentence-builder-master',
+      name: 'sentence-builder-master',
+      component: SentenceBuilderMaster,
+      meta: {
+        title: '英作文マスター - Sentence Builder Master',
+        stage: 'grammarFoundation',
+        stageOrder: 1,
+        difficulty: 'beginner',
+        gameId: 'sentenceBuilderMaster',
+        icon: '📝',
+        description: '段階的に英文構造を学習する英作文練習ゲーム',
+        learningObjective: '主語・動詞から始まる基本文構造の理解と英作文能力の向上',
+        unlockRequirement: 'なし（初心者向け）'
       }
     },
     {
@@ -739,34 +1214,18 @@ const router = createRouter({
       }
     },
     {
-      path: '/grammar-galaxy/question-word-detective',
-      name: 'question-word-detective',
-      component: () => import('@/components/grammar/games/QuestionWordDetective.vue'),
+      path: '/grammar-galaxy/galactic-question-navigator',
+      name: 'galactic-question-navigator',
+      component: () => import('@/components/grammar/games/GalacticQuestionNavigator.vue'),
       meta: {
-        title: 'Question Word Detective - 疑問詞探偵',
+        title: 'Galactic Question Navigator - 銀河疑問詞ナビゲーター',
         stage: 'grammarFoundation',
         stageOrder: 2,
         difficulty: 'intermediate',
-        gameId: 'questionWordDetective',
-        icon: '🔍',
-        description: '写真を見て瞬時に正しい疑問詞を選ぼう！What, Who, When, Where, Why, How を使い分けて探偵スキルを磨こう。',
-        learningObjective: '疑問詞の使い分けと瞬間認識能力の習得',
-        unlockRequirement: 'Grammar Galaxy Foundation アクセス'
-      }
-    },
-    {
-      path: '/grammar-galaxy/grammar-constructor',
-      name: 'grammar-constructor',
-      component: () => import('@/components/grammar/games/GrammarConstructor.vue'),
-      meta: {
-        title: 'Grammar Constructor - 文法建築家',
-        stage: 'grammarFoundation',
-        stageOrder: 2,
-        difficulty: 'intermediate',
-        gameId: 'grammarConstructor',
-        icon: '🏗️',
-        description: '文法ブロックをドラッグ&ドロップして正しい英文を建設しよう！主語・動詞・目的語を正しい順序で組み立てよう。',
-        learningObjective: '文構造の理解と正しい語順感覚の習得',
+        gameId: 'galacticQuestionNavigator',
+        icon: '🚀',
+        description: '宇宙船のAIナビゲーターとして、様々な惑星や宇宙ステーションからの通信に適切な疑問詞で応答する宇宙探索ゲーム！',
+        learningObjective: '疑問詞の使い分けと瞬間認識能力の習得、宇宙テーマによる没入感向上',
         unlockRequirement: 'Grammar Galaxy Foundation アクセス'
       }
     },
@@ -834,6 +1293,149 @@ const router = createRouter({
         description: '時間の流れをコントロールして進行形をマスター',
         learningObjective: '進行形の時間軸理解と習得',
         unlockRequirement: '文法ギャラクシー基礎編 70%完了'
+      }
+    },
+    {
+      path: '/grammar-galaxy/space-word-order-quest',
+      name: 'space-word-order-quest',
+      component: () => import('@/components/games/grammar-galaxy/SpaceWordOrderQuest.vue'),
+      meta: {
+        title: 'Space Word Order Quest - 宇宙語順クエスト',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'spaceWordOrderQuest',
+        icon: '🌌',
+        description: '宇宙を舞台にした英文並び替えゲーム。正しい語順で惑星を救おう！',
+        learningObjective: '英語の語順感覚習得と文構造理解',
+        unlockRequirement: '文法ギャラクシー基礎編 30%完了'
+      }
+    },
+
+    // === Grammar Art Gallery ===
+    {
+      path: '/grammar-art-gallery',
+      name: 'grammar-art-gallery',
+      component: () => import('@/views/GrammarArtGalleryView.vue'),
+      meta: {
+        title: 'Grammar Art Gallery - Cosmic Edition',
+        stage: 'grammarFoundation',
+        stageOrder: 3,
+        difficulty: 'advanced',
+        gameId: 'grammarArtGallery',
+        icon: '🏛️',
+        description: '宇宙の文法アーティファクトを読み解き、言語の奥義を解き放て！',
+        learningObjective: '高度な読解力と文法理解の統合',
+        unlockRequirement: '文法ギャラクシー基礎編 50%完了',
+        requiresMigrationCheck: false
+      }
+    },
+
+    // === Phrase Galaxy - 英熟語学習ゲーム ===
+    {
+      path: '/games/phrase-galaxy',
+      name: 'phrase-galaxy',
+      component: () => import('@/components/games/PhraseGalaxy/PhraseGalaxyGame.vue'),
+      meta: {
+        title: 'Phrase Galaxy - 英熟語銀河',
+        stage: 'multiLayerLearning',
+        stageOrder: 5,
+        difficulty: 'intermediate',
+        gameId: 'phraseGalaxy',
+        icon: '🌌',
+        description: '流れる星と英熟語をマッチング！宇宙テーマの熟語学習',
+        learningObjective: '英検5級〜2級レベルの英熟語習得',
+        unlockRequirement: '常時アンロック（多層学習ゾーン）'
+      }
+    },
+
+    // === Verb Pattern Galaxy ===
+    {
+      path: '/grammar-galaxy/verb-pattern-galaxy',
+      name: 'verb-pattern-galaxy-hub',
+      component: () => import('@/components/games/verb-pattern-galaxy/VerbPatternGalaxyHub.vue'),
+      meta: {
+        title: 'Verb Pattern Galaxy - 動詞パターン銀河',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'verbPatternGalaxy',
+        icon: '🌌',
+        description: '動詞パターン（verb + ing / to）を宇宙の冒険で習得しよう！',
+        learningObjective: '動詞+ing/to パターンの完全習得',
+        unlockRequirement: '文法ギャラクシー基礎編 30%完了',
+        requiresMigrationCheck: false
+      }
+    },
+    {
+      path: '/grammar-galaxy/verb-pattern-galaxy/collector',
+      name: 'verb-collector-game',
+      component: () => import('@/components/games/verb-pattern-galaxy/VerbCollectorGame.vue'),
+      meta: {
+        title: 'Verb Collector - 動詞コレクター',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'verbCollector',
+        icon: '🌟',
+        description: '動詞を正しいパターンに分類して収集しよう',
+        learningObjective: '動詞パターンの基礎識別',
+        unlockRequirement: 'Verb Pattern Galaxy アクセス',
+        requiresMigrationCheck: false
+      }
+    },
+    {
+      path: '/grammar-galaxy/verb-pattern-galaxy/pattern-builder',
+      name: 'pattern-builder-game',
+      component: () => import('@/components/games/verb-pattern-galaxy/PatternBuilderGame.vue'),
+      meta: {
+        title: 'Pattern Builder - パターン構築',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'intermediate',
+        gameId: 'patternBuilder',
+        icon: '🛠️',
+        description: '正しい動詞パターンで文を構築しよう',
+        learningObjective: '動詞パターンの実践的構築',
+        unlockRequirement: 'Verb Collector 70%完了',
+        requiresMigrationCheck: false
+      }
+    },
+    // Temporarily disabled due to syntax errors
+    /*
+    {
+      path: '/grammar-galaxy/verb-pattern-galaxy/meaning-duel',
+      name: 'meaning-duel-game',
+      component: () => import('@/components/games/verb-pattern-galaxy/MeaningDuelGame.vue'),
+      meta: {
+        title: 'Meaning Duel - 意味決闘',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'advanced',
+        gameId: 'meaningDuel',
+        icon: '⚔️',
+        description: '動詞パターンの微妙な意味の違いをマスターしよう',
+        learningObjective: '動詞パターンの意味的差異の習得',
+        unlockRequirement: 'Pattern Builder 70%完了',
+        requiresMigrationCheck: false
+      }
+    },
+    */
+    {
+      path: '/grammar-galaxy/verb-pattern-galaxy/collection',
+      name: 'verb-card-collection',
+      component: () => import('@/components/games/verb-pattern-galaxy/VerbCardCollection.vue'),
+      meta: {
+        title: 'Verb Card Collection - 動詞カードコレクション',
+        stage: 'grammarFoundation',
+        stageOrder: 2,
+        difficulty: 'review',
+        gameId: 'verbCardCollection',
+        icon: '📚',
+        description: '収集した動詞カードを確認して復習しよう',
+        learningObjective: '習得した動詞パターンの確認と復習',
+        unlockRequirement: 'Verb Pattern Galaxy アクセス',
+        requiresMigrationCheck: false
       }
     },
 
@@ -920,6 +1522,20 @@ const router = createRouter({
       }
     },
 
+    // === Grammar Galaxy Hub ===
+    {
+      path: '/grammar-galaxy-hub',
+      name: 'grammar-galaxy-hub',
+      component: () => import('@/views/GrammarGalaxyHub.vue'),
+      meta: {
+        title: 'Grammar Galaxy Hub - グラマー・ギャラクシー司令部',
+        requiresAuth: false,
+        stage: 'grammarGalaxy',
+        gameId: 'grammarGalaxyHub',
+        requiresMigrationCheck: true
+      }
+    },
+
     // === Grammar Galaxy Foundation ===
     {
       path: '/grammar-galaxy-foundation',
@@ -939,23 +1555,10 @@ const router = createRouter({
       }
     },
 
-    // === Unified Learning Center ===
+    // === Unified Learning Center - 削除済み（生徒ダッシュボードに統合） ===
     {
       path: '/unified-learning-hub',
-      name: 'UnifiedLearningHub',
-      component: () => import('@/views/UnifiedLearningHub.vue'),
-      meta: {
-        title: 'MovWISE 学習司令部',
-        requiresAuth: false,
-        stage: 'unifiedLearning',
-        stageOrder: 1,
-        difficulty: 'adaptive',
-        gameId: 'unifiedLearningHub',
-        icon: '🎯',
-        description: '今日のミッション選択と最適な学習パス提案',
-        learningObjective: '効率的で体系的な学習進行',
-        unlockRequirement: '常時アクセス可能'
-      }
+      redirect: '/dashboard/student'
     },
 
     // === Multi-Layer Learning Engine ===
@@ -1087,7 +1690,139 @@ const router = createRouter({
         learningObjective: '3D空間での実践的コミュニケーション'
       }
     },
+
+    // === VR Readiness System Routes ===
+    {
+      path: '/vr-readiness-report',
+      name: 'vr-readiness-report',
+      component: () => import('@/views/VRReadinessReport.vue'),
+      meta: {
+        title: 'VR学習準備度レポート',
+        requiresAuth: false,
+        description: 'VRアカデミーへの準備状況を詳しく分析'
+      }
+    },
+
+    {
+      path: '/story/:chapterId',
+      name: 'story-chapter',
+      component: () => import('@/views/StoryChapterView.vue'),
+      props: true,
+      meta: {
+        title: 'Story Chapter',
+        requiresAuth: false,
+        description: 'ストーリーチャプターの表示'
+      }
+    },
+    {
+      path: '/story/:chapterId/:sceneId',
+      name: 'story-scene',
+      component: () => import('@/views/StorySceneView.vue'),
+      props: true,
+      meta: {
+        title: 'Story Scene',
+        requiresAuth: false,
+        description: 'ストーリーシーンの表示'
+      }
+    },
+
+    // === VR Scenario Routes ===
+    {
+      path: '/vr-scenario/:scenarioId/preview',
+      name: 'vr-scenario-preview',
+      component: () => import('@/components/vr/VRScenarioPreview.vue'),
+      props: true,
+      meta: {
+        title: 'VR Scenario Preview',
+        requiresAuth: false,
+        description: 'VRシナリオの2Dプレビュー'
+      }
+    },
+    {
+      path: '/vr-scenario/:scenarioId/experience',
+      name: 'vr-scenario-experience',
+      component: () => import('@/views/VRScenarioExperience.vue'),
+      props: true,
+      meta: {
+        title: 'VR Experience',
+        requiresAuth: false,
+        description: 'VRシナリオの実体験'
+      },
+      beforeEnter: async (to, from, next) => {
+        // VR準備度チェック
+        const { usePlayerProfileStore } = await import('@/stores/playerProfile')
+        const playerStore = usePlayerProfileStore()
+        
+        if (playerStore.overallVRReadiness < 40) {
+          alert('VR準備度が不足しています。基礎学習を進めてからVR体験をお試しください。')
+          next({ name: 'home' })
+          return
+        }
+        next()
+      }
+    },
+
+    // === WebXR Experience Routes ===
+    {
+      path: '/webxr/:scenarioId',
+      name: 'webxr-experience',
+      component: () => import('@/views/WebXRExperience.vue'),
+      props: true,
+      meta: {
+        title: 'WebXR Experience',
+        requiresAuth: false,
+        description: 'WebXR対応VR学習体験'
+      },
+      beforeEnter: async (to, from, next) => {
+        // WebXR対応チェック
+        if (!navigator.xr) {
+          alert('このブラウザはWebXRに対応していません。対応ブラウザでアクセスしてください。')
+          next({ name: 'vr-scenario-preview', params: { scenarioId: to.params.scenarioId } })
+          return
+        }
+        
+        try {
+          const supported = await navigator.xr.isSessionSupported('immersive-vr')
+          if (!supported) {
+            alert('VRデバイスが検出されませんでした。2Dプレビューモードに切り替えます。')
+            next({ name: 'vr-scenario-preview', params: { scenarioId: to.params.scenarioId } })
+            return
+          }
+        } catch (error) {
+          logger.error('WebXR compatibility check failed:', error)
+          next({ name: 'vr-scenario-preview', params: { scenarioId: to.params.scenarioId } })
+          return
+        }
+        
+        next()
+      }
+    },
+
+    // === Spatial.io Integration Routes ===
+    {
+      path: '/spatial/:spaceId',  
+      name: 'spatial-experience',
+      component: () => import('@/views/SpatialExperience.vue'),
+      props: true,
+      meta: {
+        title: 'Spatial.io Experience',
+        requiresAuth: false,
+        description: 'Spatial.ioでのマルチプレイヤーVR体験'
+      }
+    },
     
+    // PhoneticsPlanet VR Game
+    {
+      path: '/vr-academy/phonetics-planet',
+      name: 'PhoneticsPlanetVR',
+      component: () => import('@/views/PhoneticsPlanetVR.vue'),
+      meta: {
+        title: 'Phonetics Planet VR - Three.js WebXR Game',
+        requiresAuth: false,
+        requiresTickets: 1
+      }
+    },
+
     // ECHO AI Practice System
     {
       path: '/vr-academy/echo-practice',
@@ -1122,18 +1857,50 @@ const router = createRouter({
       redirect: '/teacher'
     },
 
-    // Alternative teacher dashboard path
+    // Simple teacher dashboard for testing
+    {
+      path: '/teacher-simple',
+      name: 'teacher-simple',
+      component: () => import('@/views/teacher/SimpleTeacherDashboard.vue'),
+      meta: {
+        title: 'MovWISE 講師ダッシュボード - シンプル版',
+        requiresAuth: false,
+        role: 'teacher',
+        description: 'シンプル版講師ダッシュボード',
+        layout: 'teacher'
+      }
+    },
+
+    // Alternative teacher dashboard path - Fixed version
     {
       path: '/teacher-dashboard',
       name: 'teacher-dashboard',
-      component: () => import('@/views/teacher/TeacherDashboard.vue'),
+      component: () => import('@/views/teacher/FixedTeacherDashboard.vue'),
       meta: {
         title: 'MovWISE 講師ダッシュボード',
         requiresAuth: false, // 開発用に一時的に認証不要に設定
         role: 'teacher',
-        description: 'リアルタイム協力学習管理センター',
+        description: 'AI統合型学習管理システム',
         layout: 'teacher'
       }
+    },
+
+    // Parent Portal Routes - Fixed version
+    {
+      path: '/parent/dashboard',
+      name: 'parent-dashboard',
+      component: () => import('@/views/parent/SimpleParentDashboard.vue'),
+      meta: {
+        title: 'MovWISE 親ポータル',
+        requiresAuth: false, // 開発用に一時的に認証不要に設定
+        role: 'parent',
+        description: 'お子様の学習状況を確認',
+        layout: 'parent'
+      }
+    },
+    {
+      path: '/parent',
+      redirect: '/parent/dashboard'
     },
 
     // Student session route
@@ -1159,6 +1926,87 @@ const router = createRouter({
         description: '招待コードでセッションに参加'
       },
       props: true
+    },
+
+    // === Speed Station Planet ===
+    {
+      path: '/speed-station',
+      name: 'speed-station-hub',
+      component: () => import('@/views/planets/SpeedStationHub.vue'),
+      meta: {
+        title: 'Speed Station - ハイスピード・タイピング宇宙ステーション',
+        requiresAuth: false,
+        stage: 'typingTraining',
+        stageOrder: 5,
+        difficulty: 'intermediate',
+        gameId: 'speedStation',
+        icon: '⌨️',
+        description: '光速タイピングで銀河を駆け抜ける宇宙ステーション',
+        learningObjective: 'タイピングスキルと英語学習の統合',
+        unlockRequirement: 'Word Building Planet 60%完了'
+      }
+    },
+    {
+      path: '/typing-arena-enhanced',
+      name: 'typing-arena-enhanced',
+      component: () => import('@/components/games/TypingArenaEnhanced.vue'),
+      meta: {
+        title: 'Typing Arena Enhanced - 銀河タイピングアリーナ',
+        requiresAuth: false,
+        stage: 'typingTraining',
+        stageOrder: 5,
+        difficulty: 'intermediate',
+        gameId: 'typingArenaEnhanced',
+        icon: '⚔️',
+        description: 'ストーリーモード搭載の本格タイピングバトル',
+        learningObjective: 'ストーリーとキャラクター成長によるタイピング習得',
+        unlockRequirement: 'Speed Station経由でアクセス'
+      }
+    },
+
+    // === Cooperation Colony Planet ===
+    {
+      path: '/cooperation-colony',
+      name: 'cooperation-hub',
+      component: () => import('@/views/planets/CooperationHub.vue'),
+      meta: {
+        title: 'Cooperation Colony - 協力型学習コロニー',
+        requiresAuth: false,
+        stage: 'cooperativeLearning',
+        stageOrder: 6,
+        difficulty: 'collaborative',
+        gameId: 'cooperationColony',
+        icon: '🤝',
+        description: '仲間と協力して銀河最大の言語チャレンジに挑戦',
+        learningObjective: '協力学習による効率的な言語習得とコミュニケーション',
+        unlockRequirement: 'Speed Station 40%完了'
+      }
+    },
+    {
+      path: '/grammar-spacecraft',
+      name: 'grammar-spacecraft',
+      component: () => import('@/components/cooperative/GrammarSpacecraft.vue'),
+      meta: {
+        title: 'Grammar Spacecraft - 文法宇宙船協力修理',
+        requiresAuth: false,
+        stage: 'cooperativeLearning',
+        icon: '🚀',
+        description: 'パートナーと協力して宇宙船の文法エンジンを修理',
+        learningObjective: '協力による文法パーツ学習とチームワーク'
+      }
+    },
+    {
+      path: '/sound-radar-game',
+      name: 'sound-radar-game',
+      component: () => import('@/components/cooperative/SoundRadarGame.vue'),
+      meta: {
+        title: 'Sound Radar Game - 音響レーダー協力探知',
+        requiresAuth: false,
+        stage: 'cooperativeLearning',
+        icon: '📡',
+        description: 'パートナーと協力して音響レーダーで音素を探知',
+        learningObjective: '協力による音素認識学習と連携'
+      }
     },
 
     // 観戦モード
@@ -1206,7 +2054,7 @@ const STAGE_UNLOCK_REQUIREMENTS = {
 
 // アンロック条件チェック関数（科学的学習順序対応）
 function checkGameUnlock(gameId, stageName) {
-  console.log(`🔓 アンロック条件チェック: ${gameId} (Stage: ${stageName})`)
+  logger.log(`🔓 アンロック条件チェック: ${gameId} (Stage: ${stageName})`)
 
   // 開発中は全ゲームアンロック
   if (import.meta.env.DEV) {
@@ -1218,7 +2066,7 @@ function checkGameUnlock(gameId, stageName) {
   const stageRequirement = STAGE_UNLOCK_REQUIREMENTS[stageName]
 
   if (!stageRequirement) {
-    console.warn(`⚠️ 未定義のステージ: ${stageName}`)
+    logger.warn(`⚠️ 未定義のステージ: ${stageName}`)
     return false
   }
 
@@ -1226,7 +2074,7 @@ function checkGameUnlock(gameId, stageName) {
   if (stageRequirement.requirement) {
     const requiredStageProgress = gameStore.getStageProgress(stageRequirement.requirement)
     if (requiredStageProgress < stageRequirement.threshold) {
-      console.log(`🔒 ${stageName}ステージ未アンロック: ${stageRequirement.requirement}を${stageRequirement.threshold}%完了する必要があります`)
+      logger.log(`🔒 ${stageName}ステージ未アンロック: ${stageRequirement.requirement}を${stageRequirement.threshold}%完了する必要があります`)
       return false
     }
   }
@@ -1261,7 +2109,7 @@ function getRecommendedNextGame() {
 
 // ナビゲーションガード
 router.beforeEach((to, from, next) => {
-  console.log(`🚀 Router: ${from.path} → ${to.path}`)
+  logger.log(`🚀 Router: ${from.path} → ${to.path}`)
 
   // タイトル設定
   const title = to.meta?.title
@@ -1276,7 +2124,7 @@ router.beforeEach((to, from, next) => {
     if (!isUnlocked) {
       const unlockReq = to.meta.unlockRequirement || '前のステージを完了'
       alert(`🔒 このゲームはまだアンロックされていません！\n\n必要条件: ${unlockReq}`)
-      next({ name: 'SoundAdventureHub' })
+      next({ name: 'PhonicsAdventure' })
       return
     }
 
@@ -1296,7 +2144,7 @@ router.beforeEach((to, from, next) => {
         )
 
         if (!confirmed) {
-          next({ name: 'SoundAdventureHub' })
+          next({ name: 'PhonicsAdventure' })
           return
         }
       }
@@ -1305,8 +2153,8 @@ router.beforeEach((to, from, next) => {
 
   // ゲームページの場合、ステージ情報をコンソールに出力
   if (to.meta?.stage) {
-    console.log(`🎮 ゲーム開始: ${to.meta.title} (Stage ${to.meta.stageOrder}: ${to.meta.stage})`)
-    console.log(`📚 学習目標: ${to.meta.learningObjective}`)
+    logger.log(`🎮 ゲーム開始: ${to.meta.title} (Stage ${to.meta.stageOrder}: ${to.meta.stage})`)
+    logger.log(`📚 学習目標: ${to.meta.learningObjective}`)
   }
 
   next()
@@ -1314,30 +2162,30 @@ router.beforeEach((to, from, next) => {
 
 // ルート後の処理
 router.afterEach((to, from) => {
-  console.log(`✅ Router: 遷移完了 ${to.path}`)
+  logger.log(`✅ Router: 遷移完了 ${to.path}`)
 
   // ゲーム統計の更新
   if (to.meta?.gameId) {
-    console.log(`📊 ゲーム統計更新: ${to.meta.gameId}`)
+    logger.log(`📊 ゲーム統計更新: ${to.meta.gameId}`)
 
     // 学習分析用ログ
     if (to.meta.stage && to.meta.stageOrder) {
-      console.log(`📈 学習進捗: Stage ${to.meta.stageOrder} - ${to.meta.stage}`)
+      logger.log(`📈 学習進捗: Stage ${to.meta.stageOrder} - ${to.meta.stage}`)
 
       // 推奨学習パスとの比較
       const recommended = getRecommendedNextGame()
       if (recommended.stage !== to.meta.stage) {
-        console.info(`💡 推奨: ${recommended.message}`)
+        logger.info(`💡 推奨: ${recommended.message}`)
       }
     }
   }
 
   // 学習継続のためのエンゲージメント
-  if (to.name === 'SoundAdventureHub') {
+  if (to.name === 'PhonicsAdventure') {
     setTimeout(() => {
       const recommended = getRecommendedNextGame()
       if (recommended.progress < 100) {
-        console.log(`🎯 次におすすめ: ${recommended.message}`)
+        logger.log(`🎯 次におすすめ: ${recommended.message}`)
       }
     }, 2000)
   }
@@ -1347,7 +2195,7 @@ router.afterEach((to, from) => {
 
 // エラーハンドリング
 router.onError((error) => {
-  console.error('❌ Router error:', error)
+  logger.error('❌ Router error:', error)
 
   // エラーの詳細情報を表示
   if (error.message.includes('Failed to fetch dynamically imported module')) {
@@ -1364,8 +2212,8 @@ router.onError((error) => {
 
 // 開発環境でのデバッグ情報とルート検証
 if (import.meta.env.DEV) {
-  console.log('🏗️ MovWISE Router initialized with Scientific Learning Order')
-  console.log('📍 Available routes by stage:')
+  logger.log('🏗️ MovWISE Router initialized with Scientific Learning Order')
+  logger.log('📍 Available routes by stage:')
 
   // ステージ別ルート表示
   const routesByStage = {}
@@ -1387,33 +2235,34 @@ if (import.meta.env.DEV) {
   Object.entries(routesByStage)
     .sort(([, a], [, b]) => (a[0]?.order || 0) - (b[0]?.order || 0))
     .forEach(([stageName, routes]) => {
-      console.log(`  Stage ${routes[0]?.order}: ${stageName}`)
+      logger.log(`  Stage ${routes[0]?.order}: ${stageName}`)
       routes.forEach(route => {
-        console.log(`    - ${route.path} (${route.title})`)
+        logger.log(`    - ${route.path} (${route.title})`)
       })
     })
 
   // 学習順序の検証
-  console.log('🧪 Learning Order Validation:')
-  console.log('  ✅ Stage 1: Pure Sound Recognition (Foundation)')
-  console.log('  ✅ Stage 2: Sound Rules (Magic E, Silent Letters)')
-  console.log('  ✅ Stage 3: Blending Mastery (CVC, Word Families)')
-  console.log('  ✅ Stage 4: Word Building (Sight Words moved here!)')
-  console.log('  ✅ Stage 5: Rhythm & Prosody')
-  console.log('  ✅ Stage 6: Advanced Phonics')
+  logger.log('🧪 Learning Order Validation:')
+  logger.log('  ✅ Stage 1: Pure Sound Recognition (Foundation)')
+  logger.log('  ✅ Stage 2: Sound Rules (Magic E, Silent Letters)')
+  logger.log('  ✅ Stage 3: Blending Mastery (CVC, Word Families)')
+  logger.log('  ✅ Stage 4: Word Building (Sight Words moved here!)')
+  logger.log('  ✅ Stage 5: Rhythm & Prosody')
+  logger.log('  ✅ Stage 6: Advanced Phonics')
 }
 
 // 存在しないゲームの処理を修正
 const startGame = (gameId) => {
-  console.log(`🎮 ゲーム開始: ${gameId}`)
+  logger.log(`🎮 ゲーム開始: ${gameId}`)
   // 実装済みゲームのマッピング
   const gameRoutes = {
     'pureSoundLab': 'pure-sound-lab',
     'soundToSymbolMatch': 'sound-to-symbol',
     'phonemePatternLab': 'phoneme-pattern-lab',
-    'cvPronunciationTrainer': 'phonics-training-hub',
-    'floatingLetterHunt': 'phonics-training-hub',
-    'magicECastle': 'magic-e-castle',
+    'cvPronunciationTrainer': 'cv-pronunciation-trainer',
+    'floatingLetterHunt': 'true-sound-impact',
+    'magicESpaceJump': 'magic-e-galaxy-builder', // Redirect to new game
+    'magicEGalaxyBuilder': 'magic-e-galaxy-builder',
     'cvcWordFactory': 'cvc-word-factory',
     'sightWordMaster': 'sight-word-master',
     'wordRushArena': 'word-rush',
@@ -1425,23 +2274,95 @@ const startGame = (gameId) => {
     'modalVerbChallenge': 'modal-verb-challenge',
     'conjunctionConnection': 'conjunction-connection',
     'progressiveTense': 'progressive-tense',
+    'spaceWordOrderQuest': 'space-word-order-quest',
     'dictationSpellingHub': 'dictation-spelling-hub',
     'wordDictationChallenge': 'word-dictation-challenge',
     'typingArena': 'typing-arena',
     // Grammar Galaxy Foundation Games
     'verbTimeMachine': 'verb-time-machine',
-    'questionWordDetective': 'question-word-detective',
-    'grammarConstructor': 'grammar-constructor'
+    'galacticQuestionNavigator': 'galactic-question-navigator',
   }
 
   const routeName = gameRoutes[gameId]
   if (!routeName) {
-    console.error(`❌ 未実装のゲーム: ${gameId}`)
+    logger.error(`❌ 未実装のゲーム: ${gameId}`)
     return false
   }
 
   router.push({ name: routeName })
   return true
 }
+
+// マイグレーションチェック用のナビゲーションガード
+router.beforeEach(async (to, from, next) => {
+  try {
+    // マイグレーション画面は常にアクセス可能
+    if (to.name === 'migration') {
+      next()
+      return
+    }
+
+    // ユーザータイプチェック（統合HomeView使用のため、ダッシュボード系のみ）
+    if (to.meta?.requiresUserType) {
+      const { useUserStore } = await import('@/stores/userStore')
+      const userStore = useUserStore()
+
+      // ストアからユーザータイプを読み込み
+      userStore.loadUserType()
+
+      // ユーザータイプが未選択の場合、統合ホーム画面にリダイレクト
+      if (!userStore.hasSelectedUserType) {
+        logger.log('🎯 User type not selected, redirecting to home screen')
+        next({ name: 'home' })
+        return
+      }
+
+      // 必要なユーザータイプと現在のユーザータイプが一致しない場合
+      if (userStore.userType !== to.meta.requiresUserType) {
+        logger.warn(`❌ Access denied: required ${to.meta.requiresUserType}, but user is ${userStore.userType}`)
+        alert(`このページは${to.meta.requiresUserType === 'student' ? '生徒' : to.meta.requiresUserType === 'teacher' ? '講師' : '保護者'}専用です。`)
+        next({ name: 'home' })
+        return
+      }
+    }
+
+    // マイグレーションチェックが必要なルートの場合
+    if (to.meta?.requiresMigrationCheck !== false) {
+      // 開発環境では移行画面をスキップ
+      if (import.meta.env.DEV) {
+        logger.log('🚀 Development mode: Skipping migration check')
+        next()
+        return
+      }
+
+      const migrationCompleted = DataMigrationSystem.isMigrationCompleted()
+
+      if (!migrationCompleted) {
+        // マイグレーションが未完了の場合、マイグレーション画面にリダイレクト
+        logger.log('🔄 Migration required, redirecting to migration screen')
+        next({ name: 'migration' })
+        return
+      }
+    }
+
+    // タイトルの設定
+    if (to.meta?.title) {
+      document.title = to.meta.title
+    }
+
+    next()
+  } catch (error) {
+    logger.error('Router guard error:', error)
+    // エラーが発生した場合は統合ホーム画面へ
+    if (to.name !== 'home' && to.name !== 'migration') {
+      next({ name: 'home' })
+    } else {
+      next()
+    }
+  }
+})
+
+// Set up Word Galaxy route guards
+setupWordGalaxyGuards(router)
 
 export default router

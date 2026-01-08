@@ -7,10 +7,15 @@
 
     <!-- Minimal Header -->
     <div class="game-header">
-      <button @click="$emit('back')" class="minimal-button back-button">
-        <Icon name="arrow-left" class="w-4 h-4" />
-      </button>
-      <h1 class="stage-title">{{ currentStage?.name || 'True Sound Impact' }}</h1>
+      <div class="header-left">
+        <button @click="goBack" class="minimal-button back-button">
+          <Icon name="arrow-left" class="w-4 h-4" />
+        </button>
+        <button @click="goToHome" class="minimal-button home-button">
+          <Icon name="home" class="w-4 h-4" />
+        </button>
+      </div>
+      <h1 class="stage-title">{{ currentStage?.name || '浮遊文字ハント' }}</h1>
       <div class="progress-indicator">
         {{ sessionProgress.current }}/{{ sessionProgress.total }}
       </div>
@@ -21,7 +26,7 @@
       <div class="learning-card">
         <div class="card-header">
           <div class="icon">🎯</div>
-          <h2>音韻認識練習</h2>
+          <h2>浮遊文字ハント</h2>
           <p class="subtitle">純粋な音から文字への学習</p>
         </div>
 
@@ -100,7 +105,7 @@
             :class="{ 'playing': isPlayingSound }"
           >
             <div class="sound-icon">🔊</div>
-            <div class="phoneme-display">{{ currentPhoneme?.ipa || '?' }}</div>
+            <div class="phoneme-display">🎵</div>
           </button>
           <div class="instruction">正しい文字が来たらタッチしましょう</div>
         </div>
@@ -230,14 +235,160 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useGameAudio } from '@/composables/useGameAudio'
 import { phonemeAudioService } from '@/services/phonemeAudioService'
 import { PHONEME_LEARNING_SYSTEM, progressionManager } from '@/data/phonemeLearningSystem'
 import Icon from '@/components/shared/Icon.vue'
 
+// Router
+const router = useRouter()
+
 // Emits
 const emit = defineEmits(['back'])
+
+// 動的難易度調整システム
+const calculateDifficultyParameters = (accuracy, attempts) => {
+  // 基本パラメータ
+  let letterCount = 5  // デフォルト文字数
+  let animationSpeed = 1.0  // アニメーション速度
+  let timeLimit = 15000  // 制限時間（ミリ秒）
+  let distractorSimilarity = 'medium'  // 妨害文字の類似度
+
+  // 正解率に基づく調整
+  if (accuracy > 0.9) {
+    // 90%以上：最高難易度
+    letterCount = 8
+    animationSpeed = 1.5
+    timeLimit = 10000
+    distractorSimilarity = 'high'
+  } else if (accuracy > 0.8) {
+    // 80-90%：高難易度
+    letterCount = 7
+    animationSpeed = 1.3
+    timeLimit = 12000
+    distractorSimilarity = 'high'
+  } else if (accuracy > 0.7) {
+    // 70-80%：中難易度
+    letterCount = 6
+    animationSpeed = 1.1
+    timeLimit = 13000
+    distractorSimilarity = 'medium'
+  } else if (accuracy > 0.5) {
+    // 50-70%：低難易度
+    letterCount = 5
+    animationSpeed = 0.9
+    timeLimit = 15000
+    distractorSimilarity = 'low'
+  } else {
+    // 50%以下：最低難易度
+    letterCount = 4
+    animationSpeed = 0.7
+    timeLimit = 18000
+    distractorSimilarity = 'low'
+  }
+
+  // 試行回数による微調整（学習初期は優しく）
+  if (attempts < 5) {
+    letterCount = Math.max(3, letterCount - 1)
+    timeLimit += 3000
+    animationSpeed *= 0.8
+  } else if (attempts > 20) {
+    // 熟練者向け調整
+    letterCount = Math.min(10, letterCount + 1)
+    timeLimit = Math.max(8000, timeLimit - 2000)
+    animationSpeed = Math.min(2.0, animationSpeed * 1.2)
+  }
+
+  return {
+    letterCount,
+    animationSpeed,
+    timeLimit,
+    distractorSimilarity
+  }
+}
+
+// 類似文字生成システム
+const generateDistractorLetters = (correctLetter, allPhonemes, similarity = 'medium') => {
+  const similarityGroups = {
+    // 視覚的に類似した文字グループ
+    'b': ['d', 'p', 'q'],
+    'd': ['b', 'p', 'q'],
+    'p': ['b', 'd', 'q'],
+    'q': ['b', 'd', 'p'],
+    'm': ['n', 'w'],
+    'n': ['m', 'u'],
+    'u': ['n', 'v'],
+    'v': ['u', 'y'],
+    'c': ['o', 'e'],
+    'o': ['c', 'a'],
+    'a': ['o', 'e'],
+    'e': ['a', 'c'],
+    'i': ['l', 'j'],
+    'l': ['i', 't'],
+    't': ['l', 'f'],
+    'f': ['t', 'r']
+  }
+
+  const phonetic = {
+    // 音韻的に類似した文字グループ
+    'b': ['p', 'v', 'm'],
+    'p': ['b', 'f', 'm'],
+    't': ['d', 'k', 'n'],
+    'd': ['t', 'g', 'n'],
+    'k': ['g', 't', 'c'],
+    'g': ['k', 'd', 'c'],
+    's': ['z', 'sh', 'th'],
+    'z': ['s', 'zh', 'th']
+  }
+
+  let candidates = []
+
+  if (similarity === 'high') {
+    // 高類似度：視覚的 + 音韻的類似文字
+    candidates = [
+      ...(similarityGroups[correctLetter] || []),
+      ...(phonetic[correctLetter] || [])
+    ]
+  } else if (similarity === 'medium') {
+    // 中類似度：視覚的類似文字中心
+    candidates = similarityGroups[correctLetter] || []
+  } else {
+    // 低類似度：ランダム
+    candidates = allPhonemes.map(p => p.letter).filter(l => l !== correctLetter)
+  }
+
+  // 重複削除
+  candidates = [...new Set(candidates)]
+
+  // 利用可能な音素のみフィルタリング
+  return candidates.filter(letter =>
+    allPhonemes.some(p => p.letter === letter)
+  )
+}
+
+// 戻る機能
+const goBack = () => {
+  // まずbackイベントを発火（親コンポーネントがリスナーを持っている場合の処理）
+  emit('back')
+
+  // 親コンポーネントがない場合や、直接アクセスの場合のフォールバック
+  // 少し遅延させて、親コンポーネントの処理を優先
+  setTimeout(() => {
+    // 現在のURLが変わっていない場合のみ、直接遷移
+    if (router.currentRoute.value.path.includes('true-sound-impact') ||
+        router.currentRoute.value.path.includes('letter-hunt')) {
+      router.push('/games/phonics-training-hub')
+    }
+  }, 100)
+}
+
+const goToHome = () => {
+  router.push('/')
+}
 
 // Audio system
 const { playSound, playPhoneme, playVisualFeedback } = useGameAudio()
@@ -308,14 +459,27 @@ const learningStats = computed(() => {
   let totalSessions = 0
   let masteredPhonemes = 0
   
+  logger.log('📊 Learning stats calculation:')
+  logger.log('   phonemeMastery entries:', Object.keys(phonemeMastery))
+  
   Object.values(phonemeMastery).forEach(mastery => {
     totalAttempts += mastery.attempts
     totalCorrect += mastery.correct
-    if (mastery.masteryAchieved) masteredPhonemes++
+    if (mastery.masteryAchieved) {
+      masteredPhonemes++
+      logger.log('   ✅ Mastered phoneme found:', mastery)
+    }
   })
   
   Object.values(stageProgress).forEach(progress => {
     totalSessions += progress.sessionsCompleted
+  })
+  
+  logger.log('📊 Final stats:', {
+    totalAttempts,
+    totalCorrect, 
+    totalSessions,
+    masteredPhonemes
   })
   
   return {
@@ -357,20 +521,20 @@ const startSession = () => {
 }
 
 const generateSessionQuestions = () => {
-  console.log('🎲 Generating session questions for stage:', selectedStageId.value)
+  logger.log('🎲 Generating session questions for stage:', selectedStageId.value)
   
   const stage = currentStage.value
   if (!stage) {
-    console.error('❌ No current stage found!')
+    logger.error('❌ No current stage found!')
     return
   }
   
   if (!stage.phonemes || !Array.isArray(stage.phonemes) || stage.phonemes.length === 0) {
-    console.error('❌ Invalid stage.phonemes:', stage.phonemes)
+    logger.error('❌ Invalid stage.phonemes:', stage.phonemes)
     return
   }
   
-  console.log('📚 Stage data (safe):', {
+  logger.log('📚 Stage data (safe):', {
     id: stage.id,
     name: stage.name,
     phonemeCount: stage.phonemes.length
@@ -379,12 +543,17 @@ const generateSessionQuestions = () => {
   const questions = []
   
   // Generate 10 questions from current stage phonemes
+  logger.log('🎯 Available phonemes:', stage.phonemes.map(p => ({ ipa: p.ipa, letter: p.letter })))
+  
   for (let i = 0; i < 10; i++) {
-    const phoneme = stage.phonemes[Math.floor(Math.random() * stage.phonemes.length)]
+    const randomIndex = Math.floor(Math.random() * stage.phonemes.length)
+    const phoneme = stage.phonemes[randomIndex]
+    
+    logger.log(`🎲 Question ${i + 1}: Selected phoneme index ${randomIndex}:`, { ipa: phoneme.ipa, letter: phoneme.letter })
     
     // 🚨 音素データの安全チェック
     if (!phoneme || !phoneme.letter || !phoneme.ipa) {
-      console.error('❌ Invalid phoneme data:', phoneme)
+      logger.error('❌ Invalid phoneme data:', phoneme)
       continue
     }
     
@@ -399,7 +568,7 @@ const generateSessionQuestions = () => {
     })
   }
   
-  console.log('✅ Generated questions (safe):', questions.map(q => ({
+  logger.log('✅ Generated questions (safe):', questions.map(q => ({
     ipa: q.phoneme.ipa,
     letter: q.phoneme.letter,
     correctAnswer: q.correctAnswer
@@ -416,7 +585,7 @@ const generateSessionQuestions = () => {
 }
 
 const startQuestion = () => {
-  console.log('🎯 Starting question', currentQuestionIndex.value, 'of', sessionQuestions.value.length)
+  logger.log('🎯 Starting question', currentQuestionIndex.value, 'of', sessionQuestions.value.length)
   
   if (currentQuestionIndex.value >= sessionQuestions.value.length) {
     finishSession()
@@ -432,24 +601,24 @@ const startQuestion = () => {
   
   // 🚨 安全なデータチェック
   if (!question) {
-    console.error('❌ Question is undefined at index:', currentQuestionIndex.value)
+    logger.error('❌ Question is undefined at index:', currentQuestionIndex.value)
     return
   }
   
   if (!question.phoneme) {
-    console.error('❌ Question.phoneme is undefined:', question)
+    logger.error('❌ Question.phoneme is undefined:', question)
     return
   }
   
   if (!question.phoneme.letter) {
-    console.error('❌ Question.phoneme.letter is undefined:', question.phoneme)
+    logger.error('❌ Question.phoneme.letter is undefined:', question.phoneme)
     return
   }
   
   currentPhoneme.value = question.phoneme
   questionStartTime.value = Date.now()
   
-  console.log('🔊 Current phoneme (safe):', {
+  logger.log('🔊 Current phoneme (safe):', {
     ipa: currentPhoneme.value.ipa,
     letter: currentPhoneme.value.letter,
     audioFile: currentPhoneme.value.audioFile
@@ -460,7 +629,7 @@ const startQuestion = () => {
   
   // Start multiple floating letters after a brief delay
   setTimeout(() => {
-    console.log('🌌 Spawning multiple floating letters...')
+    logger.log('🌌 Spawning multiple floating letters...')
     spawnFloatingLetters()
   }, 1500)
 }
@@ -471,7 +640,7 @@ const playCurrentPhoneme = async () => {
     try {
       await playPhoneme(currentPhoneme.value.ipa)
     } catch (error) {
-      console.error('Failed to play phoneme:', error)
+      logger.error('Failed to play phoneme:', error)
     }
     setTimeout(() => {
       isPlayingSound.value = false
@@ -480,21 +649,21 @@ const playCurrentPhoneme = async () => {
 }
 
 const spawnFloatingLetters = () => {
-  console.log('🌌 spawnFloatingLetters called, gameState:', gameState.value)
+  logger.log('🌌 spawnFloatingLetters called, gameState:', gameState.value)
   
   if (gameState.value !== 'learning') {
-    console.log('❌ Not in learning state, returning')
+    logger.log('❌ Not in learning state, returning')
     return
   }
   
   if (!currentPhoneme.value) {
-    console.log('❌ No current phoneme, returning')
+    logger.log('❌ No current phoneme, returning')
     return
   }
   
   // 🚨 既に文字が存在する場合は何もしない（重複防止）
   if (floatingLetters.value.length > 0) {
-    console.log('⚠️ Letters already exist, skipping spawn')
+    logger.log('⚠️ Letters already exist, skipping spawn')
     return
   }
   
@@ -505,27 +674,41 @@ const spawnFloatingLetters = () => {
   const allPhonemes = stage.phonemes
   const correctLetter = currentPhoneme.value.letter
   
-  console.log('🚨 spawnFloatingLetters DEBUG:')
-  console.log('   currentPhoneme.value:', currentPhoneme.value)
-  console.log('   correctLetter:', correctLetter, 'Type:', typeof correctLetter)
+  logger.log('   currentPhoneme.value:', currentPhoneme.value)
+  logger.log('   correctLetter:', correctLetter, 'Type:', typeof correctLetter)
   
-  // 5-8個の文字を生成（正解を含む）
-  const letterCount = 5 + Math.floor(Math.random() * 4) // 5-8個
+  // 動的難易度調整システム
+  const playerAccuracy = sessionProgress.value.correct / Math.max(1, sessionProgress.value.attempts)
+  const difficultyParams = calculateDifficultyParameters(playerAccuracy, sessionProgress.value.attempts)
+
+  // 文字数を動的調整
+  const letterCount = difficultyParams.letterCount
   const letters = []
   
-  // まず不正解の文字を生成
+  // 難易度に基づく妨害文字生成
+  const distractorCandidates = generateDistractorLetters(correctLetter, allPhonemes, difficultyParams.distractorSimilarity)
   const otherPhonemes = allPhonemes.filter(p => p.letter !== correctLetter)
+
+  // 妨害文字を優先的に使用、不足分はランダム
   for (let i = 0; i < letterCount - 1; i++) {
-    const randomPhoneme = otherPhonemes[Math.floor(Math.random() * otherPhonemes.length)]
-    letters.push(randomPhoneme.letter)
+    let selectedLetter
+    if (i < distractorCandidates.length && Math.random() < 0.7) {
+      // 70%の確率で類似文字を使用
+      selectedLetter = distractorCandidates[i]
+    } else {
+      // 残りはランダム
+      const randomPhoneme = otherPhonemes[Math.floor(Math.random() * otherPhonemes.length)]
+      selectedLetter = randomPhoneme.letter
+    }
+    letters.push(selectedLetter)
   }
   
   // 正解文字をランダムな位置に挿入
   const randomPosition = Math.floor(Math.random() * letters.length)
   letters.splice(randomPosition, 0, correctLetter)
   
-  console.log('🔤 Generated letters:', letters)
-  console.log('🔤 Letters with types:', letters.map(l => ({ letter: l, type: typeof l })))
+  logger.log('🔤 Generated letters:', letters)
+  logger.log('🔤 Letters with types:', letters.map(l => ({ letter: l, type: typeof l })))
   
   // より自由なランダム配置
   const safeZoneX = window.innerWidth * 0.8 // 画面幅の80%を使用
@@ -563,44 +746,27 @@ const spawnFloatingLetters = () => {
       x: x,
       y: y,
       targetY: y,
-      vx: (Math.random() - 0.5) * 30, // よりランダムな動き
-      vy: (Math.random() - 0.5) * 20,
+      vx: (Math.random() - 0.5) * 80 * difficultyParams.animationSpeed, // 難易度に応じた動き
+      vy: (Math.random() - 0.5) * 60 * difficultyParams.animationSpeed,
       rotation: Math.random() * 360,
-      rotationSpeed: (Math.random() - 0.5) * 0.8,
+      rotationSpeed: (Math.random() - 0.5) * 2.5,
       scale: 0.9 + Math.random() * 0.3, // サイズもランダム
       startTime: Date.now() + Math.random() * 500, // ランダムな時差出現
       showFeedback: false
     }
     
-    console.log(`🔤 Creating letter ${index}:`, {
-      symbol: letter.symbol,
-      symbolType: typeof letter.symbol,
-      isCorrect: letter.symbol === correctLetter,
-      correctLetter: correctLetter,
-      correctType: typeof correctLetter
-    })
+    // 文字作成（簡潔ログ）
     
     floatingLetters.value.push(letter)
   })
   
-  console.log('🚀 Created floating letters:', floatingLetters.value.length)
+  logger.log('🚀 Created floating letters:', floatingLetters.value.length)
   
-  // 🚨 全ての文字の最終確認
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('🔍 FINAL FLOATING LETTERS CHECK:')
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  floatingLetters.value.forEach((letter, idx) => {
-    console.log(`Letter ${idx}:`, {
-      symbol: letter.symbol,
-      type: typeof letter.symbol,
-      isCorrectAnswer: letter.symbol === correctLetter,
-      correctLetter: correctLetter
-    })
-  })
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+  // 文字生成完了ログ
+  logger.log(`🌌 Generated ${floatingLetters.value.length} floating letters with correct answer: "${correctLetter}"`)
   
   // アニメーション開始
-  console.log('🌌 Starting floating animation')
+  logger.log('🌌 Starting floating animation')
   animationRunning.value = true
   animateFloatingLetters()
 }
@@ -608,60 +774,100 @@ const spawnFloatingLetters = () => {
 // アニメーション用のフラグ
 const animationRunning = ref(false)
 
-// 宇宙空間での自然な浮遊アニメーション
-const animateFloatingLetters = () => {
+// 最適化された浮遊アニメーション
+let animationId = null
+let lastFrameTime = 0
+let difficultyParamsCache = null
+let difficultyUpdateFrame = 0
+
+const animateFloatingLetters = (currentTime = performance.now()) => {
   if (gameState.value !== 'learning' || !animationRunning.value) {
     animationRunning.value = false
+    if (animationId) {
+      cancelAnimationFrame(animationId)
+      animationId = null
+    }
     return
   }
-  
-  const currentTime = Date.now()
+
+  // フレームレート制御（60fps制限）
+  const deltaTime = currentTime - lastFrameTime
+  if (deltaTime < 16.67) { // 60fps = 16.67ms
+    animationId = requestAnimationFrame(animateFloatingLetters)
+    return
+  }
+  lastFrameTime = currentTime
+
+  // 難易度パラメータのキャッシュ（10フレームごとに更新）
+  if (difficultyUpdateFrame % 10 === 0) {
+    const playerAccuracy = sessionProgress.value.correct / Math.max(1, sessionProgress.value.attempts)
+    difficultyParamsCache = calculateDifficultyParameters(playerAccuracy, sessionProgress.value.attempts)
+  }
+  difficultyUpdateFrame++
+
+  const frameMultiplier = deltaTime / 16.67 // 滑らかなアニメーション補正
   let activeLetters = 0
-  
-  floatingLetters.value.forEach(letter => {
+
+  // バッチ処理で性能向上
+  const windowWidth = window.innerWidth
+  const currentTimeMs = Date.now()
+
+  for (let i = floatingLetters.value.length - 1; i >= 0; i--) {
+    const letter = floatingLetters.value[i]
+
     // 時差出現チェック
-    if (currentTime < letter.startTime) return
-    
+    if (currentTimeMs < letter.startTime) continue
+
     activeLetters++
-    
-    // 非常に穏やかな浮遊運動
-    letter.x += letter.vx * 0.008 // より遅い移動
-    letter.y += letter.vy * 0.008
-    letter.rotation += letter.rotationSpeed * 0.5
-    
-    // より広い範囲での境界反射
-    if (letter.x < 50 || letter.x > window.innerWidth - 150) {
-      letter.vx *= -0.6
+
+    // 位置更新（最適化）
+    letter.x += letter.vx * 0.025 * frameMultiplier
+    letter.y += letter.vy * 0.025 * frameMultiplier
+    letter.rotation += letter.rotationSpeed * 1.5 * frameMultiplier
+
+    // 境界チェック（最適化）
+    const leftBound = 50
+    const rightBound = windowWidth - 150
+    const topBound = 60
+    const bottomBound = 300
+
+    if (letter.x < leftBound || letter.x > rightBound) {
+      letter.vx *= -0.8
+      letter.x = Math.max(leftBound, Math.min(rightBound, letter.x))
     }
-    if (letter.y < 60 || letter.y > 300) {
-      letter.vy *= -0.6
+    if (letter.y < topBound || letter.y > bottomBound) {
+      letter.vy *= -0.8
+      letter.y = Math.max(topBound, Math.min(bottomBound, letter.y))
     }
-    
-    // 範囲内に収める（より広い範囲）
-    letter.x = Math.max(50, Math.min(window.innerWidth - 150, letter.x))
-    letter.y = Math.max(60, Math.min(300, letter.y))
-  })
-  
-  // 🚨 回答処理中またはゲーム状態が変わったら停止
-  if (answerProcessing.value || gameState.value !== 'learning') {
-    animationRunning.value = false
-    return
+
+    // 稀にランダム方向変更（最適化：確率を下げる）
+    if (Math.random() < 0.005) {
+      letter.vx += (Math.random() - 0.5) * 10
+      letter.vy += (Math.random() - 0.5) * 8
+    }
   }
-  
-  // 15秒後または文字がなくなったら新しい質問
-  const questionElapsed = currentTime - questionStartTime.value
-  if (questionElapsed > 15000 || floatingLetters.value.length === 0) {
-    if (!answerProcessing.value) { // 重複防止
-      console.log('⏰ Question timeout or no letters left')
+
+  // 終了条件チェック（最適化：頻度を下げる）
+  if (difficultyUpdateFrame % 30 === 0) { // 0.5秒ごと
+    if (answerProcessing.value || gameState.value !== 'learning') {
       animationRunning.value = false
-      onNoSelection()
+      return
     }
-    return
+
+    const questionElapsed = currentTimeMs - questionStartTime.value
+    if (questionElapsed > difficultyParamsCache.timeLimit || floatingLetters.value.length === 0) {
+      if (!answerProcessing.value) {
+        logger.log(`⏰ Question timeout (${difficultyParamsCache.timeLimit}ms) or no letters left`)
+        animationRunning.value = false
+        onNoSelection()
+      }
+      return
+    }
   }
-  
+
   // 次のフレーム
   if (animationRunning.value) {
-    requestAnimationFrame(animateFloatingLetters)
+    animationId = requestAnimationFrame(animateFloatingLetters)
   }
 }
 
@@ -702,106 +908,42 @@ const answerProcessing = ref(false)
 const onLetterClick = (letter) => {
   // 🚨 完全な安全チェック
   if (!letter) {
-    console.error('❌ Letter is null/undefined')
+    logger.error('❌ Letter is null/undefined')
     return
   }
   
   if (!letter.symbol) {
-    console.error('❌ Letter.symbol is null/undefined:', letter)
+    logger.error('❌ Letter.symbol is null/undefined:', letter)
     return
   }
   
   if (!currentPhoneme.value) {
-    console.error('❌ currentPhoneme.value is null/undefined')
+    logger.error('❌ currentPhoneme.value is null/undefined')
     return
   }
   
   if (!currentPhoneme.value.letter) {
-    console.error('❌ currentPhoneme.value.letter is null/undefined:', currentPhoneme.value)
+    logger.error('❌ currentPhoneme.value.letter is null/undefined:', currentPhoneme.value)
     return
   }
   
   if (answerProcessing.value) {
-    console.log('⏳ Answer already processing, ignoring click')
+    logger.log('⏳ Answer already processing, ignoring click')
     return
   }
   
   // Prevent multiple clicks
   answerProcessing.value = true
   
-  // 🚨 完全なデバッグログ
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('🎯 CLICK EVENT DEBUG START')
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('1️⃣ Raw letter object:', letter)
-  console.log('2️⃣ Letter.symbol:', letter.symbol, 'Type:', typeof letter.symbol)
-  console.log('3️⃣ currentPhoneme.value:', currentPhoneme.value)
-  console.log('4️⃣ currentPhoneme.value.letter:', currentPhoneme.value.letter, 'Type:', typeof currentPhoneme.value.letter)
-  
   const responseTime = Date.now() - questionStartTime.value
-  
-  // 🔍 文字列変換の各ステップをログ
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('🔍 STRING CONVERSION DEBUG')
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  
-  const clickedRaw = letter.symbol
-  const expectedRaw = currentPhoneme.value.letter
-  
-  console.log('5️⃣ Raw values:')
-  console.log('   Clicked:', clickedRaw, 'Length:', clickedRaw.length)
-  console.log('   Expected:', expectedRaw, 'Length:', expectedRaw.length)
-  
-  const clickedString = String(clickedRaw)
-  const expectedString = String(expectedRaw)
-  
-  console.log('6️⃣ After String():')
-  console.log('   Clicked:', clickedString, 'Length:', clickedString.length)
-  console.log('   Expected:', expectedString, 'Length:', expectedString.length)
-  
-  const clickedTrimmed = clickedString.trim()
-  const expectedTrimmed = expectedString.trim()
-  
-  console.log('7️⃣ After trim():')
-  console.log('   Clicked:', clickedTrimmed, 'Length:', clickedTrimmed.length)
-  console.log('   Expected:', expectedTrimmed, 'Length:', expectedTrimmed.length)
-  
-  const clickedLetter = clickedTrimmed.toLowerCase()
-  const expectedLetter = expectedTrimmed.toLowerCase()
-  
-  console.log('8️⃣ After toLowerCase():')
-  console.log('   Clicked:', clickedLetter, 'Length:', clickedLetter.length)
-  console.log('   Expected:', expectedLetter, 'Length:', expectedLetter.length)
-  
-  // 文字コード比較
-  console.log('9️⃣ Character codes:')
-  for (let i = 0; i < Math.max(clickedLetter.length, expectedLetter.length); i++) {
-    const clickedChar = clickedLetter[i] || 'undefined'
-    const expectedChar = expectedLetter[i] || 'undefined'
-    const clickedCode = clickedLetter.charCodeAt(i) || 'N/A'
-    const expectedCode = expectedLetter.charCodeAt(i) || 'N/A'
-    console.log(`   Position ${i}: '${clickedChar}' (${clickedCode}) vs '${expectedChar}' (${expectedCode})`)
-  }
-  
-  // 🚨 複数の比較方法を試す
-  const isCorrect1 = clickedLetter === expectedLetter
-  const isCorrect2 = clickedRaw === expectedRaw
-  const isCorrect3 = letter.symbol === currentPhoneme.value.letter
-  
-  console.log('🔍 Multiple comparison methods:')
-  console.log('   Method 1 (processed):', isCorrect1)
-  console.log('   Method 2 (raw):', isCorrect2)
-  console.log('   Method 3 (direct):', isCorrect3)
-  
-  // 最終的にはシンプルな比較を使用
+
+  // 効率的な文字比較処理
+  const clickedLetter = String(letter.symbol).trim().toLowerCase()
+  const expectedLetter = String(currentPhoneme.value.letter).trim().toLowerCase()
   const isCorrect = clickedLetter === expectedLetter
-  
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log('🎯 FINAL RESULT:')
-  console.log('   Clicked:', clickedLetter)
-  console.log('   Expected:', expectedLetter)
-  console.log('   isCorrect:', isCorrect)
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+  // 簡潔なログ出力
+  logger.log(`🎯 Letter clicked: "${clickedLetter}" vs expected: "${expectedLetter}" - ${isCorrect ? '✅' : '❌'}`)
   
   // 文字にフィードバック効果
   letter.showFeedback = true
@@ -820,16 +962,16 @@ const onLetterClick = (letter) => {
 // 何も選択されなかった場合
 const onNoSelection = () => {
   if (answerProcessing.value) {
-    console.log('⏳ Already processing answer, skip timeout')
+    logger.log('⏳ Already processing answer, skip timeout')
     return
   }
-  console.log('❌ No selection made, timeout')
+  logger.log('❌ No selection made, timeout')
   const responseTime = Date.now() - questionStartTime.value
   processAnswer(false, responseTime)
 }
 
 const processAnswer = (isCorrect, responseTime) => {
-  console.log('🎯 Processing answer:', { isCorrect, responseTime })
+  logger.log('🎯 Processing answer:', { isCorrect, responseTime })
   
   // Stop all audio immediately when answer is given
   try {
@@ -837,7 +979,7 @@ const processAnswer = (isCorrect, responseTime) => {
       phonemeAudioService.stopAll()
     }
   } catch (error) {
-    console.log('No phonemeAudioService.stopAll method available')
+    logger.log('No phonemeAudioService.stopAll method available')
   }
   
   sessionProgress.value.attempts++
@@ -1052,6 +1194,11 @@ watch(selectedStageId, (newStageId) => {
   backdrop-filter: blur(15px);
   border-bottom: 1px solid rgba(59, 130, 246, 0.4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.header-left {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .minimal-button {

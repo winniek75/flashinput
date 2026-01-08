@@ -270,6 +270,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/gameStore'
@@ -366,7 +368,7 @@ const playSound = async (text) => {
     
     speechSynthesis.speak(utterance)
   } catch (error) {
-    console.error('音声再生エラー:', error)
+    logger.error('音声再生エラー:', error)
     isPlaying.value = false
   }
 }

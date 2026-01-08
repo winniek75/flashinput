@@ -164,6 +164,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useConnectionStore } from '@/stores/connectionStatus'
 
@@ -455,7 +457,7 @@ export default {
         }, 2000)
         
       } catch (error) {
-        console.error('Retry failed:', error)
+        logger.error('Retry failed:', error)
       } finally {
         isRetrying.value = false
       }
@@ -487,7 +489,7 @@ export default {
           severity: 'success'
         })
       } catch (error) {
-        console.error('Failed to copy error info:', error)
+        logger.error('Failed to copy error info:', error)
       }
     }
 
@@ -511,7 +513,7 @@ export default {
 
     // ライフサイクル
     onMounted(() => {
-      console.log('🛠️ ErrorHandler mounted')
+      logger.log('🛠️ ErrorHandler mounted')
     })
 
     onUnmounted(() => {

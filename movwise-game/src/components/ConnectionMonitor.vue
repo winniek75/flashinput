@@ -188,6 +188,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useConnectionStore } from '@/stores/connectionStatus'
 import { SpeakerWaveIcon as VolumeIcon } from '@heroicons/vue/24/outline'
@@ -411,7 +413,7 @@ export default {
     // 自動監視の開始/停止
     const startAutoMonitoring = () => {
       if (!connectionStore.startConnectionMonitoring) {
-        console.warn('Connection monitoring not available')
+        logger.warn('Connection monitoring not available')
         return
       }
       connectionStore.startConnectionMonitoring()
@@ -425,7 +427,7 @@ export default {
 
     // ライフサイクル
     onMounted(() => {
-      console.log('🛰️ ConnectionMonitor mounted')
+      logger.log('🛰️ ConnectionMonitor mounted')
       startAutoMonitoring()
       
       // 初期状態の設定

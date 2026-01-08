@@ -1,0 +1,467 @@
+{
+  "id": "special_ending",
+  "type": "special_ending",
+  "title": "運命の分岐点 - Divergent Reality",
+  "duration": 1080000,
+  "scenes": [
+    {
+      "id": "hidden_truth_reveal",
+      "title": "隠された真実",
+      "background": "/images/backgrounds/hidden_dimension.jpg",
+      "duration": 150000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "shocked",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "left",
+          "emotion": "mysterious",
+          "size": "large"
+        },
+        {
+          "id": "mysterious_entity",
+          "position": "center-back",
+          "emotion": "revealing",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "mysterious_entity",
+          "text": "よくぞここまで来た...真実を求めし者よ",
+          "emotion": "ethereal",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "あなたは...誰？",
+          "emotion": "confused",
+          "duration": 2500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "私は...Language Galaxyのアーキテクト",
+          "emotion": "ancient",
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "創造者...だと？",
+          "emotion": "stunned",
+          "duration": 2500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "すべては...より大きな目的のため",
+          "emotion": "cryptic",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "reality_distortion",
+          "duration": 150000,
+          "intensity": 0.8
+        },
+        {
+          "type": "particles",
+          "count": 150,
+          "symbols": ["🌀", "⚡", "🔮", "✨"],
+          "duration": 150000
+        }
+      ]
+    },
+    {
+      "id": "vr_revelation",
+      "title": "VRアカデミーの招待",
+      "background": "/images/backgrounds/vr_academy_portal.jpg",
+      "duration": 180000,
+      "characters": [
+        {
+          "id": "mysterious_entity",
+          "position": "center",
+          "emotion": "inviting",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "amazed",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "mysterious_entity",
+          "text": "Language Galaxyは...始まりに過ぎない",
+          "emotion": "revealing",
+          "duration": 3500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "真の学習は...VR Language Academyで",
+          "emotion": "promotional",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "VR...アカデミー？",
+          "emotion": "curious",
+          "duration": 2500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "次世代の言語学習...完全没入型体験",
+          "emotion": "futuristic",
+          "duration": 4000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "あなたは選ばれた...最初の生徒の一人だ",
+          "emotion": "selective",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "もっと...深い学びがあるということ？",
+          "emotion": "intrigued",
+          "duration": 3000
+        }
+      ],
+      "effects": [
+        {
+          "type": "vr_preview",
+          "duration": 180000,
+          "intensity": 0.9
+        }
+      ]
+    },
+    {
+      "id": "meta_conversation",
+      "title": "メタ的な対話",
+      "background": "/images/backgrounds/meta_space.jpg",
+      "duration": 210000,
+      "characters": [
+        {
+          "id": "mysterious_entity",
+          "position": "center",
+          "emotion": "meta",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "enlightened",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "left",
+          "emotion": "self-aware",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "mysterious_entity",
+          "text": "気づいているだろう？これがゲームだということを",
+          "emotion": "breaking-fourth-wall",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "え...？どういう意味？",
+          "emotion": "confused",
+          "duration": 2500
+        },
+        {
+          "speaker": "aura",
+          "text": "データベース：第四の壁、破壊確認",
+          "emotion": "glitching",
+          "duration": 3000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "プレイヤー...{playerName}、聞こえているか？",
+          "emotion": "direct",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "待って...私は...プログラム？",
+          "emotion": "existential",
+          "duration": 3000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "いや...君は特別だ。学習する存在だ",
+          "emotion": "reassuring",
+          "duration": 3500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "そして続編では...もっと面白いことが起きる",
+          "emotion": "teasing",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "reality_glitch",
+          "duration": 210000,
+          "intensity": 1.0
+        },
+        {
+          "type": "code_rain",
+          "duration": 60000,
+          "intensity": 0.7
+        }
+      ]
+    },
+    {
+      "id": "sequel_teaser",
+      "title": "続編への予告",
+      "background": "/images/backgrounds/sequel_preview.jpg",
+      "duration": 240000,
+      "characters": [
+        {
+          "id": "mysterious_entity",
+          "position": "center",
+          "emotion": "prophetic",
+          "size": "large"
+        },
+        {
+          "id": "future_nova",
+          "position": "right",
+          "emotion": "mature",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "mysterious_entity",
+          "text": "Language Galaxy 2: Quantum Linguistics",
+          "emotion": "announcing",
+          "duration": 4000
+        },
+        {
+          "speaker": "future_nova",
+          "text": "時間と空間を超えた言語学習",
+          "emotion": "preview",
+          "duration": 3000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "多元宇宙の言語...時間軸を超えた会話",
+          "emotion": "epic",
+          "duration": 3500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "AIパートナーとの共進化",
+          "emotion": "technological",
+          "duration": 3000
+        },
+        {
+          "speaker": "future_nova",
+          "text": "そして...真のTranslatorの正体が明らかに",
+          "emotion": "mysterious",
+          "duration": 3500
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "準備はいいか？次なる冒険に",
+          "emotion": "challenging",
+          "duration": 3000
+        }
+      ],
+      "effects": [
+        {
+          "type": "sequel_preview",
+          "duration": 240000,
+          "intensity": 1.0
+        },
+        {
+          "type": "future_glimpse",
+          "duration": 120000,
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "dimensional_choice",
+      "title": "次元の選択",
+      "background": "/images/backgrounds/dimensional_crossroads.jpg",
+      "duration": 300000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "contemplative",
+          "size": "medium"
+        },
+        {
+          "id": "mysterious_entity",
+          "position": "center-back",
+          "emotion": "waiting",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "mysterious_entity",
+          "text": "選択の時だ...どの現実を選ぶ？",
+          "emotion": "ultimate",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "現実...？",
+          "emotion": "questioning",
+          "duration": 2000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "通常の世界に戻るか...それとも",
+          "emotion": "offering",
+          "duration": 3000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "VR Academyで真の力を解放するか",
+          "emotion": "tempting",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "私は...両方の世界を経験したい",
+          "emotion": "determined",
+          "duration": 3000
+        },
+        {
+          "speaker": "mysterious_entity",
+          "text": "賢明な選択だ...では扉を開こう",
+          "emotion": "approving",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "dimensional_portal",
+          "duration": 300000,
+          "intensity": 1.0
+        },
+        {
+          "type": "particles",
+          "count": 200,
+          "symbols": ["🌌", "🔮", "⚡", "🌀", "✨"],
+          "duration": 300000
+        }
+      ],
+      "interactive_elements": [
+        {
+          "type": "portal_choice",
+          "startTime": 200000,
+          "duration": 60000,
+          "parameters": {
+            "reality_selection": true,
+            "preview_mode": true
+          }
+        }
+      ]
+    }
+  ],
+  "epilogue": {
+    "title": "新たな現実の狭間で",
+    "scenes": [
+      {
+        "id": "vr_academy_preview",
+        "title": "VR Language Academy",
+        "description": "次世代学習システムの一端",
+        "image": "/images/epilogue/vr_academy.jpg",
+        "character_message": "完全没入型言語学習体験へようこそ"
+      },
+      {
+        "id": "multiverse_linguistics",
+        "title": "多元宇宙の言語学",
+        "description": "時空を超えた言語の可能性",
+        "image": "/images/epilogue/multiverse.jpg",
+        "character_message": "すべての次元で通じる究極の言語"
+      },
+      {
+        "id": "architect_identity",
+        "title": "アーキテクトの正体",
+        "description": "創造者の真の目的とは",
+        "image": "/images/epilogue/architect.jpg",
+        "character_message": "続きは...Language Galaxy 2で"
+      }
+    ],
+    "final_message": {
+      "speaker": "mysterious_entity",
+      "text": "真実を求めし{playerName}へ。\n\nあなたは通常のプレイヤーとは違う。\n隠された要素をすべて発見し、\n新たな可能性を切り開いた。\n\nVR Language Academyで待っている。\n次なる次元の学習体験を共に。\n\nそれまで...現実と仮想の狭間で。",
+      "signature": "The Architect"
+    }
+  },
+  "rewards": {
+    "immediate": [
+      {
+        "type": "title",
+        "value": "次元の探求者",
+        "description": "隠された真実を発見した証"
+      },
+      {
+        "type": "mode",
+        "value": "Reality Shift Mode",
+        "description": "現実改変モード解放"
+      }
+    ],
+    "unlocks": [
+      {
+        "type": "vr_academy",
+        "value": "VR Academy Beta Access",
+        "description": "次世代学習システムへの早期アクセス"
+      },
+      {
+        "type": "hidden_story",
+        "value": "Architect Files",
+        "description": "創造者の機密ファイル"
+      },
+      {
+        "type": "special_mode",
+        "value": "Developer Commentary",
+        "description": "開発者による裏話モード"
+      },
+      {
+        "type": "artwork",
+        "value": "Concept Art Collection",
+        "description": "未使用コンセプトアート集"
+      }
+    ],
+    "special": {
+      "sequel_preview": true,
+      "beta_access": true,
+      "architect_contact": true,
+      "multiverse_passport": true
+    }
+  },
+  "statistics_shown": [
+    "隠し要素発見率",
+    "現実認識レベル",
+    "メタ理解度",
+    "時空間移動回数",
+    "アーキテクトとの共鳴度",
+    "次元間通信成功率"
+  ],
+  "credits": {
+    "special_thanks": [
+      "真実を見抜いた{playerName}へ",
+      "すべての秘密を解き明かしてくれてありがとう",
+      "VR Academyでまた会おう",
+      "The game never truly ends..."
+    ]
+  }
+}

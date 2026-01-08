@@ -167,14 +167,14 @@
                   class="game-button"
                 >
                   <div class="text-3xl mb-2">🌌</div>
-                  <div class="font-bold">文法銀河</div>
+                  <div class="font-bold">グラマー・ギャラクシー</div>
                 </button>
                 <button
                   @click="navigateToGame('SoundAdventureHub')"
                   class="game-button"
                 >
                   <div class="text-3xl mb-2">🎵</div>
-                  <div class="font-bold">サウンド星雲</div>
+                  <div class="font-bold">サウンド・ネビュラ</div>
                 </button>
               </div>
             </div>
@@ -200,6 +200,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { collaborativeSession } from '@/services/collaborativeSession'
@@ -238,15 +240,15 @@ const joinSession = async () => {
 
   try {
     isJoining.value = true
-    console.log(`🔄 Attempting to join session with code: ${inviteCode.value}`)
+    logger.log(`🔄 Attempting to join session with code: ${inviteCode.value}`)
 
     // Initialize collaborative session
-    console.log('📡 Initializing collaborative session...')
+    logger.log('📡 Initializing collaborative session...')
     await collaborativeSession.initialize('ws://localhost:3001')
-    console.log('✅ Collaborative session initialized')
+    logger.log('✅ Collaborative session initialized')
 
     // Join session
-    console.log('🚪 Joining session...')
+    logger.log('🚪 Joining session...')
     const result = await collaborativeSession.joinStudentSession(inviteCode.value, {
       name: studentName.value,
       grade: '中学生', // デフォルト値
@@ -256,10 +258,10 @@ const joinSession = async () => {
       }
     })
 
-    console.log('✅ Successfully joined session:', result)
+    logger.log('✅ Successfully joined session:', result)
 
   } catch (error) {
-    console.error('❌ Failed to join session:', error)
+    logger.error('❌ Failed to join session:', error)
     
     let errorMessage = 'セッションへの参加に失敗しました'
     
@@ -283,9 +285,9 @@ const startScreenShare = async () => {
   try {
     isScreenSharing.value = true
     await collaborativeSession.startScreenShare()
-    console.log('🖥️ Screen sharing started')
+    logger.log('🖥️ Screen sharing started')
   } catch (error) {
-    console.error('❌ Failed to start screen sharing:', error)
+    logger.error('❌ Failed to start screen sharing:', error)
     alert('画面共有の開始に失敗しました: ' + error.message)
     isScreenSharing.value = false
   }
@@ -345,7 +347,7 @@ const handleBack = () => {
 onMounted(() => {
   // Set up collaborative session callbacks
   collaborativeSession.onTeacherGuidance = (guidance) => {
-    console.log('📝 Received teacher guidance:', guidance)
+    logger.log('📝 Received teacher guidance:', guidance)
     
     if (guidance.type === 'annotation') {
       // Add annotation to active annotations
@@ -370,7 +372,7 @@ onMounted(() => {
   }
 
   collaborativeSession.onRealtimeAction = (action) => {
-    console.log('⚡ Received real-time action:', action)
+    logger.log('⚡ Received real-time action:', action)
     // Handle real-time actions from teacher
   }
 })

@@ -98,6 +98,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { defineComponent, ref, computed } from 'vue'
 
 export default defineComponent({
@@ -174,7 +176,7 @@ export default defineComponent({
         audio.volume = 0.4
         audio.play()
       } catch (error) {
-        console.log('音声再生エラー:', error)
+        logger.log('音声再生エラー:', error)
       }
     }
     
@@ -184,7 +186,7 @@ export default defineComponent({
         audio.volume = 0.2
         audio.play()
       } catch (error) {
-        console.log('音声再生エラー:', error)
+        logger.log('音声再生エラー:', error)
       }
     }
     
@@ -194,7 +196,7 @@ export default defineComponent({
         audio.volume = 0.3
         audio.play()
       } catch (error) {
-        console.log('音声再生エラー:', error)
+        logger.log('音声再生エラー:', error)
       }
     }
     

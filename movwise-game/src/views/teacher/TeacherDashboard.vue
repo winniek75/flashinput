@@ -269,49 +269,114 @@
           <div class="dashboard-card">
             <h3 class="text-lg font-semibold text-white mb-4">クイックアクション</h3>
             <div class="space-y-3">
-              <!-- Collaborative Session Controls -->
-              <button 
-                v-if="!activeCollaborativeSession"
-                @click="startCollaborativeSession"
-                :disabled="isCreatingSession"
-                class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50"
+              <!-- Spectator Session Controls -->
+              <button
+                v-if="!spectatorRoomCode"
+                @click="createSpectatorRoom"
+                :disabled="isCreatingRoom"
+                class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50"
               >
-                <span class="text-xl">🤝</span>
-                {{ isCreatingSession ? '作成中...' : '協力学習セッション開始' }}
+                <span class="text-xl">👁️</span>
+                {{ isCreatingRoom ? '作成中...' : '観戦ルーム作成' }}
               </button>
 
-              <div v-if="activeCollaborativeSession" class="space-y-2">
-                <div class="p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg">
-                  <div class="text-sm text-blue-300 mb-1">協力セッション</div>
-                  <div class="text-white font-medium">{{ activeCollaborativeSession.subject }}</div>
-                  <div class="text-xs text-blue-200">参加者: {{ connectedStudents.length }}名</div>
+              <div v-if="spectatorRoomCode" class="space-y-2">
+                <div class="p-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg">
+                  <div class="text-sm text-indigo-300 mb-1">観戦ルーム</div>
+                  <div class="text-white font-medium text-lg">コード: {{ spectatorRoomCode }}</div>
+                  <div class="text-xs text-indigo-200">生徒にこのコードを共有してください</div>
                 </div>
-                <button 
-                  @click="endCollaborativeSession"
+                <button
+                  @click="closeSpectatorRoom"
                   class="w-full flex items-center gap-3 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-colors"
                 >
                   <span class="text-xl">⏹️</span>
-                  セッション終了
+                  ルームを閉じる
                 </button>
               </div>
-              
-              <button 
+
+              <!-- Game Launch Section -->
+              <div v-if="spectatorRoomCode" class="border-t border-slate-600 pt-3">
+                <h4 class="text-sm font-semibold text-slate-400 mb-2">学習ゲーム起動</h4>
+
+                <button
+                  @click="launchHandwritingDictation"
+                  class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg text-white font-medium transition-colors"
+                >
+                  <span class="text-xl">✍️</span>
+                  手書きディクテーション
+                </button>
+
+                <button
+                  @click="launchWordDictation"
+                  class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-lg text-white font-medium transition-colors mt-2"
+                >
+                  <span class="text-xl">📝</span>
+                  タイピングディクテーション
+                </button>
+
+                <button
+                  @click="launchTypingArena"
+                  class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 rounded-lg text-white font-medium transition-colors mt-2"
+                >
+                  <span class="text-xl">⌨️</span>
+                  タイピングアリーナ
+                </button>
+
+                <button
+                  @click="launchGrammarGalaxy"
+                  class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-lg text-white font-medium transition-colors mt-2"
+                >
+                  <span class="text-xl">🌌</span>
+                  文法ギャラクシー
+                </button>
+              </div>
+
+              <!-- Collaborative Session Controls (Legacy) -->
+              <div class="border-t border-slate-600 pt-3">
+                <button
+                  v-if="!activeCollaborativeSession"
+                  @click="startCollaborativeSession"
+                  :disabled="isCreatingSession"
+                  class="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50"
+                >
+                  <span class="text-xl">🤝</span>
+                  {{ isCreatingSession ? '作成中...' : '協力学習セッション開始' }}
+                </button>
+
+                <div v-if="activeCollaborativeSession" class="space-y-2">
+                  <div class="p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg">
+                    <div class="text-sm text-blue-300 mb-1">協力セッション</div>
+                    <div class="text-white font-medium">{{ activeCollaborativeSession.subject }}</div>
+                    <div class="text-xs text-blue-200">参加者: {{ connectedStudents.length }}名</div>
+                  </div>
+                  <button
+                    @click="endCollaborativeSession"
+                    class="w-full flex items-center gap-3 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-colors"
+                  >
+                    <span class="text-xl">⏹️</span>
+                    セッション終了
+                  </button>
+                </div>
+              </div>
+
+              <button
                 @click="startNewSession"
                 class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
               >
                 <span class="text-xl">🚀</span>
                 新しいセッション開始
               </button>
-              
-              <button 
+
+              <button
                 @click="reviewStudentProgress"
                 class="w-full flex items-center gap-3 px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-medium transition-colors"
               >
                 <span class="text-xl">📈</span>
                 生徒進捗レビュー
               </button>
-              
-              <button 
+
+              <button
                 @click="generateReport"
                 class="w-full flex items-center gap-3 px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
               >
@@ -349,14 +414,21 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { collaborativeSession } from '@/services/collaborativeSession'
+import spectatorService from '@/services/spectatorService'
+import { useSpectatorStore } from '@/stores/spectatorStore'
+
+// Collaborative session is optional - handle gracefully if not available
+let collaborativeSession = null
 
 export default {
   name: 'TeacherDashboard',
   setup() {
     const router = useRouter()
+    const spectatorStore = useSpectatorStore()
 
     // Teacher information
     const teacherInfo = reactive({
@@ -366,18 +438,29 @@ export default {
       id: 'teacher_001'
     })
 
+    // Spectator room state
+    const isCreatingRoom = ref(false)
+    const spectatorRoomCode = computed(() => spectatorStore.roomCode)
+
     // Collaborative session state
     const isCreatingSession = ref(false)
     const sessionStartTime = ref(null)
     
-    // Collaborative session computed properties
-    const sessionState = computed(() => collaborativeSession.sessionState)
+    // Collaborative session computed properties - handle null collaborativeSession
+    const sessionState = computed(() => {
+      if (!collaborativeSession) {
+        return { isConnected: false, participants: [] }
+      }
+      return collaborativeSession.sessionState
+    })
     
     const activeCollaborativeSession = computed(() => {
+      if (!collaborativeSession) return null
       return sessionState.value.isConnected ? sessionState.value : null
     })
     
     const connectedStudents = computed(() => {
+      if (!collaborativeSession) return []
       return sessionState.value.participants.filter(p => p.role === 'student') || []
     })
 
@@ -496,7 +579,7 @@ export default {
 
     // Methods
     const handleJoinSession = (session) => {
-      console.log('Joining session:', session)
+      logger.log('Joining session:', session)
       selectedSession.value = session
       showSessionModal.value = true
     }
@@ -521,7 +604,7 @@ export default {
     }
 
     const handleViewStudent = (student) => {
-      console.log('Viewing student details:', student)
+      logger.log('Viewing student details:', student)
       alert(`👤 ${student.name}の詳細情報\n\nレベル: ${student.level}\n現在のアクティビティ: ${student.currentActivity}\nスコア: ${student.score}%\nオンライン時間: ${student.timeOnline}`)
     }
 
@@ -533,7 +616,7 @@ export default {
     }
 
     const handleRespondToCall = (call) => {
-      console.log('Responding to emergency call:', call)
+      logger.log('Responding to emergency call:', call)
       alert(`🚨 ${call.studentName}の緊急コールに対応します\n\n問題: ${call.message}`)
       
       // Remove the call after responding
@@ -558,8 +641,104 @@ export default {
       alert('📊 レポート生成\n\n今日の活動レポートを作成します...')
     }
 
+    // Spectator room methods
+    const createSpectatorRoom = async () => {
+      try {
+        isCreatingRoom.value = true
+
+        // Connect to spectator service
+        await spectatorService.connect()
+
+        // Create room as teacher
+        const roomData = await spectatorService.createRoom(teacherInfo.id, teacherInfo.name)
+
+        alert(`👁️ 観戦ルームが作成されました！\n\nルームコード: ${roomData.roomCode}\n\n生徒にこのコードを共有してゲームに参加してもらってください。`)
+
+      } catch (error) {
+        logger.error('Failed to create spectator room:', error)
+        alert('観戦ルームの作成に失敗しました: ' + error.message)
+      } finally {
+        isCreatingRoom.value = false
+      }
+    }
+
+    const closeSpectatorRoom = () => {
+      if (spectatorStore.isConnected) {
+        spectatorService.leaveRoom()
+        spectatorService.disconnect()
+        alert('観戦ルームを閉じました。')
+      }
+    }
+
+    const launchHandwritingDictation = () => {
+      if (!spectatorRoomCode.value) {
+        alert('先に観戦ルームを作成してください。')
+        return
+      }
+
+      const teacherUrl = `/handwriting-dictation?roomCode=${spectatorRoomCode.value}&role=teacher&name=${encodeURIComponent(teacherInfo.name)}`
+      const studentUrl = `/handwriting-dictation?roomCode=${spectatorRoomCode.value}&role=student`
+
+      // 講師画面を開く
+      router.push(teacherUrl)
+
+      // 生徒用URLをクリップボードにコピー
+      navigator.clipboard.writeText(`${window.location.origin}${studentUrl}`)
+      alert(`手書きディクテーションゲームを開始しました。\n\n生徒用URLがクリップボードにコピーされました。\n生徒に共有してください。`)
+    }
+
+    const launchWordDictation = () => {
+      if (!spectatorRoomCode.value) {
+        alert('先に観戦ルームを作成してください。')
+        return
+      }
+
+      const teacherUrl = `/games/word-dictation-challenge?roomCode=${spectatorRoomCode.value}&role=teacher&name=${encodeURIComponent(teacherInfo.name)}`
+      const studentUrl = `/games/word-dictation-challenge?roomCode=${spectatorRoomCode.value}&role=student`
+
+      router.push(teacherUrl)
+
+      navigator.clipboard.writeText(`${window.location.origin}${studentUrl}`)
+      alert(`タイピングディクテーションゲームを開始しました。\n\n生徒用URLがクリップボードにコピーされました。`)
+    }
+
+    const launchTypingArena = () => {
+      if (!spectatorRoomCode.value) {
+        alert('先に観戦ルームを作成してください。')
+        return
+      }
+
+      const teacherUrl = `/typing-arena?roomCode=${spectatorRoomCode.value}&role=teacher&name=${encodeURIComponent(teacherInfo.name)}`
+      const studentUrl = `/typing-arena?roomCode=${spectatorRoomCode.value}&role=student`
+
+      router.push(teacherUrl)
+
+      navigator.clipboard.writeText(`${window.location.origin}${studentUrl}`)
+      alert(`タイピングアリーナを開始しました。\n\n生徒用URLがクリップボードにコピーされました。`)
+    }
+
+    const launchGrammarGalaxy = () => {
+      if (!spectatorRoomCode.value) {
+        alert('先に観戦ルームを作成してください。')
+        return
+      }
+
+      const teacherUrl = `/grammar-galaxy?roomCode=${spectatorRoomCode.value}&role=teacher&name=${encodeURIComponent(teacherInfo.name)}`
+      const studentUrl = `/grammar-galaxy?roomCode=${spectatorRoomCode.value}&role=student`
+
+      router.push(teacherUrl)
+
+      navigator.clipboard.writeText(`${window.location.origin}${studentUrl}`)
+      alert(`文法ギャラクシーを開始しました。\n\n生徒用URLがクリップボードにコピーされました。`)
+    }
+
     // Collaborative session methods
     const startCollaborativeSession = async () => {
+      if (!collaborativeSession) {
+        alert('協力学習機能は現在利用できません。WebSocketサーバーが起動していることを確認してください。')
+        return
+      }
+      
       try {
         isCreatingSession.value = true
         
@@ -580,7 +759,7 @@ export default {
         sessionStartTime.value = new Date()
 
       } catch (error) {
-        console.error('❌ Failed to create session:', error)
+        logger.error('❌ Failed to create session:', error)
         alert('セッションの作成に失敗しました: ' + error.message)
       } finally {
         isCreatingSession.value = false
@@ -588,7 +767,7 @@ export default {
     }
 
     const endCollaborativeSession = () => {
-      if (collaborativeSession.sessionState.isConnected) {
+      if (collaborativeSession && collaborativeSession.sessionState.isConnected) {
         collaborativeSession.endSession()
       }
       alert('協力学習セッションを終了しました。')
@@ -624,8 +803,18 @@ export default {
     }
 
     // Lifecycle
-    onMounted(() => {
-      console.log('🏫 Teacher Dashboard mounted')
+    onMounted(async () => {
+      logger.log('🏫 Teacher Dashboard mounted')
+      
+      // Load collaborative session lazily
+      try {
+        const module = await import('@/services/collaborativeSession')
+        collaborativeSession = module.collaborativeSession
+        logger.log('Collaborative session loaded successfully')
+      } catch (error) {
+        logger.warn('Collaborative session service not available:', error)
+      }
+      
       updateInterval = setInterval(updateDashboardData, 1000)
     })
 
@@ -644,6 +833,15 @@ export default {
       analyticsData,
       showSessionModal,
       selectedSession,
+      // Spectator room
+      isCreatingRoom,
+      spectatorRoomCode,
+      createSpectatorRoom,
+      closeSpectatorRoom,
+      launchHandwritingDictation,
+      launchWordDictation,
+      launchTypingArena,
+      launchGrammarGalaxy,
       // Collaborative session
       isCreatingSession,
       activeCollaborativeSession,

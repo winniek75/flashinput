@@ -1,13 +1,28 @@
 // stores/gameStore.js - 修正版
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import logger from '@/utils/logger'
 
 export const useGameStore = defineStore('game', () => {
   // オンボーディング完了フラグ
   const hasCompletedOnboarding = ref(false)
   
-  // プレイヤーデータ（宇宙テーマ化）
+  // プレイヤーデータ（統一レベルシステム対応）
   const playerData = ref({
+    // 統一レベルシステム
+    unifiedLevel: 1,
+    skillLevels: {
+      phonics: 1,
+      vocabulary: 1,
+      grammar: 1,
+      communication: 1
+    },
+    totalExperience: 250,
+    levelExperience: 0,
+    eikenLevel: '英検5級準備',
+    eikenGrade: '小学1-2年',
+    
+    // 宇宙テーマデータ
     captainLevel: 1,
     cosmicEnergy: 250,
     soundGems: 150,
@@ -20,6 +35,12 @@ export const useGameStore = defineStore('game', () => {
     lastPlayed: null,
     navigationDays: 1,
     explorationPoints: 750,
+    
+    // レベルアップ履歴
+    levelUpHistory: [],
+    lastLevelUp: null,
+    unlockedContent: ['Basic Phonics Games'],
+    
     // 後方互換性のための旧フィールド
     level: 1,
     exp: 250,
@@ -28,12 +49,45 @@ export const useGameStore = defineStore('game', () => {
 
   // ゲーム進捗データ
   const gameProgress = ref({
+    // フォニックスゲーム
+    pureSoundLab: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPhonemes: [],
+      progress: 0
+    },
     singlePhoneme: {
       completed: false,
       bestScore: 0,
       attempts: 0,
       lastPlayed: null,
       masteredPhonemes: [],
+      progress: 0
+    },
+    soundHunter: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredSounds: [],
+      progress: 0
+    },
+    phonicsTrainingHub: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPatterns: [],
+      progress: 0
+    },
+    sequentialBlending: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredBlends: [],
       progress: 0
     },
     blendingBuilder: {
@@ -113,7 +167,105 @@ export const useGameStore = defineStore('game', () => {
       overallAccuracy: 0,
       completedPuzzles: 0,
       progress: 0
-    }
+    },
+    // その他のフォニックスゲーム
+    silentLetterDetective: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPatterns: [],
+      progress: 0
+    },
+    complexPhonemePatterns: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPatterns: [],
+      progress: 0
+    },
+    magicEGalaxyBuilder: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      completedPlanets: [],
+      masteredPatterns: [],
+      progress: 0,
+      galaxiesCreated: 0,
+      totalBlocksPlaced: 0,
+      magicETransformations: 0,
+      currentLevel: 1,
+      unlockedGalaxies: ['novice']
+    },
+    // 文法ゲーム
+    grammarColorCode: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredConcepts: [],
+      progress: 0
+    },
+    beVerbRush: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPatterns: [],
+      progress: 0
+    },
+    patternHunter: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredPatterns: [],
+      progress: 0
+    },
+    modalVerbChallenge: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredModals: [],
+      progress: 0
+    },
+    timeZoneNavigator: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredTenses: [],
+      progress: 0
+    },
+    // 語彙ゲーム
+    wordRush: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      masteredWords: [],
+      progress: 0,
+      difficultyProgress: {
+        beginner: 0,
+        intermediate: 0,
+        advanced: 0
+      }
+    },
+    // 新規代名詞学習ゲーム
+    holographicStoryDeck: {
+      completed: false,
+      bestScore: 0,
+      attempts: 0,
+      lastPlayed: null,
+      completedScenarios: 0,
+      totalScenarios: 10,
+      accuracy: 0,
+      masteredPronouns: [],
+      progress: 0
+    },
   })
 
   // 統計データ
@@ -223,6 +375,31 @@ export const useGameStore = defineStore('game', () => {
     saveToLocalStorage()
   }
 
+  // Magic E Galaxy Builder専用の進捗更新
+  const updatePhonicsProgress = (data) => {
+    if (data.magicEGalaxyBuilder) {
+      const magicEData = data.magicEGalaxyBuilder
+      gameProgress.value.magicEGalaxyBuilder = {
+        ...gameProgress.value.magicEGalaxyBuilder,
+        ...magicEData,
+        lastPlayed: new Date().toISOString()
+      }
+      
+      // レベルとスコアに基づいて経験値を付与
+      const expGain = Math.floor(magicEData.totalScore / 100) || 0
+      const gemGain = Math.floor(expGain / 10) || 0
+      
+      playerData.value.exp += expGain
+      playerData.value.cosmicEnergy += expGain
+      playerData.value.soundGems += gemGain
+      
+      // 統一レベルシステム更新
+      updateUnifiedLevel('magicEGalaxyBuilder', gameProgress.value.magicEGalaxyBuilder)
+      
+      saveToLocalStorage()
+    }
+  }
+
   const updateGameProgress = (gameId, data) => {
     if (!gameProgress.value[gameId]) {
       gameProgress.value[gameId] = {
@@ -246,6 +423,14 @@ export const useGameStore = defineStore('game', () => {
       attempts: (gameProgress.value[gameId].attempts || 0) + 1
     }
 
+    // VR準備度サービス用に最後のゲーム結果を保存
+    lastGameResult.value = {
+      gameType: normalizeGameType(gameId),
+      gameId,
+      ...data,
+      timestamp: new Date().toISOString()
+    }
+
     // ベストスコア更新時の報酬
     if (newScore > previousBest) {
       const expGain = Math.floor((newScore - previousBest) * 0.1)
@@ -254,10 +439,13 @@ export const useGameStore = defineStore('game', () => {
       playerData.value.exp += expGain
       playerData.value.soundGems += gemGain
 
-      console.log(`🎉 新記録！ +${expGain}EXP, +${gemGain}ジェム`)
+      logger.log(`🎉 新記録！ +${expGain}EXP, +${gemGain}ジェム`)
     }
 
-    // レベルアップチェック
+    // 統一レベルシステム更新
+    updateUnifiedLevel(gameId, gameProgress.value[gameId])
+
+    // レベルアップチェック（後方互換性）
     checkLevelUp()
 
     // 実績チェック
@@ -343,7 +531,7 @@ export const useGameStore = defineStore('game', () => {
       const gemReward = newLevel * 50
       playerData.value.soundGems += gemReward
 
-      console.log(`🚀 船長レベルアップ！ Lv.${newLevel} (+${gemReward}ジェム)`)
+      logger.log(`🚀 船長レベルアップ！ Lv.${newLevel} (+${gemReward}ジェム)`)
 
       // レベルアップ時のタイトル更新
       updatePlayerTitle(newLevel)
@@ -361,7 +549,7 @@ export const useGameStore = defineStore('game', () => {
 
     if (titles[level]) {
       playerData.value.title = titles[level]
-      console.log(`👑 新しい称号獲得: ${titles[level]}`)
+      logger.log(`👑 新しい称号獲得: ${titles[level]}`)
     }
   }
 
@@ -372,7 +560,7 @@ export const useGameStore = defineStore('game', () => {
         earned: true,
         earnedDate: new Date().toISOString()
       }
-      console.log('🏆 実績獲得: ファースト・ステップ')
+      logger.log('🏆 実績獲得: ファースト・ステップ')
     }
 
     // パーフェクトスコア
@@ -381,7 +569,7 @@ export const useGameStore = defineStore('game', () => {
         earned: true,
         earnedDate: new Date().toISOString()
       }
-      console.log('🏆 実績獲得: パーフェクト・プレイヤー')
+      logger.log('🏆 実績獲得: パーフェクト・プレイヤー')
     }
 
     // フォニックス・マスター（全音素習得）
@@ -392,7 +580,7 @@ export const useGameStore = defineStore('game', () => {
           earned: true,
           earnedDate: new Date().toISOString()
         }
-        console.log('🏆 実績獲得: フォニックス・マスター')
+        logger.log('🏆 実績獲得: フォニックス・マスター')
       }
     }
   }
@@ -432,7 +620,7 @@ export const useGameStore = defineStore('game', () => {
         earned: true,
         earnedDate: new Date().toISOString()
       }
-      console.log('🏆 実績獲得: ギャラクシー・ナビゲーター')
+      logger.log('🏆 実績獲得: ギャラクシー・ナビゲーター')
     }
 
     saveToLocalStorage()
@@ -460,10 +648,389 @@ export const useGameStore = defineStore('game', () => {
     saveToLocalStorage()
   }
   
+  // 統一レベルシステム機能
+  const updateUnifiedLevel = (gameId, gameData) => {
+    // スキル別進捗を更新
+    updateSkillLevels(gameId, gameData)
+    
+    // 統一レベルを再計算
+    const newUnifiedLevel = calculateUnifiedLevel()
+    
+    // レベルアップチェック
+    if (newUnifiedLevel > playerData.value.unifiedLevel) {
+      handleLevelUp(playerData.value.unifiedLevel, newUnifiedLevel)
+      playerData.value.unifiedLevel = newUnifiedLevel
+    }
+    
+    // 英検レベル更新
+    updateEikenLevel()
+    
+    saveToLocalStorage()
+  }
+
+  const updateSkillLevels = (gameId, gameData) => {
+    // スキルレベルの初期化を確認
+    if (!playerData.value.skillLevels) {
+      playerData.value.skillLevels = {
+        phonics: 1,
+        vocabulary: 1,
+        grammar: 1,
+        communication: 1
+      }
+    }
+    
+    const progress = gameData.progress || 0
+    const masteredCount = getMasteredCount(gameId, gameData)
+    
+    // ゲームカテゴリに基づいてスキルレベル更新
+    const gameCategory = getGameCategory(gameId)
+    let skillBonus = Math.floor(progress / 10) + Math.floor(masteredCount / 5)
+    
+    switch (gameCategory) {
+      case 'phonics':
+        playerData.value.skillLevels.phonics = Math.min(100, 
+          (playerData.value.skillLevels.phonics || 1) + skillBonus)
+        break
+      case 'vocabulary':
+        playerData.value.skillLevels.vocabulary = Math.min(100, 
+          (playerData.value.skillLevels.vocabulary || 1) + skillBonus)
+        break
+      case 'grammar':
+        playerData.value.skillLevels.grammar = Math.min(100, 
+          (playerData.value.skillLevels.grammar || 1) + skillBonus)
+        break
+      case 'communication':
+        playerData.value.skillLevels.communication = Math.min(100, 
+          (playerData.value.skillLevels.communication || 1) + skillBonus)
+        break
+    }
+  }
+
+  const calculateUnifiedLevel = () => {
+    // スキルレベルの初期化を確認
+    if (!playerData.value.skillLevels) {
+      playerData.value.skillLevels = {
+        phonics: 1,
+        vocabulary: 1,
+        grammar: 1,
+        communication: 1
+      }
+    }
+    
+    const skills = playerData.value.skillLevels
+    const weights = { phonics: 0.3, vocabulary: 0.25, grammar: 0.25, communication: 0.2 }
+    
+    const weightedSum = 
+      (skills.phonics || 1) * weights.phonics +
+      (skills.vocabulary || 1) * weights.vocabulary +
+      (skills.grammar || 1) * weights.grammar +
+      (skills.communication || 1) * weights.communication
+    
+    return Math.min(100, Math.max(1, Math.round(weightedSum)))
+  }
+
+  const getGameCategory = (gameId) => {
+    const phonicsGames = [
+      'pureSoundLab', 'singlePhoneme', 'soundHunter', 'phonicsTrainingHub',
+      'sequentialBlending', 'blendingBuilder', 'silentLetterDetective', 'complexPhonemePatterns',
+      'magicEGalaxyBuilder'
+    ]
+    const vocabularyGames = [
+      'wordRush', 'sightWordMaster', 'cosmicWordFactory', 'cvcWord'
+    ]
+    const grammarGames = [
+      'grammarColorCode', 'beVerbRush', 'patternHunter', 'modalVerbChallenge',
+      'comparisonMaster', 'conjunctionConnection', 'progressiveTense'
+    ]
+    const communicationGames = [
+      'cvPronunciationTrainer', 'trueSoundImpact', 'rhythmPhonicsDance'
+    ]
+    
+    if (phonicsGames.includes(gameId)) return 'phonics'
+    if (vocabularyGames.includes(gameId)) return 'vocabulary'
+    if (grammarGames.includes(gameId)) return 'grammar'
+    if (communicationGames.includes(gameId)) return 'communication'
+    return 'phonics' // デフォルト
+  }
+
+  const getMasteredCount = (gameId, gameData) => {
+    return (gameData.masteredPhonemes?.length || 0) +
+           (gameData.masteredSounds?.length || 0) +
+           (gameData.masteredPatterns?.length || 0) +
+           (gameData.masteredWords?.length || 0) +
+           (gameData.masteredConcepts?.length || 0) +
+           (gameData.masteredModals?.length || 0) +
+           (gameData.masteredBlends?.length || 0)
+  }
+
+  const handleLevelUp = (oldLevel, newLevel) => {
+    // レベルアップ履歴を記録
+    playerData.value.levelUpHistory.push({
+      oldLevel,
+      newLevel,
+      date: new Date().toISOString(),
+      rewards: {
+        cosmicEnergy: 50 * (newLevel - oldLevel),
+        soundGems: 25 * (newLevel - oldLevel)
+      }
+    })
+    
+    // 報酬付与
+    playerData.value.cosmicEnergy += 50 * (newLevel - oldLevel)
+    playerData.value.soundGems += 25 * (newLevel - oldLevel)
+    playerData.value.lastLevelUp = new Date().toISOString()
+    
+    // 新コンテンツ解放
+    const newContent = getUnlockedContentForLevel(newLevel)
+    newContent.forEach(content => {
+      if (!playerData.value.unlockedContent.includes(content)) {
+        playerData.value.unlockedContent.push(content)
+      }
+    })
+    
+    logger.log(`🎉 レベルアップ! ${oldLevel} → ${newLevel}`)
+    logger.log(`💰 報酬: エネルギー +${50 * (newLevel - oldLevel)}, ジェム +${25 * (newLevel - oldLevel)}`)
+    if (newContent.length > 0) {
+      logger.log(`🔓 新コンテンツ解放: ${newContent.join(', ')}`)
+    }
+  }
+
+  const getUnlockedContentForLevel = (level) => {
+    const content = []
+    if (level >= 10 && level < 15) content.push('VR Basic Experience')
+    if (level >= 15 && level < 25) content.push('Vocabulary Building Advanced')
+    if (level >= 25 && level < 40) content.push('Grammar Galaxy')
+    if (level >= 40 && level < 50) content.push('Intermediate VR')
+    if (level >= 50 && level < 60) content.push('Advanced VR Scenarios')
+    if (level >= 60 && level < 75) content.push('Pronunciation Training')
+    if (level >= 75 && level < 90) content.push('Conversation Roleplay')
+    if (level >= 90) content.push('Expert Content')
+    return content
+  }
+
+  const updateEikenLevel = () => {
+    const level = playerData.value.unifiedLevel
+    const eikenLevels = {
+      1: { min: 1, max: 5, name: '英検5級準備', grade: '小学1-2年' },
+      2: { min: 6, max: 15, name: '英検5級', grade: '小学3-4年' },
+      3: { min: 16, max: 25, name: '英検4級準備', grade: '小学5-6年' },
+      4: { min: 26, max: 40, name: '英検4級', grade: '中学1-2年' },
+      5: { min: 41, max: 60, name: '英検3級', grade: '中学3年' },
+      6: { min: 61, max: 75, name: '英検準2級', grade: '高校1-2年' },
+      7: { min: 76, max: 85, name: '英検2級', grade: '高校3年' },
+      8: { min: 86, max: 95, name: '英検準1級', grade: '大学1-2年' },
+      9: { min: 96, max: 100, name: '英検1級', grade: '大学3-4年+' }
+    }
+    
+    for (const [key, info] of Object.entries(eikenLevels)) {
+      if (level >= info.min && level <= info.max) {
+        playerData.value.eikenLevel = info.name
+        playerData.value.eikenGrade = info.grade
+        break
+      }
+    }
+  }
+
   // オンボーディング完了設定
   const setOnboardingCompleted = () => {
     hasCompletedOnboarding.value = true
     saveToLocalStorage()
+  }
+
+  // VR準備度システムとの統合
+  let vrReadinessService = null
+  
+  // VR準備度サービスの初期化（遅延読み込み）
+  const initVRReadinessService = async () => {
+    if (!vrReadinessService) {
+      try {
+        const { vrReadinessAssessment } = await import('@/services/vrReadinessAssessment')
+        vrReadinessService = vrReadinessAssessment
+      } catch (error) {
+        logger.warn('VR Readiness service not available:', error)
+      }
+    }
+    return vrReadinessService
+  }
+
+  // ゲーム結果のVR準備度への反映
+  const processVRSkillGains = async (gameType, gameResult) => {
+    try {
+      const service = await initVRReadinessService()
+      if (service && gameResult) {
+        // ゲーム結果データの標準化
+        const standardizedResult = {
+          gameType,
+          score: gameResult.score || gameResult.bestScore || 0,
+          maxScore: gameResult.maxScore || 100,
+          accuracy: gameResult.accuracy || ((gameResult.correctAnswers || 0) / (gameResult.totalAttempts || 1)) * 100,
+          streak: gameResult.streak || gameResult.maxStreak || 0,
+          timeBonus: gameResult.timeBonus || 0,
+          mistakes: gameResult.mistakes || gameResult.wrongAnswers || 0,
+          wordsCollected: gameResult.wordsCollected || gameResult.masteredWords?.length || 0,
+          totalWords: gameResult.totalWords || 10,
+          categoriesCompleted: gameResult.categoriesCompleted || 0,
+          averageSentenceLength: gameResult.averageSentenceLength || 5,
+          grammarErrors: gameResult.grammarErrors || 0,
+          flowScore: gameResult.flowScore || 0,
+          registerScore: gameResult.registerScore || 0,
+          topicDifficulty: gameResult.difficulty || 'beginner',
+          completed: gameResult.completed || false
+        }
+
+        // VR準備度サービスに結果を送信
+        await service.updateSkillsFromGame(standardizedResult)
+        logger.log('🎯 VR準備度が更新されました')
+      }
+    } catch (error) {
+      logger.warn('VR skill update failed:', error)
+    }
+  }
+
+  // 拡張されたゲーム進捗更新（VR準備度統合）
+  const updateGameProgressWithVR = async (gameId, data) => {
+    // 既存のゲーム進捗更新
+    updateGameProgress(gameId, data)
+    
+    // VR準備度への反映
+    await processVRSkillGains(gameId, {
+      ...data,
+      completed: data.completed || false,
+      accuracy: data.accuracy || 0,
+      streak: data.streak || 0
+    })
+  }
+
+  // VR対応ゲーム結果の処理
+  const trackVRCompatibleGameResult = async (gameType, results) => {
+    // 基本の結果追跡
+    if (gameType === 'wordRush') {
+      trackWordRushResults(results)
+    } else {
+      updateGameStats(gameType, results)
+    }
+
+    // VR準備度スキル獲得処理
+    await processVRSkillGains(gameType, results)
+
+    // VR準備度に基づく特別報酬
+    const service = await initVRReadinessService()
+    if (service) {
+      const currentReport = service.currentReport.value
+      if (currentReport) {
+        // VR準備度レベルに応じたボーナス経験値
+        const vrBonusMultiplier = getVRBonusMultiplier(currentReport.level)
+        const bonusExp = Math.floor((results.score || 0) * vrBonusMultiplier * 0.1)
+        
+        if (bonusExp > 0) {
+          playerData.value.cosmicEnergy += bonusExp
+          playerData.value.exp += bonusExp
+          logger.log(`🚀 VR準備度ボーナス: +${bonusExp}EXP`)
+        }
+
+        // VR準備度マイルストーン達成チェック
+        checkVRReadinessMilestones(currentReport)
+      }
+    }
+  }
+
+  // VR準備度レベルに応じたボーナス倍率
+  const getVRBonusMultiplier = (vrLevel) => {
+    const multipliers = {
+      'beginner': 1.0,
+      'foundation': 1.1,
+      'intermediate': 1.2,
+      'advanced': 1.3,
+      'master': 1.5
+    }
+    return multipliers[vrLevel] || 1.0
+  }
+
+  // VR準備度マイルストーン達成チェック
+  const checkVRReadinessMilestones = (report) => {
+    // Foundation レベル達成
+    if (report.level === 'foundation' && !achievements.value.vrFoundation?.earned) {
+      achievements.value.vrFoundation = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 200
+      logger.log('🏆 VR実績獲得: ファウンデーション達成')
+    }
+
+    // Intermediate レベル達成
+    if (report.level === 'intermediate' && !achievements.value.vrIntermediate?.earned) {
+      achievements.value.vrIntermediate = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 300
+      logger.log('🏆 VR実績獲得: インターミディエイト達成')
+    }
+
+    // Advanced レベル達成
+    if (report.level === 'advanced' && !achievements.value.vrAdvanced?.earned) {
+      achievements.value.vrAdvanced = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 500
+      logger.log('🏆 VR実績獲得: アドバンスド達成')
+    }
+
+    // Master レベル達成
+    if (report.level === 'master' && !achievements.value.vrMaster?.earned) {
+      achievements.value.vrMaster = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 1000
+      playerData.value.title = 'VR マスター'
+      logger.log('🏆 VR実績獲得: マスター達成')
+    }
+
+    // VRアカデミー準備完了
+    if (report.vrAcademyRecommendation?.isReady && !achievements.value.vrAcademyReady?.earned) {
+      achievements.value.vrAcademyReady = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 750
+      logger.log('🏆 VR実績獲得: VRアカデミー準備完了')
+    }
+  }
+
+  // 最後のゲーム結果（VR準備度サービス用）
+  const lastGameResult = ref(null)
+
+  // ゲームタイプの正規化
+  const normalizeGameType = (gameId) => {
+    const gameTypeMap = {
+      // フォニックスゲーム
+      'singlePhoneme': 'CvPronunciationTrainer',
+      'pureSoundLab': 'CvPronunciationTrainer',
+      'soundHunter': 'CvPronunciationTrainer',
+      'phonicsTrainingHub': 'CvPronunciationTrainer',
+      
+      // 語彙ゲーム
+      'wordRush': 'WordCollector',
+      'magicCastleJump': 'WordCollector',
+      'magicCardBattle': 'WordCollector',
+      
+      // 文法ゲーム
+      'grammarColorCode': 'GrammarSentenceBuilder',
+      'beVerbRush': 'GrammarSentenceBuilder',
+      'patternHunter': 'GrammarSentenceBuilder',
+      'modalVerbChallenge': 'GrammarSentenceBuilder',
+      'timeZoneNavigator': 'GrammarSentenceBuilder',
+      
+      // 会話ゲーム
+      'spellRacing': 'ConversationSimulator',
+      'magicCooking': 'ConversationSimulator',
+      'voicePuzzle': 'ConversationSimulator'
+    }
+    
+    return gameTypeMap[gameId] || gameId
   }
 
   // ローカルストレージ関連
@@ -480,9 +1047,9 @@ export const useGameStore = defineStore('game', () => {
 
     try {
       localStorage.setItem('movwiseGameData', JSON.stringify(data))
-      console.log('💾 データ保存完了')
+      logger.log('💾 データ保存完了')
     } catch (error) {
-      console.error('❌ データ保存エラー:', error)
+      logger.error('❌ データ保存エラー:', error)
     }
   }
 
@@ -499,15 +1066,15 @@ export const useGameStore = defineStore('game', () => {
           gameStats.value = { ...gameStats.value, ...parsed.gameStats }
           achievements.value = { ...achievements.value, ...parsed.achievements }
           hasCompletedOnboarding.value = parsed.hasCompletedOnboarding || false
-          console.log('📂 データ読み込み完了')
+          logger.log('📂 データ読み込み完了')
         } else {
-          console.log('⚠️ 古いデータ形式のため初期化')
+          logger.log('⚠️ 古いデータ形式のため初期化')
           saveToLocalStorage() // 新形式で保存
         }
       }
     } catch (error) {
-      console.error('❌ データ読み込みエラー:', error)
-      console.log('🔄 データを初期化します')
+      logger.error('❌ データ読み込みエラー:', error)
+      logger.log('🔄 データを初期化します')
     }
   }
 
@@ -672,6 +1239,125 @@ export const useGameStore = defineStore('game', () => {
   // 初期化
   loadFromLocalStorage()
 
+  // === Galaxy Trading統合メソッド（最小限追加） ===
+  
+  /**
+   * Galaxy Trading用の学習データ取得
+   */
+  const getGalaxyTradingData = () => {
+    return {
+      cvcWordProgress: gameProgress.value.cvcWord?.progress || 0,
+      blendingProgress: gameProgress.value.blendingBuilder?.progress || 0,
+      grammarProgress: gameProgress.value.grammarColorCode?.progress || 0,
+      overallCompletion: getCompletionRate(),
+      cosmicEnergy: playerData.value.cosmicEnergy || playerData.value.exp || 0,
+      soundGems: playerData.value.soundGems || 0,
+      currentLevel: playerData.value.captainLevel || playerData.value.level || 1
+    }
+  }
+  
+  /**
+   * Galaxy Trading投資によるエネルギー消費
+   */
+  const consumeEnergyForInvestment = (amount) => {
+    if ((playerData.value.cosmicEnergy || playerData.value.exp || 0) < amount) {
+      throw new Error('エネルギーポイントが不足しています')
+    }
+    
+    playerData.value.cosmicEnergy = (playerData.value.cosmicEnergy || 0) - amount
+    playerData.value.exp = (playerData.value.exp || 0) - amount
+    
+    logger.log(`💸 投資実行: ${amount}エネルギーポイント消費`)
+    saveToLocalStorage()
+  }
+  
+  /**
+   * Galaxy Trading投資リターンの受け取り
+   */
+  const receiveInvestmentReturns = (amount, source = 'galaxy-trading') => {
+    playerData.value.cosmicEnergy = (playerData.value.cosmicEnergy || 0) + amount
+    playerData.value.exp = (playerData.value.exp || 0) + amount
+    
+    // 投資リターンによる特別ボーナス
+    const bonusGems = Math.floor(amount / 20)
+    if (bonusGems > 0) {
+      playerData.value.soundGems = (playerData.value.soundGems || 0) + bonusGems
+    }
+    
+    logger.log(`💰 投資リターン: ${amount}エネルギー + ${bonusGems}ジェム受取`)
+    saveToLocalStorage()
+  }
+  
+  /**
+   * Galaxy Trading学習効果の記録
+   */
+  const recordGalaxyTradingLearning = (planetId, educationalConcept, amount) => {
+    // 統計にGalaxy Trading学習を記録
+    if (!gameStats.value.galaxyTradingLearning) {
+      gameStats.value.galaxyTradingLearning = {
+        totalInvestments: 0,
+        totalAmount: 0,
+        conceptsLearned: [],
+        planetsExperienced: []
+      }
+    }
+    
+    gameStats.value.galaxyTradingLearning.totalInvestments++
+    gameStats.value.galaxyTradingLearning.totalAmount += amount
+    
+    if (!gameStats.value.galaxyTradingLearning.conceptsLearned.includes(educationalConcept)) {
+      gameStats.value.galaxyTradingLearning.conceptsLearned.push(educationalConcept)
+    }
+    
+    if (!gameStats.value.galaxyTradingLearning.planetsExperienced.includes(planetId)) {
+      gameStats.value.galaxyTradingLearning.planetsExperienced.push(planetId)
+    }
+    
+    // 投資教育実績チェック
+    checkGalaxyTradingAchievements()
+    
+    saveToLocalStorage()
+  }
+  
+  /**
+   * Galaxy Trading実績チェック
+   */
+  const checkGalaxyTradingAchievements = () => {
+    const tradingData = gameStats.value.galaxyTradingLearning
+    if (!tradingData) return
+    
+    // 初回投資実績
+    if (tradingData.totalInvestments >= 1 && !achievements.value.firstInvestor?.earned) {
+      achievements.value.firstInvestor = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 100
+      logger.log('🏆 実績獲得: ファースト・インベスター')
+    }
+    
+    // 分散投資実績
+    if (tradingData.planetsExperienced.length >= 2 && !achievements.value.diversifiedInvestor?.earned) {
+      achievements.value.diversifiedInvestor = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 250
+      logger.log('🏆 実績獲得: 分散投資マスター')
+    }
+    
+    // 投資教育修了実績
+    if (tradingData.conceptsLearned.length >= 5 && !achievements.value.investmentEducationComplete?.earned) {
+      achievements.value.investmentEducationComplete = {
+        earned: true,
+        earnedDate: new Date().toISOString()
+      }
+      playerData.value.soundGems += 500
+      playerData.value.title = 'ギャラクシー投資アドバイザー'
+      logger.log('🏆 実績獲得: 投資教育修了')
+    }
+  }
+
   return {
     // 状態
     playerData,
@@ -680,6 +1366,7 @@ export const useGameStore = defineStore('game', () => {
     achievements,
     gameSettings,
     hasCompletedOnboarding,
+    lastGameResult,  // VR準備度サービス用
 
     // 計算プロパティ
     playerLevel,
@@ -703,6 +1390,28 @@ export const useGameStore = defineStore('game', () => {
     updateCrossGameAnalytics,
     analyzePhonicsVocabularyCorrelation,
     calculateOverallVRReadiness,
-    setOnboardingCompleted
+    setOnboardingCompleted,
+    updatePhonicsProgress,
+    
+    // VR準備度統合メソッド
+    updateGameProgressWithVR,
+    trackVRCompatibleGameResult,
+    processVRSkillGains,
+    normalizeGameType,
+    initVRReadinessService,
+    
+    // 統一レベルシステム
+    updateUnifiedLevel,
+    updateSkillLevels,
+    calculateUnifiedLevel,
+    handleLevelUp,
+    updateEikenLevel,
+    
+    // Galaxy Trading統合メソッド（最小限追加）
+    getGalaxyTradingData,
+    consumeEnergyForInvestment,
+    receiveInvestmentReturns,
+    recordGalaxyTradingLearning,
+    checkGalaxyTradingAchievements
   }
 })

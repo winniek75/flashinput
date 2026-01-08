@@ -22,10 +22,10 @@
         <div class="progress-bar-container">
           <div 
             class="progress-bar" 
-            :style="{ width: `${(currentQuestion / totalQuestions) * 100}%` }"
+            :style="{ width: `${(currentQuestionIndex / totalQuestions) * 100}%` }"
           ></div>
         </div>
-        <div class="progress-text">{{ Math.round((currentQuestion / totalQuestions) * 100) }}% Complete</div>
+        <div class="progress-text">{{ Math.round((currentQuestionIndex / totalQuestions) * 100) }}% Complete</div>
       </div>
     </div>
 
@@ -219,7 +219,7 @@
             </div>
             <div class="stat-item">
               <span class="stat-label">Questions Completed:</span>
-              <span class="stat-value">{{ currentQuestion }}/{{ totalQuestions }}</span>
+              <span class="stat-value">{{ currentQuestionIndex }}/{{ totalQuestions }}</span>
             </div>
           </div>
           <div class="game-over-actions">
@@ -244,10 +244,12 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 
 // ゲーム状態
-const currentQuestion = ref(1)
+const currentQuestionIndex = ref(1)
 const totalQuestions = ref(12)
 const currentScore = ref(0)
 const currentLives = ref(3)
@@ -437,14 +439,14 @@ const questions = ref([
 
 // 現在のパターンと問題
 const currentPattern = computed(() => {
-  const question = questions.value[currentQuestion.value - 1]
+  const question = questions.value[currentQuestionIndex.value - 1]
   if (!question) return phonemePatterns.value[0]
   
   return phonemePatterns.value.find(p => p.name === question.pattern) || phonemePatterns.value[0]
 })
 
 const currentQuestion = computed(() => {
-  return questions.value[currentQuestion.value - 1] || questions.value[0]
+  return questions.value[currentQuestionIndex.value - 1] || questions.value[0]
 })
 
 // ゲーム機能
@@ -512,7 +514,7 @@ const handleIncorrectAnswer = (selectedChoice) => {
 const closeFeedbackModal = () => {
   showFeedbackModal.value = false
   
-  if (currentQuestion.value >= totalQuestions.value) {
+  if (currentQuestionIndex.value >= totalQuestions.value) {
     gameCompleted.value = true
   } else if (currentLives.value > 0) {
     nextQuestion()
@@ -520,12 +522,12 @@ const closeFeedbackModal = () => {
 }
 
 const nextQuestion = () => {
-  currentQuestion.value++
+  currentQuestionIndex.value++
   selectedChoice.value = null
   showFeedback.value = false
-  
+
   // レベルアップチェック
-  if (currentQuestion.value % 4 === 1 && currentQuestion.value > 1) {
+  if (currentQuestionIndex.value % 4 === 1 && currentQuestionIndex.value > 1) {
     currentLevel.value++
   }
 }
@@ -579,7 +581,7 @@ const formatScore = (score) => {
 
 const restartGame = () => {
   // ゲーム状態リセット
-  currentQuestion.value = 1
+  currentQuestionIndex.value = 1
   currentScore.value = 0
   currentLives.value = maxLives.value
   currentLevel.value = 1
@@ -594,12 +596,12 @@ const restartGame = () => {
 
 const exitGame = () => {
   // ゲーム終了処理
-  console.log('Exiting Complex Phoneme Patterns Game')
+  logger.log('Exiting Complex Phoneme Patterns Game')
 }
 
 const toggleSettings = () => {
   // 設定モーダル表示
-  console.log('Settings modal')
+  logger.log('Settings modal')
 }
 
 // ライフサイクル

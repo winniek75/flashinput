@@ -12,7 +12,7 @@
           <button @click="goBack" class="galaxy-button galaxy-button-secondary">
             <span class="cosmic-glow">←</span> 戻る
           </button>
-          <h1 class="galaxy-text-primary text-2xl font-bold cosmic-glow">Grammar Puzzle Cascade</h1>
+          <h1 class="galaxy-text-primary text-2xl font-bold cosmic-glow">パズルカスケード</h1>
         </div>
         <div class="game-stats flex space-x-6">
           <div class="stat-item">
@@ -37,7 +37,7 @@
       <div v-if="gameState === 'ready'" class="ready-screen text-center">
         <div class="galaxy-card p-8 mb-6">
           <div class="intro-icon cosmic-glow text-6xl mb-4">🧩✨</div>
-          <h2 class="galaxy-text-primary text-3xl font-bold cosmic-glow mb-4">Grammar Puzzle Cascade</h2>
+          <h2 class="galaxy-text-primary text-3xl font-bold cosmic-glow mb-4">パズルカスケード</h2>
           <p class="text-galaxy-moon-silver text-lg mb-6">
             落ちてくる文法ブロックを配置して、正しい英文パターンを作り上げる文法パズルゲーム！
           </p>
@@ -139,6 +139,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -179,7 +181,7 @@ const initializeGame = () => {
 
 // ゲーム開始
 const startGame = () => {
-  console.log('[GrammarPuzzleCascade] Starting game')
+  logger.log('[GrammarPuzzleCascade] Starting game')
   gameState.value = 'playing'
   spawnNewBlock()
   startGameTimer()
@@ -251,11 +253,11 @@ const spawnNewBlock = () => {
   currentBlock.value = { ...randomBlock }
   currentBlockPosition.value = { x: Math.floor(BOARD_WIDTH / 2), y: 0 }
   
-  console.log('[GrammarPuzzleCascade] New block spawned:', randomBlock, 'at position:', currentBlockPosition.value)
+  logger.log('[GrammarPuzzleCascade] New block spawned:', randomBlock, 'at position:', currentBlockPosition.value)
   
   // ブロックが上端に到達したらゲームオーバー
   if (!canPlaceBlock(currentBlockPosition.value.x, currentBlockPosition.value.y)) {
-    console.log('[GrammarPuzzleCascade] Game Over - cannot place block')
+    logger.log('[GrammarPuzzleCascade] Game Over - cannot place block')
     endGame()
   }
 }
@@ -312,7 +314,7 @@ const dropBlock = () => {
 // ブロックを回転
 const rotateBlock = () => {
   // シンプルな実装のため、回転は無効化
-  console.log('Block rotation not implemented in this version')
+  logger.log('Block rotation not implemented in this version')
 }
 
 // ブロックを配置
@@ -391,7 +393,7 @@ const checkGrammarPatterns = () => {
     found.positions.forEach(pos => {
       gameBoard.value[pos.y][pos.x] = null
     })
-    console.log(`[GrammarPuzzleCascade] Pattern found: ${found.pattern.pattern.join(' ')} (+${found.pattern.points} points)`)
+    logger.log(`[GrammarPuzzleCascade] Pattern found: ${found.pattern.pattern.join(' ')} (+${found.pattern.points} points)`)
   })
   
   // ブロックを落下させる
@@ -433,7 +435,7 @@ const checkLines = () => {
     // ドロップ速度を更新
     clearInterval(dropTimer)
     startDropTimer()
-    console.log(`[GrammarPuzzleCascade] Level up! Now level ${level.value}`)
+    logger.log(`[GrammarPuzzleCascade] Level up! Now level ${level.value}`)
   }
   
   return foundPatterns
@@ -487,7 +489,7 @@ const restartGame = () => {
 const goBack = () => {
   clearInterval(gameTimer)
   clearInterval(dropTimer)
-  router.push({ name: 'grammar-galaxy-foundation' })
+  router.push('/platforms/grammar-galaxy')
 }
 
 // 時間フォーマット

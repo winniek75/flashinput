@@ -1,0 +1,375 @@
+{
+  "id": "true_ending",
+  "type": "true_ending",
+  "title": "真実の調和 - The Perfect Harmony",
+  "duration": 1500000,
+  "scenes": [
+    {
+      "id": "perfect_understanding",
+      "title": "完璧な理解",
+      "background": "/images/backgrounds/cosmic_harmony.jpg",
+      "duration": 180000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "transcendent",
+          "size": "large"
+        },
+        {
+          "id": "the_translator",
+          "position": "center-back",
+          "emotion": "fulfilled",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "あなたは...すべてを理解した。すべてを極めた",
+          "emotion": "amazed",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "それは...みんなのおかげです",
+          "emotion": "humble",
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "いいえ...あなたの努力、あなたの心がすべてを可能にした",
+          "emotion": "grateful",
+          "duration": 4500
+        }
+      ],
+      "effects": [
+        {
+          "type": "cosmic_harmony",
+          "duration": 180000,
+          "intensity": 1.0
+        }
+      ]
+    },
+    {
+      "id": "universal_translator_rebirth",
+      "title": "Universal Translatorの完全復活",
+      "background": "/images/backgrounds/translator_ascension.jpg",
+      "duration": 240000,
+      "characters": [
+        {
+          "id": "the_translator",
+          "position": "center",
+          "emotion": "reborn",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "awestruck",
+          "size": "medium"
+        },
+        {
+          "id": "all_characters",
+          "position": "surrounding",
+          "emotion": "celebratory",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "私は...新たに生まれ変わる",
+          "emotion": "transforming",
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "もう孤独の翻訳者ではない...みんなと共に歩む案内者だ",
+          "emotion": "enlightened",
+          "duration": 5000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "新しい時代の始まりじゃ！",
+          "emotion": "joyful",
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "みんなで創る新しい言語の世界！",
+          "emotion": "excited",
+          "duration": 3000
+        }
+      ],
+      "effects": [
+        {
+          "type": "rebirth_light",
+          "duration": 240000,
+          "intensity": 1.0
+        },
+        {
+          "type": "particles",
+          "count": 500,
+          "symbols": ["🌟", "✨", "💫", "🌈", "💖"],
+          "duration": 240000
+        }
+      ]
+    },
+    {
+      "id": "new_universe_creation",
+      "title": "新宇宙の創造",
+      "background": "/images/backgrounds/universe_genesis.jpg",
+      "duration": 300000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "creator",
+          "size": "large"
+        },
+        {
+          "id": "the_translator",
+          "position": "left",
+          "emotion": "partner",
+          "size": "large"
+        },
+        {
+          "id": "unity",
+          "position": "right",
+          "emotion": "blessing",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "あなたたちの調和が...新しい宇宙を生み出している",
+          "emotion": "mystical",
+          "duration": 4500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "すべての人が学び、成長し、つながれる世界",
+          "emotion": "visionary",
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "言語の壁を越えて...でも学ぶ喜びは残して",
+          "emotion": "wise",
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "一緒に...この新しい世界を守っていこう",
+          "emotion": "determined",
+          "duration": 3500
+        }
+      ],
+      "effects": [
+        {
+          "type": "universe_creation",
+          "duration": 300000,
+          "intensity": 1.0
+        }
+      ],
+      "special_sequence": {
+        "type": "interactive_creation",
+        "description": "プレイヤーが新しい言語世界を創造する"
+      }
+    },
+    {
+      "id": "eternal_journey",
+      "title": "永遠の旅路",
+      "background": "/images/backgrounds/infinite_horizon.jpg",
+      "duration": 360000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "mature",
+          "size": "large"
+        },
+        {
+          "id": "the_translator",
+          "position": "beside",
+          "emotion": "companion",
+          "size": "large"
+        },
+        {
+          "id": "all_friends",
+          "position": "background",
+          "emotion": "eternal",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "これは終わりじゃない...新しい始まりだ",
+          "emotion": "hopeful",
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "共に歩もう...無限の学びの旅を",
+          "emotion": "eternal",
+          "duration": 4000
+        },
+        {
+          "speaker": "aura",
+          "text": "データベース更新：「永遠の絆」...測定不能",
+          "emotion": "moved",
+          "duration": 3500
+        },
+        {
+          "speaker": "all_characters",
+          "text": "いつまでも...一緒に！",
+          "emotion": "unified",
+          "duration": 4000
+        }
+      ],
+      "effects": [
+        {
+          "type": "eternal_journey",
+          "duration": 360000,
+          "intensity": 1.0
+        }
+      ]
+    },
+    {
+      "id": "player_ascension",
+      "title": "プレイヤーの昇華",
+      "background": "/images/backgrounds/player_transcendence.jpg",
+      "duration": 240000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "transcendent",
+          "size": "large"
+        },
+        {
+          "id": "meta_presence",
+          "position": "everywhere",
+          "emotion": "omnipresent",
+          "size": "infinite"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "meta_presence",
+          "text": "{playerName}...あなたは言語の真の意味を理解した",
+          "emotion": "divine",
+          "duration": 5000
+        },
+        {
+          "speaker": "meta_presence",
+          "text": "人と人をつなぐ...心と心を結ぶ...それが言語の本質",
+          "emotion": "profound",
+          "duration": 5000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "私は...もうただの学習者じゃない",
+          "emotion": "enlightened",
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんなに教え、導き、共に成長する存在",
+          "emotion": "teacher",
+          "duration": 4000
+        }
+      ],
+      "effects": [
+        {
+          "type": "ascension",
+          "duration": 240000,
+          "intensity": 1.0
+        }
+      ]
+    }
+  ],
+  "epilogue": {
+    "title": "そして物語は続く...",
+    "scenes": [
+      {
+        "id": "new_academy",
+        "title": "Language Galaxy Academy開校",
+        "description": "プレイヤーとTranslatorが共同で設立した新しい学習機関",
+        "image": "/images/epilogue/academy.jpg"
+      },
+      {
+        "id": "teaching_scene",
+        "title": "新たな生徒たち",
+        "description": "Captain Novaが優しく新入生を指導する姿",
+        "image": "/images/epilogue/teaching.jpg"
+      },
+      {
+        "id": "innovation",
+        "title": "革新的学習システム",
+        "description": "学習と翻訳が完璧に調和した新システム",
+        "image": "/images/epilogue/innovation.jpg"
+      }
+    ],
+    "final_message": {
+      "speaker": "captain_nova",
+      "text": "私たちの冒険は、あなたの中で永遠に続く。\n言語を学ぶたび、人とつながるたび、\n私たちはそこにいる。\n\nありがとう、{playerName}。\nそして...またいつか。",
+      "signature": "永遠の友より"
+    }
+  },
+  "rewards": {
+    "immediate": [
+      {
+        "type": "title",
+        "value": "言語の守護者",
+        "description": "全てを極めし者の称号"
+      },
+      {
+        "type": "mode",
+        "value": "Creator Mode",
+        "description": "自分だけの言語世界を創造"
+      }
+    ],
+    "unlocks": [
+      {
+        "type": "newgame_plus",
+        "value": "Transcendent Mode",
+        "description": "Translatorと共に旅する最高難易度"
+      },
+      {
+        "type": "gallery",
+        "value": "Complete Art Gallery",
+        "description": "全キャラクターの特別イラスト"
+      },
+      {
+        "type": "soundtrack",
+        "value": "Orchestral Arrangement",
+        "description": "フルオーケストラ版サウンドトラック"
+      }
+    ],
+    "special": {
+      "developer_letter": true,
+      "sequel_teaser": true,
+      "vr_academy_beta": true
+    }
+  },
+  "statistics_shown": [
+    "総プレイ時間",
+    "全惑星マスタリー率",
+    "キャラクター親密度MAX数",
+    "発見した隠しストーリー",
+    "完璧スコア達成数",
+    "最も使用した学習モード",
+    "お気に入りキャラクター"
+  ],
+  "credits": {
+    "special_thanks": [
+      "すべてを極めた{playerName}へ",
+      "最後まで共に歩んでくれてありがとう",
+      "あなたの努力と情熱に心から感謝を"
+    ]
+  }
+}

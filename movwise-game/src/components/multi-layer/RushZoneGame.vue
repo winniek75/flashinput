@@ -210,6 +210,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { multiLayerEngine } from '@/services/multiLayerEngine'
 import { useGrammarMasteryStore } from '@/stores/grammarMasteryStore'
@@ -324,7 +326,7 @@ export default {
       }
       
       currentQuestionSet.value = [...questionPool.value]
-      console.log(`✅ Loaded ${questionPool.value.length} questions for ${useMixedLevels.value ? 'mixed levels' : selectedEikenLevel.value}`)
+      logger.log(`✅ Loaded ${questionPool.value.length} questions for ${useMixedLevels.value ? 'mixed levels' : selectedEikenLevel.value}`)
     }
     
     const onLevelChange = () => {
@@ -341,7 +343,7 @@ export default {
         initializeQuestions()
         
         if (currentQuestionSet.value.length === 0) {
-          console.error('No questions available for selected level')
+          logger.error('No questions available for selected level')
           return
         }
         
@@ -359,7 +361,7 @@ export default {
         loadNextQuestion()
         
       } catch (error) {
-        console.error('Failed to start Rush Zone session:', error)
+        logger.error('Failed to start Rush Zone session:', error)
       }
     }
     
@@ -555,13 +557,13 @@ export default {
     const returnToHub = () => {
       resetGame()
       // Navigate to grammar hub - implementation depends on router setup
-      console.log('Navigate to grammar hub')
+      logger.log('Navigate to grammar hub')
     }
     
     const tryConstructionZone = () => {
       resetGame()
       // Navigate to construction zone - implementation depends on router setup
-      console.log('Navigate to construction zone')
+      logger.log('Navigate to construction zone')
     }
     
     const resetGame = () => {
@@ -584,7 +586,7 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      console.log('Rush Zone Game mounted')
+      logger.log('Rush Zone Game mounted')
     })
     
     onUnmounted(() => {

@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // src/data/phonemeLearningSystem.js - 科学的音韻学習システム
 
 /**
@@ -312,7 +314,7 @@ export class PhonemeProgressionManager {
           ...data
         }
       } catch (error) {
-        console.error('Failed to load learning progress:', error)
+        logger.error('Failed to load learning progress:', error)
         this.initializeProgress()
       }
     } else {
@@ -360,7 +362,7 @@ export class PhonemeProgressionManager {
         JSON.stringify(PHONEME_LEARNING_SYSTEM.progressTracking)
       )
     } catch (error) {
-      console.error('Failed to save learning progress:', error)
+      logger.error('Failed to save learning progress:', error)
     }
   }
 
@@ -404,7 +406,7 @@ export class PhonemeProgressionManager {
     for (const [stageId, stage] of Object.entries(stages)) {
       if (stage.unlockRequirement === completedStageId) {
         PHONEME_LEARNING_SYSTEM.progressTracking.stageProgress[stageId].unlocked = true
-        console.log(`🎉 New stage unlocked: ${stage.name}`)
+        logger.log(`🎉 New stage unlocked: ${stage.name}`)
         break
       }
     }
@@ -421,10 +423,17 @@ export class PhonemeProgressionManager {
     mastery.accuracy = mastery.correct / mastery.attempts
     mastery.averageResponseTime = (mastery.averageResponseTime * (mastery.attempts - 1) + responseTime) / mastery.attempts
 
-    // 習得判定
-    if (mastery.accuracy >= 0.85 && mastery.attempts >= 20) {
+    // 習得判定 (調整済み: より実用的な基準)
+    if (mastery.accuracy >= 0.70 && mastery.attempts >= 5) {
       mastery.masteryAchieved = true
     }
+    
+    logger.log(`🎯 Phoneme mastery update for ${ipa}:`, {
+      attempts: mastery.attempts,
+      correct: mastery.correct,
+      accuracy: mastery.accuracy,
+      masteryAchieved: mastery.masteryAchieved
+    })
 
     this.saveProgress()
     return mastery

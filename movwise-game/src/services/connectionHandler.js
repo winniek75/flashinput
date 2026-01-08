@@ -2,6 +2,7 @@ import { ref, onValue, onDisconnect, set, serverTimestamp } from 'firebase/datab
 import { database } from '../firebase/config'
 import { authService } from '../firebase/auth'
 import { CONNECTION_STATUS } from '../firebase/database'
+import logger from '@/utils/logger'
 
 // Connection handling service for managing online/offline states
 export class ConnectionHandler {
@@ -25,21 +26,21 @@ export class ConnectionHandler {
     this.startHeartbeat()
     
     this.isInitialized = true
-    console.log('Connection handler initialized')
+    logger.log('Connection handler initialized')
   }
 
   // Set up network connectivity listeners
   setupNetworkListeners() {
     // Listen for online/offline events
     window.addEventListener('online', () => {
-      console.log('Network connection restored')
+      logger.log('Network connection restored')
       this.isOnline = true
       this.onConnectionChange(true)
       this.reconnectFirebase()
     })
 
     window.addEventListener('offline', () => {
-      console.log('Network connection lost')
+      logger.log('Network connection lost')
       this.isOnline = false
       this.onConnectionChange(false)
     })
@@ -67,11 +68,11 @@ export class ConnectionHandler {
       const isConnected = snapshot.val()
       
       if (isConnected && authService.isAuthenticated()) {
-        console.log('Connected to Firebase')
+        logger.log('Connected to Firebase')
         this.onFirebaseConnected()
         this.reconnectAttempts = 0
       } else {
-        console.log('Disconnected from Firebase')
+        logger.log('Disconnected from Firebase')
         this.onFirebaseDisconnected()
       }
     })
@@ -97,7 +98,7 @@ export class ConnectionHandler {
       })
 
     } catch (error) {
-      console.error('Error handling Firebase connection:', error)
+      logger.error('Error handling Firebase connection:', error)
     }
   }
 
@@ -152,10 +153,10 @@ export class ConnectionHandler {
         await set(captainStatusRef, status)
       }
 
-      console.log(`User status updated to: ${status}`)
+      logger.log(`User status updated to: ${status}`)
 
     } catch (error) {
-      console.error('Error setting user status:', error)
+      logger.error('Error setting user status:', error)
     }
   }
 
@@ -164,7 +165,7 @@ export class ConnectionHandler {
     this.reconnectAttempts++
     const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000) // Max 30 seconds
 
-    console.log(`Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`)
+    logger.log(`Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`)
 
     setTimeout(() => {
       this.reconnectFirebase()
@@ -174,7 +175,7 @@ export class ConnectionHandler {
   // Attempt to reconnect to Firebase
   async reconnectFirebase() {
     if (!this.isOnline) {
-      console.log('Network is offline, skipping Firebase reconnect')
+      logger.log('Network is offline, skipping Firebase reconnect')
       return
     }
 
@@ -190,19 +191,19 @@ export class ConnectionHandler {
       })
 
       if (snapshot.val()) {
-        console.log('Firebase reconnection successful')
+        logger.log('Firebase reconnection successful')
         this.reconnectAttempts = 0
       } else {
         throw new Error('Firebase connection test failed')
       }
 
     } catch (error) {
-      console.error('Firebase reconnection failed:', error)
+      logger.error('Firebase reconnection failed:', error)
       
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
         this.scheduleReconnect()
       } else {
-        console.error('Max reconnection attempts reached')
+        logger.error('Max reconnection attempts reached')
         this.notifyCallbacks({
           type: 'reconnect_failed',
           error: 'Maximum reconnection attempts exceeded'
@@ -220,7 +221,7 @@ export class ConnectionHandler {
         try {
           await this.setUserStatus(CONNECTION_STATUS.ONLINE)
         } catch (error) {
-          console.error('Heartbeat failed:', error)
+          logger.error('Heartbeat failed:', error)
         }
       }
     }, 30000) // Every 30 seconds
@@ -267,7 +268,7 @@ export class ConnectionHandler {
       try {
         callback(event)
       } catch (error) {
-        console.error('Error in connection callback:', error)
+        logger.error('Error in connection callback:', error)
       }
     })
   }
@@ -289,7 +290,7 @@ export class ConnectionHandler {
 
   // Force reconnection
   async forceReconnect() {
-    console.log('Forcing reconnection...')
+    logger.log('Forcing reconnection...')
     this.reconnectAttempts = 0
     await this.reconnectFirebase()
   }
@@ -310,7 +311,7 @@ export class ConnectionHandler {
       this.presenceRefs.set(`${sessionId}_${role}`, presenceRef)
 
     } catch (error) {
-      console.error('Error setting session presence:', error)
+      logger.error('Error setting session presence:', error)
     }
   }
 
@@ -327,13 +328,13 @@ export class ConnectionHandler {
       }
 
     } catch (error) {
-      console.error('Error clearing session presence:', error)
+      logger.error('Error clearing session presence:', error)
     }
   }
 
   // Cleanup all connections and listeners
   async cleanup() {
-    console.log('Cleaning up connection handler...')
+    logger.log('Cleaning up connection handler...')
 
     // Stop heartbeat
     this.stopHeartbeat()
@@ -349,7 +350,7 @@ export class ConnectionHandler {
         await set(presenceRef, CONNECTION_STATUS.OFFLINE)
         onDisconnect(presenceRef).cancel()
       } catch (error) {
-        console.error('Error cleaning up presence:', error)
+        logger.error('Error cleaning up presence:', error)
       }
     }
     this.presenceRefs.clear()

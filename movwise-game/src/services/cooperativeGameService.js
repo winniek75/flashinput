@@ -1,6 +1,7 @@
 import { databaseService, SESSION_STATES, GAME_TYPES, CONNECTION_STATUS } from '../firebase/database'
 import { authService, USER_ROLES } from '../firebase/auth'
 import { accessControl } from './accessControl'
+import logger from '@/utils/logger'
 
 // Cooperative game service that orchestrates all game functionality
 export class CooperativeGameService {
@@ -40,9 +41,9 @@ export class CooperativeGameService {
         }
       })
 
-      console.log('Cooperative game service initialized')
+      logger.log('Cooperative game service initialized')
     } catch (error) {
-      console.error('Failed to initialize cooperative game service:', error)
+      logger.error('Failed to initialize cooperative game service:', error)
     }
   }
 
@@ -364,29 +365,29 @@ export class CooperativeGameService {
       this.listeners.push(messageListener)
 
     } catch (error) {
-      console.error('Failed to start listening:', error)
+      logger.error('Failed to start listening:', error)
     }
   }
 
   // Event handlers (to be overridden by implementing classes)
   onSessionUpdate(sessionData) {
     // Override in implementing class
-    console.log('Session updated:', sessionData)
+    logger.log('Session updated:', sessionData)
   }
 
   onProgressUpdate(progressData) {
     // Override in implementing class
-    console.log('Progress updated:', progressData)
+    logger.log('Progress updated:', progressData)
   }
 
   onEmergencyUpdate(emergencyData) {
     // Override in implementing class
-    console.log('Emergency updated:', emergencyData)
+    logger.log('Emergency updated:', emergencyData)
   }
 
   onMessagesUpdate(messages) {
     // Override in implementing class
-    console.log('Messages updated:', messages)
+    logger.log('Messages updated:', messages)
   }
 
   // Utility methods

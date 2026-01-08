@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { database } from '@/firebase/config'
 import { ref as dbRef, push, set, onValue, off, update, serverTimestamp } from 'firebase/database'
 import { useAuthStore } from './auth'
+import logger from '@/utils/logger'
 
 export const useEmergencyCallStore = defineStore('emergencyCall', () => {
   // State
@@ -78,7 +79,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       return { success: true, callId: emergencyRef.key }
     } catch (error) {
-      console.error('Failed to create emergency call:', error)
+      logger.error('Failed to create emergency call:', error)
       return { success: false, error: error.message }
     }
   }
@@ -117,7 +118,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       return { success: true }
     } catch (error) {
-      console.error('Failed to resolve emergency call:', error)
+      logger.error('Failed to resolve emergency call:', error)
       return { success: false, error: error.message }
     }
   }
@@ -146,7 +147,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       return { success: true, messageId: messageRef.key }
     } catch (error) {
-      console.error('Failed to send encouragement message:', error)
+      logger.error('Failed to send encouragement message:', error)
       return { success: false, error: error.message }
     }
   }
@@ -229,7 +230,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       return { success: true, newDifficulty }
     } catch (error) {
-      console.error('Failed to apply difficulty adjustment:', error)
+      logger.error('Failed to apply difficulty adjustment:', error)
       return { success: false, error: error.message }
     }
   }
@@ -285,7 +286,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       isListening.value = true
     } catch (error) {
-      console.error('Failed to setup emergency call listeners:', error)
+      logger.error('Failed to setup emergency call listeners:', error)
     }
   }
 
@@ -341,7 +342,7 @@ export const useEmergencyCallStore = defineStore('emergencyCall', () => {
 
       return { success: true, triggered: false }
     } catch (error) {
-      console.error('Failed to detect emergency conditions:', error)
+      logger.error('Failed to detect emergency conditions:', error)
       return { success: false, error: error.message }
     }
   }

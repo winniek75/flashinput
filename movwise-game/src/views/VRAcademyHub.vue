@@ -136,7 +136,11 @@
 
           <div class="vr-environments-grid">
             <!-- Conversation Lounge -->
-            <div class="vr-environment-card" @click="enterVREnvironment('conversation')">
+            <div
+              class="vr-environment-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(1) }"
+              @click="enterVREnvironment('conversation')"
+            >
               <div class="environment-preview">
                 <div class="environment-icon">💬</div>
                 <div class="environment-bg conversation-bg"></div>
@@ -153,11 +157,19 @@
                   <span>参加者: {{ environmentStats.conversation.activeUsers }}</span>
                   <span>レベル: 初級〜中級</span>
                 </div>
+                <div class="ticket-requirement">
+                  <span class="ticket-icon">🎫</span>
+                  <span class="ticket-cost">1枚（30分）</span>
+                </div>
               </div>
             </div>
 
             <!-- Business Simulation -->
-            <div class="vr-environment-card" @click="enterVREnvironment('business')">
+            <div
+              class="vr-environment-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(2) }"
+              @click="enterVREnvironment('business')"
+            >
               <div class="environment-preview">
                 <div class="environment-icon">💼</div>
                 <div class="environment-bg business-bg"></div>
@@ -174,11 +186,19 @@
                   <span>参加者: {{ environmentStats.business.activeUsers }}</span>
                   <span>レベル: 中級〜上級</span>
                 </div>
+                <div class="ticket-requirement">
+                  <span class="ticket-icon">🎫</span>
+                  <span class="ticket-cost">2枚（60分）</span>
+                </div>
               </div>
             </div>
 
             <!-- Cultural Exchange -->
-            <div class="vr-environment-card" @click="enterVREnvironment('cultural')">
+            <div
+              class="vr-environment-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(1) }"
+              @click="enterVREnvironment('cultural')"
+            >
               <div class="environment-preview">
                 <div class="environment-icon">🗾</div>
                 <div class="environment-bg cultural-bg"></div>
@@ -195,11 +215,19 @@
                   <span>参加者: {{ environmentStats.cultural.activeUsers }}</span>
                   <span>レベル: 全レベル</span>
                 </div>
+                <div class="ticket-requirement">
+                  <span class="ticket-icon">🎫</span>
+                  <span class="ticket-cost">1枚（30分）</span>
+                </div>
               </div>
             </div>
 
             <!-- Grammar Galaxy VR -->
-            <div class="vr-environment-card" @click="enterVREnvironment('grammar')">
+            <div
+              class="vr-environment-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(1) }"
+              @click="enterVREnvironment('grammar')"
+            >
               <div class="environment-preview">
                 <div class="environment-icon">⭐</div>
                 <div class="environment-bg grammar-bg"></div>
@@ -215,6 +243,40 @@
                 <div class="environment-stats">
                   <span>参加者: {{ environmentStats.grammar.activeUsers }}</span>
                   <span>レベル: 初級〜上級</span>
+                </div>
+                <div class="ticket-requirement">
+                  <span class="ticket-icon">🎫</span>
+                  <span class="ticket-cost">1枚（30分）</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phonetics Planet VR -->
+            <div
+              class="vr-environment-card vr-game-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(1) }"
+              @click="navigateToPhoneticsPlanet"
+            >
+              <div class="environment-preview">
+                <div class="environment-icon">🌌</div>
+                <div class="environment-bg phonetics-bg"></div>
+                <div class="vr-game-badge">WebXR Game!</div>
+              </div>
+              <div class="environment-info">
+                <h3>Phonetics Planet VR</h3>
+                <p>Three.js WebXR対応の音素シューティングゲーム - Meta Quest 3対応</p>
+                <div class="environment-features">
+                  <span class="feature-tag">🎯 音素練習</span>
+                  <span class="feature-tag">🎮 WebXRゲーム</span>
+                  <span class="feature-tag">🎙️ 音声認識</span>
+                </div>
+                <div class="environment-stats">
+                  <span>ハンドトラッキング対応</span>
+                  <span>レベル: 全レベル対応</span>
+                </div>
+                <div class="ticket-requirement">
+                  <span class="ticket-icon">🎫</span>
+                  <span class="ticket-cost">1枚（ゲーム時間可変）</span>
                 </div>
               </div>
             </div>
@@ -237,6 +299,80 @@
                 <div class="environment-stats">
                   <span>AI指導: 24/7対応</span>
                   <span>レベル: 全レベル対応</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VR Games Section -->
+        <section class="mb-12">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold galaxy-text-primary cosmic-title mb-4">
+              🎮 VR Games - WebXR Experience
+            </h2>
+            <p class="text-galaxy-moon-silver">
+              Three.js & WebXR技術で構築された没入型学習ゲーム
+            </p>
+          </div>
+
+          <div class="vr-games-grid">
+            <div
+              v-for="game in vrGames"
+              :key="game.id"
+              class="vr-game-card"
+              :class="{ 'insufficient-tickets': !canAffordVRSession(game.ticketCost) }"
+              @click="launchVRGame(game)"
+            >
+              <div class="game-preview">
+                <div class="game-thumbnail" :style="{ backgroundImage: `url(${game.thumbnail})` }">
+                  <div class="game-overlay">
+                    <div class="game-type-badge" :class="`type-${game.type}`">
+                      {{ game.vrType }}
+                    </div>
+                    <div class="difficulty-badge">
+                      {{ game.difficulty }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="game-info">
+                <div class="game-header">
+                  <h3 class="game-title">{{ game.name }}</h3>
+                  <div class="game-meta">
+                    <span class="game-duration">⏱️ {{ game.duration }}</span>
+                    <span class="game-players">👥 {{ game.players }}</span>
+                  </div>
+                </div>
+
+                <p class="game-description">{{ game.description }}</p>
+                <p class="game-long-description">{{ game.longDescription }}</p>
+
+                <div class="game-features">
+                  <span
+                    v-for="feature in game.features"
+                    :key="feature"
+                    class="feature-tag vr-feature-tag"
+                  >
+                    {{ feature }}
+                  </span>
+                </div>
+
+                <div class="game-footer">
+                  <div class="ticket-requirement vr-ticket-requirement">
+                    <span class="ticket-icon">🎫</span>
+                    <span class="ticket-cost">{{ game.ticketCost }}枚</span>
+                    <span class="ticket-label">VRチケット</span>
+                  </div>
+                  <button
+                    class="launch-button"
+                    :class="{ 'disabled': !canAffordVRSession(game.ticketCost) }"
+                    :disabled="!canAffordVRSession(game.ticketCost)"
+                  >
+                    <span v-if="canAffordVRSession(game.ticketCost)">🚀 Launch VR</span>
+                    <span v-else>💰 チケット不足</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -332,6 +468,111 @@
       </div>
     </main>
 
+    <!-- Ticket Purchase Modal -->
+    <div v-if="showPurchaseModal" class="modal-overlay" @click="closePurchaseModal">
+      <div class="modal-content ticket-purchase-modal" @click.stop>
+        <div class="modal-header">
+          <h3>🎫 VRチケット購入</h3>
+          <button @click="closePurchaseModal" class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="selectedGame" class="game-selection-info">
+            <div class="selected-game-card">
+              <div class="game-icon">🎮</div>
+              <div class="game-details">
+                <h4>{{ selectedGame.name }}</h4>
+                <p>{{ selectedGame.description }}</p>
+                <div class="game-requirements">
+                  <span class="requirement-item">
+                    🎫 必要チケット: <strong>{{ selectedGame.ticketCost }}枚</strong>
+                  </span>
+                  <span class="requirement-item">
+                    ⏱️ プレイ時間: {{ selectedGame.duration }}
+                  </span>
+                  <span class="requirement-item">
+                    ⭐ 難易度: {{ selectedGame.difficulty }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="current-balance">
+            <div class="balance-card">
+              <div class="balance-icon">💰</div>
+              <div class="balance-info">
+                <div class="balance-label">現在のVRチケット残高</div>
+                <div class="balance-amount">{{ ticketStore.currentTickets }}枚</div>
+              </div>
+            </div>
+            <div class="shortage-info" v-if="selectedGame">
+              <div class="shortage-amount">
+                不足: {{ Math.max(0, selectedGame.ticketCost - ticketStore.currentTickets) }}枚
+              </div>
+            </div>
+          </div>
+
+          <div class="purchase-options">
+            <h4>チケット購入オプション</h4>
+            <div class="purchase-grid">
+              <div class="purchase-option" @click="purchaseTickets(5)">
+                <div class="option-icon">🎫</div>
+                <div class="option-details">
+                  <div class="option-amount">5枚パック</div>
+                  <div class="option-price">¥500</div>
+                  <div class="option-bonus">お得！</div>
+                </div>
+              </div>
+
+              <div class="purchase-option" @click="purchaseTickets(10)">
+                <div class="option-icon">🎫</div>
+                <div class="option-details">
+                  <div class="option-amount">10枚パック</div>
+                  <div class="option-price">¥900</div>
+                  <div class="option-bonus">10%オフ</div>
+                </div>
+              </div>
+
+              <div class="purchase-option premium" @click="purchaseTickets(20)">
+                <div class="option-icon">💎</div>
+                <div class="option-details">
+                  <div class="option-amount">20枚パック</div>
+                  <div class="option-price">¥1600</div>
+                  <div class="option-bonus">20%オフ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="earning-tips">
+            <h4>無料でチケットを獲得する方法</h4>
+            <div class="tips-list">
+              <div class="tip-item">
+                <span class="tip-icon">🎮</span>
+                <span class="tip-text">ゲームをクリア（2-3枚獲得）</span>
+              </div>
+              <div class="tip-item">
+                <span class="tip-icon">📅</span>
+                <span class="tip-text">毎日ログイン（1-3枚獲得）</span>
+              </div>
+              <div class="tip-item">
+                <span class="tip-icon">🔥</span>
+                <span class="tip-text">連続学習ボーナス（2-5枚獲得）</span>
+              </div>
+              <div class="tip-item">
+                <span class="tip-icon">⭐</span>
+                <span class="tip-text">特別イベント参加</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="closePurchaseModal" class="btn-secondary">後で購入</button>
+          <button @click="$router.push('/game-library')" class="btn-primary">ゲームでチケット獲得</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Setup Guide Modal -->
     <div v-if="showSetupGuide" class="modal-overlay" @click="showSetupGuide = false">
       <div class="modal-content setup-guide" @click.stop>
@@ -379,9 +620,12 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { vrIntegrationService } from '@/services/vrIntegration'
+import { useTicketStore } from '@/stores/ticketStore'
 import CommonFooter from '@/components/CommonFooter.vue'
 
 export default {
@@ -391,6 +635,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const ticketStore = useTicketStore()
 
     // Reactive state
     const vrLevel = ref(1)
@@ -398,6 +643,57 @@ export default {
     const showSetupGuide = ref(false)
     const showQRCode = ref(false)
     const qrCodeData = ref(null)
+    const showPurchaseModal = ref(false)
+    const selectedGame = ref(null)
+
+    // VR Games Configuration
+    const vrGames = ref([
+      {
+        id: 'sound-radar',
+        name: 'Sound Radar VR',
+        description: '360度音響レーダーで音素探索',
+        longDescription: '協力型音素レーダー探査システム。VRコントローラーを使って3D空間で音素をスキャンし、手を使って正確な音素を選択するWebXRゲーム。',
+        ticketCost: 3,
+        thumbnail: '/images/sound-radar-vr.jpg',
+        route: '/vr/sound-radar',
+        difficulty: '★★☆',
+        features: ['🎯 音素練習', '🤝 協力プレイ', '🎮 WebXRゲーム'],
+        type: 'cooperative',
+        duration: '15-30分',
+        players: '1-2人',
+        vrType: 'WebXR'
+      },
+      {
+        id: 'construction',
+        name: 'Construction VR',
+        description: '文法ブロックで建物を作ろう',
+        longDescription: 'VR空間で文法ブロックを掴んで建物を建設。ハンドトラッキング対応で自然な掴み動作が可能。5つのフロアを段階的に建設しながら文法を学習。',
+        ticketCost: 5,
+        thumbnail: '/images/construction-vr.jpg',
+        route: '/vr/construction',
+        difficulty: '★★★',
+        features: ['🏗️ 建設体験', '✋ ハンドトラッキング', '📚 文法学習'],
+        type: 'educational',
+        duration: '30-45分',
+        players: '1人',
+        vrType: 'WebXR'
+      },
+      {
+        id: 'phonetics-planet',
+        name: 'Phonetics Planet VR',
+        description: 'Three.js WebXR対応の音素シューティングゲーム',
+        longDescription: 'Meta Quest 3対応の本格WebXRシューティングゲーム。音素惑星で敵を倒しながら発音練習。',
+        ticketCost: 1,
+        thumbnail: '/images/phonetics-planet-vr.jpg',
+        route: '/vr-academy/phonetics-planet',
+        difficulty: '★★☆',
+        features: ['🎯 音素練習', '🎮 WebXRゲーム', '🎙️ 音声認識'],
+        type: 'action',
+        duration: '15-20分',
+        players: '1人',
+        vrType: 'WebXR'
+      }
+    ])
 
     // VR Readiness state
     const vrReadiness = ref({
@@ -416,9 +712,13 @@ export default {
 
     // Computed properties
     const allSystemsReady = computed(() => {
-      return vrReadiness.value.deviceCompatible && 
-             vrReadiness.value.spatialIOReady && 
+      return vrReadiness.value.deviceCompatible &&
+             vrReadiness.value.spatialIOReady &&
              vrReadiness.value.permissionsGranted
+    })
+
+    const canAffordVRSession = computed(() => (requiredTickets = 1) => {
+      return ticketStore.canAfford(requiredTickets)
     })
 
     // Methods
@@ -436,7 +736,7 @@ export default {
         vrReadiness.value.permissionsGranted = await vrIntegrationService.checkPermissions()
         
       } catch (error) {
-        console.error('VR readiness check failed:', error)
+        logger.error('VR readiness check failed:', error)
       } finally {
         isCheckingReadiness.value = false
       }
@@ -446,7 +746,7 @@ export default {
       try {
         qrCodeData.value = await vrIntegrationService.generateVRSessionQR('user123')
       } catch (error) {
-        console.error('QR code generation failed:', error)
+        logger.error('QR code generation failed:', error)
       }
     }
 
@@ -456,17 +756,65 @@ export default {
         return
       }
 
+      // VRセッションにはチケットが必要
+      if (!ticketStore.hasTickets) {
+        alert('VRセッションを開始するにはVRチケットが必要です。\n\nチケットの獲得方法：\n• ゲームをクリアする（2-3枚）\n• 毎日ログイン（1-3枚）\n• 連続正解ボーナス（2-5枚）')
+        return
+      }
+
+      // チケット消費の確認
+      const sessionDuration = environment === 'business' ? 60 : 30 // ビジネス環境は60分、他は30分
+      const requiredTickets = sessionDuration === 60 ? 2 : 1
+
+      if (!ticketStore.canAfford(requiredTickets)) {
+        alert(`このVR環境には${requiredTickets}枚のチケットが必要です。\n現在のチケット: ${ticketStore.currentTickets}枚`)
+        return
+      }
+
+      if (!confirm(`VR学習セッション（${sessionDuration}分）を開始しますか？\n\n消費チケット: ${requiredTickets}枚\n残りチケット: ${ticketStore.currentTickets - requiredTickets}枚`)) {
+        return
+      }
+
       try {
+        // チケットを消費
+        const ticketUsed = await ticketStore.useTicket(requiredTickets, 'vr_session', {
+          environment,
+          duration: sessionDuration,
+          userId: 'user123'
+        })
+
+        if (!ticketUsed) {
+          alert('チケットの消費に失敗しました。もう一度お試しください。')
+          return
+        }
+
+        // VR環境に参加
         await vrIntegrationService.joinVREnvironment(environment, 'user123')
+
+        // 成功通知
+        logger.log(`🥽 VR session started: ${environment} (${sessionDuration}min)`)
+
       } catch (error) {
-        console.error('Failed to enter VR environment:', error)
+        logger.error('Failed to enter VR environment:', error)
         alert('VR環境への接続に失敗しました。しばらく後にもう一度お試しください。')
+
+        // エラーが発生した場合、チケットを返還
+        await ticketStore.earnTicket(requiredTickets, 'vr_session_refund', {
+          reason: 'connection_failed',
+          environment
+        })
       }
     }
 
     const quickJoinSession = async () => {
       if (!allSystemsReady.value) {
         alert('VR環境の準備が完了していません。環境チェックを実行してください。')
+        return
+      }
+
+      // チケットチェック
+      if (!ticketStore.hasTickets) {
+        alert('VRセッションを開始するにはVRチケットが必要です。\n\nゲームをプレイしてチケットを獲得してください！')
         return
       }
 
@@ -483,8 +831,162 @@ export default {
       alert('📊 VR学習進捗機能は開発中です！\n\n将来的には以下を確認可能：\n• VRセッション履歴\n• 学習時間統計\n• スキル向上グラフ\n• 達成バッジ')
     }
 
+    const navigateToPhoneticsPlanet = () => {
+      if (!canAffordVRSession(1)) {
+        alert('VRチケットが不足しています。\n\nチケット獲得方法：\n• ゲームをクリア\n• 毎日ログイン\n• 連続正解ボーナス')
+        return
+      }
+
+      router.push('/vr-academy/phonetics-planet')
+    }
+
     const navigateToECHOPractice = () => {
       router.push('/vr-academy/echo-practice')
+    }
+
+    const launchVRGame = async (game) => {
+      // ゲーム情報を保存（購入モーダル用）
+      selectedGame.value = game
+
+      // チケット残高チェック
+      if (!canAffordVRSession(game.ticketCost)) {
+        showPurchaseModal.value = true
+        return
+      }
+
+      // VR環境準備チェック
+      if (!allSystemsReady.value) {
+        alert('VR環境の準備が完了していません。環境チェックを実行してください。')
+        return
+      }
+
+      // チケット消費とゲーム起動
+      await consumeTicketsAndLaunch(game)
+    }
+
+    const consumeTicketsAndLaunch = async (game) => {
+      const confirmMessage = `${game.name}を開始しますか？\n\n消費チケット: ${game.ticketCost}枚\n残りチケット: ${ticketStore.currentTickets - game.ticketCost}枚\n\nゲーム詳細:\n• 所要時間: ${game.duration}\n• プレイヤー: ${game.players}\n• 難易度: ${game.difficulty}`
+
+      if (!confirm(confirmMessage)) {
+        return
+      }
+
+      try {
+        // チケットを消費
+        const success = await consumeTickets(game.ticketCost, {
+          game: game.id,
+          name: game.name,
+          type: game.type,
+          duration: game.duration
+        })
+
+        if (!success) {
+          alert('チケットの消費に失敗しました。もう一度お試しください。')
+          return
+        }
+
+        // VRゲームに移動
+        router.push(game.route)
+
+        logger.log(`🎮 VR Game launched: ${game.name} (${game.ticketCost} tickets)`)
+
+      } catch (error) {
+        logger.error('Failed to launch VR game:', error)
+        alert('VRゲームの開始に失敗しました。しばらく後にもう一度お試しください。')
+
+        // エラーが発生した場合、チケットを返還
+        await ticketStore.earnTicket(game.ticketCost, 'vr_game_refund', {
+          reason: 'launch_failed',
+          game: game.id
+        })
+      }
+    }
+
+    const consumeTickets = async (amount, metadata = {}) => {
+      try {
+        const success = await ticketStore.useTicket(amount, 'vr_game', metadata)
+
+        if (success) {
+          logger.log(`🎫 Consumed ${amount} VR tickets`)
+
+          // チケット消費の視覚的フィードバック
+          showTicketConsumedAnimation(amount)
+
+          return true
+        } else {
+          logger.warn('Failed to consume tickets - insufficient balance')
+          return false
+        }
+      } catch (error) {
+        logger.error('Error consuming tickets:', error)
+        throw error
+      }
+    }
+
+    const showTicketConsumedAnimation = (amount) => {
+      // 簡単な通知表示（実際のアニメーションは別途実装）
+      const notification = document.createElement('div')
+      notification.textContent = `🎫 -${amount} VRチケット`
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 15px;
+        font-weight: bold;
+        z-index: 9999;
+        animation: slideInFadeOut 3s ease-out forwards;
+      `
+
+      // CSS animation
+      const style = document.createElement('style')
+      style.textContent = `
+        @keyframes slideInFadeOut {
+          0% { transform: translateX(100%); opacity: 0; }
+          20% { transform: translateX(0); opacity: 1; }
+          80% { transform: translateX(0); opacity: 1; }
+          100% { transform: translateX(100%); opacity: 0; }
+        }
+      `
+      document.head.appendChild(style)
+      document.body.appendChild(notification)
+
+      setTimeout(() => {
+        document.body.removeChild(notification)
+        document.head.removeChild(style)
+      }, 3000)
+    }
+
+    const closePurchaseModal = () => {
+      showPurchaseModal.value = false
+      selectedGame.value = null
+    }
+
+    const purchaseTickets = async (amount) => {
+      try {
+        // チケット購入処理（実際の決済処理は別途実装）
+        const purchaseSuccess = await ticketStore.purchaseTickets(amount)
+
+        if (purchaseSuccess) {
+          logger.log(`💰 Purchased ${amount} VR tickets`)
+          closePurchaseModal()
+
+          // 購入後、ゲームを自動起動するか確認
+          if (selectedGame.value && canAffordVRSession(selectedGame.value.ticketCost)) {
+            const autoLaunch = confirm(`チケット購入が完了しました！\n\n${selectedGame.value.name}を今すぐ開始しますか？`)
+            if (autoLaunch) {
+              await consumeTicketsAndLaunch(selectedGame.value)
+            }
+          }
+        } else {
+          alert('チケットの購入に失敗しました。もう一度お試しください。')
+        }
+      } catch (error) {
+        logger.error('Error purchasing tickets:', error)
+        alert('チケット購入中にエラーが発生しました。')
+      }
     }
 
     const handleFooterNavigation = (section) => {
@@ -505,17 +1007,20 @@ export default {
           // Already on this page
           break;
         default:
-          console.warn('Unknown navigation section:', section);
+          logger.warn('Unknown navigation section:', section);
       }
     };
 
     // Lifecycle
-    onMounted(() => {
+    onMounted(async () => {
+      // Initialize ticket store
+      await ticketStore.initialize()
+
       checkVRReadiness()
-      
+
       // Generate initial QR code
       generateQRCode()
-      
+
       // Simulate environment stats updates
       setInterval(() => {
         environmentStats.value.conversation.activeUsers = Math.floor(Math.random() * 20) + 5
@@ -523,7 +1028,16 @@ export default {
         environmentStats.value.cultural.activeUsers = Math.floor(Math.random() * 25) + 8
         environmentStats.value.grammar.activeUsers = Math.floor(Math.random() * 12) + 2
       }, 30000)
+
+      // Listen for VR session events
+      window.addEventListener('vr-session-added', handleVRSessionAdded)
     })
+
+    // Event handlers
+    const handleVRSessionAdded = (event) => {
+      const { duration } = event.detail
+      logger.log(`🥽 VR session added: ${duration} minutes`)
+    }
 
     return {
       // State
@@ -532,12 +1046,17 @@ export default {
       showSetupGuide,
       showQRCode,
       qrCodeData,
+      showPurchaseModal,
+      selectedGame,
       vrReadiness,
       environmentStats,
-      
+      vrGames,
+      ticketStore,
+
       // Computed
       allSystemsReady,
-      
+      canAffordVRSession,
+
       // Methods
       checkVRReadiness,
       generateQRCode,
@@ -545,7 +1064,13 @@ export default {
       quickJoinSession,
       openVRSettings,
       viewVRProgress,
+      navigateToPhoneticsPlanet,
       navigateToECHOPractice,
+      launchVRGame,
+      consumeTicketsAndLaunch,
+      consumeTickets,
+      closePurchaseModal,
+      purchaseTickets,
       handleFooterNavigation
     }
   }
@@ -664,6 +1189,18 @@ export default {
   box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
 }
 
+.vr-environment-card.insufficient-tickets {
+  opacity: 0.6;
+  border-color: rgba(239, 68, 68, 0.4);
+  cursor: not-allowed;
+}
+
+.vr-environment-card.insufficient-tickets:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: none;
+  box-shadow: none;
+}
+
 .environment-preview {
   position: relative;
   height: 150px;
@@ -709,6 +1246,10 @@ export default {
   background: linear-gradient(135deg, #00BFFF 0%, #FFB6C1 50%, #00BFFF 100%);
 }
 
+.phonetics-bg {
+  background: linear-gradient(135deg, #1a0033 0%, #000011 50%, #1a0033 100%);
+}
+
 .special-environment {
   position: relative;
   border-color: rgba(0, 191, 255, 0.6) !important;
@@ -731,6 +1272,38 @@ export default {
   font-weight: bold;
   z-index: 3;
   animation: pulse 2s infinite;
+}
+
+.vr-game-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 3;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.vr-game-card {
+  border-color: rgba(139, 92, 246, 0.6) !important;
+}
+
+.vr-game-card:hover {
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3) !important;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+  }
 }
 
 @keyframes pulse {
@@ -775,6 +1348,29 @@ export default {
   justify-content: space-between;
   font-size: 0.9rem;
   color: #64748b;
+  margin-bottom: 10px;
+}
+
+.ticket-requirement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(88, 28, 135, 0.2) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.ticket-icon {
+  font-size: 16px;
+}
+
+.ticket-cost {
+  font-size: 13px;
+  font-weight: bold;
+  color: #a855f7;
 }
 
 /* QR Code */
@@ -1093,5 +1689,535 @@ export default {
 .galaxy-card:hover {
   border-color: rgba(99, 102, 241, 0.5);
   box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+}
+
+/* VR Games Styles */
+.vr-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+}
+
+.vr-game-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 3px solid rgba(139, 92, 246, 0.5);
+  border-radius: 25px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(25px);
+  position: relative;
+}
+
+.vr-game-card:hover {
+  border-color: rgba(139, 92, 246, 0.8);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(139, 92, 246, 0.3);
+}
+
+.vr-game-card.insufficient-tickets {
+  opacity: 0.5;
+  border-color: rgba(239, 68, 68, 0.4);
+  cursor: not-allowed;
+}
+
+.vr-game-card.insufficient-tickets:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: none;
+  box-shadow: none;
+}
+
+.game-preview {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.game-thumbnail {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(139, 92, 246, 0.2);
+  position: relative;
+}
+
+.game-thumbnail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(79, 70, 229, 0.3) 100%);
+}
+
+.game-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px;
+  z-index: 2;
+}
+
+.game-type-badge {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.type-cooperative {
+  border-color: rgba(34, 197, 94, 0.6);
+  color: #22c55e;
+}
+
+.type-educational {
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #3b82f6;
+}
+
+.type-action {
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ef4444;
+}
+
+.difficulty-badge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 193, 7, 0.9));
+  color: #1f2937;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.game-info {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.game-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fbbf24;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.game-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.game-duration,
+.game-players {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.game-description {
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.game-long-description {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.game-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vr-feature-tag {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.3));
+  color: #c4b5fd;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.vr-ticket-requirement {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(88, 28, 135, 0.25) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  border-radius: 15px;
+  backdrop-filter: blur(15px);
+}
+
+.ticket-cost {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #a855f7;
+}
+
+.ticket-label {
+  font-size: 0.8rem;
+  color: #c4b5fd;
+}
+
+.launch-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 15px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.launch-button:hover {
+  background: linear-gradient(135deg, #5b5de8, #7c3aed);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px);
+}
+
+.launch-button.disabled {
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
+  color: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.launch-button.disabled:hover {
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Mobile Adjustments for VR Games */
+@media (max-width: 768px) {
+  .vr-games-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .game-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .game-meta {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .game-footer {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .launch-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Ticket Purchase Modal Styles */
+.ticket-purchase-modal {
+  max-width: 700px;
+  width: 95%;
+}
+
+.game-selection-info {
+  margin-bottom: 25px;
+}
+
+.selected-game-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 15px;
+}
+
+.game-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+}
+
+.game-details h4 {
+  color: #fbbf24;
+  font-size: 1.3rem;
+  margin: 0 0 8px 0;
+}
+
+.game-details p {
+  color: #e2e8f0;
+  margin: 0 0 12px 0;
+}
+
+.game-requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.requirement-item {
+  font-size: 0.9rem;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.current-balance {
+  margin-bottom: 25px;
+}
+
+.balance-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.balance-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.5));
+}
+
+.balance-label {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.balance-amount {
+  color: #22c55e;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.shortage-info {
+  text-align: center;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+}
+
+.shortage-amount {
+  color: #f87171;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.purchase-options {
+  margin-bottom: 25px;
+}
+
+.purchase-options h4 {
+  color: #fbbf24;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.purchase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.purchase-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.purchase-option:hover {
+  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.purchase-option.premium {
+  border-color: rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
+}
+
+.purchase-option.premium:hover {
+  border-color: rgba(255, 215, 0, 0.8);
+}
+
+.option-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+}
+
+.premium .option-icon {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+.option-amount {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+}
+
+.option-price {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #22c55e;
+  margin-bottom: 4px;
+}
+
+.option-bonus {
+  font-size: 0.8rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.earning-tips h4 {
+  color: #fbbf24;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.tips-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+}
+
+.tip-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.5));
+}
+
+.tip-text {
+  color: #c4b5fd;
+  font-size: 0.9rem;
+}
+
+.btn-secondary {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+/* Mobile Adjustments for Purchase Modal */
+@media (max-width: 768px) {
+  .selected-game-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .game-requirements {
+    justify-content: center;
+  }
+
+  .balance-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .purchase-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tips-list {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
 }
 </style>

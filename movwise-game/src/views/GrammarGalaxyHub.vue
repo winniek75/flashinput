@@ -56,7 +56,7 @@
       <div class="relative z-10 max-w-6xl mx-auto mb-16">
         <div class="galaxy-card p-8 mb-8">
           <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold galaxy-text-primary cosmic-title mb-2">⚡ ラッシュ・ゾーン - 高速文法訓練宇宙基地</h2>
+            <h2 class="text-3xl font-bold galaxy-text-primary cosmic-title mb-2">⚡ ラッシュ・ゾーン - 高速文法訓練基地</h2>
             <p class="text-galaxy-moon-silver text-lg">文法エネルギーの集中的な充電・強化・瞬発力向上の特別訓練エリア</p>
           </div>
 
@@ -76,7 +76,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Be Verb Rush</h3>
+                <h3 class="rush-game-name">Be動詞ラッシュ</h3>
                 <div v-if="beVerbRushData.unlocked" class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -117,7 +117,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Verb Rush</h3>
+                <h3 class="rush-game-name">動詞ラッシュ</h3>
                 <div v-if="verbRushData.unlocked" class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -154,7 +154,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Comparison Master</h3>
+                <h3 class="rush-game-name">比較級マスター</h3>
                 <div class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -184,7 +184,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Modal Verb Challenge</h3>
+                <h3 class="rush-game-name">助動詞チャレンジ</h3>
                 <div class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -214,7 +214,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Conjunction Connection</h3>
+                <h3 class="rush-game-name">接続詞コネクト</h3>
                 <div class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -244,7 +244,7 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Progressive Tense</h3>
+                <h3 class="rush-game-name">進行形マスター</h3>
                 <div class="rush-game-stats">
                   <div class="mastery-display">
                     <span class="mastery-label">習熟度:</span>
@@ -264,6 +264,137 @@
               </div>
             </div>
 
+            <!-- Verb Pattern Galaxy Game -->
+            <div
+              class="galaxy-card unlocked"
+              @click="startVerbPatternGalaxy"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🌌</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">動詞パターン銀河</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button
+                    class="rush-play-button"
+                    @click.stop="startVerbPatternGalaxy"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preposition Master: Space Journey -->
+            <div 
+              class="galaxy-card unlocked preposition-master-card"
+              @click="startPrepositionMaster"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🚀</div>
+                <div class="lightning-effect"></div>
+                <div class="space-particles"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">前置詞マスター：宇宙の旅</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">{{ prepositionMasteryPercentage }}%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">解放惑星:</span>
+                    <span class="progress-value">{{ prepositionUnlockedPlanets }}/5</span>
+                  </div>
+                  <div class="planet-preview">
+                    <div class="planet-icons">
+                      <span class="planet-icon" :class="{ completed: isPlanetCompleted('place') }">🌍</span>
+                      <span class="planet-icon" :class="{ completed: isPlanetCompleted('time') }">🕐</span>
+                      <span class="planet-icon" :class="{ completed: isPlanetCompleted('date') }">📅</span>
+                      <span class="planet-icon" :class="{ completed: isPlanetCompleted('method') }">🔧</span>
+                      <span class="planet-icon" :class="{ completed: isPlanetCompleted('relation') }">🤝</span>
+                    </div>
+                  </div>
+                  <button 
+                    class="rush-play-button preposition-play"
+                    @click.stop="startPrepositionMaster"
+                  >
+                    <span class="cosmic-glow">🌌</span> 宇宙へ出発
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Space Word Order Quest -->
+            <div 
+              class="galaxy-card unlocked"
+              @click="startSpaceWordOrderQuest"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🌌</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">語順クエスト</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">0%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">今日:</span>
+                    <span class="progress-value">0/5</span>
+                  </div>
+                  <button 
+                    class="rush-play-button"
+                    @click.stop="startSpaceWordOrderQuest"
+                  >
+                    <span class="cosmic-glow">▶️</span> PLAY
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Holographic Story Deck -->
+            <div
+              class="galaxy-card unlocked"
+              @click="startHolographicStoryDeck"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🎥</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">ホロデッキ代名詞</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">習熟度:</span>
+                    <span class="mastery-value">{{ holographicData.accuracy }}%</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">進捗:</span>
+                    <span class="progress-value">{{ holographicData.completedScenarios }}/{{ holographicData.totalScenarios }}</span>
+                  </div>
+                  <button
+                    class="rush-play-button"
+                    @click.stop="startHolographicStoryDeck"
+                  >
+                    <span class="cosmic-glow">🎬</span> 体験開始
+                  </button>
+                </div>
+              </div>
+            </div>
+
+
             <!-- Word Rush -->
             <div class="galaxy-card locked">
               <div class="rush-game-surface">
@@ -271,10 +402,44 @@
                 <div class="lightning-effect"></div>
               </div>
               <div class="rush-game-info">
-                <h3 class="rush-game-name">Word Rush</h3>
+                <h3 class="rush-game-name">単語ラッシュ</h3>
                 <div class="rush-locked">
                   <span>🔒 基本Rush完了で解禁</span>
-                  <div class="unlock-condition">Be動詞・Verb Rush 完了後</div>
+                  <div class="unlock-condition">Be動詞・動詞ラッシュ完了後</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grammar Art Gallery -->
+            <div
+              class="galaxy-card unlocked art-gallery-card"
+              @click="startGrammarArtGallery"
+            >
+              <div class="rush-game-surface">
+                <div class="rush-game-icon">🏛️</div>
+                <div class="lightning-effect"></div>
+              </div>
+              <div class="rush-game-info">
+                <h3 class="rush-game-name">Grammar Art Gallery</h3>
+                <div class="rush-game-stats">
+                  <div class="mastery-display">
+                    <span class="mastery-label">レベル:</span>
+                    <span class="mastery-value">Lv.{{ artGalleryData.level }}</span>
+                  </div>
+                  <div class="today-progress">
+                    <span class="progress-label">発見:</span>
+                    <span class="progress-value">{{ artGalleryData.artifacts }}/{{ artGalleryData.totalArtifacts }}</span>
+                  </div>
+                  <div class="best-score">
+                    <span class="score-label">レベル:</span>
+                    <span class="score-value">{{ artGalleryData.level }}</span>
+                  </div>
+                  <button
+                    class="rush-play-button art-gallery-button"
+                    @click.stop="startGrammarArtGallery"
+                  >
+                    <span class="cosmic-glow">🔍</span> 探索開始
+                  </button>
                 </div>
               </div>
             </div>
@@ -283,7 +448,7 @@
 
         <!-- Rush Zone 統計 -->
         <div class="rush-zone-stats">
-          <h4 class="stats-title">📊 今日のRush活動</h4>
+          <h4 class="stats-title">📊 今日のラッシュ活動</h4>
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-value">{{ dailyRushSessions }}</div>
@@ -312,119 +477,123 @@
           <!-- Grammar Galaxy Foundation Games -->
           <div class="featured-games mb-12">
             <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">🌌 Grammar Galaxy Foundation - 文法宇宙の基礎</h3>
+            <p class="text-center text-gray-300 mb-8">英語文法の基本構造を学ぶ核となるゲーム群</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Galaxy Grammar Station -->
+              <div class="game-card featured" @click="startDirectGame('grammarColorCode')">
+                <div class="game-icon-large">🛸</div>
+                <h4 class="game-title">銀河文法ステーション</h4>
+                <p class="game-description">色分けモジュールで宇宙ステーション建設</p>
+                <div class="difficulty-badge beginner">基礎 - 文構造</div>
+                <button class="play-button-large">
+                  <span class="play-icon">▶️</span>
+                  ステーション建設開始！
+                </button>
+              </div>
+
               <!-- Verb Time Machine -->
               <div class="game-card featured" @click="startDirectGame('verbTimeMachine')">
                 <div class="game-icon-large">🕐</div>
-                <h4 class="game-title">Verb Time Machine</h4>
+                <h4 class="game-title">動詞タイムマシン</h4>
                 <p class="game-description">時代を旅して動詞の活用をマスター</p>
-                <div class="difficulty-badge intermediate">中級 - 時制学習</div>
+                <div class="difficulty-badge intermediate">基礎 - 時制学習</div>
                 <button class="play-button-large">
                   <span class="play-icon">▶️</span>
                   時間旅行を開始！
                 </button>
               </div>
 
-              <!-- Question Word Detective -->
-              <div class="game-card featured" @click="startDirectGame('questionWordDetective')">
-                <div class="game-icon-large">🔍</div>
-                <h4 class="game-title">Question Word Detective</h4>
-                <p class="game-description">疑問詞の使い分けを探偵ゲームで学習</p>
-                <div class="difficulty-badge intermediate">中級 - 疑問詞</div>
+              <!-- Galactic Question Navigator -->
+              <div class="game-card featured" @click="startDirectGame('galacticQuestionNavigator')">
+                <div class="game-icon-large">🚀</div>
+                <h4 class="game-title">疑問詞ナビゲーター</h4>
+                <p class="game-description">宇宙ナビゲーターとして疑問詞の使い分けを学習</p>
+                <div class="difficulty-badge intermediate">基礎 - 疑問詞</div>
                 <button class="play-button-large">
                   <span class="play-icon">▶️</span>
-                  捜査開始！
+                  ナビゲーション開始！
                 </button>
               </div>
 
-              <!-- Grammar Constructor -->
-              <div class="game-card featured" @click="startDirectGame('grammarConstructor')">
-                <div class="game-icon-large">🏗️</div>
-                <h4 class="game-title">Grammar Constructor</h4>
-                <p class="game-description">ドラッグ&ドロップで正しい文を建設</p>
-                <div class="difficulty-badge intermediate">中級 - 文構造</div>
-                <button class="play-button-large">
-                  <span class="play-icon">▶️</span>
-                  建設開始！
-                </button>
-              </div>
             </div>
           </div>
 
-          <!-- その他のゲーム -->
+          <!-- 応用文法ゲーム -->
           <div class="other-games mb-12">
-            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">⭐ その他の文法ゲーム</h3>
+            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">🚀 応用文法ゲーム</h3>
+            <p class="text-center text-gray-300 mb-8">基礎を身につけた後の実践的な文法ゲーム</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <!-- Grammar Color Code -->
-              <div class="game-card" @click="startDirectGame('grammarColorCode')">
-                <div class="game-icon-large">🎨</div>
-                <h4 class="game-title">Grammar Color Code</h4>
-                <p class="game-description">色分けで英文法を楽しく学習</p>
-                <div class="difficulty-badge beginner">初級 - 英検5級</div>
+              <!-- Space Word Order Quest -->
+              <div class="game-card" @click="startDirectGame('spaceWordOrderQuest')">
+                <div class="game-icon-large">🌌</div>
+                <h4 class="game-title">語順クエスト・アドベンチャー</h4>
+                <p class="game-description">宇宙語順並び替えアドベンチャー</p>
+                <div class="difficulty-badge intermediate">応用 - 英検4級</div>
                 <button class="play-button-large">
                   <span class="play-icon">▶️</span>
-                  今すぐプレイ！
+                  クエスト開始！
                 </button>
               </div>
 
               <!-- Pattern Hunter -->
               <div class="game-card" @click="startDirectGame('patternHunter')">
                 <div class="game-icon-large">🕵️‍♂️</div>
-                <h4 class="game-title">Pattern Hunter</h4>
+                <h4 class="game-title">文法パターン探偵</h4>
                 <p class="game-description">文法パターンを探し出すミステリー</p>
-                <div class="difficulty-badge intermediate">中級 - 英検4級</div>
+                <div class="difficulty-badge intermediate">応用 - 英検4級</div>
                 <button class="play-button-large">
                   <span class="play-icon">▶️</span>
-                  今すぐプレイ！
+                  捜査開始！
                 </button>
               </div>
 
               <!-- Grammar Puzzle Cascade -->
               <div class="game-card" @click="startDirectGame('grammarPuzzleCascade')">
                 <div class="game-icon-large">🧩</div>
-                <h4 class="game-title">Grammar Puzzle Cascade</h4>
+                <h4 class="game-title">文法パズル・カスケード</h4>
                 <p class="game-description">落ちてくるブロックで文法パターン</p>
-                <div class="difficulty-badge advanced">上級 - 英検3級</div>
+                <div class="difficulty-badge advanced">応用 - 英検3級</div>
                 <button class="play-button-large">
                   <span class="play-icon">▶️</span>
-                  今すぐプレイ！
+                  パズル開始！
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- 全ゲーム一覧（シンプル表示） -->
+          <!-- 専門文法ゲーム -->
           <div class="all-games">
-            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">🌟 全ての文法ゲーム</h3>
+            <h3 class="text-xl font-bold galaxy-text-primary cosmic-title mb-6 text-center">⚡ 専門文法トレーニング</h3>
+            <p class="text-center text-gray-300 mb-8">特定の文法項目を集中的に鍛える専門ゲーム</p>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div class="mini-game-card" @click="startDirectGame('grammarReflexArena')">
                 <div class="mini-icon">⚔️</div>
-                <div class="mini-title">Grammar Reflex Arena</div>
+                <div class="mini-title">文法反射アリーナ</div>
               </div>
               
               <div class="mini-game-card" @click="startDirectGame('comparisonMaster')">
                 <div class="mini-icon">📊</div>
-                <div class="mini-title">Comparison Master</div>
+                <div class="mini-title">比較級マスター</div>
               </div>
               
               <div class="mini-game-card" @click="startDirectGame('modalVerbChallenge')">
                 <div class="mini-icon">🛡️</div>
-                <div class="mini-title">Modal Verb Challenge</div>
+                <div class="mini-title">助動詞チャレンジ</div>
               </div>
               
               <div class="mini-game-card" @click="startDirectGame('conjunctionConnection')">
                 <div class="mini-icon">🔗</div>
-                <div class="mini-title">Conjunction Connection</div>
+                <div class="mini-title">接続詞コネクト</div>
               </div>
               
               <div class="mini-game-card" @click="startDirectGame('progressiveTense')">
                 <div class="mini-icon">🌊</div>
-                <div class="mini-title">Progressive Tense</div>
+                <div class="mini-title">進行形マスター</div>
               </div>
               
               <div class="mini-game-card" @click="goToRushZone()">
                 <div class="mini-icon">⚡</div>
-                <div class="mini-title">Rush Zone</div>
+                <div class="mini-title">ラッシュゾーン</div>
               </div>
             </div>
           </div>
@@ -755,9 +924,12 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
+import { usePrepositionGameStore } from '@/stores/grammarGalaxy/prepositionGameStore'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -778,15 +950,19 @@ export default {
   setup() {
     const router = useRouter()
     let grammarStore
+    let prepositionStore
     try {
       grammarStore = useGrammarGalaxyStore()
+      prepositionStore = usePrepositionGameStore()
       // 初期化が成功したかチェック
       if (!grammarStore.planetsData) {
-        console.warn('Grammar store not fully initialized, using fallback')
+        logger.warn('Grammar store not fully initialized, using fallback')
         grammarStore.loadProgress()
       }
+      // 前置詞ゲームデータを読み込み
+      prepositionStore.loadProgress()
     } catch (error) {
-      console.error('Failed to initialize grammar store:', error)
+      logger.error('Failed to initialize stores:', error)
       // フォールバック処理
       router.push('/')
       return
@@ -927,13 +1103,77 @@ export default {
       }
     })
 
+    // Grammar Art Gallery 用の計算プロパティ
+    const artGalleryData = computed(() => {
+      return {
+        explored: Math.round(progressStore.sections.grammarGalaxy.progress), // 文法ギャラクシーの進捗を使用
+        artifacts: Math.floor(progressStore.sections.grammarGalaxy.level / 2), // レベルに基づく
+        totalArtifacts: 12, // 総アーティファクト数
+        level: progressStore.sections.grammarGalaxy.level, // 実際のレベル
+        unlocked: true // 常に解禁済み
+      }
+    })
+
+    // 前置詞ゲーム用の計算プロパティ
+    const prepositionMasteryPercentage = computed(() => {
+      try {
+        return prepositionStore.overallProgress || 0
+      } catch (error) {
+        return 0
+      }
+    })
+
+    const prepositionUnlockedPlanets = computed(() => {
+      try {
+        return prepositionStore.unlockedPlanetsCount || 1
+      } catch (error) {
+        return 1
+      }
+    })
+
+    const isPlanetCompleted = (planetId) => {
+      try {
+        const planet = prepositionStore.planets.find(p => p.id === planetId)
+        return planet?.completed || false
+      } catch (error) {
+        return false
+      }
+    }
+
+    // 新規代名詞ゲーム用データ
+    const holographicData = computed(() => {
+      try {
+        return gameStore.gameProgress?.holographicStoryDeck || {
+          completedScenarios: 0,
+          totalScenarios: 10,
+          accuracy: 0,
+          bestScore: 0
+        }
+      } catch (error) {
+        return {
+          completedScenarios: 0,
+          totalScenarios: 10,
+          accuracy: 0,
+          bestScore: 0
+        }
+      }
+    })
+
+
+    // 新規ゲーム開始関数
+    const startHolographicStoryDeck = () => {
+      logger.log('Starting Holographic Story Deck')
+      router.push('/grammar-galaxy/holographic-story-deck')
+    }
+
+
     // 🆕 Be Verb Rush 開始関数
     const startBeVerbRush = () => {
-      console.log('startBeVerbRush called')
+      logger.log('startBeVerbRush called')
       
       try {
         if (!grammarStore) {
-          console.error('Grammar store not available')
+          logger.error('Grammar store not available')
           alert('エラー: データの読み込みに失敗しました')
           return
         }
@@ -948,22 +1188,22 @@ export default {
         router.push({
           name: 'be-verb-rush'
         }).catch(err => {
-          console.error('Navigation error:', err)
+          logger.error('Navigation error:', err)
           alert('Be Verb Rush の開始に失敗しました')
         })
       } catch (error) {
-        console.error('Error in startBeVerbRush:', error)
+        logger.error('Error in startBeVerbRush:', error)
         alert('エラーが発生しました。ページを再読み込みしてください。')
       }
     }
 
     // 🆕 Verb Rush 開始関数
     const startVerbRush = () => {
-      console.log('startVerbRush called')
+      logger.log('startVerbRush called')
       
       try {
         if (!grammarStore) {
-          console.error('Grammar store not available')
+          logger.error('Grammar store not available')
           alert('エラー: データの読み込みに失敗しました')
           return
         }
@@ -978,51 +1218,85 @@ export default {
         router.push({
           name: 'verb-rush'
         }).catch(err => {
-          console.error('Navigation error:', err)
+          logger.error('Navigation error:', err)
           alert('Verb Rush の開始に失敗しました')
         })
       } catch (error) {
-        console.error('Error in startVerbRush:', error)
+        logger.error('Error in startVerbRush:', error)
         alert('エラーが発生しました。ページを再読み込みしてください。')
       }
     }
 
     // 🆕 新しいゲーム開始関数群
     const startComparisonMaster = () => {
-      console.log('startComparisonMaster called')
+      logger.log('startComparisonMaster called')
       router.push({ name: 'comparison-master' }).catch(err => {
-        console.error('Navigation error:', err)
+        logger.error('Navigation error:', err)
         alert('Comparison Master の開始に失敗しました')
       })
     }
 
     const startModalVerbChallenge = () => {
-      console.log('startModalVerbChallenge called')
+      logger.log('startModalVerbChallenge called')
       router.push({ name: 'modal-verb-challenge' }).catch(err => {
-        console.error('Navigation error:', err)
+        logger.error('Navigation error:', err)
         alert('Modal Verb Challenge の開始に失敗しました')
       })
     }
 
     const startConjunctionConnection = () => {
-      console.log('startConjunctionConnection called')
+      logger.log('startConjunctionConnection called')
       router.push({ name: 'conjunction-connection' }).catch(err => {
-        console.error('Navigation error:', err)
+        logger.error('Navigation error:', err)
         alert('Conjunction Connection の開始に失敗しました')
       })
     }
 
     const startProgressiveTense = () => {
-      console.log('startProgressiveTense called')
+      logger.log('startProgressiveTense called')
       router.push({ name: 'progressive-tense' }).catch(err => {
-        console.error('Navigation error:', err)
+        logger.error('Navigation error:', err)
         alert('Progressive Tense の開始に失敗しました')
+      })
+    }
+
+    const startVerbPatternGalaxy = () => {
+      logger.log('startVerbPatternGalaxy called')
+      router.push({ name: 'verb-pattern-galaxy-hub' }).catch(err => {
+        logger.error('Navigation error:', err)
+        alert('Verb Pattern Galaxy の開始に失敗しました')
+      })
+    }
+
+    // 前置詞マスターゲーム開始
+    const startPrepositionMaster = () => {
+      logger.log('startPrepositionMaster called')
+      router.push({ name: 'PrepositionSpaceStation' }).catch(err => {
+        logger.error('Navigation error:', err)
+        alert('前置詞マスター：宇宙の旅の開始に失敗しました')
+      })
+    }
+
+    const startSpaceWordOrderQuest = () => {
+      logger.log('startSpaceWordOrderQuest called')
+      router.push({ name: 'space-word-order-quest' }).catch(err => {
+        logger.error('Navigation error:', err)
+        alert('Space Word Order Quest の開始に失敗しました')
+      })
+    }
+
+    // Grammar Art Gallery 開始関数
+    const startGrammarArtGallery = () => {
+      logger.log('startGrammarArtGallery called')
+      router.push({ name: 'grammar-art-gallery' }).catch(err => {
+        logger.error('Navigation error:', err)
+        alert('Grammar Art Gallery の開始に失敗しました')
       })
     }
 
     // 🆕 直接ゲーム開始機能
     const startDirectGame = (gameId) => {
-      console.log('startDirectGame called:', gameId)
+      logger.log('startDirectGame called:', gameId)
       
       try {
         // ゲームIDに基づいてルート設定
@@ -1033,11 +1307,8 @@ export default {
           case 'verbTimeMachine':
             routeConfig = { name: 'verb-time-machine' }
             break
-          case 'questionWordDetective':
-            routeConfig = { name: 'question-word-detective' }
-            break
-          case 'grammarConstructor':
-            routeConfig = { name: 'grammar-constructor' }
+          case 'galacticQuestionNavigator':
+            routeConfig = { name: 'galactic-question-navigator' }
             break
           // Other Grammar Games
           case 'grammarColorCode':
@@ -1068,28 +1339,31 @@ export default {
           case 'progressiveTense':
             routeConfig = { name: 'progressive-tense' }
             break
+          case 'spaceWordOrderQuest':
+            routeConfig = { name: 'space-word-order-quest' }
+            break
           default:
-            console.warn('Unknown game ID:', gameId)
+            logger.warn('Unknown game ID:', gameId)
             alert('ゲームが見つかりません')
             return
         }
         
         if (routeConfig) {
-          console.log('Navigating with config:', routeConfig)
+          logger.log('Navigating with config:', routeConfig)
           router.push(routeConfig).catch(err => {
-            console.error('Navigation error:', err)
+            logger.error('Navigation error:', err)
             alert(`${gameId} の開始に失敗しました`)
           })
         }
       } catch (error) {
-        console.error('Error in startDirectGame:', error)
+        logger.error('Error in startDirectGame:', error)
         alert('ゲームの開始に失敗しました')
       }
     }
 
     // 🆕 惑星IDを指定してゲーム開始
     const startDirectGameWithPlanet = (gameId, planetId) => {
-      console.log('startDirectGameWithPlanet called:', { gameId, planetId })
+      logger.log('startDirectGameWithPlanet called:', { gameId, planetId })
       
       try {
         let routeConfig = null
@@ -1107,21 +1381,21 @@ export default {
         }
         
         if (routeConfig) {
-          console.log('Navigating with planet config:', routeConfig)
+          logger.log('Navigating with planet config:', routeConfig)
           router.push(routeConfig).catch(err => {
-            console.error('Navigation error:', err)
+            logger.error('Navigation error:', err)
             alert(`${gameId} の開始に失敗しました`)
           })
         }
       } catch (error) {
-        console.error('Error in startDirectGameWithPlanet:', error)
+        logger.error('Error in startDirectGameWithPlanet:', error)
         alert('ゲームの開始に失敗しました')
       }
     }
 
     // 🆕 Rush Zone へのナビゲーション
     const goToRushZone = () => {
-      console.log('goToRushZone called')
+      logger.log('goToRushZone called')
       // Rush Zone は同じページの上部にあるのでスクロール
       const rushSection = document.querySelector('.rush-zone-section')
       if (rushSection) {
@@ -1144,7 +1418,7 @@ export default {
       return ['beVerb', 'generalVerb', 'wordOrder'].includes(planetId) // フォールバック
     }
 
-    const isPlanetCompleted = (planetId) => {
+    const isGrammarPlanetCompleted = (planetId) => {
       if (typeof grammarStore.isPlanetCompleted === 'function') {
         return grammarStore.isPlanetCompleted(planetId)
       }
@@ -1185,13 +1459,13 @@ export default {
 
     // プラネット入場
     const enterPlanet = (planetId) => {
-      console.log('enterPlanet called:', planetId)
+      logger.log('enterPlanet called:', planetId)
       try {
         // 惑星に複数のゲームがある場合は選択モーダルを表示
         selectedPlanet.value = planetId
         showPlanetModal.value = true
       } catch (error) {
-        console.error('Error in enterPlanet:', error)
+        logger.error('Error in enterPlanet:', error)
         alert('エラーが発生しました。ページを再読み込みしてください。')
       }
     }
@@ -1214,7 +1488,7 @@ export default {
         return
       }
       
-      console.log('startGame called:', game.id)
+      logger.log('startGame called:', game.id)
       
       // 選択された惑星のIDを使ってゲームを開始
       const planetId = selectedPlanet.value
@@ -1233,7 +1507,7 @@ export default {
           startDirectGame(game.id)
         }
       } catch (error) {
-        console.error('Navigation error:', error)
+        logger.error('Navigation error:', error)
         alert(`ゲームの開始に失敗しました: ${game.name}`)
       }
     }
@@ -1241,18 +1515,18 @@ export default {
     // 推奨アクティビティに移動
     const goToRecommendedActivity = () => {
       const activity = recommendedActivity.value
-      console.log('goToRecommendedActivity called:', activity)
+      logger.log('goToRecommendedActivity called:', activity)
       
       if (activity.type === 'game') {
         // ゲームタイプの場合は直接ゲーム開始
         startDirectGame(activity.id)
       } else if (activity.type === 'planet') {
         // 惑星タイプの場合は、ゲーム選択モーダルを表示
-        console.log(`Planet ${activity.id} -> Opening game selection modal`)
+        logger.log(`Planet ${activity.id} -> Opening game selection modal`)
         enterPlanet(activity.id)
       } else {
         // フォールバック：Grammar Color Code を開始
-        console.log('Fallback: Starting Grammar Color Code')
+        logger.log('Fallback: Starting Grammar Color Code')
         startDirectGame('grammarColorCode')
       }
     }
@@ -1281,7 +1555,7 @@ export default {
           router.push('/vr-academy')
           break
         default:
-          console.warn('Unknown navigation section:', section)
+          logger.warn('Unknown navigation section:', section)
       }
     }
 
@@ -1293,10 +1567,10 @@ export default {
       try {
         if (typeof grammarStore.loadProgress === 'function') {
           grammarStore.loadProgress()
-          console.log('✅ Grammar store progress loaded')
+          logger.log('✅ Grammar store progress loaded')
         }
       } catch (error) {
-        console.warn('⚠️ Could not load grammar store progress:', error)
+        logger.warn('⚠️ Could not load grammar store progress:', error)
       }
     })
 
@@ -1324,13 +1598,29 @@ export default {
       totalRushTime,
       startBeVerbRush,
       startVerbRush,
+
+      // 前置詞ゲーム関連
+      prepositionMasteryPercentage,
+      prepositionUnlockedPlanets,
+      isPlanetCompleted,
+      startPrepositionMaster,
       
+      // 新規代名詞ゲーム関連
+      holographicData,
+      startHolographicStoryDeck,
+
       // 🆕 新しいゲーム関連
       startComparisonMaster,
       startModalVerbChallenge,
       startConjunctionConnection,
       startProgressiveTense,
-      
+      startVerbPatternGalaxy,
+      startSpaceWordOrderQuest,
+
+      // Grammar Art Gallery 関連
+      artGalleryData,
+      startGrammarArtGallery,
+
       // 🆕 直接ナビゲーション機能
       startDirectGame,
       startDirectGameWithPlanet,
@@ -2387,5 +2677,136 @@ export default {
   .background-star {
     @apply hidden;
   }
+}
+
+/* 前置詞マスター専用スタイル */
+.preposition-master-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.preposition-master-card .space-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px, 30px 30px, 70px 70px;
+  animation: float-particles 20s linear infinite;
+}
+
+@keyframes float-particles {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100px);
+  }
+}
+
+/* Grammar Art Gallery 専用スタイル */
+.art-gallery-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+    rgba(168, 85, 247, 0.15) 0%,
+    rgba(139, 92, 246, 0.1) 50%,
+    rgba(124, 58, 237, 0.15) 100%);
+  border: 2px solid rgba(168, 85, 247, 0.5);
+}
+
+.art-gallery-card:hover {
+  border-color: rgba(168, 85, 247, 0.8);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+}
+
+.art-gallery-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+    radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px, 40px 40px, 80px 80px;
+  animation: gallery-shimmer 15s linear infinite;
+  pointer-events: none;
+}
+
+.art-gallery-button {
+  background: linear-gradient(45deg,
+    rgba(168, 85, 247, 0.8),
+    rgba(139, 92, 246, 0.9));
+  border: 1px solid rgba(168, 85, 247, 0.6);
+}
+
+.art-gallery-button:hover {
+  background: linear-gradient(45deg,
+    rgba(168, 85, 247, 1),
+    rgba(139, 92, 246, 1));
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+}
+
+@keyframes gallery-shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0.3;
+  }
+}
+
+.planet-preview {
+  margin: 8px 0;
+}
+
+.planet-icons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.planet-icon {
+  font-size: 16px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.planet-icon.completed {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.7));
+  animation: planet-pulse 2s ease-in-out infinite;
+}
+
+@keyframes planet-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.preposition-play {
+  background: linear-gradient(45deg, #ff6b35, #f7931e) !important;
+  box-shadow: 0 4px 15px rgba(247, 147, 30, 0.3);
+}
+
+.preposition-play:hover {
+  background: linear-gradient(45deg, #ff5722, #ff9800) !important;
+  box-shadow: 0 6px 20px rgba(247, 147, 30, 0.5);
+  transform: translateY(-2px);
 }
 </style>

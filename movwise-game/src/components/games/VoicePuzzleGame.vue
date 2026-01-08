@@ -527,6 +527,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/gameStore'
@@ -742,7 +744,7 @@ export default {
         }
 
         speechRecognition.value.onerror = (event) => {
-          console.error('Speech recognition error:', event.error)
+          logger.error('Speech recognition error:', event.error)
           listening.value = false
         }
 
@@ -1157,7 +1159,7 @@ export default {
         utterance.rate = 0.7
         speechSynthesis.speak(utterance)
       } catch (error) {
-        console.error('TTS error:', error)
+        logger.error('TTS error:', error)
       }
     }
 
@@ -1182,7 +1184,7 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      console.log('🧩 Voice Puzzle Game started')
+      logger.log('🧩 Voice Puzzle Game started')
       initGame()
     })
 

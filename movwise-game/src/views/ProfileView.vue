@@ -199,6 +199,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/gameStore'
@@ -236,7 +238,7 @@ export default {
         name: 'フォニックス・ネビュラ',
         icon: '🎵',
         progress: 75,
-        status: '33/44音素',
+        status: '33/42音素',
         color: 'bg-gradient-to-r from-pink-400 to-purple-500'
       },
       {
@@ -298,7 +300,7 @@ export default {
       {
         id: 'phonics_master',
         name: 'フォニックス・マスター',
-        description: '全44音素を習得',
+        description: '全42音素を習得',
         icon: '👑',
         unlocked: true
       },
@@ -353,7 +355,7 @@ export default {
           const stats = JSON.parse(savedStats)
           Object.assign(globalStats, stats)
         } catch (error) {
-          console.error('統計データの読み込みエラー:', error)
+          logger.error('統計データの読み込みエラー:', error)
         }
       }
       
@@ -409,7 +411,7 @@ export default {
           router.push('/vr-academy')
           break
         default:
-          console.warn('Unknown navigation section:', section)
+          logger.warn('Unknown navigation section:', section)
       }
     }
     

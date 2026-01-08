@@ -14,10 +14,15 @@
     <!-- Header -->
     <div class="relative z-10 p-4">
       <div class="flex justify-between items-center">
-        <button @click="goBack" class="galaxy-button galaxy-button-secondary">
-          <Icon name="arrow-left" class="w-4 h-4 mr-2" />
-          戻る
-        </button>
+        <div class="flex gap-2">
+          <button @click="goBack" class="galaxy-button galaxy-button-secondary">
+            <Icon name="arrow-left" class="w-4 h-4 mr-2" />
+            戻る
+          </button>
+          <button @click="goToHome" class="galaxy-button galaxy-button-secondary">
+            <Icon name="home" class="w-4 h-4" />
+          </button>
+        </div>
         <h1 class="text-3xl font-bold cosmic-text">🎵 フォニックス練習センター</h1>
         <div class="flex items-center gap-2">
           <button @click="showSettings = !showSettings" class="galaxy-button galaxy-button-secondary">
@@ -93,49 +98,49 @@
             </div>
           </div>
 
-          <!-- True Sound Impact -->
+          <!-- 浮遊文字ハント -->
           <div class="game-card" @click="selectGame('letter-hunt')">
             <div class="game-card-header">
-              <div class="game-icon">🔊</div>
-              <div class="game-title">サウンド・インパクト</div>
-              <div class="game-badge new">科学的</div>
+              <div class="game-icon">🎯</div>
+              <div class="game-title">浮遊文字ハント</div>
+              <div class="game-badge new">NEW</div>
             </div>
             
             <div class="game-description">
               <p class="mb-4">
-                純粋な音韻認識から始める科学的学習法。
-                IPA音韻記号と文字の正確な対応関係を段階的に習得します。
+                聞こえた音に対応する文字を素早く見つけてタッチ。
+                音韻と文字の対応関係を楽しく習得します。
               </p>
               
               <div class="game-features">
                 <div class="feature-item">
-                  <Icon name="brain" class="feature-icon" />
-                  <span>段階的音韻習得</span>
-                </div>
-                <div class="feature-item">
                   <Icon name="target" class="feature-icon" />
-                  <span>85%習熟度判定</span>
+                  <span>素早い反応力</span>
                 </div>
                 <div class="feature-item">
-                  <Icon name="book" class="feature-icon" />
-                  <span>IPA音韻記号対応</span>
+                  <Icon name="eye" class="feature-icon" />
+                  <span>視覚認識力</span>
+                </div>
+                <div class="feature-item">
+                  <Icon name="ear" class="feature-icon" />
+                  <span>音韻判別力</span>
                 </div>
                 <div class="feature-item">
                   <Icon name="chart" class="feature-icon" />
-                  <span>個別進捗管理</span>
+                  <span>進捗追跡</span>
                 </div>
               </div>
             </div>
 
             <div class="game-footer">
               <div class="difficulty-levels">
-                <span class="difficulty-badge beginner">基本母音</span>
-                <span class="difficulty-badge intermediate">基本子音</span>
-                <span class="difficulty-badge advanced">複合音素</span>
+                <span class="difficulty-badge beginner">初級</span>
+                <span class="difficulty-badge intermediate">中級</span>
+                <span class="difficulty-badge advanced">上級</span>
               </div>
               <div class="play-button">
                 <Icon name="play" class="w-5 h-5" />
-                学習開始
+                ゲーム開始
               </div>
             </div>
           </div>
@@ -273,6 +278,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameAudio } from '@/composables/useGameAudio'
@@ -324,17 +331,21 @@ const phonemeAccuracy = computed(() => {
 
 // Methods
 const goBack = () => {
-  console.log('🔙 GoBack called')
+  logger.log('🔙 GoBack called')
   
   // 直接ルーターを使って戻る
   try {
-    router.push('/sound-adventure')
-    console.log('✅ Navigated to Sound Adventure Hub')
+    router.push('/platforms/phonics-adventure')
+    logger.log('✅ Navigated to Phonics Adventure')
   } catch (error) {
-    console.error('❌ Navigation failed:', error)
+    logger.error('❌ Navigation failed:', error)
     // フォールバックとしてブラウザの戻るボタン
     window.history.back()
   }
+}
+
+const goToHome = () => {
+  router.push('/')
 }
 
 const selectGame = (gameType) => {

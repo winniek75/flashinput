@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 class ImageCache {
   constructor(maxSize = 50) {
     this.cache = new Map()
@@ -26,7 +28,7 @@ class ImageCache {
       this.accessCount.set(url, 1)
       return objectUrl
     } catch (error) {
-      console.error('画像のキャッシュに失敗しました:', error)
+      logger.error('画像のキャッシュに失敗しました:', error)
       return url
     }
   }

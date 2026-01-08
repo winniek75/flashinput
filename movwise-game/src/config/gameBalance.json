@@ -1,0 +1,743 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15T00:00:00Z",
+  "globalSettings": {
+    "maxDifficultyLevel": 10,
+    "adaptiveAdjustmentRate": 0.1,
+    "abTestParticipationRate": 0.2,
+    "performanceDataRetentionDays": 30,
+    "minimumSessionsForAdjustment": 3
+  },
+  "experienceRequirements": {
+    "level1": 0,
+    "level2": 100,
+    "level3": 250,
+    "level4": 450,
+    "level5": 700,
+    "level6": 1000,
+    "level7": 1350,
+    "level8": 1750,
+    "level9": 2200,
+    "level10": 2700
+  },
+  "rewardTables": {
+    "baseExperience": {
+      "correct_answer": 10,
+      "perfect_accuracy": 50,
+      "time_bonus": 25,
+      "streak_bonus": 15,
+      "first_try_bonus": 20
+    },
+    "achievementRewards": {
+      "story_completion": 100,
+      "perfect_pronunciation": 75,
+      "vocabulary_mastery": 60,
+      "grammar_expert": 80,
+      "speed_learner": 40,
+      "consistent_learner": 90
+    },
+    "levelUpRewards": {
+      "coins": [50, 100, 150, 200, 300, 400, 500, 750, 1000, 1500],
+      "unlocks": [
+        ["basic_hints"],
+        ["pronunciation_guide"],
+        ["advanced_hints", "slow_mode"],
+        ["grammar_explanations"],
+        ["cultural_notes", "etymology"],
+        ["advanced_practice"],
+        ["expert_mode", "timed_challenges"],
+        ["master_challenges"],
+        ["competitive_mode"],
+        ["mentor_mode", "custom_difficulty"]
+      ]
+    }
+  },
+  "games": [
+    {
+      "id": "pronunciation_trainer",
+      "displayName": "発音トレーナー",
+      "category": "pronunciation",
+      "baseParameters": {
+        "problemCount": 10,
+        "timeLimit": 30000,
+        "hintAvailability": 80,
+        "retryLimit": 3,
+        "correctAnswerPoints": 10,
+        "timeBonus": true,
+        "streakMultiplier": true,
+        "accuracyThreshold": 70,
+        "vocabularyLevel": "beginner",
+        "grammarComplexity": "simple",
+        "conceptDensity": 1.0,
+        "difficultyRamp": 50,
+        "adaptiveThreshold": 75,
+        "maxAdjustmentStep": 20
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 5,
+        "successRateWindow": 8,
+        "minSuccessRate": 65,
+        "targetSuccessRate": 80,
+        "maxSuccessRate": 95,
+        "cooldownPeriod": 3
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.7,
+            "timeLimit": 2.0,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.5,
+            "difficultyRamp": 0.3
+          },
+          "unlockFeatures": ["pronunciation_guide", "slow_playback"],
+          "recommendedSettings": {
+            "hintAvailability": 100,
+            "retryLimit": 5,
+            "vocabularyLevel": "beginner"
+          }
+        },
+        "3": {
+          "level": 3,
+          "parametersMultiplier": {
+            "problemCount": 0.9,
+            "timeLimit": 1.3,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.8,
+            "difficultyRamp": 0.7
+          },
+          "unlockFeatures": ["accent_training", "rhythm_practice"],
+          "recommendedSettings": {
+            "hintAvailability": 70,
+            "vocabularyLevel": "mixed"
+          }
+        },
+        "6": {
+          "level": 6,
+          "parametersMultiplier": {
+            "problemCount": 1.2,
+            "timeLimit": 1.0,
+            "correctAnswerPoints": 1.2,
+            "conceptDensity": 1.2,
+            "difficultyRamp": 1.0
+          },
+          "unlockFeatures": ["advanced_phonetics", "minimal_pairs"],
+          "recommendedSettings": {
+            "hintAvailability": 50,
+            "vocabularyLevel": "intermediate"
+          }
+        },
+        "10": {
+          "level": 10,
+          "parametersMultiplier": {
+            "problemCount": 1.5,
+            "timeLimit": 0.8,
+            "correctAnswerPoints": 1.5,
+            "conceptDensity": 1.8,
+            "difficultyRamp": 1.5
+          },
+          "unlockFeatures": ["native_speed", "dialect_variants"],
+          "recommendedSettings": {
+            "hintAvailability": 30,
+            "vocabularyLevel": "advanced"
+          }
+        }
+      }
+    },
+    {
+      "id": "word_rush",
+      "displayName": "ワードラッシュ",
+      "category": "vocabulary",
+      "baseParameters": {
+        "problemCount": 15,
+        "timeLimit": 45000,
+        "hintAvailability": 60,
+        "retryLimit": 2,
+        "correctAnswerPoints": 15,
+        "timeBonus": true,
+        "streakMultiplier": true,
+        "accuracyThreshold": 75,
+        "vocabularyLevel": "mixed",
+        "grammarComplexity": "simple",
+        "conceptDensity": 2.0,
+        "difficultyRamp": 60,
+        "adaptiveThreshold": 80,
+        "maxAdjustmentStep": 15
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 4,
+        "successRateWindow": 10,
+        "minSuccessRate": 70,
+        "targetSuccessRate": 85,
+        "maxSuccessRate": 95,
+        "cooldownPeriod": 2
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.6,
+            "timeLimit": 1.8,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.5,
+            "difficultyRamp": 0.4
+          },
+          "unlockFeatures": ["image_hints", "definition_help"],
+          "recommendedSettings": {
+            "hintAvailability": 90,
+            "retryLimit": 3,
+            "vocabularyLevel": "beginner"
+          }
+        },
+        "4": {
+          "level": 4,
+          "parametersMultiplier": {
+            "problemCount": 0.9,
+            "timeLimit": 1.2,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.9,
+            "difficultyRamp": 0.8
+          },
+          "unlockFeatures": ["synonyms", "word_families"],
+          "recommendedSettings": {
+            "hintAvailability": 60,
+            "vocabularyLevel": "mixed"
+          }
+        },
+        "7": {
+          "level": 7,
+          "parametersMultiplier": {
+            "problemCount": 1.1,
+            "timeLimit": 0.9,
+            "correctAnswerPoints": 1.3,
+            "conceptDensity": 1.4,
+            "difficultyRamp": 1.2
+          },
+          "unlockFeatures": ["advanced_vocabulary", "collocations"],
+          "recommendedSettings": {
+            "hintAvailability": 40,
+            "vocabularyLevel": "intermediate"
+          }
+        },
+        "10": {
+          "level": 10,
+          "parametersMultiplier": {
+            "problemCount": 1.4,
+            "timeLimit": 0.7,
+            "correctAnswerPoints": 1.8,
+            "conceptDensity": 2.0,
+            "difficultyRamp": 1.8
+          },
+          "unlockFeatures": ["idioms", "academic_vocabulary"],
+          "recommendedSettings": {
+            "hintAvailability": 20,
+            "vocabularyLevel": "advanced"
+          }
+        }
+      }
+    },
+    {
+      "id": "grammar_puzzle_cascade",
+      "displayName": "文法パズルカスケード",
+      "category": "grammar",
+      "baseParameters": {
+        "problemCount": 8,
+        "timeLimit": 60000,
+        "hintAvailability": 70,
+        "retryLimit": 3,
+        "correctAnswerPoints": 20,
+        "timeBonus": false,
+        "streakMultiplier": true,
+        "accuracyThreshold": 80,
+        "vocabularyLevel": "intermediate",
+        "grammarComplexity": "moderate",
+        "conceptDensity": 1.5,
+        "difficultyRamp": 40,
+        "adaptiveThreshold": 75,
+        "maxAdjustmentStep": 25
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 6,
+        "successRateWindow": 8,
+        "minSuccessRate": 65,
+        "targetSuccessRate": 80,
+        "maxSuccessRate": 90,
+        "cooldownPeriod": 4
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.6,
+            "timeLimit": 2.0,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.4,
+            "difficultyRamp": 0.2
+          },
+          "unlockFeatures": ["grammar_hints", "example_sentences"],
+          "recommendedSettings": {
+            "hintAvailability": 100,
+            "retryLimit": 5,
+            "grammarComplexity": "simple"
+          }
+        },
+        "5": {
+          "level": 5,
+          "parametersMultiplier": {
+            "problemCount": 1.0,
+            "timeLimit": 1.0,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 1.0,
+            "difficultyRamp": 1.0
+          },
+          "unlockFeatures": ["pattern_recognition", "context_clues"],
+          "recommendedSettings": {
+            "grammarComplexity": "moderate"
+          }
+        },
+        "8": {
+          "level": 8,
+          "parametersMultiplier": {
+            "problemCount": 1.3,
+            "timeLimit": 0.8,
+            "correctAnswerPoints": 1.4,
+            "conceptDensity": 1.6,
+            "difficultyRamp": 1.4
+          },
+          "unlockFeatures": ["advanced_structures", "nuanced_usage"],
+          "recommendedSettings": {
+            "hintAvailability": 40,
+            "grammarComplexity": "complex"
+          }
+        }
+      }
+    },
+    {
+      "id": "pattern_hunter",
+      "displayName": "パターンハンター",
+      "category": "grammar",
+      "baseParameters": {
+        "problemCount": 12,
+        "timeLimit": 40000,
+        "hintAvailability": 50,
+        "retryLimit": 2,
+        "correctAnswerPoints": 12,
+        "timeBonus": true,
+        "streakMultiplier": true,
+        "accuracyThreshold": 70,
+        "vocabularyLevel": "intermediate",
+        "grammarComplexity": "moderate",
+        "conceptDensity": 1.8,
+        "difficultyRamp": 70,
+        "adaptiveThreshold": 80,
+        "maxAdjustmentStep": 20
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 5,
+        "successRateWindow": 10,
+        "minSuccessRate": 60,
+        "targetSuccessRate": 75,
+        "maxSuccessRate": 90,
+        "cooldownPeriod": 3
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.5,
+            "timeLimit": 1.5,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.6,
+            "difficultyRamp": 0.3
+          },
+          "unlockFeatures": ["visual_patterns", "color_coding"],
+          "recommendedSettings": {
+            "hintAvailability": 80,
+            "retryLimit": 4,
+            "grammarComplexity": "simple"
+          }
+        },
+        "6": {
+          "level": 6,
+          "parametersMultiplier": {
+            "problemCount": 1.2,
+            "timeLimit": 0.9,
+            "correctAnswerPoints": 1.2,
+            "conceptDensity": 1.4,
+            "difficultyRamp": 1.2
+          },
+          "unlockFeatures": ["abstract_patterns", "multi_step_logic"],
+          "recommendedSettings": {
+            "hintAvailability": 40,
+            "grammarComplexity": "complex"
+          }
+        }
+      }
+    },
+    {
+      "id": "phonics_training_hub",
+      "displayName": "フォニックストレーニングハブ",
+      "category": "phonics",
+      "baseParameters": {
+        "problemCount": 8,
+        "timeLimit": 35000,
+        "hintAvailability": 90,
+        "retryLimit": 4,
+        "correctAnswerPoints": 15,
+        "timeBonus": false,
+        "streakMultiplier": false,
+        "accuracyThreshold": 85,
+        "vocabularyLevel": "beginner",
+        "grammarComplexity": "simple",
+        "conceptDensity": 0.8,
+        "difficultyRamp": 30,
+        "adaptiveThreshold": 85,
+        "maxAdjustmentStep": 30
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 8,
+        "successRateWindow": 6,
+        "minSuccessRate": 75,
+        "targetSuccessRate": 90,
+        "maxSuccessRate": 98,
+        "cooldownPeriod": 5
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.6,
+            "timeLimit": 2.5,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.4,
+            "difficultyRamp": 0.1
+          },
+          "unlockFeatures": ["letter_sounds", "visual_phonics"],
+          "recommendedSettings": {
+            "hintAvailability": 100,
+            "retryLimit": 6
+          }
+        },
+        "4": {
+          "level": 4,
+          "parametersMultiplier": {
+            "problemCount": 1.0,
+            "timeLimit": 1.0,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 1.0,
+            "difficultyRamp": 0.8
+          },
+          "unlockFeatures": ["blending", "segmenting"],
+          "recommendedSettings": {
+            "vocabularyLevel": "mixed"
+          }
+        }
+      }
+    },
+    {
+      "id": "cv_pronunciation_trainer",
+      "displayName": "CV発音トレーナー",
+      "category": "pronunciation",
+      "baseParameters": {
+        "problemCount": 6,
+        "timeLimit": 40000,
+        "hintAvailability": 85,
+        "retryLimit": 5,
+        "correctAnswerPoints": 25,
+        "timeBonus": false,
+        "streakMultiplier": false,
+        "accuracyThreshold": 90,
+        "vocabularyLevel": "beginner",
+        "grammarComplexity": "simple",
+        "conceptDensity": 0.5,
+        "difficultyRamp": 25,
+        "adaptiveThreshold": 90,
+        "maxAdjustmentStep": 35
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 10,
+        "successRateWindow": 5,
+        "minSuccessRate": 80,
+        "targetSuccessRate": 95,
+        "maxSuccessRate": 100,
+        "cooldownPeriod": 6
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.5,
+            "timeLimit": 3.0,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.3,
+            "difficultyRamp": 0.1
+          },
+          "unlockFeatures": ["mouth_animation", "sound_visualization"],
+          "recommendedSettings": {
+            "hintAvailability": 100,
+            "retryLimit": 8
+          }
+        }
+      }
+    },
+    {
+      "id": "true_sound_impact",
+      "displayName": "トゥルーサウンドインパクト",
+      "category": "listening",
+      "baseParameters": {
+        "problemCount": 10,
+        "timeLimit": 25000,
+        "hintAvailability": 60,
+        "retryLimit": 2,
+        "correctAnswerPoints": 18,
+        "timeBonus": true,
+        "streakMultiplier": true,
+        "accuracyThreshold": 75,
+        "vocabularyLevel": "mixed",
+        "grammarComplexity": "moderate",
+        "conceptDensity": 1.6,
+        "difficultyRamp": 80,
+        "adaptiveThreshold": 78,
+        "maxAdjustmentStep": 18
+      },
+      "adaptiveSettings": {
+        "enabled": true,
+        "adjustmentFrequency": 4,
+        "successRateWindow": 12,
+        "minSuccessRate": 68,
+        "targetSuccessRate": 82,
+        "maxSuccessRate": 94,
+        "cooldownPeriod": 2
+      },
+      "levelModifiers": {
+        "1": {
+          "level": 1,
+          "parametersMultiplier": {
+            "problemCount": 0.7,
+            "timeLimit": 1.6,
+            "correctAnswerPoints": 1.0,
+            "conceptDensity": 0.6,
+            "difficultyRamp": 0.4
+          },
+          "unlockFeatures": ["slow_audio", "visual_cues"],
+          "recommendedSettings": {
+            "hintAvailability": 85,
+            "retryLimit": 4,
+            "vocabularyLevel": "beginner"
+          }
+        },
+        "5": {
+          "level": 5,
+          "parametersMultiplier": {
+            "problemCount": 1.1,
+            "timeLimit": 0.9,
+            "correctAnswerPoints": 1.2,
+            "conceptDensity": 1.3,
+            "difficultyRamp": 1.1
+          },
+          "unlockFeatures": ["native_speed", "background_noise"],
+          "recommendedSettings": {
+            "hintAvailability": 45,
+            "vocabularyLevel": "intermediate"
+          }
+        },
+        "9": {
+          "level": 9,
+          "parametersMultiplier": {
+            "problemCount": 1.4,
+            "timeLimit": 0.7,
+            "correctAnswerPoints": 1.6,
+            "conceptDensity": 1.9,
+            "difficultyRamp": 1.6
+          },
+          "unlockFeatures": ["accent_variants", "complex_audio"],
+          "recommendedSettings": {
+            "hintAvailability": 25,
+            "vocabularyLevel": "advanced"
+          }
+        }
+      }
+    }
+  ],
+  "abTestConfigs": {
+    "pronunciation_difficulty_2024": {
+      "testId": "pronunciation_difficulty_2024",
+      "name": "Pronunciation Difficulty Optimization",
+      "description": "Testing different difficulty curves for pronunciation games",
+      "active": false,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-02-01T00:00:00Z",
+      "targetGames": ["pronunciation_trainer", "cv_pronunciation_trainer"],
+      "variants": [
+        {
+          "id": "control",
+          "name": "Control Group",
+          "weight": 50,
+          "parameterOverrides": {},
+          "description": "Current default settings"
+        },
+        {
+          "id": "easier_start",
+          "name": "Easier Start",
+          "weight": 25,
+          "parameterOverrides": {
+            "hintAvailability": 100,
+            "retryLimit": 6,
+            "timeLimit": 50000
+          },
+          "description": "More forgiving initial experience"
+        },
+        {
+          "id": "faster_progression",
+          "name": "Faster Progression",
+          "weight": 25,
+          "parameterOverrides": {
+            "difficultyRamp": 80,
+            "adaptiveThreshold": 70
+          },
+          "description": "Quicker difficulty increases"
+        }
+      ],
+      "metrics": ["completion_rate", "accuracy", "retention", "user_satisfaction"],
+      "sampleSize": 1000,
+      "currentParticipants": 0
+    },
+    "vocabulary_timing_2024": {
+      "testId": "vocabulary_timing_2024",
+      "name": "Vocabulary Game Timing",
+      "description": "Testing optimal time limits for vocabulary games",
+      "active": false,
+      "startDate": "2024-01-15T00:00:00Z",
+      "endDate": "2024-02-15T00:00:00Z",
+      "targetGames": ["word_rush"],
+      "variants": [
+        {
+          "id": "current_timing",
+          "name": "Current Timing",
+          "weight": 33,
+          "parameterOverrides": {},
+          "description": "45 second time limit"
+        },
+        {
+          "id": "extended_timing",
+          "name": "Extended Timing",
+          "weight": 33,
+          "parameterOverrides": {
+            "timeLimit": 60000
+          },
+          "description": "60 second time limit"
+        },
+        {
+          "id": "shorter_timing",
+          "name": "Shorter Timing",
+          "weight": 34,
+          "parameterOverrides": {
+            "timeLimit": 30000,
+            "problemCount": 12
+          },
+          "description": "30 second time limit with fewer problems"
+        }
+      ],
+      "metrics": ["score", "accuracy", "stress_level", "engagement"],
+      "sampleSize": 800,
+      "currentParticipants": 0
+    }
+  },
+  "debugPresets": {
+    "easy_mode": {
+      "name": "Easy Mode",
+      "description": "All games set to easiest settings",
+      "overrides": {
+        "hintAvailability": 100,
+        "retryLimit": 10,
+        "timeLimit": 99999,
+        "accuracyThreshold": 50,
+        "difficultyRamp": 0
+      }
+    },
+    "hard_mode": {
+      "name": "Hard Mode", 
+      "description": "All games set to hardest settings",
+      "overrides": {
+        "hintAvailability": 0,
+        "retryLimit": 1,
+        "timeLimit": 15000,
+        "accuracyThreshold": 95,
+        "problemCount": 20
+      }
+    },
+    "speed_test": {
+      "name": "Speed Test",
+      "description": "Fast-paced testing mode",
+      "overrides": {
+        "timeLimit": 10000,
+        "problemCount": 5,
+        "hintAvailability": 0
+      }
+    },
+    "learning_mode": {
+      "name": "Learning Mode",
+      "description": "Optimized for learning with maximum support",
+      "overrides": {
+        "hintAvailability": 100,
+        "retryLimit": 99,
+        "timeBonus": false,
+        "streakMultiplier": false,
+        "accuracyThreshold": 60
+      }
+    }
+  },
+  "performanceThresholds": {
+    "excellent": {
+      "accuracy": 90,
+      "consistency": 85,
+      "speed": 80
+    },
+    "good": {
+      "accuracy": 75,
+      "consistency": 70,
+      "speed": 65
+    },
+    "needs_improvement": {
+      "accuracy": 60,
+      "consistency": 50,
+      "speed": 45
+    }
+  },
+  "adaptationRules": {
+    "aggressive": {
+      "adjustmentMultiplier": 1.5,
+      "cooldownReduction": 0.5,
+      "successRateTargets": {
+        "min": 70,
+        "target": 85,
+        "max": 95
+      }
+    },
+    "conservative": {
+      "adjustmentMultiplier": 0.7,
+      "cooldownReduction": 1.5,
+      "successRateTargets": {
+        "min": 60,
+        "target": 75,
+        "max": 90
+      }
+    },
+    "balanced": {
+      "adjustmentMultiplier": 1.0,
+      "cooldownReduction": 1.0,
+      "successRateTargets": {
+        "min": 65,
+        "target": 80,
+        "max": 92
+      }
+    }
+  }
+}

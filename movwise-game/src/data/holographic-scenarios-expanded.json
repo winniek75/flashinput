@@ -1,0 +1,883 @@
+{
+  "levels": {
+    "level5": {
+      "name": "5級 (初級)",
+      "description": "基本的な代名詞 - I, you, he, she, it, we, they",
+      "scenarios": [
+        {
+          "id": 1,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=800&h=450&fit=crop",
+          "title": "自己紹介",
+          "text": "_____ am a student.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": true },
+              { "text": "You", "value": "You", "correct": false },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "She", "value": "She", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「I am」で「私は〜です」という意味です。",
+            "wrong": "「私は」と言うときは「I」を使います。"
+          }
+        },
+        {
+          "id": 2,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop",
+          "title": "友達の紹介",
+          "text": "_____ is my friend.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "You", "value": "You", "correct": false },
+              { "text": "He", "value": "He", "correct": true },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！男の人について話すときは「He」を使います。",
+            "wrong": "男の人について話すときは「He」を使いましょう。"
+          }
+        },
+        {
+          "id": 3,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=450&fit=crop",
+          "title": "女の子の紹介",
+          "text": "_____ is happy.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "You", "value": "You", "correct": false },
+              { "text": "She", "value": "She", "correct": true },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！女の人について話すときは「She」です。",
+            "wrong": "女の人について話すときは「She」を使います。"
+          }
+        },
+        {
+          "id": 4,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&h=450&fit=crop",
+          "title": "ペットの紹介",
+          "text": "_____ is a dog.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "You", "value": "You", "correct": false },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "It", "value": "It", "correct": true }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！動物や物について話すときは「It」を使います。",
+            "wrong": "動物や物について話すときは「It」を使いましょう。"
+          }
+        },
+        {
+          "id": 5,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=450&fit=crop",
+          "title": "質問する",
+          "text": "Are _____ ready?",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "you", "value": "you", "correct": true },
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "she", "value": "she", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！相手に聞くときは「you」を使います。",
+            "wrong": "相手に聞くときは「you」を使います。"
+          }
+        },
+        {
+          "id": 6,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=450&fit=crop",
+          "title": "友達と一緒",
+          "text": "_____ are friends.",
+          "options": [
+            [
+              { "text": "They", "value": "They", "correct": true },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "You", "value": "You", "correct": false },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！複数の人について話すときは「They」です。",
+            "wrong": "複数の人について話すときは「They」を使います。"
+          }
+        },
+        {
+          "id": 7,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=450&fit=crop",
+          "title": "学校で",
+          "text": "_____ go to school.",
+          "options": [
+            [
+              { "text": "We", "value": "We", "correct": true },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「私たちは」という意味で「We」を使います。",
+            "wrong": "「私たちは」と言うときは「We」を使います。"
+          }
+        },
+        {
+          "id": 8,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop",
+          "title": "天気の話",
+          "text": "_____ is sunny today.",
+          "options": [
+            [
+              { "text": "It", "value": "It", "correct": true },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "She", "value": "She", "correct": false },
+              { "text": "They", "value": "They", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！天気や時間について話すときは「It」を使います。",
+            "wrong": "天気について話すときは「It」を使います。"
+          }
+        },
+        {
+          "id": 9,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=450&fit=crop",
+          "title": "先生の話",
+          "text": "_____ teaches English.",
+          "options": [
+            [
+              { "text": "She", "value": "She", "correct": true },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！女性の先生について話すときは「She」です。",
+            "wrong": "女性について話すときは「She」を使います。"
+          }
+        },
+        {
+          "id": 10,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=800&h=450&fit=crop",
+          "title": "家族の話",
+          "text": "_____ is my brother.",
+          "options": [
+            [
+              { "text": "He", "value": "He", "correct": true },
+              { "text": "She", "value": "She", "correct": false },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "They", "value": "They", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！男性について話すときは「He」を使います。",
+            "wrong": "男性について話すときは「He」を使います。"
+          }
+        },
+        {
+          "id": 11,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=450&fit=crop",
+          "title": "遊んでいる",
+          "text": "_____ like to play.",
+          "options": [
+            [
+              { "text": "We", "value": "We", "correct": true },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「私たちは遊ぶのが好きです」という意味です。",
+            "wrong": "「私たちは」という意味で「We」を使います。"
+          }
+        },
+        {
+          "id": 12,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=450&fit=crop",
+          "title": "本を読む",
+          "text": "_____ reads books.",
+          "options": [
+            [
+              { "text": "She", "value": "She", "correct": true },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "They", "value": "They", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！女性が本を読んでいますね。",
+            "wrong": "女性について話すときは「She」を使います。"
+          }
+        },
+        {
+          "id": 13,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=450&fit=crop",
+          "title": "質問",
+          "text": "Are _____ happy?",
+          "options": [
+            [
+              { "text": "you", "value": "you", "correct": true },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "she", "value": "she", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！相手に質問するときは「you」です。",
+            "wrong": "相手に聞くときは「you」を使います。"
+          }
+        },
+        {
+          "id": 14,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800&h=450&fit=crop",
+          "title": "時間",
+          "text": "_____ is 3 o'clock.",
+          "options": [
+            [
+              { "text": "It", "value": "It", "correct": true },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "She", "value": "She", "correct": false },
+              { "text": "They", "value": "They", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！時間について話すときは「It」を使います。",
+            "wrong": "時間について話すときは「It」を使います。"
+          }
+        },
+        {
+          "id": 15,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop",
+          "title": "勉強中",
+          "text": "_____ study hard.",
+          "options": [
+            [
+              { "text": "They", "value": "They", "correct": true },
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "It", "value": "It", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！複数の人が勉強していますね。",
+            "wrong": "複数の人について話すときは「They」を使います。"
+          }
+        }
+      ]
+    },
+    "level4": {
+      "name": "4級 (中級)",
+      "description": "所有格と目的格 - my, your, his, her, our, their, me, him, her, us, them",
+      "scenarios": [
+        {
+          "id": 1,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800&h=450&fit=crop",
+          "title": "本の持ち主",
+          "text": "This is _____ book.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "my", "value": "my", "correct": true },
+              { "text": "me", "value": "me", "correct": false },
+              { "text": "mine", "value": "mine", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「〜の」と所有を表すときは「my」を使います。",
+            "wrong": "「私の」という所有を表すときは「my」を使います。"
+          }
+        },
+        {
+          "id": 2,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop",
+          "title": "プレゼント",
+          "text": "She gave _____ a gift.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "my", "value": "my", "correct": false },
+              { "text": "me", "value": "me", "correct": true },
+              { "text": "mine", "value": "mine", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「〜に」という目的格は「me」です。",
+            "wrong": "動作を受ける「私に」は「me」を使います。"
+          }
+        },
+        {
+          "id": 3,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=800&h=450&fit=crop",
+          "title": "彼の車",
+          "text": "_____ car is blue.",
+          "options": [
+            [
+              { "text": "He", "value": "He", "correct": false },
+              { "text": "His", "value": "His", "correct": true },
+              { "text": "Him", "value": "Him", "correct": false },
+              { "text": "He's", "value": "He's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「彼の」という所有格は「His」です。",
+            "wrong": "「彼の」という所有を表すときは「His」を使います。"
+          }
+        },
+        {
+          "id": 4,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=450&fit=crop",
+          "title": "彼女を見る",
+          "text": "I saw _____.",
+          "options": [
+            [
+              { "text": "she", "value": "she", "correct": false },
+              { "text": "her", "value": "her", "correct": true },
+              { "text": "hers", "value": "hers", "correct": false },
+              { "text": "she's", "value": "she's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！動作の目的語「彼女を」は「her」です。",
+            "wrong": "動作を受ける「彼女を」は「her」を使います。"
+          }
+        },
+        {
+          "id": 5,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=450&fit=crop",
+          "title": "あなたの名前",
+          "text": "What is _____ name?",
+          "options": [
+            [
+              { "text": "you", "value": "you", "correct": false },
+              { "text": "your", "value": "your", "correct": true },
+              { "text": "yours", "value": "yours", "correct": false },
+              { "text": "you're", "value": "you're", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「あなたの」は「your」です。",
+            "wrong": "「あなたの」という所有格は「your」を使います。"
+          }
+        },
+        {
+          "id": 6,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=450&fit=crop",
+          "title": "私たちを呼ぶ",
+          "text": "She called _____.",
+          "options": [
+            [
+              { "text": "we", "value": "we", "correct": false },
+              { "text": "us", "value": "us", "correct": true },
+              { "text": "our", "value": "our", "correct": false },
+              { "text": "ours", "value": "ours", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「私たちを」という目的格は「us」です。",
+            "wrong": "動作を受ける「私たちを」は「us」を使います。"
+          }
+        },
+        {
+          "id": 7,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=450&fit=crop",
+          "title": "彼らの家",
+          "text": "_____ house is big.",
+          "options": [
+            [
+              { "text": "They", "value": "They", "correct": false },
+              { "text": "Them", "value": "Them", "correct": false },
+              { "text": "Their", "value": "Their", "correct": true },
+              { "text": "Theirs", "value": "Theirs", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼らの」という所有格は「Their」です。",
+            "wrong": "「彼らの」という所有格は「Their」を使います。"
+          }
+        },
+        {
+          "id": 8,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop",
+          "title": "彼らを見る",
+          "text": "I saw _____ yesterday.",
+          "options": [
+            [
+              { "text": "they", "value": "they", "correct": false },
+              { "text": "them", "value": "them", "correct": true },
+              { "text": "their", "value": "their", "correct": false },
+              { "text": "theirs", "value": "theirs", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「彼らを」という目的格は「them」です。",
+            "wrong": "動作を受ける「彼らを」は「them」を使います。"
+          }
+        },
+        {
+          "id": 9,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&h=450&fit=crop",
+          "title": "彼女の犬",
+          "text": "_____ dog is cute.",
+          "options": [
+            [
+              { "text": "She", "value": "She", "correct": false },
+              { "text": "Her", "value": "Her", "correct": true },
+              { "text": "Hers", "value": "Hers", "correct": false },
+              { "text": "She's", "value": "She's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼女の」という所有格は「Her」です。",
+            "wrong": "「彼女の」という所有格は「Her」を使います。"
+          }
+        },
+        {
+          "id": 10,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=450&fit=crop",
+          "title": "彼に話す",
+          "text": "Tell _____ the story.",
+          "options": [
+            [
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "him", "value": "him", "correct": true },
+              { "text": "his", "value": "his", "correct": false },
+              { "text": "he's", "value": "he's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「彼に」という目的格は「him」です。",
+            "wrong": "動作を受ける「彼に」は「him」を使います。"
+          }
+        },
+        {
+          "id": 11,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=450&fit=crop",
+          "title": "私の母",
+          "text": "_____ mother is kind.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "My", "value": "My", "correct": true },
+              { "text": "Me", "value": "Me", "correct": false },
+              { "text": "Mine", "value": "Mine", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「私の」という所有格は「My」です。",
+            "wrong": "「私の」という所有格は「My」を使います。"
+          }
+        },
+        {
+          "id": 12,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=450&fit=crop",
+          "title": "私たちの先生",
+          "text": "_____ teacher is nice.",
+          "options": [
+            [
+              { "text": "We", "value": "We", "correct": false },
+              { "text": "Our", "value": "Our", "correct": true },
+              { "text": "Us", "value": "Us", "correct": false },
+              { "text": "Ours", "value": "Ours", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「私たちの」という所有格は「Our」です。",
+            "wrong": "「私たちの」という所有格は「Our」を使います。"
+          }
+        },
+        {
+          "id": 13,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=800&h=450&fit=crop",
+          "title": "彼を助ける",
+          "text": "Please help _____.",
+          "options": [
+            [
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "him", "value": "him", "correct": true },
+              { "text": "his", "value": "his", "correct": false },
+              { "text": "he's", "value": "he's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼を」という目的格は「him」です。",
+            "wrong": "動作を受ける「彼を」は「him」を使います。"
+          }
+        },
+        {
+          "id": 14,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=450&fit=crop",
+          "title": "彼女の本",
+          "text": "_____ book is red.",
+          "options": [
+            [
+              { "text": "She", "value": "She", "correct": false },
+              { "text": "Her", "value": "Her", "correct": true },
+              { "text": "Hers", "value": "Hers", "correct": false },
+              { "text": "She's", "value": "She's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「彼女の」という所有格は「Her」です。",
+            "wrong": "「彼女の」という所有格は「Her」を使います。"
+          }
+        },
+        {
+          "id": 15,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800&h=450&fit=crop",
+          "title": "私たちを待つ",
+          "text": "He is waiting for _____.",
+          "options": [
+            [
+              { "text": "we", "value": "we", "correct": false },
+              { "text": "us", "value": "us", "correct": true },
+              { "text": "our", "value": "our", "correct": false },
+              { "text": "ours", "value": "ours", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「私たちを」という目的格は「us」です。",
+            "wrong": "動作を受ける「私たちを」は「us」を使います。"
+          }
+        }
+      ]
+    },
+    "level3": {
+      "name": "3級 (上級)",
+      "description": "所有代名詞と再帰代名詞 - mine, yours, ours, theirs, myself, yourself, himself, herself, ourselves, themselves",
+      "scenarios": [
+        {
+          "id": 1,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop",
+          "title": "協力",
+          "text": "_____ are working together.",
+          "options": [
+            [
+              { "text": "They", "value": "They", "correct": true },
+              { "text": "Them", "value": "Them", "correct": false },
+              { "text": "Their", "value": "Their", "correct": false },
+              { "text": "Theirs", "value": "Theirs", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！複数の主語は「They」を使います。",
+            "wrong": "複数の人が主語のときは「They」を使います。"
+          }
+        },
+        {
+          "id": 2,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=450&fit=crop",
+          "title": "彼らを助ける",
+          "text": "Can you help _____?",
+          "options": [
+            [
+              { "text": "they", "value": "they", "correct": false },
+              { "text": "them", "value": "them", "correct": true },
+              { "text": "their", "value": "their", "correct": false },
+              { "text": "theirs", "value": "theirs", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「彼らを」という目的格は「them」です。",
+            "wrong": "「彼らを」という目的格は「them」を使います。"
+          }
+        },
+        {
+          "id": 3,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=450&fit=crop",
+          "title": "彼らの計画",
+          "text": "_____ plan is interesting.",
+          "options": [
+            [
+              { "text": "They", "value": "They", "correct": false },
+              { "text": "Them", "value": "Them", "correct": false },
+              { "text": "Their", "value": "Their", "correct": true },
+              { "text": "Theirs", "value": "Theirs", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼らの」という所有格は「Their」です。",
+            "wrong": "「彼らの」という所有格は「Their」を使います。"
+          }
+        },
+        {
+          "id": 4,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?w=800&h=450&fit=crop",
+          "title": "自分たちで",
+          "text": "We did it _____.",
+          "options": [
+            [
+              { "text": "ourself", "value": "ourself", "correct": false },
+              { "text": "ourselves", "value": "ourselves", "correct": true },
+              { "text": "us", "value": "us", "correct": false },
+              { "text": "our", "value": "our", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「私たち自身で」は「ourselves」です。",
+            "wrong": "「私たち自身で」という再帰代名詞は「ourselves」を使います。"
+          }
+        },
+        {
+          "id": 5,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=450&fit=crop",
+          "title": "彼ら自身",
+          "text": "They enjoyed _____.",
+          "options": [
+            [
+              { "text": "themself", "value": "themself", "correct": false },
+              { "text": "themselves", "value": "themselves", "correct": true },
+              { "text": "theirselves", "value": "theirselves", "correct": false },
+              { "text": "theirself", "value": "theirself", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「彼ら自身」は「themselves」です。",
+            "wrong": "「彼ら自身」という再帰代名詞は「themselves」を使います。"
+          }
+        },
+        {
+          "id": 6,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800&h=450&fit=crop",
+          "title": "所有代名詞",
+          "text": "This book is _____. (私たちのもの)",
+          "options": [
+            [
+              { "text": "our", "value": "our", "correct": false },
+              { "text": "ours", "value": "ours", "correct": true },
+              { "text": "us", "value": "us", "correct": false },
+              { "text": "we", "value": "we", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「私たちのもの」という所有代名詞は「ours」です。",
+            "wrong": "「〜のもの」という所有代名詞は「ours」を使います。"
+          }
+        },
+        {
+          "id": 7,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=450&fit=crop",
+          "title": "両方の空欄",
+          "text": "_____ told _____ the truth.",
+          "options": [
+            [
+              { "text": "She", "value": "She", "correct": true },
+              { "text": "Her", "value": "Her", "correct": false },
+              { "text": "Hers", "value": "Hers", "correct": false },
+              { "text": "She's", "value": "She's", "correct": false }
+            ],
+            [
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "him", "value": "him", "correct": true },
+              { "text": "his", "value": "his", "correct": false },
+              { "text": "he's", "value": "he's", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！主格の「She」と目的格の「him」の組み合わせです。",
+            "wrong": "主語は主格、目的語は目的格を使います。"
+          }
+        },
+        {
+          "id": 8,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop",
+          "title": "自分で",
+          "text": "He did it _____.",
+          "options": [
+            [
+              { "text": "himself", "value": "himself", "correct": true },
+              { "text": "hisself", "value": "hisself", "correct": false },
+              { "text": "his", "value": "his", "correct": false },
+              { "text": "him", "value": "him", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼自身で」は「himself」です。",
+            "wrong": "「彼自身で」という再帰代名詞は「himself」を使います。"
+          }
+        },
+        {
+          "id": 9,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=450&fit=crop",
+          "title": "彼女自身",
+          "text": "She hurt _____.",
+          "options": [
+            [
+              { "text": "her", "value": "her", "correct": false },
+              { "text": "herself", "value": "herself", "correct": true },
+              { "text": "hers", "value": "hers", "correct": false },
+              { "text": "she", "value": "she", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「彼女自身を」は「herself」です。",
+            "wrong": "「彼女自身を」という再帰代名詞は「herself」を使います。"
+          }
+        },
+        {
+          "id": 10,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800&h=450&fit=crop",
+          "title": "あなた自身",
+          "text": "Take care of _____.",
+          "options": [
+            [
+              { "text": "you", "value": "you", "correct": false },
+              { "text": "yourself", "value": "yourself", "correct": true },
+              { "text": "your", "value": "your", "correct": false },
+              { "text": "yours", "value": "yours", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「あなた自身を」は「yourself」です。",
+            "wrong": "「あなた自身を」という再帰代名詞は「yourself」を使います。"
+          }
+        },
+        {
+          "id": 11,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=450&fit=crop",
+          "title": "彼らのもの",
+          "text": "These bags are _____.",
+          "options": [
+            [
+              { "text": "they", "value": "they", "correct": false },
+              { "text": "them", "value": "them", "correct": false },
+              { "text": "their", "value": "their", "correct": false },
+              { "text": "theirs", "value": "theirs", "correct": true }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「彼らのもの」という所有代名詞は「theirs」です。",
+            "wrong": "「彼らのもの」という所有代名詞は「theirs」を使います。"
+          }
+        },
+        {
+          "id": 12,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=450&fit=crop",
+          "title": "あなたのもの",
+          "text": "This pen is _____.",
+          "options": [
+            [
+              { "text": "you", "value": "you", "correct": false },
+              { "text": "your", "value": "your", "correct": false },
+              { "text": "yours", "value": "yours", "correct": true },
+              { "text": "yourself", "value": "yourself", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「あなたのもの」という所有代名詞は「yours」です。",
+            "wrong": "「あなたのもの」という所有代名詞は「yours」を使います。"
+          }
+        },
+        {
+          "id": 13,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=800&h=450&fit=crop",
+          "title": "私のもの",
+          "text": "That car is _____.",
+          "options": [
+            [
+              { "text": "I", "value": "I", "correct": false },
+              { "text": "my", "value": "my", "correct": false },
+              { "text": "me", "value": "me", "correct": false },
+              { "text": "mine", "value": "mine", "correct": true }
+            ]
+          ],
+          "feedback": {
+            "correct": "完璧！「私のもの」という所有代名詞は「mine」です。",
+            "wrong": "「私のもの」という所有代名詞は「mine」を使います。"
+          }
+        },
+        {
+          "id": 14,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=450&fit=crop",
+          "title": "私自身",
+          "text": "I will do it _____.",
+          "options": [
+            [
+              { "text": "me", "value": "me", "correct": false },
+              { "text": "myself", "value": "myself", "correct": true },
+              { "text": "my", "value": "my", "correct": false },
+              { "text": "mine", "value": "mine", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "正解！「私自身で」は「myself」です。",
+            "wrong": "「私自身で」という再帰代名詞は「myself」を使います。"
+          }
+        },
+        {
+          "id": 15,
+          "type": "image",
+          "mediaUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&h=450&fit=crop",
+          "title": "彼のもの",
+          "text": "This dog is _____.",
+          "options": [
+            [
+              { "text": "he", "value": "he", "correct": false },
+              { "text": "him", "value": "him", "correct": false },
+              { "text": "his", "value": "his", "correct": true },
+              { "text": "himself", "value": "himself", "correct": false }
+            ]
+          ],
+          "feedback": {
+            "correct": "すばらしい！「彼のもの」という所有代名詞は「his」です。",
+            "wrong": "「彼のもの」という所有代名詞は「his」を使います。"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -89,6 +89,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useEmergencyCallStore } from '@/stores/emergencyCall'
 
@@ -332,7 +334,7 @@ const triggerAutoEmergency = async (triggeredPatterns) => {
     await emergencyStore.createEmergencyCall(emergencyData)
     emit('emergency-detected', emergencyData)
   } catch (error) {
-    console.error('Failed to trigger auto emergency:', error)
+    logger.error('Failed to trigger auto emergency:', error)
   }
 }
 

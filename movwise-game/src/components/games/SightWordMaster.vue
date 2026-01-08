@@ -78,10 +78,10 @@
             <button v-for="(level, key) in sightWordsData" :key="key"
                     @click="currentLevel = parseInt(key)"
                     :class="[
-                      'galaxy-card p-6 text-left transition-all duration-300',
+                      'galaxy-card p-6 text-left transition-all duration-300 border-2',
                       currentLevel === parseInt(key)
-                        ? 'galaxy-button-primary transform scale-105 cosmic-glow'
-                        : 'hover:galaxy-button-secondary'
+                        ? 'galaxy-button-primary transform scale-105 cosmic-glow border-yellow-400 shadow-2xl'
+                        : 'border-transparent hover:border-cyan-400 hover:bg-white/10 hover:transform hover:scale-102 hover:shadow-xl'
                     ]">
               <div class="flex items-center justify-between">
                 <div class="flex-1">
@@ -123,10 +123,10 @@
             <button v-for="mode in gameModes" :key="mode.id"
                     @click="gameMode = mode.id"
                     :class="[
-                      'galaxy-card p-6 text-center transition-all duration-300',
+                      'galaxy-card p-6 text-center transition-all duration-300 border-2',
                       gameMode === mode.id
-                        ? 'galaxy-button-primary transform scale-105 cosmic-glow'
-                        : 'hover:galaxy-button-secondary'
+                        ? 'galaxy-button-primary transform scale-105 cosmic-glow border-purple-400 shadow-2xl'
+                        : 'border-transparent hover:border-purple-400 hover:bg-purple-500/20 hover:transform hover:scale-105 hover:shadow-xl'
                     ]">
               <div class="text-4xl mb-4 cosmic-glow">{{ mode.icon }}</div>
               <div class="font-bold text-lg mb-2 text-white">{{ mode.name }}</div>
@@ -146,10 +146,10 @@
             <button v-for="num in [5, 10, 15, 20, 25]" :key="num"
                     @click="totalQuestions = num"
                     :class="[
-                      'galaxy-button px-6 py-3 font-bold transition-all duration-200 text-white',
+                      'galaxy-button px-6 py-3 font-bold transition-all duration-200 text-white border-2',
                       totalQuestions === num
-                        ? 'galaxy-button-primary cosmic-glow'
-                        : 'galaxy-button-secondary'
+                        ? 'galaxy-button-primary cosmic-glow border-green-400 shadow-lg transform scale-110'
+                        : 'galaxy-button-secondary border-transparent hover:border-green-400 hover:bg-green-500/30 hover:transform hover:scale-105 hover:shadow-md'
                     ]">
               {{ num }}問
             </button>

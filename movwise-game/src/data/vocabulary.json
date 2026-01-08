@@ -209,6 +209,485 @@
             "image": "/src/assets/images/vocabulary/father.jpg"
           },
           {
+            "english": "eat",
+            "japanese": "食べる",
+            "category": "action",
+            "distractors": ["drink", "sleep", "run"],
+            "image": "/src/assets/images/vocabulary/eat.jpg"
+          },
+          {
+            "english": "drink",
+            "japanese": "飲む",
+            "category": "action",
+            "distractors": ["eat", "sleep", "run"],
+            "image": "/src/assets/images/vocabulary/drink.jpg"
+          },
+          {
+            "english": "sleep",
+            "japanese": "眠る",
+            "category": "action",
+            "distractors": ["eat", "drink", "run"],
+            "image": "/src/assets/images/vocabulary/sleep.jpg"
+          },
+          {
+            "english": "run",
+            "japanese": "走る",
+            "category": "action",
+            "distractors": ["walk", "jump", "play"],
+            "image": "/src/assets/images/vocabulary/run.jpg"
+          },
+          {
+            "english": "walk",
+            "japanese": "歩く",
+            "category": "action",
+            "distractors": ["run", "jump", "play"],
+            "image": "/src/assets/images/vocabulary/walk.jpg"
+          },
+          {
+            "english": "jump",
+            "japanese": "跳ぶ",
+            "category": "action",
+            "distractors": ["run", "walk", "play"],
+            "image": "/src/assets/images/vocabulary/jump.jpg"
+          },
+          {
+            "english": "play",
+            "japanese": "遊ぶ",
+            "category": "action",
+            "distractors": ["run", "walk", "jump"],
+            "image": "/src/assets/images/vocabulary/play.jpg"
+          },
+          {
+            "english": "bread",
+            "japanese": "パン",
+            "category": "food",
+            "distractors": ["rice", "cake", "cookie"],
+            "image": "/src/assets/images/vocabulary/bread.jpg"
+          },
+          {
+            "english": "milk",
+            "japanese": "牛乳",
+            "category": "food",
+            "distractors": ["water", "juice", "tea"],
+            "image": "/src/assets/images/vocabulary/milk.jpg"
+          },
+          {
+            "english": "egg",
+            "japanese": "卵",
+            "category": "food",
+            "distractors": ["bread", "milk", "fish"],
+            "image": "/src/assets/images/vocabulary/egg.jpg"
+          },
+          {
+            "english": "school",
+            "japanese": "学校",
+            "category": "place",
+            "distractors": ["home", "park", "store"],
+            "image": "/src/assets/images/vocabulary/school.jpg"
+          },
+          {
+            "english": "park",
+            "japanese": "公園",
+            "category": "place",
+            "distractors": ["school", "home", "store"],
+            "image": "/src/assets/images/vocabulary/park.jpg"
+          },
+          {
+            "english": "head",
+            "japanese": "頭",
+            "category": "body",
+            "distractors": ["hand", "foot", "eye"],
+            "image": "/src/assets/images/vocabulary/head.jpg"
+          },
+          {
+            "english": "hand",
+            "japanese": "手",
+            "category": "body",
+            "distractors": ["head", "foot", "eye"],
+            "image": "/src/assets/images/vocabulary/hand.jpg"
+          },
+          {
+            "english": "foot",
+            "japanese": "足",
+            "category": "body",
+            "distractors": ["hand", "head", "eye"],
+            "image": "/src/assets/images/vocabulary/foot.jpg"
+          },
+          {
+            "english": "eye",
+            "japanese": "目",
+            "category": "body",
+            "distractors": ["hand", "foot", "head"],
+            "image": "/src/assets/images/vocabulary/eye.jpg"
+          },
+          {
+            "english": "four",
+            "japanese": "四",
+            "category": "number",
+            "distractors": ["five", "six", "seven"]
+          },
+          {
+            "english": "five",
+            "japanese": "五",
+            "category": "number",
+            "distractors": ["four", "six", "seven"]
+          },
+          {
+            "english": "six",
+            "japanese": "六",
+            "category": "number",
+            "distractors": ["four", "five", "seven"]
+          },
+          {
+            "english": "seven",
+            "japanese": "七",
+            "category": "number",
+            "distractors": ["four", "five", "six"]
+          },
+          {
+            "english": "eight",
+            "japanese": "八",
+            "category": "number",
+            "distractors": ["nine", "ten", "eleven"]
+          },
+          {
+            "english": "nine",
+            "japanese": "九",
+            "category": "number",
+            "distractors": ["eight", "ten", "eleven"]
+          },
+          {
+            "english": "ten",
+            "japanese": "十",
+            "category": "number",
+            "distractors": ["eight", "nine", "eleven"]
+          },
+          {
+            "english": "read",
+            "japanese": "読む",
+            "category": "action",
+            "distractors": ["write", "study", "learn"]
+          },
+          {
+            "english": "write",
+            "japanese": "書く",
+            "category": "action",
+            "distractors": ["read", "study", "learn"]
+          },
+          {
+            "english": "study",
+            "japanese": "勉強する",
+            "category": "action",
+            "distractors": ["read", "write", "learn"]
+          },
+          {
+            "english": "learn",
+            "japanese": "学ぶ",
+            "category": "action",
+            "distractors": ["read", "write", "study"]
+          },
+          {
+            "english": "open",
+            "japanese": "開ける",
+            "category": "action",
+            "distractors": ["close", "lock", "break"]
+          },
+          {
+            "english": "close",
+            "japanese": "閉める",
+            "category": "action",
+            "distractors": ["open", "lock", "break"]
+          },
+          {
+            "english": "fast",
+            "japanese": "速い",
+            "category": "adjective",
+            "distractors": ["slow", "quick", "fast"]
+          },
+          {
+            "english": "slow",
+            "japanese": "遅い",
+            "category": "adjective",
+            "distractors": ["fast", "quick", "late"]
+          },
+          {
+            "english": "new",
+            "japanese": "新しい",
+            "category": "adjective",
+            "distractors": ["old", "young", "fresh"]
+          },
+          {
+            "english": "old",
+            "japanese": "古い",
+            "category": "adjective",
+            "distractors": ["new", "young", "fresh"]
+          },
+          {
+            "english": "clean",
+            "japanese": "きれいな",
+            "category": "adjective",
+            "distractors": ["dirty", "messy", "neat"]
+          },
+          {
+            "english": "dirty",
+            "japanese": "汚い",
+            "category": "adjective",
+            "distractors": ["clean", "messy", "neat"]
+          },
+          {
+            "english": "long",
+            "japanese": "長い",
+            "category": "adjective",
+            "distractors": ["short", "tall", "wide"]
+          },
+          {
+            "english": "short",
+            "japanese": "短い",
+            "category": "adjective",
+            "distractors": ["long", "tall", "wide"]
+          },
+          {
+            "english": "good",
+            "japanese": "良い",
+            "category": "adjective",
+            "distractors": ["bad", "nice", "great"]
+          },
+          {
+            "english": "bad",
+            "japanese": "悪い",
+            "category": "adjective",
+            "distractors": ["good", "nice", "great"]
+          },
+          {
+            "english": "nice",
+            "japanese": "素敵な",
+            "category": "adjective",
+            "distractors": ["good", "bad", "great"]
+          },
+          {
+            "english": "breakfast",
+            "japanese": "朝食",
+            "category": "food",
+            "distractors": ["lunch", "dinner", "snack"]
+          },
+          {
+            "english": "lunch",
+            "japanese": "昼食",
+            "category": "food",
+            "distractors": ["breakfast", "dinner", "snack"]
+          },
+          {
+            "english": "dinner",
+            "japanese": "夕食",
+            "category": "food",
+            "distractors": ["breakfast", "lunch", "snack"]
+          },
+          {
+            "english": "home",
+            "japanese": "家",
+            "category": "place",
+            "distractors": ["school", "park", "store"]
+          },
+          {
+            "english": "store",
+            "japanese": "店",
+            "category": "place",
+            "distractors": ["home", "school", "park"]
+          },
+          {
+            "english": "library",
+            "japanese": "図書館",
+            "category": "place",
+            "distractors": ["school", "museum", "hospital"]
+          },
+          {
+            "english": "hospital",
+            "japanese": "病院",
+            "category": "place",
+            "distractors": ["library", "museum", "school"]
+          },
+          {
+            "english": "museum",
+            "japanese": "博物館",
+            "category": "place",
+            "distractors": ["library", "hospital", "school"]
+          },
+          {
+            "english": "brother",
+            "japanese": "兄弟",
+            "category": "family",
+            "distractors": ["sister", "mother", "father"]
+          },
+          {
+            "english": "sister",
+            "japanese": "姉妹",
+            "category": "family",
+            "distractors": ["brother", "mother", "father"]
+          },
+          {
+            "english": "grandmother",
+            "japanese": "おばあちゃん",
+            "category": "family",
+            "distractors": ["grandfather", "aunt", "uncle"]
+          },
+          {
+            "english": "grandfather",
+            "japanese": "おじいちゃん",
+            "category": "family",
+            "distractors": ["grandmother", "aunt", "uncle"]
+          },
+          {
+            "english": "teacher",
+            "japanese": "先生",
+            "category": "person",
+            "distractors": ["student", "doctor", "nurse"]
+          },
+          {
+            "english": "student",
+            "japanese": "生徒",
+            "category": "person",
+            "distractors": ["teacher", "doctor", "nurse"]
+          },
+          {
+            "english": "doctor",
+            "japanese": "医者",
+            "category": "person",
+            "distractors": ["teacher", "student", "nurse"]
+          },
+          {
+            "english": "nurse",
+            "japanese": "看護師",
+            "category": "person",
+            "distractors": ["teacher", "student", "doctor"]
+          },
+          {
+            "english": "morning",
+            "japanese": "朝",
+            "category": "time",
+            "distractors": ["afternoon", "evening", "night"]
+          },
+          {
+            "english": "afternoon",
+            "japanese": "午後",
+            "category": "time",
+            "distractors": ["morning", "evening", "night"]
+          },
+          {
+            "english": "evening",
+            "japanese": "夕方",
+            "category": "time",
+            "distractors": ["morning", "afternoon", "night"]
+          },
+          {
+            "english": "night",
+            "japanese": "夜",
+            "category": "time",
+            "distractors": ["morning", "afternoon", "evening"]
+          },
+          {
+            "english": "monday",
+            "japanese": "月曜日",
+            "category": "weekday",
+            "distractors": ["tuesday", "wednesday", "thursday"]
+          },
+          {
+            "english": "tuesday",
+            "japanese": "火曜日",
+            "category": "weekday",
+            "distractors": ["monday", "wednesday", "thursday"]
+          },
+          {
+            "english": "wednesday",
+            "japanese": "水曜日",
+            "category": "weekday",
+            "distractors": ["monday", "tuesday", "thursday"]
+          },
+          {
+            "english": "thursday",
+            "japanese": "木曜日",
+            "category": "weekday",
+            "distractors": ["monday", "tuesday", "wednesday"]
+          },
+          {
+            "english": "friday",
+            "japanese": "金曜日",
+            "category": "weekday",
+            "distractors": ["saturday", "sunday", "monday"]
+          },
+          {
+            "english": "saturday",
+            "japanese": "土曜日",
+            "category": "weekday",
+            "distractors": ["friday", "sunday", "monday"]
+          },
+          {
+            "english": "sunday",
+            "japanese": "日曜日",
+            "category": "weekday",
+            "distractors": ["friday", "saturday", "monday"]
+          },
+          {
+            "english": "spring",
+            "japanese": "春",
+            "category": "season",
+            "distractors": ["summer", "autumn", "winter"]
+          },
+          {
+            "english": "summer",
+            "japanese": "夏",
+            "category": "season",
+            "distractors": ["spring", "autumn", "winter"]
+          },
+          {
+            "english": "autumn",
+            "japanese": "秋",
+            "category": "season",
+            "distractors": ["spring", "summer", "winter"]
+          },
+          {
+            "english": "winter",
+            "japanese": "冬",
+            "category": "season",
+            "distractors": ["spring", "summer", "autumn"]
+          },
+          {
+            "english": "music",
+            "japanese": "音楽",
+            "category": "activity",
+            "distractors": ["art", "dance", "sport"]
+          },
+          {
+            "english": "art",
+            "japanese": "芸術",
+            "category": "activity",
+            "distractors": ["music", "dance", "sport"]
+          },
+          {
+            "english": "dance",
+            "japanese": "踊り",
+            "category": "activity",
+            "distractors": ["music", "art", "sport"]
+          },
+          {
+            "english": "sport",
+            "japanese": "スポーツ",
+            "category": "activity",
+            "distractors": ["music", "art", "dance"]
+          },
+          {
+            "english": "mother",
+            "category": "family",
+            "distractors": ["father", "sister", "brother"],
+            "image": "/src/assets/images/vocabulary/mother.jpg"
+          },
+          {
+            "english": "father",
+            "japanese": "お父さん",
+            "category": "family",
+            "distractors": ["mother", "sister", "brother"],
+            "image": "/src/assets/images/vocabulary/father.jpg"
+          },
+          {
             "english": "hand",
             "japanese": "手",
             "category": "body",

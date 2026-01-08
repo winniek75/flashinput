@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * MovWISE Game State Manager
  * ゲーム状態の保存・復元・管理システム
@@ -12,7 +14,7 @@ class GameStateManager {
     this.autoSaveEnabled = true
     this.listeners = new Map()
     
-    console.log('🎮 GameStateManager initialized')
+    logger.log('🎮 GameStateManager initialized')
     this.initializeStorage()
   }
 
@@ -28,7 +30,7 @@ class GameStateManager {
         localStorage.setItem(this.backupKey, JSON.stringify([]))
       }
     } catch (error) {
-      console.error('Failed to initialize storage:', error)
+      logger.error('Failed to initialize storage:', error)
     }
   }
 
@@ -91,17 +93,17 @@ class GameStateManager {
       if (existingIndex !== -1) {
         // 既存状態を更新
         savedStates[existingIndex] = saveData
-        console.log(`🔄 Updated existing game state: ${gameId}:${sessionId}`)
+        logger.log(`🔄 Updated existing game state: ${gameId}:${sessionId}`)
       } else {
         // 新しい状態を追加
         savedStates.unshift(saveData)
-        console.log(`💾 Saved new game state: ${gameId}:${sessionId}`)
+        logger.log(`💾 Saved new game state: ${gameId}:${sessionId}`)
       }
 
       // 最大数を超えた古い状態を削除
       if (savedStates.length > this.maxStates) {
         const removed = savedStates.splice(this.maxStates)
-        console.log(`🗑️ Removed ${removed.length} old save states`)
+        logger.log(`🗑️ Removed ${removed.length} old save states`)
       }
 
       // ストレージに保存
@@ -118,7 +120,7 @@ class GameStateManager {
       return true
 
     } catch (error) {
-      console.error('Failed to save game state:', error)
+      logger.error('Failed to save game state:', error)
       this.emit('saveError', { error, gameState, options })
       return false
     }
@@ -148,7 +150,7 @@ class GameStateManager {
       }
 
       if (!targetState) {
-        console.log(`📭 No saved state found for game: ${gameId}`)
+        logger.log(`📭 No saved state found for game: ${gameId}`)
         return null
       }
 
@@ -156,7 +158,7 @@ class GameStateManager {
       if (targetState.checksum) {
         const isValid = await this.verifyChecksum(targetState.gameState, targetState.checksum)
         if (!isValid) {
-          console.warn('⚠️ Checksum verification failed, state may be corrupted')
+          logger.warn('⚠️ Checksum verification failed, state may be corrupted')
           if (!options.allowCorrupted) {
             throw new Error('Game state checksum verification failed')
           }
@@ -172,7 +174,7 @@ class GameStateManager {
       // 深いクローンで返す
       const restoredState = this.deepClone(gameState)
       
-      console.log(`🔄 Restored game state: ${gameId} from ${targetState.timestamp}`)
+      logger.log(`🔄 Restored game state: ${gameId} from ${targetState.timestamp}`)
       
       // リスナーに通知
       this.emit('stateRestored', { 
@@ -185,12 +187,12 @@ class GameStateManager {
       return restoredState
 
     } catch (error) {
-      console.error('Failed to restore game state:', error)
+      logger.error('Failed to restore game state:', error)
       this.emit('restoreError', { error, gameId, sessionId })
       
       // バックアップからの復元を試行
       if (options.tryBackup !== false) {
-        console.log('🔄 Attempting backup restoration...')
+        logger.log('🔄 Attempting backup restoration...')
         return this.restoreFromBackup(gameId, sessionId)
       }
       
@@ -213,7 +215,7 @@ class GameStateManager {
       
       return savedStates
     } catch (error) {
-      console.error('Failed to get saved states:', error)
+      logger.error('Failed to get saved states:', error)
       return []
     }
   }
@@ -242,14 +244,14 @@ class GameStateManager {
       localStorage.setItem(this.storageKey, JSON.stringify(newStates))
       
       const deletedCount = savedStates.length - newStates.length
-      console.log(`🗑️ Deleted ${deletedCount} game state(s) for ${gameId}`)
+      logger.log(`🗑️ Deleted ${deletedCount} game state(s) for ${gameId}`)
       
       this.emit('stateDeleted', { gameId, sessionId, deletedCount })
       
       return deletedCount > 0
 
     } catch (error) {
-      console.error('Failed to delete game state:', error)
+      logger.error('Failed to delete game state:', error)
       return false
     }
   }
@@ -270,7 +272,7 @@ class GameStateManager {
       this.stopAutoSave()
     }
 
-    console.log(`⏰ Starting auto-save for ${gameId} (interval: ${interval}ms)`)
+    logger.log(`⏰ Starting auto-save for ${gameId} (interval: ${interval}ms)`)
     
     this.autoSaveInterval = setInterval(async () => {
       try {
@@ -294,7 +296,7 @@ class GameStateManager {
         })
 
       } catch (error) {
-        console.error('Auto-save failed:', error)
+        logger.error('Auto-save failed:', error)
       }
     }, interval)
 
@@ -308,7 +310,7 @@ class GameStateManager {
     if (this.autoSaveInterval) {
       clearInterval(this.autoSaveInterval)
       this.autoSaveInterval = null
-      console.log('⏰ Auto-save stopped')
+      logger.log('⏰ Auto-save stopped')
     }
     this.autoSaveEnabled = false
   }
@@ -342,13 +344,13 @@ class GameStateManager {
 
       localStorage.setItem(this.backupKey, JSON.stringify(backups))
       
-      console.log(`🆘 Emergency backup created: ${reason}`)
+      logger.log(`🆘 Emergency backup created: ${reason}`)
       this.emit('emergencyBackup', backupData)
 
       return backupData.id
 
     } catch (error) {
-      console.error('Failed to create emergency backup:', error)
+      logger.error('Failed to create emergency backup:', error)
       return null
     }
   }
@@ -364,7 +366,7 @@ class GameStateManager {
       const backups = this.getBackups()
       
       if (backups.length === 0) {
-        console.log('📭 No backups available')
+        logger.log('📭 No backups available')
         return null
       }
 
@@ -372,13 +374,13 @@ class GameStateManager {
       const latestBackup = backups[0]
       const restoredState = this.deepClone(latestBackup.gameState)
       
-      console.log(`🔄 Restored from backup: ${latestBackup.id}`)
+      logger.log(`🔄 Restored from backup: ${latestBackup.id}`)
       this.emit('backupRestored', { gameState: restoredState, backup: latestBackup })
       
       return restoredState
 
     } catch (error) {
-      console.error('Failed to restore from backup:', error)
+      logger.error('Failed to restore from backup:', error)
       return null
     }
   }
@@ -395,11 +397,11 @@ class GameStateManager {
         localStorage.removeItem(this.backupKey)
       }
       
-      console.log('🗑️ Game state storage cleared')
+      logger.log('🗑️ Game state storage cleared')
       this.emit('storageCleared', { includeBackups })
 
     } catch (error) {
-      console.error('Failed to clear storage:', error)
+      logger.error('Failed to clear storage:', error)
     }
   }
 
@@ -421,7 +423,7 @@ class GameStateManager {
         lastUpdate: this.getLastUpdateTime()
       }
     } catch (error) {
-      console.error('Failed to get storage info:', error)
+      logger.error('Failed to get storage info:', error)
       return null
     }
   }
@@ -465,7 +467,7 @@ class GameStateManager {
         try {
           callback(data)
         } catch (error) {
-          console.error(`Error in event listener for ${event}:`, error)
+          logger.error(`Error in event listener for ${event}:`, error)
         }
       })
     }
@@ -527,7 +529,7 @@ class GameStateManager {
       const hashArray = Array.from(new Uint8Array(hashBuffer))
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
     } catch (error) {
-      console.warn('Failed to generate checksum:', error)
+      logger.warn('Failed to generate checksum:', error)
       return null
     }
   }
@@ -543,7 +545,7 @@ class GameStateManager {
       const actualChecksum = await this.generateChecksum(data)
       return actualChecksum === expectedChecksum
     } catch (error) {
-      console.warn('Failed to verify checksum:', error)
+      logger.warn('Failed to verify checksum:', error)
       return false
     }
   }
@@ -601,7 +603,7 @@ class GameStateManager {
     try {
       return JSON.parse(localStorage.getItem(this.backupKey) || '[]')
     } catch (error) {
-      console.error('Failed to get backups:', error)
+      logger.error('Failed to get backups:', error)
       return []
     }
   }
@@ -627,10 +629,10 @@ class GameStateManager {
       }
 
       localStorage.setItem(this.backupKey, JSON.stringify(backups))
-      console.log(`📦 Backup created: ${backupData.id}`)
+      logger.log(`📦 Backup created: ${backupData.id}`)
 
     } catch (error) {
-      console.error('Failed to create backup:', error)
+      logger.error('Failed to create backup:', error)
     }
   }
 

@@ -3,17 +3,19 @@
     <!-- 宇宙船コックピットヘッダー -->
     <div class="cosmic-header">
       <div class="header-left">
+        <button @click="handleBack" class="cosmic-nav-button">
+          <ArrowLeftIcon class="w-4 h-4" />
+          戻る
+        </button>
+      </div>
+      <div class="header-center">
         <div class="cosmic-title">
           <span class="cosmic-icon">⚔️</span>
           <div class="title-text">
-            <h1>Grammar Battle Arena</h1>
+            <h1>グラマーバトルアリーナ</h1>
             <div class="subtitle">文法銀河 - バトルゾーン</div>
           </div>
         </div>
-        <button @click="handleBack" class="cosmic-nav-button">
-          <ArrowLeftIcon class="w-5 h-5" />
-          銀河へ戻る
-        </button>
       </div>
       <div class="header-right">
         <div class="cosmic-status-panel">
@@ -67,8 +69,6 @@
       <div v-if="gameState === 'ready'" class="ready-screen cosmic-panel">
         <div class="cosmic-hologram">
           <div class="hologram-content">
-            <h2>Grammar Battle Arena</h2>
-            <p class="mission-brief">文法の正確性を判断して銀河を守れ！</p>
             <div class="difficulty-selector">
               <h3>ミッション難易度を選択:</h3>
               <div class="difficulty-options">
@@ -339,6 +339,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
@@ -362,25 +364,25 @@ const {
 } = useGameAudio()
 
 const handleBack = () => {
-  console.log('handleBack called')
+  logger.log('handleBack called')
   
   try {
     // 前のルートがある場合はそこに戻る
     if (route.meta?.previousRoute?.name) {
-      console.log('Going back to previous route:', route.meta.previousRoute.name)
+      logger.log('Going back to previous route:', route.meta.previousRoute.name)
       router.push({ name: route.meta.previousRoute.name })
     } else {
-      console.log('Going back to grammar galaxy hub')
+      logger.log('Going back to grammar galaxy hub')
       // デフォルトは Grammar Galaxy Hub に戻る
-      router.push({ name: 'grammar-galaxy-hub' })
+      router.push('/platforms/grammar-galaxy')
     }
   } catch (error) {
-    console.error('Navigation error:', error)
+    logger.error('Navigation error:', error)
     try {
       // セカンダリフォールバック: Grammar Galaxy Foundation
       router.push('/grammar-galaxy-foundation')
     } catch (error2) {
-      console.error('Secondary navigation error:', error2)
+      logger.error('Secondary navigation error:', error2)
       // 最終フォールバック: ホームに戻る
       router.push('/')
     }
@@ -547,6 +549,104 @@ const grammarQuestions = {
       category: "questions",
       eiken: 5
     },
+    // 追加の英検5級レベル問題
+    {
+      sentence: "I plays soccer every day",
+      isCorrect: false,
+      correction: "I play soccer every day",
+      errorType: "subject_verb_agreement",
+      difficulty: 1,
+      explanation: "一人称単数Iには動詞の原形を使います",
+      category: "general_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "Do you likes music?",
+      isCorrect: false,
+      correction: "Do you like music?",
+      errorType: "interrogative_form",
+      difficulty: 1,
+      explanation: "疑問文のdoの後は動詞の原形を使います",
+      category: "questions",
+      eiken: 5
+    },
+    {
+      sentence: "She doesn't likes ice cream",
+      isCorrect: false,
+      correction: "She doesn't like ice cream",
+      errorType: "negative_form",
+      difficulty: 1,
+      explanation: "doesn'tの後は動詞の原形を使います",
+      category: "general_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "There is a book on the table",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 1,
+      explanation: "正しい文です",
+      category: "there_be",
+      eiken: 5
+    },
+    {
+      sentence: "I have two cat",
+      isCorrect: false,
+      correction: "I have two cats",
+      errorType: "plural_form",
+      difficulty: 1,
+      explanation: "数詞の後の名詞は複数形にします",
+      category: "nouns",
+      eiken: 5
+    },
+    {
+      sentence: "My sister are a nurse",
+      isCorrect: false,
+      correction: "My sister is a nurse",
+      errorType: "subject_verb_agreement",
+      difficulty: 1,
+      explanation: "三人称単数の主語にはisを使います",
+      category: "be_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "Does he plays tennis?",
+      isCorrect: false,
+      correction: "Does he play tennis?",
+      errorType: "interrogative_form",
+      difficulty: 1,
+      explanation: "疑問文のdoesの後は動詞の原形を使います",
+      category: "questions",
+      eiken: 5
+    },
+    {
+      sentence: "We doesn't watch TV",
+      isCorrect: false,
+      correction: "We don't watch TV",
+      errorType: "negative_form",
+      difficulty: 1,
+      explanation: "複数の主語にはdon'tを使います",
+      category: "general_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "I am 15 years old",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 1,
+      explanation: "正しい文です",
+      category: "be_verbs",
+      eiken: 5
+    },
+    {
+      sentence: "Where do you live?",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 1,
+      explanation: "正しい文です",
+      category: "questions",
+      eiken: 5
+    },
     // 英検4級レベル
     {
       sentence: "I will going to the store",
@@ -625,6 +725,84 @@ const grammarQuestions = {
       difficulty: 2,
       explanation: "want to の後は動詞の原形を使います",
       category: "infinitives",
+      eiken: 4
+    },
+    // 追加の英検4級レベル問題
+    {
+      sentence: "He is studying English since last year",
+      isCorrect: false,
+      correction: "He has been studying English since last year",
+      errorType: "present_perfect_continuous",
+      difficulty: 2,
+      explanation: "sinceがある場合は現在完了（進行）形を使います",
+      category: "perfect_tenses",
+      eiken: 4
+    },
+    {
+      sentence: "I am going shopping tomorrow",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 2,
+      explanation: "正しい文です",
+      category: "future_plans",
+      eiken: 4
+    },
+    {
+      sentence: "Could you to help me?",
+      isCorrect: false,
+      correction: "Could you help me?",
+      errorType: "modal_verb",
+      difficulty: 2,
+      explanation: "助動詞の後はtoを付けません",
+      category: "modals",
+      eiken: 4
+    },
+    {
+      sentence: "This is the most interesting book",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 2,
+      explanation: "正しい文です",
+      category: "superlatives",
+      eiken: 4
+    },
+    {
+      sentence: "I have already finish my homework",
+      isCorrect: false,
+      correction: "I have already finished my homework",
+      errorType: "present_perfect",
+      difficulty: 2,
+      explanation: "現在完了形はhave + 過去分詞を使います",
+      category: "perfect_tenses",
+      eiken: 4
+    },
+    {
+      sentence: "He run faster than me",
+      isCorrect: false,
+      correction: "He runs faster than me",
+      errorType: "subject_verb_agreement",
+      difficulty: 2,
+      explanation: "三人称単数には-sを付けます",
+      category: "general_verbs",
+      eiken: 4
+    },
+    {
+      sentence: "Would you like some coffee?",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 2,
+      explanation: "正しい文です",
+      category: "polite_requests",
+      eiken: 4
+    },
+    {
+      sentence: "I don't have no money",
+      isCorrect: false,
+      correction: "I don't have any money",
+      errorType: "double_negative",
+      difficulty: 2,
+      explanation: "二重否定は避けて、anyを使います",
+      category: "negatives",
       eiken: 4
     }
   ],
@@ -747,6 +925,103 @@ const grammarQuestions = {
       difficulty: 3,
       explanation: "look forward toの後は動名詞(-ing)を使います",
       category: "phrasal_verbs",
+      eiken: 3
+    },
+    // 追加の英検3級レベル問題
+    {
+      sentence: "I enjoy to read books",
+      isCorrect: false,
+      correction: "I enjoy reading books",
+      errorType: "gerund_infinitive",
+      difficulty: 3,
+      explanation: "enjoyの後は動名詞(-ing)を使います",
+      category: "gerunds",
+      eiken: 3
+    },
+    {
+      sentence: "He suggested me to go there",
+      isCorrect: false,
+      correction: "He suggested that I go there",
+      errorType: "suggest_structure",
+      difficulty: 3,
+      explanation: "suggestの後は直接人を目的語にできません",
+      category: "verbs_patterns",
+      eiken: 3
+    },
+    {
+      sentence: "I have been living here for ten years",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 3,
+      explanation: "正しい文です",
+      category: "perfect_tenses",
+      eiken: 3
+    },
+    {
+      sentence: "Despite of the rain, we went out",
+      isCorrect: false,
+      correction: "Despite the rain, we went out",
+      errorType: "despite_usage",
+      difficulty: 3,
+      explanation: "despiteの後にofは付けません",
+      category: "prepositions",
+      eiken: 3
+    },
+    {
+      sentence: "I'm afraid of flying",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 3,
+      explanation: "正しい文です",
+      category: "gerunds",
+      eiken: 3
+    },
+    {
+      sentence: "He told to me the truth",
+      isCorrect: false,
+      correction: "He told me the truth",
+      errorType: "verb_pattern",
+      difficulty: 3,
+      explanation: "tellは直接目的語を取ります",
+      category: "verbs_patterns",
+      eiken: 3
+    },
+    {
+      sentence: "I'm interested in learning Spanish",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 3,
+      explanation: "正しい文です",
+      category: "gerunds",
+      eiken: 3
+    },
+    {
+      sentence: "Although he is young, but he is wise",
+      isCorrect: false,
+      correction: "Although he is young, he is wise",
+      errorType: "conjunction_error",
+      difficulty: 3,
+      explanation: "althoughとbutは一緒に使えません",
+      category: "conjunctions",
+      eiken: 3
+    },
+    {
+      sentence: "I prefer coffee than tea",
+      isCorrect: false,
+      correction: "I prefer coffee to tea",
+      errorType: "prefer_to",
+      difficulty: 3,
+      explanation: "prefer A to Bの形を使います",
+      category: "preferences",
+      eiken: 3
+    },
+    {
+      sentence: "She apologized for being late",
+      isCorrect: true,
+      errorType: null,
+      difficulty: 3,
+      explanation: "正しい文です",
+      category: "gerunds",
       eiken: 3
     },
     // 英検準2級レベル
@@ -963,24 +1238,79 @@ const startGame = () => {
   gameTime.value = 0
   reactionTimes.value = []
   feverMode.value = false
-  
-  const level = currentLevel.value
-  const questions = grammarQuestions[level.questions] || grammarQuestions.beginnerQuestions
-  // レベルに応じて問題数を調整
-  let questionLimit = totalQuestions.value
+
+  const levelData = currentLevel.value
+  let allQuestions = []
+
+  // レベルに応じて適切な問題セットを選択（英検5級〜3級中心）
   if (selectedLevel.value === 'cadet') {
-    questionLimit = Math.min(15, questions.length) // 初級者は15問
+    // 初級者：英検5級レベル中心
+    const beginnerQuestions = grammarQuestions.beginnerQuestions.filter(q => q.eiken === 5)
+    const easyIntermediateQuestions = grammarQuestions.beginnerQuestions.filter(q => q.eiken === 4).slice(0, 5)
+    allQuestions = [...beginnerQuestions, ...easyIntermediateQuestions]
+    totalQuestions.value = Math.min(15, allQuestions.length)
   } else if (selectedLevel.value === 'ranger') {
-    questionLimit = Math.min(20, questions.length) // 中級者は20問
+    // 中級者：英検4級〜3級レベル
+    const grade4Questions = grammarQuestions.beginnerQuestions.filter(q => q.eiken === 4)
+    const grade3Questions = grammarQuestions.intermediateQuestions.filter(q => q.eiken === 3)
+    allQuestions = [...grade4Questions, ...grade3Questions]
+    totalQuestions.value = Math.min(20, allQuestions.length)
   } else {
-    questionLimit = Math.min(25, questions.length) // 上級者は25問
+    // 上級者：英検3級以上のミックス
+    const questions = grammarQuestions[levelData.questions] || grammarQuestions.beginnerQuestions
+    allQuestions = [...questions]
+    totalQuestions.value = Math.min(25, allQuestions.length)
   }
-  
-  currentQuestions.value = shuffleArray([...questions]).slice(0, questionLimit)
-  totalQuestions.value = questionLimit
-  
+
+  // カテゴリバランスを考慮したランダム選択
+  currentQuestions.value = getBalancedQuestions(allQuestions, totalQuestions.value)
+
   startGameTimer()
   showNextQuestion()
+}
+
+// バランスの取れた問題選択（カテゴリ別に均等に選択）
+const getBalancedQuestions = (questions, limit) => {
+  // カテゴリ別にグループ化
+  const categorizedQuestions = {}
+  questions.forEach(q => {
+    if (!categorizedQuestions[q.category]) {
+      categorizedQuestions[q.category] = []
+    }
+    categorizedQuestions[q.category].push(q)
+  })
+
+  const categories = Object.keys(categorizedQuestions)
+  const selectedQuestions = []
+  let categoryIndex = 0
+
+  // 各カテゴリから順番に選択
+  while (selectedQuestions.length < limit && selectedQuestions.length < questions.length) {
+    const currentCategory = categories[categoryIndex % categories.length]
+    const availableQuestions = categorizedQuestions[currentCategory].filter(
+      q => !selectedQuestions.includes(q)
+    )
+
+    if (availableQuestions.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableQuestions.length)
+      selectedQuestions.push(availableQuestions[randomIndex])
+    }
+
+    categoryIndex++
+
+    // 全カテゴリを一周したら、残りはランダムに選択
+    if (categoryIndex >= categories.length * 2) {
+      const remainingQuestions = questions.filter(q => !selectedQuestions.includes(q))
+      while (selectedQuestions.length < limit && remainingQuestions.length > 0) {
+        const randomIndex = Math.floor(Math.random() * remainingQuestions.length)
+        selectedQuestions.push(remainingQuestions.splice(randomIndex, 1)[0])
+      }
+      break
+    }
+  }
+
+  // 最終的にシャッフル
+  return shuffleArray(selectedQuestions)
 }
 
 const shuffleArray = (array) => {
@@ -1242,7 +1572,7 @@ onUnmounted(() => {
   min-height: 100vh;
   background: radial-gradient(ellipse at center, #1a1b3a 0%, #0a0a1a 70%, #000000 100%);
   color: #e2e8f0;
-  padding: 1rem;
+  padding: 0.5rem;
   position: relative;
   overflow-x: hidden;
   font-family: 'Orbitron', 'Inter', sans-serif;
@@ -1297,29 +1627,44 @@ onUnmounted(() => {
 }
 
 /* ヘッダー - 宇宙船コックピット */
-.cosmic-header {
+.grammar-reflex-arena .cosmic-header {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.9));
   backdrop-filter: blur(20px);
   border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
+  border-radius: 0.8rem;
+  padding: 0.6rem 0.8rem !important;
+  margin: 0.5rem auto 1rem auto !important;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  max-width: calc(100vw - 3rem) !important;
+  width: calc(100vw - 3rem) !important;
 }
 
-.cosmic-title {
+.header-left {
+  justify-self: start;
+}
+
+.header-center {
+  justify-self: center;
+}
+
+.header-right {
+  justify-self: end;
+}
+
+.grammar-reflex-arena .cosmic-title {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.6rem;
+  justify-content: center;
 }
 
 .cosmic-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   animation: iconPulse 2s infinite;
 }
 
@@ -1328,8 +1673,12 @@ onUnmounted(() => {
   50% { transform: scale(1.1); filter: brightness(1.3); }
 }
 
+.title-text {
+  text-align: center;
+}
+
 .title-text h1 {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #f1f5f9;
   margin: 0;
@@ -1337,7 +1686,7 @@ onUnmounted(() => {
 }
 
 .subtitle {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   color: #94a3b8;
   font-weight: normal;
 }
@@ -1362,10 +1711,11 @@ onUnmounted(() => {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.cosmic-status-panel {
+.grammar-reflex-arena .cosmic-status-panel {
   display: flex;
-  gap: 2rem;
+  gap: 0.8rem;
   align-items: center;
+  flex-shrink: 1;
 }
 
 .ship-energy {
@@ -1373,18 +1723,18 @@ onUnmounted(() => {
 }
 
 .energy-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #94a3b8;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .energy-hearts {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .energy-core {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   transition: all 0.3s ease;
   filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
 }
@@ -1399,21 +1749,21 @@ onUnmounted(() => {
 }
 
 .score-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #94a3b8;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .score-value {
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
   color: #1f2937;
-  padding: 0.5rem 1rem;
-  border-radius: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.8rem;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
 }
 
@@ -1524,8 +1874,8 @@ onUnmounted(() => {
   backdrop-filter: blur(20px);
   border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 1.5rem;
-  padding: 2rem;
-  box-shadow: 
+  padding: 1.2rem;
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -1545,14 +1895,8 @@ onUnmounted(() => {
   bottom: -10px;
   background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent);
   border-radius: 1.5rem;
-  animation: hologramScan 3s infinite;
 }
 
-@keyframes hologramScan {
-  0% { transform: translateY(0%); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
 
 /* === 音声再生ボタンのスタイル === */
 .transmission-audio {
@@ -1605,27 +1949,14 @@ onUnmounted(() => {
   transform: none;
 }
 
-.hologram-content h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #f1f5f9;
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
-}
-
-.mission-brief {
-  font-size: 1.2rem;
-  color: #cbd5e1;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
 
 .difficulty-selector {
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
 }
 
 .difficulty-selector h3 {
   color: #e2e8f0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   font-size: 1.1rem;
 }
 
@@ -1642,7 +1973,7 @@ onUnmounted(() => {
   border-radius: 1rem;
   padding: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -1651,8 +1982,7 @@ onUnmounted(() => {
 
 .difficulty-btn:hover {
   border-color: rgba(99, 102, 241, 0.8);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
 }
 
 .difficulty-btn.active {
@@ -1688,14 +2018,14 @@ onUnmounted(() => {
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .cosmic-start-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  filter: brightness(1.1);
 }
 
 .button-glow {
@@ -2557,10 +2887,13 @@ onUnmounted(() => {
 
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
-  .cosmic-header {
+  .grammar-reflex-arena .cosmic-header {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+    max-width: 95vw !important;
+    width: 95vw !important;
+    padding: 0.8rem !important;
   }
   
   .cosmic-status-panel {
@@ -2608,8 +2941,10 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
-  .cosmic-header {
-    padding: 1rem;
+  .grammar-reflex-arena .cosmic-header {
+    padding: 0.6rem !important;
+    max-width: 98vw !important;
+    width: 98vw !important;
   }
   
   .cosmic-title .title-text h1 {

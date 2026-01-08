@@ -243,6 +243,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useCooperativeGameStore } from '@/stores/cooperativeGame'
 import { useAuthStore } from '@/stores/auth'
@@ -432,7 +434,7 @@ const initializeGame = async () => {
     currentTaskStep.value = 1
 
   } catch (error) {
-    console.error('Failed to initialize game:', error)
+    logger.error('Failed to initialize game:', error)
   } finally {
     isLoading.value = false
   }

@@ -27,6 +27,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSpectatorStore } from '@/stores/spectatorStore';
@@ -44,7 +46,7 @@ const roomCode = computed(() => spectatorStore.roomCode);
 
 // メソッド
 function onRoomCreated(data) {
-  console.log('Room created:', data);
+  logger.log('Room created:', data);
   roomJoined.value = true;
   
   // 講師もホーム画面へ遷移（SpectatorOverlayが表示される）
@@ -54,7 +56,7 @@ function onRoomCreated(data) {
 }
 
 function onRoomJoined(data) {
-  console.log('Room joined:', data);
+  logger.log('Room joined:', data);
   roomJoined.value = true;
   
   // 生徒は自動的にゲームハブへ遷移

@@ -25,44 +25,18 @@
       
       <div class="intro-container">
         <div class="galaxy-card intro-card">
-          <div class="intro-icon cosmic-glow">🕵️‍♂️✨</div>
-          <h2 class="intro-title galaxy-text-primary cosmic-glow">Pattern Hunter</h2>
-          <p class="intro-subtitle text-galaxy-moon-silver">
-            宇宙に散らばった文法パターンを探し出そう！
-          </p>
-          
-          <div class="intro-description">
-            <p class="text-galaxy-moon-silver mb-4 leading-relaxed">
-              星の海に隠された文法パターンを発見する宇宙探検家になろう。<br>
-              グリッドの単語を正しい順序で選んで、完璧な文法パターンを完成させよう！
-            </p>
-          </div>
+          <button @click="$router.push('/platforms/grammar-galaxy')" class="back-button mb-3">
+            <span>←</span> 戻る
+          </button>
+          <h2 class="intro-title galaxy-text-primary cosmic-glow">パターンハンター</h2>
           
           <div class="mission-briefing galaxy-card">
-            <h3 class="text-lg font-bold galaxy-text-primary cosmic-glow mb-3">🎯 ミッション概要</h3>
-            <ul class="mission-list">
-              <li class="mission-item">
-                <span class="mission-icon">🌟</span>
-                <span>ターゲットパターンを正確に見つける</span>
-              </li>
-              <li class="mission-item">
-                <span class="mission-icon">⚡</span>
-                <span>制限時間180秒以内にクリア</span>
-              </li>
-              <li class="mission-item">
-                <span class="mission-icon">🎯</span>
-                <span>正しい語順で文法パターンを完成</span>
-              </li>
-              <li class="mission-item">
-                <span class="mission-icon">🏆</span>
-                <span>高得点を目指してコンボを狙う</span>
-              </li>
-            </ul>
+            <p class="text-galaxy-moon-silver text-center">正しい語順で文法パターンを完成させよう！</p>
           </div>
           
           <!-- 英検レベル選択 -->
           <div class="galaxy-card level-selection">
-            <h3 class="text-lg font-bold galaxy-text-primary cosmic-glow mb-3">🎯 英検レベル選択</h3>
+            <h3 class="text-base font-bold galaxy-text-primary cosmic-glow mb-2">レベル選択</h3>
             <div class="level-grid">
               <button 
                 v-for="(settings, level) in EIKEN_LEVELS" 
@@ -318,6 +292,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
 import { patternHunterData } from '@/data/grammarFoundationData'
@@ -337,10 +313,10 @@ const audioStore = useAudioStore()
 const router = useRouter()
 
 // Store debugging
-console.log('🏪 Grammar Galaxy Store initialized:', !!store)
-console.log('📋 Store planetsData:', store.planetsData)
-console.log('🪐 beVerb planet data:', store.planetsData?.beVerb)
-console.log('🎮 Pattern Hunter game:', store.planetsData?.beVerb?.games?.find(g => g.id === 'patternHunter'))
+logger.log('🏪 Grammar Galaxy Store initialized:', !!store)
+logger.log('📋 Store planetsData:', store.planetsData)
+logger.log('🪐 beVerb planet data:', store.planetsData?.beVerb)
+logger.log('🎮 Pattern Hunter game:', store.planetsData?.beVerb?.games?.find(g => g.id === 'patternHunter'))
 
 // ゲーム状態
 const gameState = ref('ready') // 'ready', 'playing', 'paused', 'finished'
@@ -470,7 +446,7 @@ const isNewRecord = computed(() => {
     const game = planet?.games?.find(g => g.id === 'patternHunter')
     const currentBestScore = game?.bestScore || 0
     
-    console.log('🏆 New record check:', {
+    logger.log('🏆 New record check:', {
       currentScore: score.value,
       bestScore: currentBestScore,
       isNewRecord: score.value > currentBestScore
@@ -478,7 +454,7 @@ const isNewRecord = computed(() => {
     
     return score.value > currentBestScore
   } catch (error) {
-    console.error('❌ Error checking new record:', error)
+    logger.error('❌ Error checking new record:', error)
     return false
   }
 })
@@ -533,8 +509,8 @@ const initializeGame = () => {
     // その中から1つランダムに選ぶ
     currentTarget.value = targetPatterns.value[Math.floor(Math.random() * targetPatterns.value.length)]
     
-    console.log(`🎮 Game initialized with ${targetPatterns.value.length} patterns (${selectedEikenLevel.value})`)
-    console.log(`🎯 First target: ${currentTarget.value.pattern}`)
+    logger.log(`🎮 Game initialized with ${targetPatterns.value.length} patterns (${selectedEikenLevel.value})`)
+    logger.log(`🎯 First target: ${currentTarget.value.pattern}`)
     
     // グリッドの初期化
     initializeGrid()
@@ -552,7 +528,7 @@ const initializeGame = () => {
     // タイマーの開始
     startGameTimer()
   } catch (error) {
-    console.error('Error initializing game:', error)
+    logger.error('Error initializing game:', error)
     hasError.value = true
     errorMessage.value = 'Failed to initialize the game. Please try again.'
   }
@@ -576,8 +552,8 @@ const initializeGrid = () => {
     isTarget: false
   }))
 
-  console.log('🎯 Target elements:', allTargetElements.map(e => e.text))
-  console.log('🎲 Distractor elements:', distractors.map(e => e.text))
+  logger.log('🎯 Target elements:', allTargetElements.map(e => e.text))
+  logger.log('🎲 Distractor elements:', distractors.map(e => e.text))
 
   // グリッドサイズに合わせて要素を配置
   const gridElements = []
@@ -631,8 +607,8 @@ const initializeGrid = () => {
   // 最終シャッフル
   gameGrid.value = gridElements.sort(() => 0.5 - Math.random())
   
-  console.log(`🎲 Grid initialized with ${gridElements.filter(g => g.element).length} elements`)
-  console.log(`📋 Target words in grid:`, gridElements.filter(g => g.element?.isTarget).map(g => g.element.text))
+  logger.log(`🎲 Grid initialized with ${gridElements.filter(g => g.element).length} elements`)
+  logger.log(`📋 Target words in grid:`, gridElements.filter(g => g.element?.isTarget).map(g => g.element.text))
 }
 
 // ゲームタイマーの開始
@@ -734,24 +710,24 @@ const setNextTarget = () => {
     const randomIndex = Math.floor(Math.random() * remainingPatterns.length)
     currentTarget.value = remainingPatterns[randomIndex]
     
-    console.log(`🎯 Next target set: ${currentTarget.value.pattern}`)
+    logger.log(`🎯 Next target set: ${currentTarget.value.pattern}`)
   } else {
     currentTarget.value = null
-    console.log('🏁 All patterns found!')
+    logger.log('🏁 All patterns found!')
   }
 }
 
 // セル選択
 const selectCell = (index) => {
-  console.log(`[selectCell] Attempting to select cell ${index}`)
+  logger.log(`[selectCell] Attempting to select cell ${index}`)
   
   if (gameState.value !== 'playing') {
-    console.warn('[selectCell] Game not in playing state')
+    logger.warn('[selectCell] Game not in playing state')
     return
   }
   
   if (!gameGrid.value[index] || !gameGrid.value[index].element) {
-    console.warn('[selectCell] Cell is empty or invalid')
+    logger.warn('[selectCell] Cell is empty or invalid')
     return
   }
   
@@ -759,11 +735,11 @@ const selectCell = (index) => {
   // if (gameGrid.value[index].isFound) return
   
   const cell = gameGrid.value[index]
-  console.log(`[selectCell] Cell element:`, cell.element)
+  logger.log(`[selectCell] Cell element:`, cell.element)
   
   if (cell.isSelected) {
     // 選択解除
-    console.log(`[selectCell] Deselecting cell`)
+    logger.log(`[selectCell] Deselecting cell`)
     cell.isSelected = false
     const elementIndex = selectedElements.value.findIndex(el => el.text === cell.element.text)
     if (elementIndex !== -1) {
@@ -775,13 +751,13 @@ const selectCell = (index) => {
     }
   } else {
     // 選択
-    console.log(`[selectCell] Selecting cell`)
+    logger.log(`[selectCell] Selecting cell`)
     cell.isSelected = true
     selectedElements.value.push(cell.element)
     selectedCells.value.push(index)
   }
   
-  console.log(`[selectCell] Selected elements:`, selectedElements.value.map(e => e.text))
+  logger.log(`[selectCell] Selected elements:`, selectedElements.value.map(e => e.text))
   
   // 自動チェックを削除 - ユーザーが「確認」ボタンを押したときのみチェック
   // checkPattern()
@@ -792,29 +768,29 @@ const checkPattern = () => {
   if (selectedElements.value.length < 2) return
   
   const selectedTexts = selectedElements.value.map(el => el.text)
-  console.log(`[checkPattern] Selected texts:`, selectedTexts)
+  logger.log(`[checkPattern] Selected texts:`, selectedTexts)
   
   // 現在のターゲットパターンとマッチするかチェック
   if (currentTarget.value) {
     const targetElements = currentTarget.value.elements
-    console.log(`[checkPattern] Target elements:`, targetElements)
-    console.log(`[checkPattern] Target pattern:`, currentTarget.value.pattern)
+    logger.log(`[checkPattern] Target elements:`, targetElements)
+    logger.log(`[checkPattern] Target pattern:`, currentTarget.value.pattern)
     
     // 語順も重要なので、sorted比較ではなく順序を保った比較を行う
     const isMatch = arraysEqual(selectedTexts, targetElements)
-    console.log(`[checkPattern] Arrays match:`, isMatch)
+    logger.log(`[checkPattern] Arrays match:`, isMatch)
     
     if (isMatch) {
       // 正解！
-      console.log(`[checkPattern] ✅ Correct pattern found!`)
+      logger.log(`[checkPattern] ✅ Correct pattern found!`)
       handleCorrectPattern()
     } else {
       // 不正解
-      console.log(`[checkPattern] ❌ Incorrect pattern`)
+      logger.log(`[checkPattern] ❌ Incorrect pattern`)
       handleIncorrectPattern()
     }
   } else {
-    console.warn('[checkPattern] No current target')
+    logger.warn('[checkPattern] No current target')
   }
 }
 
@@ -826,7 +802,7 @@ const arraysEqual = (a, b) => {
 
 // 正解処理
 const handleCorrectPattern = () => {
-  console.log(`[handleCorrectPattern] Processing correct pattern`)
+  logger.log(`[handleCorrectPattern] Processing correct pattern`)
   
   // 連続正解カウント更新
   consecutiveCorrect.value++
@@ -840,14 +816,14 @@ const handleCorrectPattern = () => {
   const totalScore = baseScore + timeBonus + patternBonus + comboBonus
   
   score.value += totalScore
-  console.log(`[handleCorrectPattern] Score added: ${totalScore}`)
+  logger.log(`[handleCorrectPattern] Score added: ${totalScore}`)
   
   // パターンを発見済みとしてマーク
   const targetIndex = targetPatterns.value.findIndex(p => p.id === currentTarget.value.id)
   if (targetIndex !== -1) {
     targetPatterns.value[targetIndex].isFound = true
     foundPatterns.value.push(currentTarget.value)
-    console.log(`[handleCorrectPattern] Pattern marked as found: ${currentTarget.value.pattern}`)
+    logger.log(`[handleCorrectPattern] Pattern marked as found: ${currentTarget.value.pattern}`)
   }
   
   // 選択されたセルを緑色にマークするが、isFoundはfalseのまま（再利用可能）
@@ -867,7 +843,7 @@ const handleCorrectPattern = () => {
   // 次のターゲットを設定
   setNextTarget()
   
-  console.log(`[handleCorrectPattern] Patterns found: ${foundPatterns.value.length}/${targetPatterns.value.length}`)
+  logger.log(`[handleCorrectPattern] Patterns found: ${foundPatterns.value.length}/${targetPatterns.value.length}`)
 }
 
 // 不正解処理
@@ -944,16 +920,17 @@ const calculateStars = (accuracy, timeUsed) => {
 
 // ゲーム再開始
 const restartGame = () => {
-  console.log('🔄 Restarting game')
+  logger.log('🔄 Restarting game')
   showGameResult.value = false
   initializeGame()
 }
 
 // ギャラクシーに戻る
 const goBackToGalaxy = () => {
-  console.log('🏠 Going back to Grammar Galaxy')
-  console.log('📍 Current route:', router.currentRoute.value.path)
-  console.log('🎯 Target route: /grammar-galaxy')
+  console.log('🔙 Back button clicked!')
+  logger.log('🏠 Going back to Grammar Galaxy')
+  logger.log('📍 Current route:', router.currentRoute.value.path)
+  logger.log('🎯 Target route: /platforms/grammar-galaxy')
   
   try {
     // タイマーを停止
@@ -967,52 +944,49 @@ const goBackToGalaxy = () => {
     showGameResult.value = false
     
     // ギャラクシーハブに戻る - 複数の方法を試す
-    router.push({ name: 'grammar-galaxy-hub' }).catch(err => {
-      console.warn('⚠️ Named route failed, trying path:', err)
-      return router.push('/grammar-galaxy')
-    }).catch(err => {
-      console.error('❌ Router navigation failed:', err)
-      console.log('🔄 Trying window.location fallback')
-      window.location.href = '/grammar-galaxy'
+    router.push('/platforms/grammar-galaxy').catch(err => {
+      logger.error('❌ Router navigation failed:', err)
+      logger.log('🔄 Trying window.location fallback')
+      window.location.href = '/platforms/grammar-galaxy'
     })
   } catch (error) {
-    console.error('❌ Error going back to galaxy:', error)
-    console.log('🔄 Emergency fallback to home')
+    logger.error('❌ Error going back to galaxy:', error)
+    logger.log('🔄 Emergency fallback to home')
     window.location.href = '/'
   }
 }
 
 // ゲーム終了（モーダルから呼ばれる）
 const closeGame = () => {
-  console.log('🚪 closeGame called from modal')
+  logger.log('🚪 closeGame called from modal')
   goBackToGalaxy()
 }
 
 // マウント時の処理
 onMounted(() => {
   try {
-    console.log('🚀 PatternHunterGame mounted')
-    console.log('📋 Checking patternHunterData availability:', !!patternHunterData)
-    console.log('📋 Checking targetPatterns:', !!patternHunterData?.targetPatterns)
-    console.log('🏪 Checking store availability:', !!store)
-    console.log('🪐 Checking store.planetsData:', !!store?.planetsData)
-    console.log('🎮 Checking beVerb planet:', !!store?.planetsData?.beVerb)
+    logger.log('🚀 PatternHunterGame mounted')
+    logger.log('📋 Checking patternHunterData availability:', !!patternHunterData)
+    logger.log('📋 Checking targetPatterns:', !!patternHunterData?.targetPatterns)
+    logger.log('🏪 Checking store availability:', !!store)
+    logger.log('🪐 Checking store.planetsData:', !!store?.planetsData)
+    logger.log('🎮 Checking beVerb planet:', !!store?.planetsData?.beVerb)
     
     if (!store || !store.planetsData || !store.planetsData.beVerb) {
-      console.error('❌ PatternHunterGame: ストアデータが利用できません')
+      logger.error('❌ PatternHunterGame: ストアデータが利用できません')
       hasError.value = true
       errorMessage.value = 'ゲームストアの初期化に失敗しました'
       return
     }
     
     if (!patternHunterData || !patternHunterData.targetPatterns) {
-      console.error('❌ PatternHunterGame: パターンデータが利用できません')
+      logger.error('❌ PatternHunterGame: パターンデータが利用できません')
       hasError.value = true
       errorMessage.value = 'ゲームデータの読み込みに失敗しました'
       return
     }
   } catch (error) {
-    console.error('❌ PatternHunterGame mount error:', error)
+    logger.error('❌ PatternHunterGame mount error:', error)
     hasError.value = true
     errorMessage.value = error.message || '初期化エラーが発生しました'
   }
@@ -1128,7 +1102,7 @@ const onParticleComplete = () => {
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(15px);
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .galaxy-card::before {
@@ -1225,20 +1199,19 @@ const onParticleComplete = () => {
   margin: 0 auto;
   position: relative;
   z-index: 10;
+  padding: 0.5rem;
 }
 
 .intro-card {
   text-align: center;
-  margin: 2rem;
+  margin: 1rem;
+  padding: 1rem;
+  position: relative;
 }
 
-.intro-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
 
 .intro-title {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
@@ -1249,8 +1222,8 @@ const onParticleComplete = () => {
 }
 
 .mission-briefing {
-  margin: 2rem 0;
-  padding: 1.5rem;
+  margin: 1rem 0;
+  padding: 0.8rem;
 }
 
 .mission-list {
@@ -1278,8 +1251,8 @@ const onParticleComplete = () => {
 .stats-preview {
   display: flex;
   justify-content: space-around;
-  margin: 2rem 0;
-  padding: 1rem;
+  margin: 1rem 0;
+  padding: 0.8rem;
 }
 
 .stat-item {
@@ -1296,6 +1269,30 @@ const onParticleComplete = () => {
   display: block;
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.back-button {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  z-index: 1000;
+}
+
+.back-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.8);
+  transform: translateX(-2px);
 }
 
 .start-button {

@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // Level 2 Word Database for Pure Sound Lab
 // Words categorized by phonemes for native English pronunciation training
 
@@ -91,7 +93,7 @@ export const LEVEL2_WORD_DATABASE = {
 export function getWordsForPhoneme(phoneme, includeTarget = true, count = 3) {
   const phonemeData = LEVEL2_WORD_DATABASE[phoneme];
   if (!phonemeData) {
-    console.warn('No word data found for phoneme:', phoneme);
+    logger.warn('No word data found for phoneme:', phoneme);
     return [];
   }
   

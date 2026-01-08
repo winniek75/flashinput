@@ -128,6 +128,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { computed } from 'vue'
 import Icon from '@/components/shared/Icon.vue'
 
@@ -317,15 +319,15 @@ const formatTime = (seconds) => {
 
 // もう一度プレイボタンのハンドラー
 const handlePlayAgain = () => {
-  console.log('🎮 GameResultModal: Play Again button clicked')
-  console.log('📤 Emitting playAgain event')
+  logger.log('🎮 GameResultModal: Play Again button clicked')
+  logger.log('📤 Emitting playAgain event')
   emit('playAgain')
 }
 
 // ホームに戻るボタンのハンドラー
 const handleGoHome = () => {
-  console.log('🏠 GameResultModal: Go Home button clicked')
-  console.log('📤 Emitting goHome event')
+  logger.log('🏠 GameResultModal: Go Home button clicked')
+  logger.log('📤 Emitting goHome event')
   emit('goHome')
 }
 </script>

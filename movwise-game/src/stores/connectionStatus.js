@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import logger from '@/utils/logger'
 
 export const useConnectionStore = defineStore('connection', () => {
   // 基本接続状態
@@ -36,7 +37,7 @@ export const useConnectionStore = defineStore('connection', () => {
 
   // 接続状態監視の開始
   const startConnectionMonitoring = () => {
-    console.log('🛰️ Starting connection monitoring...')
+    logger.log('🛰️ Starting connection monitoring...')
 
     // ブラウザのオンライン/オフライン監視
     window.addEventListener('online', handleOnline)
@@ -51,7 +52,7 @@ export const useConnectionStore = defineStore('connection', () => {
 
   // ブラウザオンライン状態変更
   const handleOnline = () => {
-    console.log('🌐 Browser back online')
+    logger.log('🌐 Browser back online')
     isOnline.value = true
     
     if (!firebaseConnected.value) {
@@ -62,7 +63,7 @@ export const useConnectionStore = defineStore('connection', () => {
   }
 
   const handleOffline = () => {
-    console.log('📡 Browser went offline')
+    logger.log('📡 Browser went offline')
     isOnline.value = false
     firebaseConnected.value = false
     connectionQuality.value = 'critical'
@@ -97,7 +98,7 @@ export const useConnectionStore = defineStore('connection', () => {
       
       firebaseConnected.value = isConnected
     } catch (error) {
-      console.error('Firebase connection check failed:', error)
+      logger.error('Firebase connection check failed:', error)
       handleFirebaseError(error)
     }
   }
@@ -112,7 +113,7 @@ export const useConnectionStore = defineStore('connection', () => {
   }
 
   const handleFirebaseDisconnection = () => {
-    console.log('🔥 Firebase connection lost')
+    logger.log('🔥 Firebase connection lost')
     firebaseConnected.value = false
     addToHistory('firebase_disconnected', 'サーバーとの接続が切断されました', 'error')
     
@@ -124,7 +125,7 @@ export const useConnectionStore = defineStore('connection', () => {
   }
 
   const handleFirebaseReconnection = () => {
-    console.log('🔥 Firebase connection restored')
+    logger.log('🔥 Firebase connection restored')
     firebaseConnected.value = true
     reconnectAttempts.value = 0
     isReconnecting.value = false
@@ -159,7 +160,7 @@ export const useConnectionStore = defineStore('connection', () => {
     isReconnecting.value = true
     reconnectAttempts.value++
 
-    console.log(`🔄 Attempting reconnection (${reconnectAttempts.value}/${maxReconnectAttempts.value})`)
+    logger.log(`🔄 Attempting reconnection (${reconnectAttempts.value}/${maxReconnectAttempts.value})`)
 
     const delay = Math.min(reconnectDelay.value * Math.pow(2, reconnectAttempts.value - 1), 30000) // 最大30秒
 
@@ -183,7 +184,7 @@ export const useConnectionStore = defineStore('connection', () => {
           isReconnecting.value = false
         }
       } catch (error) {
-        console.error('Reconnection attempt failed:', error)
+        logger.error('Reconnection attempt failed:', error)
         isReconnecting.value = false
         handleFirebaseError(error)
       }
@@ -191,7 +192,7 @@ export const useConnectionStore = defineStore('connection', () => {
   }
 
   const handleReconnectionFailure = () => {
-    console.error('❌ All reconnection attempts failed')
+    logger.error('❌ All reconnection attempts failed')
     isReconnecting.value = false
     
     addToHistory('reconnection_failed', '自動再接続に失敗しました。手動で再試行してください。', 'error')
@@ -210,7 +211,7 @@ export const useConnectionStore = defineStore('connection', () => {
 
   // 手動再接続
   const manualReconnect = async () => {
-    console.log('🔄 Manual reconnection initiated')
+    logger.log('🔄 Manual reconnection initiated')
     reconnectAttempts.value = 0
     isReconnecting.value = false
     
@@ -253,7 +254,7 @@ export const useConnectionStore = defineStore('connection', () => {
       
     } catch (error) {
       connectionQuality.value = 'critical'
-      console.error('Connection quality check failed:', error)
+      logger.error('Connection quality check failed:', error)
     }
   }
 
@@ -280,10 +281,10 @@ export const useConnectionStore = defineStore('connection', () => {
       // LocalStorageにも保存
       localStorage.setItem('movwise_game_state_backup', JSON.stringify(stateToSave))
       
-      console.log('💾 Game state saved successfully')
+      logger.log('💾 Game state saved successfully')
       return true
     } catch (error) {
-      console.error('Failed to save game state:', error)
+      logger.error('Failed to save game state:', error)
       addToHistory('backup_failed', 'ゲーム状態の保存に失敗しました', 'error')
       return false
     }
@@ -293,7 +294,7 @@ export const useConnectionStore = defineStore('connection', () => {
     try {
       // メモリから復元を試行
       if (gameStateBackup.value) {
-        console.log('🔄 Restoring game state from memory')
+        logger.log('🔄 Restoring game state from memory')
         return gameStateBackup.value
       }
       
@@ -302,14 +303,14 @@ export const useConnectionStore = defineStore('connection', () => {
       if (savedState) {
         const parsedState = JSON.parse(savedState)
         gameStateBackup.value = parsedState
-        console.log('🔄 Restoring game state from localStorage')
+        logger.log('🔄 Restoring game state from localStorage')
         return parsedState
       }
       
-      console.log('📭 No saved game state found')
+      logger.log('📭 No saved game state found')
       return null
     } catch (error) {
-      console.error('Failed to restore game state:', error)
+      logger.error('Failed to restore game state:', error)
       addToHistory('restore_failed', 'ゲーム状態の復元に失敗しました', 'error')
       return null
     }
@@ -369,7 +370,7 @@ export const useConnectionStore = defineStore('connection', () => {
       errorHistory.value = errorHistory.value.slice(0, 50)
     }
     
-    console.log(`📝 ${severity.toUpperCase()}: ${message}`)
+    logger.log(`📝 ${severity.toUpperCase()}: ${message}`)
   }
 
   const clearHistory = () => {

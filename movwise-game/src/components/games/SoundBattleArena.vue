@@ -1,935 +1,715 @@
 <template>
-  <div class="min-h-screen galaxy-background overflow-hidden">
-    <!-- Galaxy Background -->
+  <div class="sound-photo-challenge min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-blue-900 relative overflow-hidden">
+    <!-- 宇宙背景エフェクト -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
       <div class="stars-layer-1"></div>
       <div class="stars-layer-2"></div>
       <div class="stars-layer-3"></div>
     </div>
     
-    <!-- Dynamic battle effects -->
-    <div class="battle-arena-effect"></div>
-    <div v-if="gameState === 'battle'" class="laser-effects"></div>
-
-    <div class="relative z-10 container mx-auto px-4 py-6">
-      <!-- Header -->
-      <div class="galaxy-card rounded-3xl p-6 mb-6 shadow-2xl">
-        <div class="flex items-center justify-between mb-6">
-          <button 
-            @click="handleBack"
-            class="galaxy-button galaxy-button-secondary text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
-          >
-            <ArrowLeft class="w-5 h-5 cosmic-glow" />
-            戻る
+    <!-- ゲームヘッダー -->
+    <header class="relative z-20 p-4 bg-black/50 backdrop-blur-sm">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <button @click="goBack" class="text-white hover:text-cyan-400 transition-colors">
+            <i class="fas fa-arrow-left text-2xl"></i>
           </button>
-          
-          <div class="text-center">
-            <h1 class="text-4xl font-bold galaxy-text-primary cosmic-title mb-2">
-              🚀 フォニーム・シューター
+          <div>
+            <h1 class="text-3xl font-bold text-cyan-400 flex items-center gap-2">
+              <span class="text-4xl animate-pulse">🎯</span>
+              サウンド・フォト・チャレンジ
             </h1>
-            <p class="text-galaxy-moon-silver text-lg">音素を発射して敵を撃墜せよ！リアルタイムアクションバトル</p>
+            <p class="text-cyan-200 text-sm">音を聞いて正しい写真を選ぼう！</p>
           </div>
-
-          <button 
-            @click="showSettings = true"
-            class="galaxy-button galaxy-button-secondary text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
-          >
-            <Settings class="w-5 h-5 cosmic-glow" />
-          </button>
         </div>
-
-        <!-- Game Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" v-if="gameState === 'battle'">
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">💗</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ playerHealth }}</div>
-            <div class="text-sm text-galaxy-moon-silver">Health</div>
+        
+        <div class="flex items-center space-x-6">
+          <!-- スコア表示 -->
+          <div class="text-center">
+            <div class="text-yellow-400 text-2xl font-bold">{{ score }}</div>
+            <div class="text-gray-300 text-xs">SCORE</div>
           </div>
           
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">⚡</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ energy }}</div>
-            <div class="text-sm text-galaxy-moon-silver">Energy</div>
+          <!-- 正解数 -->
+          <div class="text-center">
+            <div class="text-green-400 text-2xl font-bold">{{ correctAnswers }}/{{ totalQuestions }}</div>
+            <div class="text-gray-300 text-xs">正解</div>
           </div>
-
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">🎯</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ score }}</div>
-            <div class="text-sm text-galaxy-moon-silver">Score</div>
+          
+          <!-- コンボ -->
+          <div class="text-center">
+            <div class="text-orange-400 text-2xl font-bold">×{{ combo }}</div>
+            <div class="text-gray-300 text-xs">COMBO</div>
           </div>
+        </div>
+      </div>
+    </header>
 
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">🔥</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ combo }}x</div>
-            <div class="text-sm text-galaxy-moon-silver">Combo</div>
+    <!-- メインゲームエリア -->
+    <main class="relative z-10 h-[calc(100vh-80px)] overflow-hidden">
+      <!-- ゲーム開始前 -->
+      <div v-if="gamePhase === 'intro'" class="h-full flex items-center justify-center p-6">
+        <div class="cosmic-card rounded-2xl p-8 max-w-2xl w-full text-center">
+          <div class="text-6xl mb-6 animate-bounce">🎧</div>
+          <h2 class="text-3xl font-bold text-cyan-400 mb-6">
+            サウンド・フォト・チャレンジ！
+          </h2>
+          
+          <div class="text-gray-300 mb-8 space-y-4">
+            <p class="text-lg">ターゲットサウンドを聞いて、そのサウンドが含まれている写真を選択しよう！</p>
+            
+            <div class="cosmic-panel rounded-lg p-4">
+              <h3 class="text-cyan-300 font-bold mb-3 text-center">🎮 遊び方</h3>
+              <div class="grid grid-cols-1 gap-2 text-sm">
+                <div>🔊 ターゲットサウンドを聞く</div>
+                <div>📸 2つの写真のうち、そのサウンドが含まれる方を選択</div>
+                <div>⚡ 連続正解でコンボボーナス！</div>
+                <div>🎯 時間内にできるだけ多く正解しよう</div>
+              </div>
+            </div>
           </div>
-
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1 cosmic-glow">👾</div>
-            <div class="font-bold text-lg galaxy-text-primary">{{ enemiesDestroyed }}</div>
-            <div class="text-sm text-galaxy-moon-silver">Defeated</div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button 
+              @click="selectDifficulty('easy')"
+              class="cosmic-button cosmic-button-green px-6 py-4 text-lg font-bold"
+            >
+              🌟 かんたん<br><span class="text-sm">60秒・基本音素</span>
+            </button>
+            <button 
+              @click="selectDifficulty('normal')"
+              class="cosmic-button cosmic-button-blue px-6 py-4 text-lg font-bold"
+            >
+              ⭐ ふつう<br><span class="text-sm">45秒・全音素</span>
+            </button>
+            <button 
+              @click="selectDifficulty('hard')"
+              class="cosmic-button cosmic-button-red px-6 py-4 text-lg font-bold"
+            >
+              🔥 むずかしい<br><span class="text-sm">30秒・高速</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Arena Selection -->
-      <div v-if="gameState === 'menu'" class="space-y-6">
-        <div class="galaxy-card rounded-3xl p-6">
-          <h2 class="text-2xl font-bold galaxy-text-primary cosmic-title mb-4 text-center">
-            🌟 戦闘モード選択
-          </h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- ゲームプレイ中 -->
+      <div v-else-if="gamePhase === 'playing'" class="h-full flex flex-col p-6">
+        <!-- タイマーバー -->
+        <div class="mb-4">
+          <div class="bg-gray-800/50 rounded-full h-4 overflow-hidden">
+            <div 
+              class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 transition-all duration-1000"
+              :style="{ width: `${(timeRemaining / maxTime) * 100}%` }"
+            ></div>
+          </div>
+          <div class="text-center text-white font-bold mt-1">{{ timeRemaining }}秒</div>
+        </div>
+
+        <!-- 現在の問題エリア -->
+        <div class="flex-1 flex flex-col justify-center">
+          <!-- ターゲットサウンド表示 -->
+          <div class="text-center mb-8">
+            <div class="cosmic-card rounded-2xl p-6 max-w-md mx-auto">
+              <h3 class="text-xl font-bold text-cyan-400 mb-4">🎯 ターゲットサウンド</h3>
+              <div class="text-4xl font-bold text-yellow-400 mb-4 animate-pulse">
+                /{{ currentTargetSound }}/
+              </div>
+              <div class="flex gap-4 justify-center">
+                <button 
+                  @click="playTargetSound"
+                  :disabled="isPlaying"
+                  class="cosmic-button cosmic-button-blue px-6 py-3 text-lg font-bold"
+                >
+                  🔊 音を聞く
+                </button>
+                <button 
+                  @click="playTargetSound"
+                  :disabled="isPlaying"
+                  class="cosmic-button cosmic-button-green px-4 py-3 text-sm"
+                >
+                  🔁 もう一度
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 写真選択エリア -->
+          <div class="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div
-              v-for="mode in gameModes"
-              :key="mode.id"
-              @click="selectGameMode(mode)"
-              class="galaxy-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 border-2 border-transparent hover:border-purple-400"
+              v-for="(option, index) in currentOptions"
+              :key="option.word"
+              @click="selectPhoto(index)"
+              :class="[
+                'cosmic-card p-6 cursor-pointer transition-all duration-300 transform hover:scale-105',
+                selectedAnswer === index ? 'border-4 border-yellow-400 bg-yellow-400/20' : 'hover:border-cyan-400'
+              ]"
             >
               <div class="text-center">
-                <div class="text-6xl mb-4">{{ mode.icon }}</div>
-                <h3 class="text-xl font-bold galaxy-text-primary mb-2">{{ mode.name }}</h3>
-                <p class="text-galaxy-moon-silver mb-4">{{ mode.description }}</p>
-                <div class="text-sm text-yellow-400">
-                  <div>難易度: {{ mode.difficulty }}</div>
-                  <div>制限時間: {{ mode.timeLimit }}秒</div>
-                  <div>敵の数: {{ mode.enemyCount }}体</div>
+                <!-- 写真エリア -->
+                <div class="w-48 h-48 mx-auto mb-4 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center text-6xl">
+                  {{ option.emoji }}
+                </div>
+                
+                <!-- 単語表示 -->
+                <div class="text-2xl font-bold text-white mb-2">{{ option.word }}</div>
+                <div class="text-lg text-gray-300">{{ option.meaning }}</div>
+                
+                <!-- 選択ボタン -->
+                <div class="flex gap-2 mt-4">
+                  <button 
+                    @click.stop="playWordAudio(option.word)"
+                    class="cosmic-button cosmic-button-green px-3 py-2 text-sm"
+                    :disabled="isPlaying"
+                  >
+                    🔊
+                  </button>
+                  <button 
+                    @click.stop="selectPhoto(index)"
+                    class="cosmic-button cosmic-button-primary flex-1 py-3 text-lg font-bold"
+                    :disabled="selectedAnswer !== null"
+                  >
+                    {{ selectedAnswer === index ? '選択中' : 'この写真を選ぶ' }}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- フィードバック表示 -->
+          <div v-if="feedback" class="mt-6 text-center">
+            <div 
+              :class="[
+                'inline-block px-8 py-4 rounded-xl font-bold text-xl',
+                feedback.correct 
+                  ? 'bg-green-500/20 text-green-400 border-2 border-green-400' 
+                  : 'bg-red-500/20 text-red-400 border-2 border-red-400'
+              ]"
+            >
+              <div class="text-3xl mb-2">{{ feedback.correct ? '🎉' : '❌' }}</div>
+              <div>{{ feedback.message }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 問題進行状況 -->
+        <div class="mt-4">
+          <div class="flex justify-center space-x-2">
+            <div 
+              v-for="i in totalQuestions" 
+              :key="i"
+              :class="[
+                'w-4 h-4 rounded-full transition-all duration-300',
+                i <= currentQuestionIndex + 1 
+                  ? 'bg-cyan-400' 
+                  : 'bg-gray-600'
+              ]"
+            ></div>
+          </div>
         </div>
       </div>
 
-      <!-- Battle Game Screen -->
-      <div v-else-if="gameState === 'battle'" class="space-y-4">
-        <!-- Game Canvas -->
-        <div class="galaxy-card rounded-3xl p-4 relative" style="height: 500px;">
-          <!-- Player Ship -->
-          <div 
-            class="player-ship absolute bottom-4 transition-all duration-100"
-            :style="{ left: playerPosition + 'px' }"
-          >
-            <div class="text-4xl">🚀</div>
-          </div>
-
-          <!-- Player Bullets -->
-          <div
-            v-for="bullet in playerBullets"
-            :key="bullet.id"
-            class="absolute w-2 h-6 bg-cyan-400 rounded-full bullet-glow"
-            :style="{ left: bullet.x + 'px', top: bullet.y + 'px' }"
-          ></div>
-
-          <!-- Enemies -->
-          <div
-            v-for="enemy in enemies"
-            :key="enemy.id"
-            class="absolute enemy transition-all duration-200"
-            :style="{ left: enemy.x + 'px', top: enemy.y + 'px' }"
-          >
-            <div class="text-center">
-              <div class="text-3xl mb-1">👾</div>
-              <div class="text-lg font-bold text-white bg-red-500/80 rounded px-2 py-1">
-                {{ enemy.phoneme }}
-              </div>
-              <div class="w-12 h-2 bg-gray-600 rounded mt-1">
-                <div 
-                  class="bg-red-500 h-2 rounded transition-all duration-200"
-                  :style="{ width: (enemy.health / enemy.maxHealth) * 100 + '%' }"
-                ></div>
-              </div>
+      <!-- ゲーム終了 -->
+      <div v-else-if="gamePhase === 'complete'" class="h-full flex items-center justify-center p-6">
+        <div class="cosmic-card rounded-2xl p-8 max-w-2xl w-full text-center">
+          <div class="text-6xl mb-6">{{ score >= targetScore ? '🏆' : '📈' }}</div>
+          <h2 class="text-3xl font-bold text-cyan-400 mb-6">
+            {{ score >= targetScore ? 'ミッション完了！' : 'お疲れ様！' }}
+          </h2>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="cosmic-stats-card">
+              <div class="text-2xl mb-2">🎯</div>
+              <div class="text-2xl font-bold text-yellow-400">{{ score }}</div>
+              <div class="text-sm text-gray-400">スコア</div>
+            </div>
+            
+            <div class="cosmic-stats-card">
+              <div class="text-2xl mb-2">✅</div>
+              <div class="text-2xl font-bold text-green-400">{{ correctAnswers }}/{{ totalQuestions }}</div>
+              <div class="text-sm text-gray-400">正解率</div>
+            </div>
+            
+            <div class="cosmic-stats-card">
+              <div class="text-2xl mb-2">🔥</div>
+              <div class="text-2xl font-bold text-orange-400">×{{ maxCombo }}</div>
+              <div class="text-sm text-gray-400">最大コンボ</div>
+            </div>
+            
+            <div class="cosmic-stats-card">
+              <div class="text-2xl mb-2">⚡</div>
+              <div class="text-2xl font-bold text-purple-400">{{ Math.round(accuracy) }}%</div>
+              <div class="text-sm text-gray-400">正答率</div>
             </div>
           </div>
 
-          <!-- Enemy Bullets -->
-          <div
-            v-for="bullet in enemyBullets"
-            :key="bullet.id"
-            class="absolute w-2 h-6 bg-red-500 rounded-full"
-            :style="{ left: bullet.x + 'px', top: bullet.y + 'px' }"
-          ></div>
-
-          <!-- Power-ups -->
-          <div
-            v-for="powerup in powerups"
-            :key="powerup.id"
-            class="absolute text-2xl animate-bounce powerup-glow"
-            :style="{ left: powerup.x + 'px', top: powerup.y + 'px' }"
-          >
-            {{ powerup.icon }}
-          </div>
-
-          <!-- Explosions -->
-          <div
-            v-for="explosion in explosions"
-            :key="explosion.id"
-            class="absolute text-4xl animate-ping"
-            :style="{ left: explosion.x + 'px', top: explosion.y + 'px' }"
-          >
-            💥
-          </div>
-        </div>
-
-        <!-- Game Controls -->
-        <div class="galaxy-card rounded-3xl p-6">
-          <!-- Target Phoneme Display -->
-          <div class="text-center mb-6">
-            <div class="text-lg galaxy-text-primary font-bold mb-2">🎯 Target Sound</div>
-            <div class="flex justify-center items-center gap-4">
-              <div class="text-4xl font-bold galaxy-text-primary cosmic-glow">
-                {{ currentTargetPhoneme?.symbol || '' }}
-              </div>
-              <button 
-                @click="playTargetPhoneme"
-                :disabled="isPlaying"
-                class="galaxy-button galaxy-button-primary px-4 py-2 text-white rounded-xl"
-              >
-                🔊 Listen
-              </button>
-            </div>
-            <div class="text-sm text-galaxy-moon-silver mt-2">
-              Shoot enemies with this phoneme to destroy them!
-            </div>
-          </div>
-
-          <!-- Weapon Selection -->
-          <div class="mb-6">
-            <div class="text-lg galaxy-text-primary font-bold text-center mb-4">🔫 Select Weapon (Phoneme)</div>
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
-              <button
-                v-for="weapon in availableWeapons"
-                :key="weapon.symbol"
-                @click="selectWeapon(weapon)"
-                :class="[
-                  'galaxy-card p-3 text-center transition-all duration-200 border-2',
-                  selectedWeapon?.symbol === weapon.symbol 
-                    ? 'border-cyan-400 bg-cyan-400/20 scale-110' 
-                    : 'border-transparent hover:border-blue-400'
-                ]"
-              >
-                <div class="text-2xl font-bold galaxy-text-primary">{{ weapon.symbol }}</div>
-                <div class="text-xs text-galaxy-moon-silver">{{ weapon.example }}</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Mobile Controls -->
-          <div class="md:hidden">
-            <div class="flex justify-center gap-4 mb-4">
-              <button 
-                @touchstart="startMove('left')"
-                @touchend="stopMove"
-                @mousedown="startMove('left')"
-                @mouseup="stopMove"
-                class="galaxy-button galaxy-button-secondary px-6 py-3 text-2xl"
-              >
-                ←
-              </button>
-              <button 
-                @click="shoot"
-                :disabled="!selectedWeapon || energy < 10"
-                class="galaxy-button galaxy-button-primary px-6 py-3 text-2xl disabled:opacity-50"
-              >
-                🔫
-              </button>
-              <button 
-                @touchstart="startMove('right')"
-                @touchend="stopMove"
-                @mousedown="startMove('right')"
-                @mouseup="stopMove"
-                class="galaxy-button galaxy-button-secondary px-6 py-3 text-2xl"
-              >
-                →
-              </button>
-            </div>
-          </div>
-
-          <!-- Instructions -->
-          <div class="text-center text-sm text-galaxy-moon-silver">
-            <div class="md:block hidden">🖱️ Move mouse to aim, Click to shoot, WASD/Arrow keys to move</div>
-            <div class="md:hidden">👆 Use buttons to move and shoot</div>
-          </div>
-        </div>
-
-        <!-- Game Timer -->
-        <div class="galaxy-card rounded-3xl p-4">
-          <div class="flex justify-between items-center">
-            <div class="text-lg font-bold galaxy-text-primary">⏰ Time: {{ timeLeft }}s</div>
-            <div class="w-64 bg-gray-700 rounded-full h-4">
+          <!-- 習得した音素 -->
+          <div v-if="masteredSounds.length > 0" class="mb-8">
+            <h3 class="text-xl font-bold text-cyan-400 mb-4">🎵 習得した音素</h3>
+            <div class="flex flex-wrap gap-2 justify-center">
               <div 
-                class="bg-gradient-to-r from-green-400 to-yellow-400 h-4 rounded-full transition-all duration-1000"
-                :style="{ width: `${(timeLeft / gameTimeLimit) * 100}%` }"
-              />
+                v-for="sound in masteredSounds" 
+                :key="sound"
+                class="bg-purple-600/30 border border-purple-400 rounded-lg px-3 py-2 text-sm"
+              >
+                /{{ sound }}/
+              </div>
             </div>
-            <div class="text-lg font-bold galaxy-text-primary">Wave {{ currentWave }}</div>
+          </div>
+
+          <div class="flex gap-4 justify-center">
+            <button 
+              @click="resetGame"
+              class="cosmic-button cosmic-button-blue px-6 py-3 font-bold"
+            >
+              🔄 もう一度
+            </button>
+            <button 
+              @click="goBack"
+              class="cosmic-button cosmic-button-gray px-6 py-3 font-bold"
+            >
+              🌌 メニューに戻る
+            </button>
           </div>
         </div>
       </div>
-
-      <!-- Game Over Screen -->
-      <div v-else-if="gameState === 'gameOver'" class="galaxy-card rounded-3xl p-8 text-center">
-        <div class="text-6xl mb-4">{{ isVictory ? '🏆' : '💀' }}</div>
-        <h2 class="text-3xl font-bold galaxy-text-primary mb-4">
-          {{ isVictory ? 'Victory!' : 'Game Over!' }}
-        </h2>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 max-w-md mx-auto">
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1">🎯</div>
-            <div class="font-bold text-lg">{{ finalScore }}</div>
-            <div class="text-sm">Score</div>
-          </div>
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1">👾</div>
-            <div class="font-bold text-lg">{{ finalEnemiesDestroyed }}</div>
-            <div class="text-sm">Defeated</div>
-          </div>
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1">🔥</div>
-            <div class="font-bold text-lg">{{ maxCombo }}</div>
-            <div class="text-sm">Max Combo</div>
-          </div>
-          <div class="galaxy-stats-card">
-            <div class="text-2xl mb-1">🎯</div>
-            <div class="font-bold text-lg">{{ isNaN(accuracy.value) ? 0 : Math.round(accuracy.value * 100) }}%</div>
-            <div class="text-sm">Accuracy</div>
-          </div>
-        </div>
-
-        <div class="flex gap-4 justify-center">
-          <button 
-            @click="restartGame" 
-            class="galaxy-button galaxy-button-primary px-6 py-3 font-bold"
-          >
-            🔄 Play Again
-          </button>
-          <button 
-            @click="gameState = 'menu'" 
-            class="galaxy-button galaxy-button-secondary px-6 py-3 font-bold"
-          >
-            📋 Select Mode
-          </button>
-        </div>
-      </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import logger from '@/utils/logger'
+
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, Settings } from 'lucide-vue-next'
-import { NATIVE_PHONEME_PROGRESSION, NATIVE_AUDIO_MAPPING } from '@/data/native-phoneme-database.js'
-import { useGameAudio } from '@/composables/useGameAudio.js'
+import { useGameSounds } from '@/composables/useGameSounds'
+import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database.js'
 
 const router = useRouter()
-const { playSound, isPlaying } = useGameAudio()
+const { playSound } = useGameSounds()
 
-// Game State
-const gameState = ref('menu') // 'menu', 'battle', 'gameOver'
-const currentGameMode = ref(null)
-const showSettings = ref(false)
+// 音声再生用関数（ネイティブ音素データベースから）
+const playPhonemeAudio = async (phonemeSymbol) => {
+  return new Promise((resolve, reject) => {
+    // 全ステージから該当する音素を探す
+    const allPhonemes = [
+      ...NATIVE_PHONEME_PROGRESSION.stage1A,
+      ...NATIVE_PHONEME_PROGRESSION.stage1B,
+      ...(NATIVE_PHONEME_PROGRESSION.stage1C || [])
+    ]
+    
+    // 音素シンボルを正規化（スラッシュを除去）して検索
+    const normalizedInput = phonemeSymbol.replace(/\//g, '')
+    const phoneme = allPhonemes.find(p => 
+      p.symbol === phonemeSymbol || 
+      p.ipa === phonemeSymbol ||
+      p.symbol === `/${normalizedInput}/` ||
+      p.ipa === normalizedInput ||
+      p.symbol.replace(/\//g, '') === normalizedInput
+    )
+    
+    if (phoneme && phoneme.audioFile) {
+      const audio = new Audio(`/sounds/${phoneme.audioFile}`)
+      audio.onended = resolve
+      audio.onerror = () => {
+        logger.warn(`Audio file not found: ${phoneme.audioFile}, using fallback`)
+        // フォールバック: 音声合成を使用
+        const utterance = new SpeechSynthesisUtterance(phonemeSymbol)
+        utterance.lang = 'en-US'
+        utterance.rate = 0.6
+        utterance.onend = resolve
+        utterance.onerror = reject
+        speechSynthesis.speak(utterance)
+      }
+      audio.play().catch(() => {
+        logger.warn(`Failed to play audio: ${phoneme.audioFile}, using fallback`)
+        // フォールバック: 音声合成を使用
+        const utterance = new SpeechSynthesisUtterance(phonemeSymbol)
+        utterance.lang = 'en-US'
+        utterance.rate = 0.6
+        utterance.onend = resolve
+        utterance.onerror = reject
+        speechSynthesis.speak(utterance)
+      })
+    } else {
+      // フォールバック: 音声合成を使用
+      const utterance = new SpeechSynthesisUtterance(phonemeSymbol)
+      utterance.lang = 'en-US'
+      utterance.rate = 0.6
+      utterance.onend = resolve
+      utterance.onerror = reject
+      speechSynthesis.speak(utterance)
+    }
+  })
+}
 
-// Game Modes
-const gameModes = ref([
-  {
-    id: 'easy',
-    name: 'ビギナーバトル',
-    icon: '🌱',
-    description: '初心者向け。ゆっくりとした敵、基本音素のみ',
-    difficulty: 'Easy',
-    timeLimit: 120,
-    enemyCount: 15,
-    enemySpeed: 1,
-    phonemeSet: 'stage1A'
-  },
-  {
-    id: 'normal',
-    name: 'アドバンスファイト',
-    icon: '⚔️',
-    description: '中級者向け。様々な音素、パワーアップあり',
-    difficulty: 'Normal',
-    timeLimit: 90,
-    enemyCount: 25,
-    enemySpeed: 2,
-    phonemeSet: 'stage1B'
-  },
-  {
-    id: 'hard',
-    name: 'エクストリームウォー',
-    icon: '🔥',
-    description: '上級者向け。高速敵、全音素、ボス戦あり',
-    difficulty: 'Hard',
-    timeLimit: 60,
-    enemyCount: 40,
-    enemySpeed: 3,
-    phonemeSet: 'all'
-  },
-  {
-    id: 'survival',
-    name: 'サバイバルモード',
-    icon: '♾️',
-    description: '無限モード。どこまで生き残れるか？',
-    difficulty: 'Extreme',
-    timeLimit: 999,
-    enemyCount: 999,
-    enemySpeed: 2,
-    phonemeSet: 'all'
-  }
-])
+// 単語音声再生用関数
+const playWordAudio = async (word) => {
+  return new Promise((resolve, reject) => {
+    const utterance = new SpeechSynthesisUtterance(word)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.8
+    utterance.onend = resolve
+    utterance.onerror = reject
+    speechSynthesis.speak(utterance)
+  })
+}
 
-// Game Variables
-const playerHealth = ref(100)
-const energy = ref(100)
+// ゲーム状態
+const gamePhase = ref('intro') // intro, playing, complete
+const difficulty = ref('normal')
 const score = ref(0)
 const combo = ref(0)
-const enemiesDestroyed = ref(0)
-const timeLeft = ref(120)
-const gameTimeLimit = ref(120)
-const currentWave = ref(1)
-const isVictory = ref(false)
-
-// Final stats
-const finalScore = ref(0)
-const finalEnemiesDestroyed = ref(0)
 const maxCombo = ref(0)
-const accuracy = ref(0)
-const totalShots = ref(0)
-const successfulHits = ref(0)
+const correctAnswers = ref(0)
+const totalQuestions = ref(10)
+const currentQuestionIndex = ref(0)
+const timeRemaining = ref(60)
+const maxTime = ref(60)
+const targetScore = ref(500)
 
-// Player
-const playerPosition = ref(300)
-const selectedWeapon = ref(null)
+// 問題データ
+const currentTargetSound = ref('')
+const currentOptions = ref([])
+const selectedAnswer = ref(null)
+const feedback = ref(null)
+const isPlaying = ref(false)
+const masteredSounds = ref([])
 
-// Game Objects
-const enemies = ref([])
-const playerBullets = ref([])
-const enemyBullets = ref([])
-const powerups = ref([])
-const explosions = ref([])
+// タイマー
+let gameTimer = null
+let feedbackTimer = null
 
-// Phonemes
-const currentTargetPhoneme = ref(null)
-const availableWeapons = ref([])
+// ネイティブ音素データベースから音素と単語のマッピングを生成
+const generateSoundWordPairs = () => {
+  const pairs = {}
+  const allPhonemes = [
+    ...NATIVE_PHONEME_PROGRESSION.stage1A,
+    ...NATIVE_PHONEME_PROGRESSION.stage1B,
+    ...(NATIVE_PHONEME_PROGRESSION.stage1C || [])
+  ]
 
-// Input handling
-const keys = reactive({
-  left: false,
-  right: false,
-  up: false,
-  down: false
+  // 絵文字マッピング
+  const emojiMap = {
+    'sun': '☀️', 'sit': '🪑', 'bass': '🐟', 'class': '🏫', 'miss': '💔', 'cat': '🐱', 'hat': '🎩', 'bad': '👎', 'man': '👨', 'back': '⬅️',
+    'top': '🔝', 'better': '⬆️', 'water': '💧', 'time': '⏰', 'little': '🤏', 'big': '🐘', 'pig': '🐷', 'fish': '🐟', 'ship': '🚢', 'hit': '👊',
+    'dog': '🐕', 'box': '📦', 'hot': '🔥', 'not': '❌', 'got': '✅', 'up': '⬆️', 'cup': '☕', 'but': '❌', 'cut': '✂️', 'run': '🏃',
+    'bed': '🛏️', 'pen': '✒️', 'ten': '🔟', 'red': '🔴', 'get': '📥', 'see': '👀', 'tree': '🌳', 'green': '💚', 'free': '🆓', 'three': '3️⃣',
+    'go': '🚶', 'no': '❌', 'show': '👁️', 'know': '🧠', 'home': '🏠', 'book': '📚', 'look': '👀', 'good': '👍', 'put': '📍', 'full': '🔵',
+    'do': '✅', 'you': '👤', 'new': '🆕', 'blue': '🔵', 'true': '✅', 'my': '👤', 'by': '📍', 'try': '💪', 'why': '❓', 'cry': '😢',
+    'how': '❓', 'now': '⏰', 'down': '⬇️', 'brown': '🤎', 'house': '🏠', 'boy': '👦', 'toy': '🧸', 'voice': '🗣️', 'choice': '🤔', 'join': '🤝',
+    'car': '🚗', 'far': '📏', 'star': '⭐', 'park': '🏞️', 'dark': '🌙', 'for': '👉', 'or': '🤔', 'more': '➕', 'door': '🚪', 'four': '4️⃣',
+    'her': '👩', 'bird': '🐦', 'first': '1️⃣', 'word': '📝', 'work': '💼', 'all': '💯', 'call': '📞', 'ball': '⚽', 'small': '🤏', 'wall': '🧱'
+  }
+
+  allPhonemes.forEach(phoneme => {
+    if (phoneme.examples && phoneme.examples.length > 0) {
+      pairs[phoneme.symbol] = phoneme.examples.slice(0, 4).map(word => ({
+        word: word,
+        meaning: getJapaneseMeaning(word),
+        emoji: emojiMap[word] || '📝',
+        phoneme: phoneme.symbol
+      }))
+    }
+  })
+
+  return pairs
+}
+
+// 日本語意味の簡易マッピング
+const getJapaneseMeaning = (word) => {
+  const meanings = {
+    'sun': 'たいよう', 'sit': 'すわる', 'bass': 'さかな', 'class': 'クラス', 'miss': 'ミス', 'cat': 'ねこ', 'hat': 'ぼうし', 'bad': 'わるい', 'man': 'おとこ', 'back': 'うしろ',
+    'top': 'うえ', 'better': 'より良い', 'water': 'みず', 'time': 'じかん', 'little': 'ちいさい', 'big': 'おおきい', 'pig': 'ぶた', 'fish': 'さかな', 'ship': 'ふね', 'hit': 'たたく',
+    'dog': 'いぬ', 'box': 'はこ', 'hot': 'あつい', 'not': 'ちがう', 'got': 'とった', 'up': 'うえ', 'cup': 'カップ', 'but': 'でも', 'cut': 'きる', 'run': 'はしる',
+    'bed': 'ベッド', 'pen': 'ペン', 'ten': '10', 'red': 'あか', 'get': 'とる', 'see': 'みる', 'tree': 'き', 'green': 'みどり', 'free': 'ただ', 'three': '3',
+    'go': 'いく', 'no': 'いいえ', 'show': 'みせる', 'know': 'しる', 'home': 'いえ', 'book': 'ほん', 'look': 'みる', 'good': 'いい', 'put': 'おく', 'full': 'いっぱい',
+    'do': 'する', 'you': 'あなた', 'new': 'あたらしい', 'blue': 'あお', 'true': 'ほんとう', 'my': 'わたしの', 'by': 'によって', 'try': 'ためす', 'why': 'なぜ', 'cry': 'なく',
+    'how': 'どう', 'now': 'いま', 'down': 'した', 'brown': 'ちゃいろ', 'house': 'いえ', 'boy': 'おとこのこ', 'toy': 'おもちゃ', 'voice': 'こえ', 'choice': 'えらぶ', 'join': 'さんか',
+    'car': 'くるま', 'far': 'とおい', 'star': 'ほし', 'park': 'こうえん', 'dark': 'くらい', 'for': 'ために', 'or': 'または', 'more': 'もっと', 'door': 'ドア', 'four': '4',
+    'her': 'かのじょ', 'bird': 'とり', 'first': 'はじめ', 'word': 'ことば', 'work': 'しごと', 'all': 'ぜんぶ', 'call': 'よぶ', 'ball': 'ボール', 'small': 'ちいさい', 'wall': 'かべ'
+  }
+  return meanings[word] || word
+}
+
+// 音素と単語のデータを生成
+const soundWordPairs = generateSoundWordPairs()
+
+// デバッグ: 利用可能な音素シンボルをログ出力
+logger.log('Available phoneme symbols:', Object.keys(soundWordPairs))
+
+// 計算されたプロパティ
+const accuracy = computed(() => {
+  if (totalQuestions.value === 0) return 0
+  return (correctAnswers.value / currentQuestionIndex.value) * 100
 })
 
-// Movement
-const moveSpeed = 5
-const isMoving = ref(false)
-const moveDirection = ref('')
-
-// Game Loop
-let gameLoop = null
-let enemySpawnTimer = null
-let gameTimer = null
-
-// Initialize phonemes based on game mode
-const initializePhonemes = (phonemeSet) => {
-  let phonemeList = []
-  
-  if (phonemeSet === 'stage1A') {
-    phonemeList = NATIVE_PHONEME_PROGRESSION.stage1A
-  } else if (phonemeSet === 'stage1B') {
-    phonemeList = [...NATIVE_PHONEME_PROGRESSION.stage1A, ...NATIVE_PHONEME_PROGRESSION.stage1B]
-  } else {
-    phonemeList = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
+// 似た音素を取得する関数（聞き分けを難しくするため）
+const getSimilarSounds = (targetSound, availableSounds) => {
+  // 音素の類似グループ
+  const similarGroups = {
+    // 短母音と長母音
+    'a': ['æ', 'ɑː', 'e'],
+    'e': ['a', 'ɪ', 'eɪ'],
+    'i': ['ɪ', 'iː', 'e'],
+    'o': ['ɒ', 'ɔː', 'u'],
+    'u': ['ʊ', 'uː', 'o'],
+    
+    // 長母音
+    'eɪ': ['e', 'aɪ', 'æ'],
+    'iː': ['i', 'ɪ', 'eɪ'],
+    'aɪ': ['eɪ', 'a', 'ɔɪ'],
+    'oʊ': ['o', 'ɔː', 'aʊ'],
+    'uː': ['u', 'ʊ', 'oʊ'],
+    
+    // 子音 - 有声無声の対
+    'b': ['p', 'd', 'g'],
+    'p': ['b', 't', 'k'],
+    't': ['d', 'p', 'k'],
+    'd': ['t', 'b', 'g'],
+    'k': ['g', 'p', 't'],
+    'g': ['k', 'd', 'b'],
+    
+    // 摩擦音
+    'f': ['v', 'θ', 's'],
+    'v': ['f', 'ð', 'z'],
+    's': ['z', 'ʃ', 'f'],
+    'z': ['s', 'ʒ', 'v'],
+    
+    // その他の似た音
+    'l': ['r', 'w', 'j'],
+    'r': ['l', 'w'],
+    'w': ['r', 'v'],
+    'm': ['n', 'ŋ'],
+    'n': ['m', 'ŋ'],
+    'ŋ': ['n', 'm']
   }
   
-  availableWeapons.value = phonemeList.slice(0, 6) // Show 6 weapons at a time
-  setNewTargetPhoneme()
-}
-
-const setNewTargetPhoneme = () => {
-  const availablePhonemes = getAvailablePhonemes()
+  // ターゲット音素の類似音素を取得
+  const similarList = similarGroups[targetSound] || []
   
-  if (availablePhonemes.length === 0) {
-    console.warn('No phonemes available for target selection')
-    return
-  }
-  
-  // Select target from currently available enemies if possible
-  const enemyPhonemes = enemies.value.map(enemy => enemy.phoneme)
-  const availableEnemyPhonemes = availablePhonemes.filter(phoneme => 
-    enemyPhonemes.includes(phoneme.symbol)
+  // 利用可能な音素の中から類似音素を抽出
+  const availableSimilar = similarList.filter(sound => 
+    availableSounds.includes(sound) && soundWordPairs[sound]
   )
   
-  // If enemies exist with available phonemes, choose from them
-  // Otherwise choose randomly from available phonemes
-  const phonemesToChooseFrom = availableEnemyPhonemes.length > 0 ? availableEnemyPhonemes : availablePhonemes
+  // 類似音素がない場合は、ランダムに異なる音素を選択
+  if (availableSimilar.length === 0) {
+    return availableSounds.filter(s => s !== targetSound)
+  }
   
-  currentTargetPhoneme.value = phonemesToChooseFrom[Math.floor(Math.random() * phonemesToChooseFrom.length)]
+  return availableSimilar
 }
 
-const selectGameMode = (mode) => {
-  currentGameMode.value = mode
+// 難易度選択
+const selectDifficulty = (level) => {
+  difficulty.value = level
+  
+  const settings = {
+    easy: { time: 60, questions: 8, sounds: ['s', 'æ', 't', 'ɪ', 'ɒ', 'ʌ'] },
+    normal: { time: 45, questions: 10, sounds: ['s', 'æ', 't', 'ɪ', 'ɒ', 'ʌ', 'ɛ', 'i', 'oʊ', 'ʊ', 'u', 'aɪ'] },
+    hard: { time: 30, questions: 12, sounds: Object.keys(soundWordPairs) }
+  }
+  
+  const setting = settings[level]
+  timeRemaining.value = setting.time
+  maxTime.value = setting.time
+  totalQuestions.value = setting.questions
+  targetScore.value = setting.questions * 50
+  
   startGame()
 }
 
+// ゲーム開始
 const startGame = () => {
-  gameState.value = 'battle'
+  gamePhase.value = 'playing'
   resetGameStats()
-  initializePhonemes(currentGameMode.value.phonemeSet)
-  
-  gameTimeLimit.value = currentGameMode.value.timeLimit
-  timeLeft.value = currentGameMode.value.timeLimit
-  
-  startGameLoop()
-  startEnemySpawning()
-  startGameTimer()
+  generateQuestion()
+  startTimer()
 }
 
+// ゲーム統計リセット
 const resetGameStats = () => {
-  playerHealth.value = 100
-  energy.value = 100
   score.value = 0
   combo.value = 0
-  enemiesDestroyed.value = 0
-  currentWave.value = 1
-  
-  // Clear anti-repetition system
-  recentlyUsedPhonemes.value = []
-  
-  enemies.value = []
-  playerBullets.value = []
-  enemyBullets.value = []
-  powerups.value = []
-  explosions.value = []
-  
-  totalShots.value = 0
-  successfulHits.value = 0
-  accuracy.value = 0
   maxCombo.value = 0
-  playerPosition.value = 300
+  correctAnswers.value = 0
+  currentQuestionIndex.value = 0
+  masteredSounds.value = []
+  selectedAnswer.value = null
+  feedback.value = null
 }
 
-const selectWeapon = (weapon) => {
-  selectedWeapon.value = weapon
+// 新しい問題を生成
+const generateQuestion = () => {
+  selectedAnswer.value = null
+  feedback.value = null
+  
+  // 実際のデータベースから基本的な音素を選択
+  const availableSymbols = Object.keys(soundWordPairs)
+  const basicPhonemes = availableSymbols.filter(s => ['/s/', '/æ/', '/t/', '/ɪ/', '/ɒ/', '/ʌ/'].includes(s))
+  const intermediatePhonemes = availableSymbols.filter(s => ['/s/', '/æ/', '/t/', '/ɪ/', '/ɒ/', '/ʌ/', '/ɛ/', '/i/', '/oʊ/', '/ʊ/', '/u/', '/aɪ/'].includes(s))
+  
+  const settings = {
+    easy: basicPhonemes.length > 0 ? basicPhonemes : availableSymbols.slice(0, 6),
+    normal: intermediatePhonemes.length > 0 ? intermediatePhonemes : availableSymbols.slice(0, 12),
+    hard: availableSymbols
+  }
+  
+  logger.log('Difficulty settings:', settings)
+  
+  const availableSounds = settings[difficulty.value]
+  currentTargetSound.value = availableSounds[Math.floor(Math.random() * availableSounds.length)]
+  
+  // ターゲットサウンドを含む単語を1つ選択
+  const targetWords = soundWordPairs[currentTargetSound.value]
+  const wordWithTarget = targetWords[Math.floor(Math.random() * targetWords.length)]
+  
+  // ターゲットサウンドを含まない単語を1つ選択
+  const otherSounds = availableSounds.filter(sound => sound !== currentTargetSound.value)
+  const otherSound = otherSounds[Math.floor(Math.random() * otherSounds.length)]
+  const otherWords = soundWordPairs[otherSound]
+  const wordWithoutTarget = otherWords[Math.floor(Math.random() * otherWords.length)]
+  
+  // ランダムに配置（50%の確率でどちらが左か右かを決める）
+  const options = Math.random() < 0.5 
+    ? [wordWithTarget, wordWithoutTarget] 
+    : [wordWithoutTarget, wordWithTarget]
+  
+  currentOptions.value = options
+  
+  // ターゲットサウンドを含む単語のインデックスを記録
+  currentOptions.correctIndex = options.findIndex(option => option.word === wordWithTarget.word)
+  
+  // デバッグログ
+  logger.log('Generated question:', {
+    targetSound: currentTargetSound.value,
+    wordWithTarget: wordWithTarget,
+    wordWithoutTarget: wordWithoutTarget,
+    options: options,
+    correctIndex: currentOptions.correctIndex
+  })
 }
 
-const playTargetPhoneme = async () => {
-  if (!currentTargetPhoneme.value || isPlaying.value) return
+// ターゲットサウンドを再生
+const playTargetSound = async () => {
+  if (isPlaying.value) return
+  
+  isPlaying.value = true
   
   try {
-    // Create a synthetic word for the phoneme
-    const phonemeWord = currentTargetPhoneme.value.examples?.[0] || 'sound'
-    await playSound('word', { word: phonemeWord })
+    // ネイティブ音素データベースから音素を再生
+    await playPhonemeAudio(currentTargetSound.value)
   } catch (error) {
-    console.error('Error playing target phoneme:', error)
+    logger.error('Error playing target sound:', error)
+  } finally {
+    setTimeout(() => {
+      isPlaying.value = false
+    }, 1000)
   }
 }
 
-const shoot = () => {
-  if (!selectedWeapon.value || energy.value < 10) return
+// 写真を選択
+const selectPhoto = (index) => {
+  if (selectedAnswer.value !== null) return
   
-  totalShots.value++
-  energy.value -= 10
+  selectedAnswer.value = index
   
-  console.log('[SoundBattleArena] Shot fired:', {
-    totalShots: totalShots.value,
-    weapon: selectedWeapon.value.symbol,
-    target: currentTargetPhoneme.value?.symbol
-  })
+  const isCorrect = index === currentOptions.correctIndex
   
-  // Create bullet
-  const bullet = {
-    id: Date.now() + Math.random(),
-    x: playerPosition.value + 15,
-    y: 450,
-    phoneme: selectedWeapon.value.symbol,
-    speed: 8
-  }
-  
-  playerBullets.value.push(bullet)
-  
-  // Play shoot sound
-  playSound('effect', 'button')
-}
-
-// Anti-repetition system
-const recentlyUsedPhonemes = ref([])
-const maxRecentPhonemes = 10
-
-const getAvailablePhonemes = () => {
-  if (!currentGameMode.value) return []
-  
-  let phonemes = []
-  
-  // Filter phonemes based on game mode
-  if (currentGameMode.value.phonemeSet === 'stage1A') {
-    phonemes = NATIVE_PHONEME_PROGRESSION.stage1A || []
-  } else if (currentGameMode.value.phonemeSet === 'stage1B') {
-    phonemes = NATIVE_PHONEME_PROGRESSION.stage1B || []
-  } else if (currentGameMode.value.phonemeSet === 'stage1C') {
-    phonemes = NATIVE_PHONEME_PROGRESSION.stage1C || []
+  if (isCorrect) {
+    correctAnswers.value++
+    combo.value++
+    if (combo.value > maxCombo.value) {
+      maxCombo.value = combo.value
+    }
+    
+    // スコア計算
+    const baseScore = 50
+    const comboBonus = combo.value * 10
+    const timeBonus = Math.floor(timeRemaining.value / 2)
+    score.value += baseScore + comboBonus + timeBonus
+    
+    // 音素を習得リストに追加
+    if (!masteredSounds.value.includes(currentTargetSound.value)) {
+      masteredSounds.value.push(currentTargetSound.value)
+    }
+    
+    feedback.value = {
+      correct: true,
+      message: `正解！ +${baseScore + comboBonus + timeBonus}点`
+    }
+    
+    playSound('correct')
   } else {
-    // 'all' mode uses all phonemes
-    phonemes = Object.values(NATIVE_PHONEME_PROGRESSION).flat()
-  }
-  
-  return phonemes
-}
-
-const selectRandomPhoneme = () => {
-  const availablePhonemes = getAvailablePhonemes()
-  
-  if (availablePhonemes.length === 0) {
-    console.warn('No phonemes available for current game mode')
-    return null
-  }
-  
-  // Filter out recently used phonemes
-  const unusedPhonemes = availablePhonemes.filter(phoneme => 
-    !recentlyUsedPhonemes.value.includes(phoneme.symbol)
-  )
-  
-  // If all phonemes have been used recently, use all available
-  const phonemesToChooseFrom = unusedPhonemes.length > 0 ? unusedPhonemes : availablePhonemes
-  
-  // Select random phoneme
-  const randomPhoneme = phonemesToChooseFrom[Math.floor(Math.random() * phonemesToChooseFrom.length)]
-  
-  // Add to recently used list
-  recentlyUsedPhonemes.value.push(randomPhoneme.symbol)
-  
-  // Keep only recent phonemes (limit list size)
-  if (recentlyUsedPhonemes.value.length > maxRecentPhonemes) {
-    recentlyUsedPhonemes.value.shift()
-  }
-  
-  return randomPhoneme
-}
-
-const spawnEnemy = () => {
-  const randomPhoneme = selectRandomPhoneme()
-  
-  if (!randomPhoneme) {
-    console.warn('Could not select phoneme for enemy')
-    return
-  }
-  
-  const enemy = {
-    id: Date.now() + Math.random(),
-    x: Math.random() * 550,
-    y: -50,
-    phoneme: randomPhoneme.symbol,
-    health: 1,
-    maxHealth: 1,
-    speed: currentGameMode.value?.enemySpeed || 2,
-    shootTimer: Math.random() * 3000 + 1000 // Random shoot interval
-  }
-  
-  enemies.value.push(enemy)
-}
-
-const spawnPowerup = () => {
-  if (Math.random() < 0.3) { // 30% chance
-    const powerup = {
-      id: Date.now() + Math.random(),
-      x: Math.random() * 550,
-      y: -30,
-      type: Math.random() < 0.5 ? 'health' : 'energy',
-      icon: Math.random() < 0.5 ? '💗' : '⚡',
-      speed: 2
+    combo.value = 0
+    feedback.value = {
+      correct: false,
+      message: `不正解... 正解は「${currentOptions.value[currentOptions.correctIndex].word}」でした`
     }
-    powerups.value.push(powerup)
-  }
-}
-
-const createExplosion = (x, y) => {
-  const explosion = {
-    id: Date.now() + Math.random(),
-    x: x - 20,
-    y: y - 20
-  }
-  explosions.value.push(explosion)
-  
-  setTimeout(() => {
-    explosions.value = explosions.value.filter(e => e.id !== explosion.id)
-  }, 500)
-}
-
-const checkCollisions = () => {
-  // Player bullets vs enemies
-  playerBullets.value.forEach(bullet => {
-    enemies.value.forEach(enemy => {
-      if (Math.abs(bullet.x - enemy.x) < 30 && Math.abs(bullet.y - enemy.y) < 30) {
-        // Check if phoneme matches target
-        if (bullet.phoneme === currentTargetPhoneme.value?.symbol) {
-          // Correct hit
-          createExplosion(enemy.x, enemy.y)
-          enemies.value = enemies.value.filter(e => e.id !== enemy.id)
-          playerBullets.value = playerBullets.value.filter(b => b.id !== bullet.id)
-          
-          successfulHits.value++
-          combo.value++
-          enemiesDestroyed.value++
-          score.value += 100 + (combo.value * 10)
-          
-          console.log('[SoundBattleArena] Successful hit:', {
-            successfulHits: successfulHits.value,
-            totalShots: totalShots.value,
-            currentAccuracy: (successfulHits.value / totalShots.value * 100).toFixed(1) + '%'
-          })
-          
-          if (combo.value > maxCombo.value) {
-            maxCombo.value = combo.value
-          }
-          
-          playSound('effect', 'correct')
-          
-          // Occasionally change target
-          if (Math.random() < 0.2) {
-            setNewTargetPhoneme()
-          }
-        } else {
-          // Wrong hit
-          playerBullets.value = playerBullets.value.filter(b => b.id !== bullet.id)
-          combo.value = 0
-          playSound('effect', 'incorrect')
-        }
-      }
-    })
-  })
-  
-  // Enemy bullets vs player
-  enemyBullets.value.forEach(bullet => {
-    if (Math.abs(bullet.x - (playerPosition.value + 15)) < 25 && bullet.y > 430) {
-      enemyBullets.value = enemyBullets.value.filter(b => b.id !== bullet.id)
-      playerHealth.value -= 10
-      combo.value = 0
-      
-      if (playerHealth.value <= 0) {
-        endGame(false)
-      }
-    }
-  })
-  
-  // Powerups vs player
-  powerups.value.forEach(powerup => {
-    if (Math.abs(powerup.x - (playerPosition.value + 15)) < 30 && powerup.y > 430) {
-      powerups.value = powerups.value.filter(p => p.id !== powerup.id)
-      
-      if (powerup.type === 'health') {
-        playerHealth.value = Math.min(100, playerHealth.value + 20)
-      } else if (powerup.type === 'energy') {
-        energy.value = Math.min(100, energy.value + 30)
-      }
-      
-      playSound('effect', 'levelUp')
-    }
-  })
-  
-  // Enemies reaching bottom
-  enemies.value.forEach(enemy => {
-    if (enemy.y > 500) {
-      enemies.value = enemies.value.filter(e => e.id !== enemy.id)
-      playerHealth.value -= 5
-      combo.value = 0
-    }
-  })
-}
-
-const updateGame = () => {
-  // Move player bullets
-  playerBullets.value.forEach(bullet => {
-    bullet.y -= bullet.speed
-  })
-  playerBullets.value = playerBullets.value.filter(bullet => bullet.y > -10)
-  
-  // Move enemies
-  enemies.value.forEach(enemy => {
-    enemy.y += enemy.speed
     
-    // Enemy shooting
-    enemy.shootTimer -= 16
-    if (enemy.shootTimer <= 0 && Math.random() < 0.01) {
-      enemyBullets.value.push({
-        id: Date.now() + Math.random(),
-        x: enemy.x + 15,
-        y: enemy.y + 30,
-        speed: 4
-      })
-      enemy.shootTimer = Math.random() * 2000 + 1000
+    playSound('incorrect')
+  }
+  
+  // 次の問題へ進む
+  feedbackTimer = setTimeout(() => {
+    currentQuestionIndex.value++
+    
+    if (currentQuestionIndex.value >= totalQuestions.value) {
+      endGame()
+    } else {
+      generateQuestion()
     }
-  })
-  
-  // Move enemy bullets
-  enemyBullets.value.forEach(bullet => {
-    bullet.y += bullet.speed
-  })
-  enemyBullets.value = enemyBullets.value.filter(bullet => bullet.y < 520)
-  
-  // Move powerups
-  powerups.value.forEach(powerup => {
-    powerup.y += powerup.speed
-  })
-  powerups.value = powerups.value.filter(powerup => powerup.y < 520)
-  
-  // Handle player movement
-  if (keys.left && playerPosition.value > 0) {
-    playerPosition.value -= moveSpeed
-  }
-  if (keys.right && playerPosition.value < 570) {
-    playerPosition.value += moveSpeed
-  }
-  
-  // Mobile movement
-  if (isMoving.value) {
-    if (moveDirection.value === 'left' && playerPosition.value > 0) {
-      playerPosition.value -= moveSpeed
-    }
-    if (moveDirection.value === 'right' && playerPosition.value < 570) {
-      playerPosition.value += moveSpeed
-    }
-  }
-  
-  // Regenerate energy
-  if (energy.value < 100) {
-    energy.value = Math.min(100, energy.value + 0.5)
-  }
-  
-  checkCollisions()
+  }, 2000)
 }
 
-const startGameLoop = () => {
-  gameLoop = setInterval(updateGame, 16) // 60 FPS
-}
-
-const startEnemySpawning = () => {
-  enemySpawnTimer = setInterval(() => {
-    if (enemies.value.length < 8) { // Max 8 enemies on screen
-      spawnEnemy()
-    }
-    spawnPowerup()
-  }, 1500)
-}
-
-const startGameTimer = () => {
+// タイマー開始
+const startTimer = () => {
   gameTimer = setInterval(() => {
-    timeLeft.value--
-    if (timeLeft.value <= 0) {
-      endGame(true)
-    }
-    
-    // Increase wave every 20 seconds
-    if (timeLeft.value % 20 === 0) {
-      currentWave.value++
+    timeRemaining.value--
+    if (timeRemaining.value <= 0) {
+      endGame()
     }
   }, 1000)
 }
 
-const endGame = (victory) => {
-  isVictory.value = victory
-  gameState.value = 'gameOver'
+// ゲーム終了
+const endGame = () => {
+  gamePhase.value = 'complete'
   
-  finalScore.value = score.value
-  finalEnemiesDestroyed.value = enemiesDestroyed.value
-  
-  // Calculate accuracy with proper handling of edge cases
-  console.log('[SoundBattleArena] Calculating accuracy:', {
-    totalShots: totalShots.value,
-    successfulHits: successfulHits.value
-  })
-  
-  if (totalShots.value > 0) {
-    accuracy.value = successfulHits.value / totalShots.value
-  } else {
-    accuracy.value = 0
-  }
-  
-  console.log('[SoundBattleArena] Final accuracy:', accuracy.value)
-  
-  clearInterval(gameLoop)
-  clearInterval(enemySpawnTimer)
   clearInterval(gameTimer)
+  clearTimeout(feedbackTimer)
   
-  playSound('effect', victory ? 'complete' : 'gameEnd')
-}
-
-const restartGame = () => {
-  startGame()
-}
-
-// Input handling
-const handleKeyDown = (event) => {
-  switch(event.key.toLowerCase()) {
-    case 'a':
-    case 'arrowleft':
-      keys.left = true
-      break
-    case 'd':
-    case 'arrowright':
-      keys.right = true
-      break
-    case ' ':
-    case 'enter':
-      event.preventDefault()
-      shoot()
-      break
+  // 最終スコア調整
+  if (correctAnswers.value === totalQuestions.value) {
+    score.value += 200 // パーフェクトボーナス
   }
+  
+  playSound(score.value >= targetScore.value ? 'victory' : 'complete')
 }
 
-const handleKeyUp = (event) => {
-  switch(event.key.toLowerCase()) {
-    case 'a':
-    case 'arrowleft':
-      keys.left = false
-      break
-    case 'd':
-    case 'arrowright':
-      keys.right = false
-      break
-  }
+// ゲームリセット
+const resetGame = () => {
+  gamePhase.value = 'intro'
+  clearInterval(gameTimer)
+  clearTimeout(feedbackTimer)
 }
 
-// Mobile controls
-const startMove = (direction) => {
-  isMoving.value = true
-  moveDirection.value = direction
+// 戻る
+const goBack = () => {
+  clearInterval(gameTimer)
+  clearTimeout(feedbackTimer)
+  router.push('/platforms/phonics-adventure')
 }
 
-const stopMove = () => {
-  isMoving.value = false
-  moveDirection.value = ''
-}
-
-const handleBack = () => {
-  if (gameLoop) clearInterval(gameLoop)
-  if (enemySpawnTimer) clearInterval(enemySpawnTimer)
-  if (gameTimer) clearInterval(gameTimer)
-  router.back()
-}
-
-onMounted(() => {
-  document.addEventListener('keydown', handleKeyDown)
-  document.addEventListener('keyup', handleKeyUp)
-})
-
+// クリーンアップ
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeyDown)
-  document.removeEventListener('keyup', handleKeyUp)
-  if (gameLoop) clearInterval(gameLoop)
-  if (enemySpawnTimer) clearInterval(enemySpawnTimer)
-  if (gameTimer) clearInterval(gameTimer)
+  clearInterval(gameTimer)
+  clearTimeout(feedbackTimer)
 })
 </script>
 
 <style scoped>
-/* Galaxy background - unified */
-.galaxy-background {
-  background: var(--space-void);
-  color: white;
-}
-
-/* Animated stars - unified */
+/* 宇宙背景エフェクト */
 .stars-layer-1,
 .stars-layer-2,
 .stars-layer-3 {
@@ -946,6 +726,8 @@ onUnmounted(() => {
   background-size: 200px 200px;
   animation: twinkle 4s infinite;
   opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .stars-layer-2 {
@@ -966,90 +748,25 @@ onUnmounted(() => {
   100% { opacity: 0.3; }
 }
 
-/* Galaxy-themed components - unified */
-.galaxy-text-primary {
-  background: linear-gradient(45deg, 
-    #60A5FA 0%, 
-    #A78BFA 25%, 
-    #F472B6 50%, 
-    #FBBF24 75%, 
-    #60A5FA 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 300% 300%;
-  animation: cosmic-text-flow 4s ease-in-out infinite;
-  text-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
-}
-
-.text-galaxy-moon-silver {
-  color: #94A3B8;
-}
-
-.galaxy-card {
+/* 宇宙テーマカード */
+.cosmic-card {
   background: linear-gradient(135deg, 
     rgba(15, 23, 42, 0.95) 0%, 
     rgba(30, 41, 59, 0.9) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(79, 172, 254, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 191, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.galaxy-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(59, 130, 246, 0.8) 50%, 
-    transparent 100%);
-  animation: data-stream 3s linear infinite;
-}
-
-.galaxy-button {
+.cosmic-panel {
   background: linear-gradient(135deg, 
-    rgba(79, 172, 254, 0.3) 0%, 
-    rgba(0, 242, 254, 0.3) 100%);
-  border: 2px solid rgba(79, 172, 254, 0.8);
-  box-shadow: 
-    0 0 20px rgba(79, 172, 254, 0.4),
-    inset 0 0 20px rgba(0, 242, 254, 0.2);
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
-  color: white;
-  padding: 0.5rem 1rem;
+    rgba(20, 30, 60, 0.8) 0%, 
+    rgba(10, 20, 40, 0.9) 100%);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(100, 149, 237, 0.3);
 }
 
-.galaxy-button::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-  animation: scan-line 2s linear infinite;
-}
-
-.galaxy-button-primary {
-  background: linear-gradient(135deg, 
-    rgba(79, 172, 254, 0.5) 0%, 
-    rgba(0, 242, 254, 0.5) 100%);
-}
-
-.galaxy-button-secondary {
-  background: linear-gradient(135deg, 
-    rgba(79, 172, 254, 0.2) 0%, 
-    rgba(0, 242, 254, 0.2) 100%);
-}
-
-.galaxy-stats-card {
+.cosmic-stats-card {
   background: linear-gradient(135deg, 
     rgba(15, 23, 42, 0.8) 0%, 
     rgba(30, 41, 59, 0.6) 100%);
@@ -1060,143 +777,125 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.cosmic-glow {
-  filter: drop-shadow(0 0 10px currentColor);
-  animation: pulsing-glow 2s ease-in-out infinite alternate;
+/* 宇宙テーマボタン */
+.cosmic-button {
+  position: relative;
+  border: 2px solid rgba(79, 172, 254, 0.8);
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
 }
 
-.cosmic-title {
-  text-shadow: 0 0 20px rgba(96, 165, 250, 0.8);
+.cosmic-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
 }
 
-/* Battle Arena Effects */
-.battle-arena-effect {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 50% 50%, 
-    rgba(255, 0, 100, 0.1) 0%, 
-    transparent 50%);
-  animation: battle-pulse 3s ease-in-out infinite;
-  pointer-events: none;
+.cosmic-button:hover::before {
+  transform: translateX(100%);
 }
 
-.laser-effects {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, 
-    transparent 0%, 
-    rgba(0, 255, 255, 0.05) 25%, 
-    transparent 50%, 
-    rgba(255, 0, 255, 0.05) 75%, 
-    transparent 100%);
-  animation: laser-sweep 2s linear infinite;
-  pointer-events: none;
+.cosmic-button-blue {
+  background: linear-gradient(135deg, #1E90FF, #4169E1);
+  color: white;
+  border-color: #00BFFF;
 }
 
-/* Game-specific animations */
-.bullet-glow {
-  box-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF;
-  animation: bullet-trail 0.1s linear infinite;
+.cosmic-button-blue:hover {
+  background: linear-gradient(135deg, #4169E1, #0000FF);
+  box-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+  transform: translateY(-2px);
 }
 
-.powerup-glow {
-  filter: drop-shadow(0 0 10px currentColor);
-  animation: powerup-float 2s ease-in-out infinite;
+.cosmic-button-green {
+  background: linear-gradient(135deg, #32CD32, #228B22);
+  color: white;
+  border-color: #00FF00;
 }
 
-.player-ship {
-  filter: drop-shadow(0 0 15px #00FFFF);
-  z-index: 10;
+.cosmic-button-green:hover {
+  background: linear-gradient(135deg, #228B22, #006400);
+  box-shadow: 0 0 20px rgba(50, 205, 50, 0.5);
+  transform: translateY(-2px);
 }
 
-.enemy {
-  filter: drop-shadow(0 0 8px #FF0000);
-  animation: enemy-hover 1s ease-in-out infinite alternate;
+.cosmic-button-red {
+  background: linear-gradient(135deg, #FF4500, #DC143C);
+  color: white;
+  border-color: #FF0000;
 }
 
-/* Keyframe animations */
-@keyframes pulsing-glow {
-  0% { filter: drop-shadow(0 0 5px currentColor); }
-  100% { filter: drop-shadow(0 0 15px currentColor); }
+.cosmic-button-red:hover {
+  background: linear-gradient(135deg, #DC143C, #B22222);
+  box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
+  transform: translateY(-2px);
 }
 
-@keyframes scan-line {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+.cosmic-button-primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white;
+  border-color: #A855F7;
 }
 
-@keyframes data-stream {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+.cosmic-button-primary:hover {
+  background: linear-gradient(135deg, #8B5CF6, #A855F7);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
 }
 
-@keyframes cosmic-text-flow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+.cosmic-button-gray {
+  background: linear-gradient(135deg, #6B7280, #4B5563);
+  color: white;
+  border-color: #9CA3AF;
 }
 
-@keyframes battle-pulse {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.3; }
+.cosmic-button-gray:hover {
+  background: linear-gradient(135deg, #4B5563, #374151);
+  box-shadow: 0 0 20px rgba(107, 114, 128, 0.5);
+  transform: translateY(-2px);
 }
 
-@keyframes laser-sweep {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
-}
-
-@keyframes bullet-trail {
-  0% { box-shadow: 0 0 5px #00FFFF; }
-  100% { box-shadow: 0 0 15px #00FFFF, 0 0 25px #00FFFF; }
-}
-
-@keyframes powerup-float {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-10px); }
-}
-
-@keyframes enemy-hover {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-5px); }
-}
-
-/* CSS Custom Properties for Space Theme */
-:root {
-  --space-void: linear-gradient(135deg, 
-    #0f0f23 0%, 
-    #1a1a3e 25%, 
-    #2d1b69 50%, 
-    #1e1e3f 75%, 
-    #0f0f23 100%);
-}
-
-/* Hover effects for galaxy cards */
-.galaxy-card:hover {
+/* ホバーエフェクト */
+.cosmic-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 30px rgba(79, 172, 254, 0.6);
 }
 
-/* Hover effects for buttons */
-.galaxy-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 
-    0 0 25px rgba(79, 172, 254, 0.6),
-    inset 0 0 25px rgba(0, 242, 254, 0.3);
+/* アニメーション */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
-/* Transitions */
-.battle-result-enter-active, .battle-result-leave-active {
-  transition: all 0.5s ease;
+.animate-pulse {
+  animation: pulse 2s infinite;
 }
 
-.battle-result-enter-from, .battle-result-leave-to {
-  opacity: 0;
-  transform: scale(0.8);
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  /* 写真選択エリアは常に2列を維持 */
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  /* モバイルでも写真は小さくして2つ表示 */
+  .w-48 {
+    width: 8rem; /* 写真サイズを小さく */
+  }
+  
+  .h-48 {
+    height: 8rem;
+  }
 }
 </style>

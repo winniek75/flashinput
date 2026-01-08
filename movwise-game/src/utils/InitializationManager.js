@@ -8,6 +8,7 @@ import performanceOptimizer from './PerformanceOptimizer'
 import securityChecker from './SecurityChecker'
 import betaTestManager from './BetaTestManager'
 import { DEPLOYMENT_CONFIG, INITIAL_DATA_CONFIG } from '@/config/deployment'
+import logger from '@/utils/logger'
 
 class InitializationManager {
   constructor() {
@@ -20,14 +21,14 @@ class InitializationManager {
       environment: DEPLOYMENT_CONFIG.environment
     }
     
-    console.log('🚀 InitializationManager created')
+    logger.log('🚀 InitializationManager created')
   }
 
   /**
    * システム全体の初期化
    */
   async initializeSystem() {
-    console.log('🎬 Starting MovWISE system initialization...')
+    logger.log('🎬 Starting MovWISE system initialization...')
     
     try {
       // 1. 環境設定の確認
@@ -61,7 +62,7 @@ class InitializationManager {
       this.systemStatus.health = 'healthy'
       this.systemStatus.readiness = true
       
-      console.log('✅ MovWISE system initialization completed successfully')
+      logger.log('✅ MovWISE system initialization completed successfully')
       
       return {
         success: true,
@@ -71,7 +72,7 @@ class InitializationManager {
       }
       
     } catch (error) {
-      console.error('❌ System initialization failed:', error)
+      logger.error('❌ System initialization failed:', error)
       
       this.systemStatus.health = 'unhealthy'
       this.systemStatus.readiness = false
@@ -90,7 +91,7 @@ class InitializationManager {
    * 環境設定の確認
    */
   async validateEnvironment() {
-    console.log('🔍 Validating environment configuration...')
+    logger.log('🔍 Validating environment configuration...')
     
     const config = DEPLOYMENT_CONFIG.config
     const requiredEnvVars = [
@@ -120,7 +121,7 @@ class InitializationManager {
    * セキュリティ設定の適用
    */
   async applySecurity() {
-    console.log('🔒 Applying security configurations...')
+    logger.log('🔒 Applying security configurations...')
     
     // セキュリティチェッカーの初期化
     securityChecker.applySecurityMeasures()
@@ -141,7 +142,7 @@ class InitializationManager {
    * パフォーマンス最適化の適用
    */
   async applyPerformanceOptimizations() {
-    console.log('⚡ Applying performance optimizations...')
+    logger.log('⚡ Applying performance optimizations...')
     
     // パフォーマンスモニタリングの開始
     performanceOptimizer.startMonitoring()
@@ -161,7 +162,7 @@ class InitializationManager {
    * 初期データの投入
    */
   async seedInitialData() {
-    console.log('📊 Seeding initial data...')
+    logger.log('📊 Seeding initial data...')
     
     try {
       // サンプル講師データの作成
@@ -186,7 +187,7 @@ class InitializationManager {
    * βテストシステムの初期化
    */
   async initializeBetaTest() {
-    console.log('🧪 Initializing beta test system...')
+    logger.log('🧪 Initializing beta test system...')
     
     if (DEPLOYMENT_CONFIG.betaTest.ENABLED) {
       // βテストマネージャーの初期化は既に完了
@@ -204,7 +205,7 @@ class InitializationManager {
    * 監視システムの開始
    */
   async startMonitoring() {
-    console.log('📈 Starting monitoring systems...')
+    logger.log('📈 Starting monitoring systems...')
     
     // エラー監視の開始
     this.startErrorMonitoring()
@@ -224,7 +225,7 @@ class InitializationManager {
    * 収益化機能の準備
    */
   async prepareMonetization() {
-    console.log('💰 Preparing monetization features...')
+    logger.log('💰 Preparing monetization features...')
     
     // 料金プランの設定
     this.setupPricingPlans()
@@ -245,7 +246,7 @@ class InitializationManager {
    * 最終システムテスト
    */
   async runFinalSystemTest() {
-    console.log('🧪 Running final system test...')
+    logger.log('🧪 Running final system test...')
     
     try {
       const testResult = await systemIntegrationTest.runFullSystemTest()
@@ -270,7 +271,7 @@ class InitializationManager {
    * ヘルスチェック
    */
   async performHealthCheck() {
-    console.log('🩺 Performing health check...')
+    logger.log('🩺 Performing health check...')
     
     const healthChecks = {
       database: await this.checkDatabaseConnection(),
@@ -333,7 +334,7 @@ class InitializationManager {
     const rules = DEPLOYMENT_CONFIG.firebase
     
     if (!rules.firestore || !rules.realtimeDatabase) {
-      console.warn('Firebase security rules not properly configured')
+      logger.warn('Firebase security rules not properly configured')
     }
   }
 
@@ -359,7 +360,7 @@ class InitializationManager {
       localStorage.setItem(`teacher_${teacher.id}`, JSON.stringify(teacherData))
     })
     
-    console.log(`✅ Created ${teachers.length} sample teachers`)
+    logger.log(`✅ Created ${teachers.length} sample teachers`)
   }
 
   /**
@@ -388,7 +389,7 @@ class InitializationManager {
       localStorage.setItem(`game_${game.id}`, JSON.stringify(gameData))
     })
     
-    console.log(`✅ Created ${games.length} sample games`)
+    logger.log(`✅ Created ${games.length} sample games`)
   }
 
   /**
@@ -412,7 +413,7 @@ class InitializationManager {
       localStorage.setItem(`content_${category.category}_${category.level}`, JSON.stringify(contentData))
     })
     
-    console.log(`✅ Created ${content.length} content categories`)
+    logger.log(`✅ Created ${content.length} content categories`)
   }
 
   /**
@@ -436,7 +437,7 @@ class InitializationManager {
     }
     
     localStorage.setItem('movwise_analytics', JSON.stringify(analyticsData))
-    console.log('✅ Created initial analytics data')
+    logger.log('✅ Created initial analytics data')
   }
 
   /**
@@ -459,7 +460,7 @@ class InitializationManager {
     }
     
     localStorage.setItem('movwise_beta_test', JSON.stringify(betaData))
-    console.log('✅ Created beta test configuration')
+    logger.log('✅ Created beta test configuration')
   }
 
   /**
@@ -488,7 +489,7 @@ class InitializationManager {
   startUserAnalytics() {
     if (DEPLOYMENT_CONFIG.monitoring.ANALYTICS.enabled) {
       // Google Analytics 初期化（模擬）
-      console.log('📊 User analytics initialized')
+      logger.log('📊 User analytics initialized')
     }
   }
 
@@ -508,7 +509,7 @@ class InitializationManager {
   setupPricingPlans() {
     const plans = DEPLOYMENT_CONFIG.monetization.PRICING_TIERS
     localStorage.setItem('movwise_pricing_plans', JSON.stringify(plans))
-    console.log('💰 Pricing plans configured')
+    logger.log('💰 Pricing plans configured')
   }
 
   /**
@@ -531,7 +532,7 @@ class InitializationManager {
     }
     
     localStorage.setItem('movwise_usage_limits', JSON.stringify(limits))
-    console.log('📊 Usage limits configured')
+    logger.log('📊 Usage limits configured')
   }
 
   /**
@@ -547,7 +548,7 @@ class InitializationManager {
     }
     
     localStorage.setItem('movwise_payment_config', JSON.stringify(paymentConfig))
-    console.log('💳 Payment system initialized')
+    logger.log('💳 Payment system initialized')
   }
 
   /**
@@ -568,7 +569,7 @@ class InitializationManager {
     }
     
     localStorage.setItem('movwise_analytics_config', JSON.stringify(analyticsConfig))
-    console.log('📈 Analytics configured')
+    logger.log('📈 Analytics configured')
   }
 
   /**
@@ -699,7 +700,7 @@ class InitializationManager {
       url: window.location.href
     }
     
-    console.error('System Error:', errorLog)
+    logger.error('System Error:', errorLog)
     
     // エラーをローカルストレージに保存
     const existingErrors = JSON.parse(localStorage.getItem('movwise_error_log') || '[]')
@@ -725,7 +726,7 @@ class InitializationManager {
     }
     
     this.initializationSteps.push(step)
-    console.log(`${this.getStatusEmoji(status)} ${name}: ${message}`)
+    logger.log(`${this.getStatusEmoji(status)} ${name}: ${message}`)
   }
 
   /**

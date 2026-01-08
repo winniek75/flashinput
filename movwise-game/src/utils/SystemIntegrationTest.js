@@ -5,6 +5,7 @@
 
 import { useConnectionStore } from '@/stores/connectionStatus'
 import gameStateManager from '@/utils/GameStateManager'
+import logger from '@/utils/logger'
 
 class SystemIntegrationTest {
   constructor() {
@@ -29,7 +30,7 @@ class SystemIntegrationTest {
    * 全システム統合テストを実行
    */
   async runFullSystemTest() {
-    console.log('🚀 Starting MovWISE Full System Integration Test...')
+    logger.log('🚀 Starting MovWISE Full System Integration Test...')
     this.startTime = performance.now()
     
     try {
@@ -60,11 +61,11 @@ class SystemIntegrationTest {
       // テスト結果の集計
       const results = this.generateTestReport()
       
-      console.log('✅ System Integration Test Completed')
+      logger.log('✅ System Integration Test Completed')
       return results
       
     } catch (error) {
-      console.error('❌ System Integration Test Failed:', error)
+      logger.error('❌ System Integration Test Failed:', error)
       throw error
     }
   }
@@ -73,7 +74,7 @@ class SystemIntegrationTest {
    * 基本機能テスト
    */
   async testBasicFunctionality() {
-    console.log('🧪 Testing Basic Functionality...')
+    logger.log('🧪 Testing Basic Functionality...')
     
     const tests = [
       {
@@ -115,7 +116,7 @@ class SystemIntegrationTest {
    * 協力学習機能テスト
    */
   async testCooperativeLearning() {
-    console.log('🤝 Testing Cooperative Learning Features...')
+    logger.log('🤝 Testing Cooperative Learning Features...')
     
     const tests = [
       {
@@ -157,7 +158,7 @@ class SystemIntegrationTest {
    * エラーハンドリングテスト
    */
   async testErrorHandling() {
-    console.log('🛠️ Testing Error Handling...')
+    logger.log('🛠️ Testing Error Handling...')
     
     const tests = [
       {
@@ -199,7 +200,7 @@ class SystemIntegrationTest {
    * パフォーマンステスト
    */
   async testPerformance() {
-    console.log('⚡ Testing Performance...')
+    logger.log('⚡ Testing Performance...')
     
     // メモリ使用量測定
     if (performance.memory) {
@@ -226,7 +227,7 @@ class SystemIntegrationTest {
    * セキュリティテスト
    */
   async testSecurity() {
-    console.log('🔒 Testing Security...')
+    logger.log('🔒 Testing Security...')
     
     const tests = [
       {
@@ -264,7 +265,7 @@ class SystemIntegrationTest {
    * PWA機能テスト
    */
   async testPWAFeatures() {
-    console.log('📱 Testing PWA Features...')
+    logger.log('📱 Testing PWA Features...')
     
     const tests = [
       {
@@ -302,7 +303,7 @@ class SystemIntegrationTest {
    * デバイス互換性テスト
    */
   async testDeviceCompatibility() {
-    console.log('📱 Testing Device Compatibility...')
+    logger.log('📱 Testing Device Compatibility...')
     
     const userAgent = navigator.userAgent
     const tests = [
@@ -341,7 +342,7 @@ class SystemIntegrationTest {
    * ネットワーク障害テスト
    */
   async testNetworkResilience() {
-    console.log('🌐 Testing Network Resilience...')
+    logger.log('🌐 Testing Network Resilience...')
     
     const tests = [
       {
@@ -383,7 +384,7 @@ class SystemIntegrationTest {
     const requiredElements = ['.game-grid', '.stats-section', '.settings-panel']
     for (const selector of requiredElements) {
       if (!document.querySelector(selector)) {
-        console.warn(`Optional element not found: ${selector}`)
+        logger.warn(`Optional element not found: ${selector}`)
       }
     }
   }
@@ -398,7 +399,7 @@ class SystemIntegrationTest {
     // 各ゲームボタンがクリック可能かテスト
     gameButtons.forEach(button => {
       if (button.disabled) {
-        console.warn(`Game button disabled: ${button.dataset.gameId}`)
+        logger.warn(`Game button disabled: ${button.dataset.gameId}`)
       }
     })
   }
@@ -418,13 +419,13 @@ class SystemIntegrationTest {
   async testAudioSystem() {
     // 音声システムのテスト
     if (!window.AudioContext && !window.webkitAudioContext) {
-      console.warn('Audio context not supported')
+      logger.warn('Audio context not supported')
       return
     }
     
     // Speech Synthesis API テスト
     if (!window.speechSynthesis) {
-      console.warn('Speech synthesis not supported')
+      logger.warn('Speech synthesis not supported')
       return
     }
   }
@@ -450,7 +451,7 @@ class SystemIntegrationTest {
     // Co-Pilot Dock機能のテスト
     const coPilotElements = document.querySelectorAll('[data-copilot]')
     if (coPilotElements.length === 0) {
-      console.warn('Co-Pilot Dock elements not found')
+      logger.warn('Co-Pilot Dock elements not found')
     }
   }
 
@@ -458,7 +459,7 @@ class SystemIntegrationTest {
     // 講師ダッシュボードのテスト
     const dashboardElements = document.querySelectorAll('[data-teacher-dashboard]')
     if (dashboardElements.length === 0) {
-      console.warn('Teacher dashboard elements not found')
+      logger.warn('Teacher dashboard elements not found')
     }
   }
 
@@ -478,7 +479,7 @@ class SystemIntegrationTest {
     // 緊急通話システムのテスト
     const emergencyButtons = document.querySelectorAll('[data-emergency]')
     if (emergencyButtons.length === 0) {
-      console.warn('Emergency call buttons not found')
+      logger.warn('Emergency call buttons not found')
     }
   }
 
@@ -505,7 +506,7 @@ class SystemIntegrationTest {
     // エラーハンドラーのテスト
     const errorHandler = document.querySelector('[data-error-handler]')
     if (!errorHandler) {
-      console.warn('Error handler component not found')
+      logger.warn('Error handler component not found')
     }
   }
 
@@ -513,7 +514,7 @@ class SystemIntegrationTest {
     // オフラインモードのテスト
     const offlineModeElements = document.querySelectorAll('[data-offline-mode]')
     if (offlineModeElements.length === 0) {
-      console.warn('Offline mode elements not found')
+      logger.warn('Offline mode elements not found')
     }
   }
 
@@ -625,7 +626,7 @@ class SystemIntegrationTest {
     // データが適切にサニタイズされているかチェック
     const sanitized = JSON.stringify(maliciousData)
     if (sanitized.includes('<script>') || sanitized.includes('javascript:')) {
-      console.warn('Data sanitization may need improvement')
+      logger.warn('Data sanitization may need improvement')
     }
   }
 
@@ -636,14 +637,14 @@ class SystemIntegrationTest {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
-        console.warn(`Potentially sensitive data in localStorage: ${key}`)
+        logger.warn(`Potentially sensitive data in localStorage: ${key}`)
       }
     }
   }
 
   async testFirebaseRules() {
     // Firebaseルールのテスト（模擬）
-    console.log('Firebase security rules should be tested in Firebase console')
+    logger.log('Firebase security rules should be tested in Firebase console')
   }
 
   async testServiceWorker() {
@@ -654,7 +655,7 @@ class SystemIntegrationTest {
     
     const registration = await navigator.serviceWorker.getRegistration()
     if (!registration) {
-      console.warn('Service Worker not registered')
+      logger.warn('Service Worker not registered')
     }
   }
 
@@ -669,7 +670,7 @@ class SystemIntegrationTest {
   async testInstallPrompt() {
     // インストールプロンプトのテスト
     if (!window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('App not installed as PWA')
+      logger.log('App not installed as PWA')
     }
   }
 
@@ -677,7 +678,7 @@ class SystemIntegrationTest {
     // キャッシュ管理のテスト
     if ('caches' in window) {
       const cacheNames = await caches.keys()
-      console.log(`Active caches: ${cacheNames.length}`)
+      logger.log(`Active caches: ${cacheNames.length}`)
     }
   }
 
@@ -685,7 +686,7 @@ class SystemIntegrationTest {
     // タッチイベントのテスト
     const touchSupported = 'ontouchstart' in window
     if (!touchSupported) {
-      console.log('Touch events not supported')
+      logger.log('Touch events not supported')
     }
   }
 
@@ -698,7 +699,7 @@ class SystemIntegrationTest {
     }
     
     if (viewport.width < 320) {
-      console.warn('Very small screen detected')
+      logger.warn('Very small screen detected')
     }
   }
 
@@ -711,7 +712,7 @@ class SystemIntegrationTest {
     }
     
     if (!audioSupport.speechSynthesis) {
-      console.warn('Speech synthesis not supported')
+      logger.warn('Speech synthesis not supported')
     }
   }
 
@@ -731,7 +732,7 @@ class SystemIntegrationTest {
       .map(([feature]) => feature)
     
     if (missingFeatures.length > 0) {
-      console.warn(`Missing browser features: ${missingFeatures.join(', ')}`)
+      logger.warn(`Missing browser features: ${missingFeatures.join(', ')}`)
     }
   }
 
@@ -809,7 +810,7 @@ class SystemIntegrationTest {
       recommendations: this.generateRecommendations()
     }
     
-    console.log('📊 Test Report Generated:', report)
+    logger.log('📊 Test Report Generated:', report)
     return report
   }
 

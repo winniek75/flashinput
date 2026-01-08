@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 /**
  * MovWISE Performance Optimization System
  * パフォーマンス最適化とモニタリング
@@ -26,7 +28,7 @@ class PerformanceOptimizer {
     this.isMonitoring = false
     this.performanceObserver = null
     
-    console.log('⚡ PerformanceOptimizer initialized')
+    logger.log('⚡ PerformanceOptimizer initialized')
   }
 
   /**
@@ -34,11 +36,11 @@ class PerformanceOptimizer {
    */
   startMonitoring() {
     if (this.isMonitoring) {
-      console.warn('Performance monitoring already active')
+      logger.warn('Performance monitoring already active')
       return
     }
 
-    console.log('🔍 Starting performance monitoring...')
+    logger.log('🔍 Starting performance monitoring...')
     this.isMonitoring = true
 
     // Core Web Vitals の監視
@@ -71,7 +73,7 @@ class PerformanceOptimizer {
       this.performanceObserver = null
     }
     
-    console.log('⏹️ Performance monitoring stopped')
+    logger.log('⏹️ Performance monitoring stopped')
   }
 
   /**
@@ -105,7 +107,7 @@ class PerformanceOptimizer {
         
         if (fcpEntry) {
           this.metrics.fcp = fcpEntry.startTime
-          console.log(`🎨 FCP: ${fcpEntry.startTime.toFixed(2)}ms`)
+          logger.log(`🎨 FCP: ${fcpEntry.startTime.toFixed(2)}ms`)
           
           if (fcpEntry.startTime > 1800) {
             this.addOptimization('FCP', 'critical', 'FCPが遅すぎます。画像の最適化やリソースの優先度設定を検討してください。')
@@ -115,7 +117,7 @@ class PerformanceOptimizer {
       
       observer.observe({ entryTypes: ['paint'] })
     } catch (error) {
-      console.warn('FCP monitoring not supported:', error)
+      logger.warn('FCP monitoring not supported:', error)
     }
   }
 
@@ -130,7 +132,7 @@ class PerformanceOptimizer {
         
         if (lastEntry) {
           this.metrics.lcp = lastEntry.startTime
-          console.log(`🖼️ LCP: ${lastEntry.startTime.toFixed(2)}ms`)
+          logger.log(`🖼️ LCP: ${lastEntry.startTime.toFixed(2)}ms`)
           
           if (lastEntry.startTime > 2500) {
             this.addOptimization('LCP', 'high', 'LCPが遅いです。大きな画像やコンテンツの最適化が必要です。')
@@ -140,7 +142,7 @@ class PerformanceOptimizer {
       
       observer.observe({ entryTypes: ['largest-contentful-paint'] })
     } catch (error) {
-      console.warn('LCP monitoring not supported:', error)
+      logger.warn('LCP monitoring not supported:', error)
     }
   }
 
@@ -159,7 +161,7 @@ class PerformanceOptimizer {
         }
         
         this.metrics.cls = clsValue
-        console.log(`📐 CLS: ${clsValue.toFixed(4)}`)
+        logger.log(`📐 CLS: ${clsValue.toFixed(4)}`)
         
         if (clsValue > 0.1) {
           this.addOptimization('CLS', 'medium', 'レイアウトシフトが多すぎます。画像のサイズ指定やフォントの最適化を検討してください。')
@@ -168,7 +170,7 @@ class PerformanceOptimizer {
       
       observer.observe({ entryTypes: ['layout-shift'] })
     } catch (error) {
-      console.warn('CLS monitoring not supported:', error)
+      logger.warn('CLS monitoring not supported:', error)
     }
   }
 
@@ -180,7 +182,7 @@ class PerformanceOptimizer {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           this.metrics.fid = entry.processingStart - entry.startTime
-          console.log(`👆 FID: ${this.metrics.fid.toFixed(2)}ms`)
+          logger.log(`👆 FID: ${this.metrics.fid.toFixed(2)}ms`)
           
           if (this.metrics.fid > 100) {
             this.addOptimization('FID', 'high', 'First Input Delayが長すぎます。JavaScriptの最適化が必要です。')
@@ -190,7 +192,7 @@ class PerformanceOptimizer {
       
       observer.observe({ entryTypes: ['first-input'] })
     } catch (error) {
-      console.warn('FID monitoring not supported:', error)
+      logger.warn('FID monitoring not supported:', error)
     }
   }
 
@@ -204,7 +206,7 @@ class PerformanceOptimizer {
     
     if (domInteractive) {
       this.metrics.tti = domInteractive - startTime
-      console.log(`⚡ TTI (estimated): ${this.metrics.tti}ms`)
+      logger.log(`⚡ TTI (estimated): ${this.metrics.tti}ms`)
       
       if (this.metrics.tti > 3800) {
         this.addOptimization('TTI', 'critical', 'Time to Interactiveが遅すぎます。JavaScript の分割読み込みを検討してください。')
@@ -217,7 +219,7 @@ class PerformanceOptimizer {
    */
   monitorMemoryUsage() {
     if (!performance.memory) {
-      console.warn('Memory monitoring not supported')
+      logger.warn('Memory monitoring not supported')
       return
     }
 
@@ -292,7 +294,7 @@ class PerformanceOptimizer {
         
         setTimeout(measureLatency, 30000) // 30秒ごと
       } catch (error) {
-        console.warn('Network latency measurement failed:', error)
+        logger.warn('Network latency measurement failed:', error)
       }
     }
 
@@ -311,15 +313,15 @@ class PerformanceOptimizer {
         this.metrics.transferSize = navigationEntry.transferSize / 1024 // KB
         this.metrics.encodedBodySize = navigationEntry.encodedBodySize / 1024 // KB
         
-        console.log(`📦 Transfer Size: ${this.metrics.transferSize.toFixed(1)}KB`)
-        console.log(`📦 Encoded Size: ${this.metrics.encodedBodySize.toFixed(1)}KB`)
+        logger.log(`📦 Transfer Size: ${this.metrics.transferSize.toFixed(1)}KB`)
+        logger.log(`📦 Encoded Size: ${this.metrics.encodedBodySize.toFixed(1)}KB`)
         
         if (this.metrics.transferSize > 1000) { // 1MB
           this.addOptimization('Bundle', 'high', 'バンドルサイズが大きすぎます。コード分割や圧縮の最適化を検討してください。')
         }
       }
     } catch (error) {
-      console.warn('Bundle size analysis failed:', error)
+      logger.warn('Bundle size analysis failed:', error)
     }
   }
 
@@ -331,7 +333,7 @@ class PerformanceOptimizer {
       this.performanceObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === 'measure') {
-            console.log(`📏 Custom measure: ${entry.name} - ${entry.duration.toFixed(2)}ms`)
+            logger.log(`📏 Custom measure: ${entry.name} - ${entry.duration.toFixed(2)}ms`)
           } else if (entry.entryType === 'navigation') {
             this.analyzeNavigationTiming(entry)
           } else if (entry.entryType === 'resource') {
@@ -344,7 +346,7 @@ class PerformanceOptimizer {
         entryTypes: ['measure', 'navigation', 'resource'] 
       })
     } catch (error) {
-      console.warn('PerformanceObserver setup failed:', error)
+      logger.warn('PerformanceObserver setup failed:', error)
     }
   }
 
@@ -360,7 +362,7 @@ class PerformanceOptimizer {
       resourceLoad: entry.loadEventStart - entry.domContentLoadedEventEnd
     }
     
-    console.log('🔍 Navigation Timing Analysis:', metrics)
+    logger.log('🔍 Navigation Timing Analysis:', metrics)
     
     if (metrics.serverResponse > 500) {
       this.addOptimization('Server', 'high', 'サーバーレスポンス時間が遅いです。バックエンドの最適化が必要です。')
@@ -390,7 +392,7 @@ class PerformanceOptimizer {
    * 最適化の実行
    */
   async applyOptimizations() {
-    console.log('🔧 Applying performance optimizations...')
+    logger.log('🔧 Applying performance optimizations...')
     
     // 画像の遅延読み込み
     this.implementLazyLoading()
@@ -407,7 +409,7 @@ class PerformanceOptimizer {
     // イベントリスナーの最適化
     this.optimizeEventListeners()
     
-    console.log('✅ Performance optimizations applied')
+    logger.log('✅ Performance optimizations applied')
   }
 
   /**
@@ -430,7 +432,7 @@ class PerformanceOptimizer {
       
       images.forEach(img => imageObserver.observe(img))
       
-      console.log(`🖼️ Lazy loading enabled for ${images.length} images`)
+      logger.log(`🖼️ Lazy loading enabled for ${images.length} images`)
     }
   }
 
@@ -586,7 +588,7 @@ class PerformanceOptimizer {
     
     if (!exists) {
       this.optimizations.push(optimization)
-      console.log(`💡 Optimization suggestion [${priority}]: ${message}`)
+      logger.log(`💡 Optimization suggestion [${priority}]: ${message}`)
     }
   }
 
@@ -603,7 +605,7 @@ class PerformanceOptimizer {
       score: this.calculatePerformanceScore()
     }
     
-    console.log('📊 Performance Report:', report)
+    logger.log('📊 Performance Report:', report)
     return report
   }
 
@@ -680,7 +682,7 @@ class PerformanceOptimizer {
    * プロダクション最適化の適用
    */
   applyProductionOptimizations() {
-    console.log('🚀 Applying production optimizations...')
+    logger.log('🚀 Applying production optimizations...')
     
     // サービスワーカーの登録
     this.registerServiceWorker()
@@ -694,7 +696,7 @@ class PerformanceOptimizer {
     // CDNの設定
     this.configureCDN()
     
-    console.log('✅ Production optimizations applied')
+    logger.log('✅ Production optimizations applied')
   }
 
   /**
@@ -704,9 +706,9 @@ class PerformanceOptimizer {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js')
-        console.log('📱 Service Worker registered:', registration.scope)
+        logger.log('📱 Service Worker registered:', registration.scope)
       } catch (error) {
-        console.error('Service Worker registration failed:', error)
+        logger.error('Service Worker registration failed:', error)
       }
     }
   }
@@ -721,7 +723,7 @@ class PerformanceOptimizer {
     // Network-first strategy for API calls
     const apiEndpoints = ['/api']
     
-    console.log('💾 Caching strategy implemented')
+    logger.log('💾 Caching strategy implemented')
   }
 
   /**
@@ -729,7 +731,7 @@ class PerformanceOptimizer {
    */
   enableCompression() {
     // Gzip/Brotli compression settings
-    console.log('🗜️ Compression enabled')
+    logger.log('🗜️ Compression enabled')
   }
 
   /**
@@ -737,7 +739,7 @@ class PerformanceOptimizer {
    */
   configureCDN() {
     // CDN configuration for static assets
-    console.log('🌐 CDN configured')
+    logger.log('🌐 CDN configured')
   }
 }
 

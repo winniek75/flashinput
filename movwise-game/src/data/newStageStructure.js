@@ -6,14 +6,14 @@ export const newStageStructure = {
     stage1: {
       id: 'soundFoundation',
       name: '🎵 サウンド・ファウンデーション',
-      description: '純粋な音認識からスタート。英語の44音素をマスターしよう！',
+      description: '純粋な音認識からスタート。英語の42音素をマスターしよう！',
       learningFocus: 'Stage 1: 音の基礎 → 音素認識能力を身につける',
       unlocked: true,
       games: [
         {
           id: 'pureSoundLab',
           name: 'ピュア・サウンド・ラボ',
-          description: '文字を見ずに音だけで44音素を段階的に学習',
+          description: '文字を見ずに音だけで42音素を段階的に学習',
           icon: '🔬',
           difficulty: 1,
           routeName: 'pure-sound-lab'

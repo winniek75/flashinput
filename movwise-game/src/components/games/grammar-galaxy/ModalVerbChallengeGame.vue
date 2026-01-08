@@ -13,7 +13,15 @@
         <div class="flex items-center justify-between mb-8">
           <div class="flex items-center gap-4">
             <button 
-              @click="$router.push('/grammar-galaxy-hub')" 
+              @click="$router.push('/')" 
+              class="flex items-center gap-2 px-4 py-2 bg-blue-800/50 hover:bg-blue-700/70 rounded-xl transition-all border border-blue-600/50"
+              title="ホーム画面に戻る"
+            >
+              <span class="text-xl">🏠</span>
+              <span class="text-sm text-slate-300">ホーム</span>
+            </button>
+            <button 
+              @click="$router.push('//platforms/grammar-galaxy')" 
               class="flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-700/70 rounded-xl transition-all border border-slate-600/50"
             >
               <span class="text-xl">🌌</span>
@@ -269,6 +277,8 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold galaxy-text-primary">バトル状況</h3>
             <div class="flex items-center gap-4">
+              <div class="text-sm text-slate-300">回答: {{ totalAttempts }}問</div>
+              <div class="text-sm text-slate-300">正解: {{ correctAnswers }}問</div>
               <div class="text-lg font-bold">⏰ {{ timeRemaining }}秒</div>
               <div class="text-lg font-bold">{{ currentRound }}/{{ totalRounds }}</div>
             </div>
@@ -299,10 +309,7 @@
 
             <!-- Challenge Display -->
             <div class="challenge-display mb-8">
-              <div class="challenge-header">
-                <div class="modal-type-badge" :class="currentChallenge?.modalType">
-                  {{ getModalTypeName(currentChallenge?.modalType) }}
-                </div>
+              <div class="challenge-header justify-end">
                 <div class="challenge-number">問題 {{ currentRound }}/{{ totalRounds }}</div>
               </div>
               
@@ -326,7 +333,7 @@
               <h3 class="options-title">⚔️ 正しい助動詞で敵を攻撃！</h3>
               <div class="modal-options-grid">
                 <div 
-                  v-for="(option, index) in currentChallenge?.options" 
+                  v-for="(option, optionIndex) in currentChallenge?.options" 
                   :key="option.id"
                   class="modal-option-enhanced"
                   :class="{ 
@@ -338,7 +345,7 @@
                   @click="!showResult && selectAnswer(option)"
                 >
                   <div class="option-header">
-                    <div class="option-label">{{ String.fromCharCode(65 + index) }}</div>
+                    <div class="option-label">{{ String.fromCharCode(65 + optionIndex) }}</div>
                     <div class="option-modal">{{ option.modal }}</div>
                   </div>
                   
@@ -394,7 +401,21 @@
       </div>
     </main>
 
-    <!-- Results Screen -->
+    <!-- VR Academy Unified Results Screen -->
+    <UnifiedResultScreen 
+      v-if="gameState === 'vrResults' && gameResult"
+      :game-result="gameResult"
+      @back-to-hub="handleBackToHub"
+      @retry-game="handleRetryGame"
+    />
+    
+    <!-- VR Scenario Suggestion -->
+    <VRScenarioSuggestion 
+      v-if="gameState === 'vrResults' && gameResult"
+      :game-result="gameResult"
+    />
+
+    <!-- Legacy Results Screen (fallback) -->
     <main class="relative z-10 px-6 pb-32" v-if="gameState === 'results'">
       <div class="max-w-4xl mx-auto">
         
@@ -451,7 +472,7 @@
           <button @click="restartGame" class="galaxy-button galaxy-button-secondary">
             🔄 もう一度
           </button>
-          <button @click="$router.push('/grammar-galaxy-hub')" class="galaxy-button galaxy-button-primary">
+          <button @click="$router.push('//platforms/grammar-galaxy')" class="galaxy-button galaxy-button-primary">
             🌌 文法銀河へ戻る
           </button>
         </div>
@@ -467,24 +488,60 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import logger from '@/utils/logger'
+
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import CommonFooter from '@/components/CommonFooter.vue'
 import { modalVerbProblems } from '@/data/modalVerbProblems.js'
+import { VRDataSyncAPI } from '@/api/vrDataSync'
+import { usePlayerProfileStore } from '@/stores/playerProfile'
+import UnifiedResultScreen from '@/components/game/UnifiedResultScreen.vue'
+import VRScenarioSuggestion from '@/components/vr/VRScenarioSuggestion.vue'
 
 export default {
   name: 'ModalVerbChallengeGame',
   components: {
-    CommonFooter
+    CommonFooter,
+    UnifiedResultScreen,
+    VRScenarioSuggestion
   },
   setup() {
     const router = useRouter()
+    const playerProfileStore = usePlayerProfileStore()
+    const vrDataSync = new VRDataSyncAPI()
+    
+    // === VR Academy Integration ===
+    const gameStartTime = ref(null)
+    const gameResult = ref(null)
+    const skillsTracked = reactive({
+      'grammar.modal_verbs': {
+        practiceTime: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        averageResponseTime: 0,
+        difficultyProgression: []
+      },
+      'grammar.possibility_probability': {
+        practiceTime: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        averageResponseTime: 0,
+        difficultyProgression: []
+      },
+      'grammar.obligation_permission': {
+        practiceTime: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        averageResponseTime: 0
+      }
+    })
 
     // Game state
-    const gameState = ref('introduction') // introduction, gameSelection, playing, results
+    const gameState = ref('introduction') // introduction, gameSelection, playing, vrResults, results
     const selectedDifficulty = ref('beginner')
     const selectedMode = ref('classic')
-    const currentRound = ref(0)
+    const currentRound = ref(1)
     const totalRounds = ref(10)
     const timeRemaining = ref(30)
     const gameTimer = ref(null)
@@ -618,7 +675,7 @@ export default {
       sessionProblems.value = doubleShuffled
       problemIndex.value = 0
       
-      console.log(`Initialized ${sessionProblems.value.length} problems for ${difficultyLevel} level`)
+      logger.log(`Initialized ${sessionProblems.value.length} problems for ${difficultyLevel} level`)
     }
 
     // Computed properties
@@ -644,8 +701,16 @@ export default {
     const selectDifficulty = (difficulty) => {
       selectedDifficulty.value = difficulty
       gameState.value = 'playing'
+      gameStartTime.value = Date.now()
+      
+      // Initialize practice time tracking
+      Object.keys(skillsTracked).forEach(skill => {
+        skillsTracked[skill].practiceTime = 0
+      })
+      
       correctAnswers.value = 0
       totalAttempts.value = 0
+      currentRound.value = 1
       comboCount.value = 0
       maxCombo.value = 0
       totalScore.value = 0
@@ -669,7 +734,11 @@ export default {
         sessionProblems.value = shuffleArray(sessionProblems.value)
       }
       
-      currentChallenge.value = sessionProblems.value[problemIndex.value]
+      const challenge = { ...sessionProblems.value[problemIndex.value] }
+      // Shuffle the options to randomize the correct answer position
+      challenge.options = shuffleArray([...challenge.options])
+      
+      currentChallenge.value = challenge
       problemIndex.value++
       questionStartTime.value = Date.now()
     }
@@ -688,7 +757,12 @@ export default {
       responseTimes.value.push(responseTime)
       totalAttempts.value++
       
+      // Track VR Academy skills
+      const answerResponseTime = responseTime
       if (selectedAnswer.value.isCorrect) {
+        skillsTracked['grammar.modal_verbs'].correctAnswers++
+        skillsTracked['grammar.possibility_probability'].correctAnswers++
+        skillsTracked['grammar.obligation_permission'].correctAnswers++
         correctAnswers.value++
         comboCount.value++
         if (comboCount.value > maxCombo.value) {
@@ -701,9 +775,20 @@ export default {
         currentDamage.value = damage
         lastAnswerCorrect.value = true
       } else {
+        skillsTracked['grammar.modal_verbs'].incorrectAnswers++
+        skillsTracked['grammar.possibility_probability'].incorrectAnswers++
+        skillsTracked['grammar.obligation_permission'].incorrectAnswers++
         comboCount.value = 0
         lastAnswerCorrect.value = false
       }
+      
+      // Track response time
+      const skills = ['grammar.modal_verbs', 'grammar.possibility_probability', 'grammar.obligation_permission']
+      skills.forEach(skill => {
+        const totalResponses = skillsTracked[skill].correctAnswers + skillsTracked[skill].incorrectAnswers
+        skillsTracked[skill].averageResponseTime = 
+          (skillsTracked[skill].averageResponseTime * (totalResponses - 1) + answerResponseTime) / totalResponses
+      })
       
       showResult.value = true
       
@@ -722,12 +807,77 @@ export default {
       showResult.value = false
       lastAnswerCorrect.value = false
       currentDamage.value = 0
+      currentRound.value++
       generateChallenge()
     }
 
 
     const nextRound = () => {
-      gameState.value = 'results'
+      gameState.value = 'vrResults'
+      
+      // Calculate total practice time
+      const totalPracticeTime = Date.now() - gameStartTime.value
+      Object.keys(skillsTracked).forEach(skill => {
+        skillsTracked[skill].practiceTime = totalPracticeTime
+      })
+      
+      // Handle game completion with VR Academy integration
+      handleGameCompletion()
+    }
+
+    const handleGameCompletion = async () => {
+      try {
+        const finalScore = Math.floor((correctAnswers.value / totalAttempts.value) * 1000) + (maxCombo.value * 100)
+        const accuracy = totalAttempts.value > 0 ? (correctAnswers.value / totalAttempts.value) : 0
+        const crystalReward = Math.floor(finalScore / 20)
+        
+        // Build VR Academy game result
+        const result = {
+          gameId: 'modal-verb-challenge',
+          gameName: 'Modal Verb Challenge',
+          score: finalScore,
+          accuracy,
+          duration: gameStartTime.value ? Date.now() - gameStartTime.value : 0,
+          questionsAnswered: totalAttempts.value,
+          correctAnswers: correctAnswers.value,
+          skills: skillsTracked,
+          crystalReward,
+          vrReadinessGain: Math.floor(accuracy * 35),
+          achievements: earnedAchievements.value
+        }
+        
+        // Add crystals to player profile
+        playerProfileStore.addCrystals(crystalReward)
+        
+        // Sync with VR Academy
+        const syncSuccess = await vrDataSync.syncGameResult(result)
+        if (syncSuccess) {
+          logger.log('✅ Modal Verb Challenge game result synced with VR Academy')
+        }
+        
+        // Store result for unified result screen
+        gameResult.value = result
+        
+      } catch (error) {
+        logger.error('❌ Error in handleGameCompletion:', error)
+      }
+    }
+    
+    const handleBackToHub = () => {
+      router.push({ name: 'grammar-core-planet' })
+    }
+    
+    const handleRetryGame = () => {
+      gameState.value = 'introduction'
+      gameResult.value = null
+      enemyHP.value = 100
+      selectedAnswer.value = null
+      showResult.value = false
+      currentChallenge.value = null
+      correctAnswers.value = 0
+      totalAttempts.value = 0
+      currentRound.value = 1
+      comboCount.value = 0
     }
 
     const restartGame = () => {
@@ -736,6 +886,10 @@ export default {
       selectedAnswer.value = null
       showResult.value = false
       currentChallenge.value = null
+      correctAnswers.value = 0
+      totalAttempts.value = 0
+      currentRound.value = 1
+      comboCount.value = 0
     }
 
     const startTimer = () => {
@@ -748,7 +902,7 @@ export default {
           router.push('/sound-adventure')
           break
         case 'grammar':
-          router.push('/grammar-galaxy-hub')
+          router.push('//platforms/grammar-galaxy')
           break
         case 'multi-layer':
           router.push('/multi-layer')
@@ -760,7 +914,7 @@ export default {
           router.push('/vr-academy')
           break
         default:
-          console.warn('Unknown navigation section:', section)
+          logger.warn('Unknown navigation section:', section)
       }
     }
 
@@ -881,7 +1035,11 @@ export default {
       restartGame,
       handleFooterNavigation,
       highlightModalPart,
-      getModalTypeName
+      getModalTypeName,
+      handleGameCompletion,
+      handleBackToHub,
+      handleRetryGame,
+      gameResult
     }
   }
 }

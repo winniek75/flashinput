@@ -4,6 +4,7 @@
  */
 
 import QRCode from 'qrcode'
+import logger from '@/utils/logger'
 
 export interface VRSession {
   sessionId: string
@@ -388,7 +389,7 @@ export class VRIntegrationService {
     const session = this.vrSessions.get(sessionId)
     if (session) {
       // セッション結果をAI Learning Engineに送信
-      console.log('VR Session completed:', { sessionId, results })
+      logger.log('VR Session completed:', { sessionId, results })
       // 実際の実装では aiEngine.recordPerformance() を呼び出し
     }
   }
@@ -409,7 +410,7 @@ export class VRIntegrationService {
       const response = await fetch('https://spatial.io/api/health', { method: 'HEAD' })
       return response.ok
     } catch (error) {
-      console.error('Spatial.io connection test failed:', error)
+      logger.error('Spatial.io connection test failed:', error)
       return false
     }
   }
@@ -813,7 +814,7 @@ export class VRIntegrationService {
         expiresAt
       }
     } catch (error) {
-      console.error('QR code generation failed:', error)
+      logger.error('QR code generation failed:', error)
       throw new Error(`QRコード生成に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
@@ -867,7 +868,7 @@ export class VRIntegrationService {
       
       return session
     } catch (error) {
-      console.error('VR session start failed:', error)
+      logger.error('VR session start failed:', error)
       return null
     }
   }

@@ -178,6 +178,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { 
   Volume2Icon, Loader2Icon, PlayIcon, ChevronLeftIcon, ChevronRightIcon,
@@ -242,7 +244,7 @@ const playCurrentPhoneme = async () => {
     await playNativePhoneme(currentPhoneme.value.symbol)
     recordPractice()
   } catch (error) {
-    console.warn('Phoneme playback error:', error)
+    logger.warn('Phoneme playback error:', error)
   } finally {
     isPlaying.value = false
   }
@@ -262,7 +264,7 @@ const playExampleWord = async (word = null) => {
       difficulty: 'normal'
     })
   } catch (error) {
-    console.warn('Example word playback error:', error)
+    logger.warn('Example word playback error:', error)
   } finally {
     isPlaying.value = false
   }
@@ -275,7 +277,7 @@ const playPracticePhrase = async (phrase) => {
   try {
     await speakNativeSentence(phrase)
   } catch (error) {
-    console.warn('Practice phrase playback error:', error)
+    logger.warn('Practice phrase playback error:', error)
   } finally {
     isPlaying.value = false
   }
@@ -363,7 +365,7 @@ onMounted(() => {
       const scores = JSON.parse(saved)
       masteryScores.value = new Map(Object.entries(scores))
     } catch (error) {
-      console.warn('Failed to load mastery scores:', error)
+      logger.warn('Failed to load mastery scores:', error)
     }
   }
 })

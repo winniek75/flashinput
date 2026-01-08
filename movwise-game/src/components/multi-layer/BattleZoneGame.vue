@@ -529,6 +529,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { multiLayerEngine } from '@/services/multiLayerEngine'
 import { useGrammarMasteryStore } from '@/stores/grammarMasteryStore'
@@ -763,7 +765,7 @@ export default {
         loadNextQuestion()
         
       } catch (error) {
-        console.error('Failed to start Battle Zone session:', error)
+        logger.error('Failed to start Battle Zone session:', error)
       }
     }
     
@@ -1069,12 +1071,12 @@ export default {
     const returnToHub = () => {
       resetBattle()
       // Navigate to grammar hub
-      console.log('Navigate to grammar hub')
+      logger.log('Navigate to grammar hub')
     }
     
     const inviteFriends = () => {
       // Open friend invitation interface
-      console.log('Open friend invitation')
+      logger.log('Open friend invitation')
     }
     
     const joinBattle = () => {
@@ -1114,7 +1116,7 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      console.log('Battle Zone Game mounted')
+      logger.log('Battle Zone Game mounted')
       initializeMockData()
     })
     

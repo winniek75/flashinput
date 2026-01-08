@@ -484,9 +484,9 @@
         <!-- Current Text Display (3D Style) -->
         <div class="typing-display mb-8">
           <div class="text-display-3d p-6 rounded-2xl mb-4">
-            <div class="text-2xl font-mono leading-relaxed tracking-wide">
-              <span 
-                v-for="(char, index) in currentText" 
+            <div class="text-3xl font-mono leading-relaxed">
+              <span
+                v-for="(char, index) in currentText"
                 :key="index"
                 class="char-display transition-all duration-150"
                 :class="{
@@ -494,9 +494,10 @@
                   'text-red-400 bg-red-500/20 animate-pulse': index < userInput.length && userInput[index] !== char,
                   'text-gray-300': index >= userInput.length && index !== userInput.length,
                   'text-white bg-blue-500/30 animate-pulse': index === userInput.length,
-                  'shadow-lg': index === userInput.length
+                  'shadow-lg': index === userInput.length,
+                  'ml-2': char === ' '
                 }"
-              >{{ char }}</span>
+              >{{ char === ' ' ? '\u00A0' : char }}</span>
             </div>
           </div>
           
@@ -587,15 +588,71 @@
                   :key="key"
                   class="keyboard-key"
                   :class="{
-                    'key-active': activeKeys.includes(key.toLowerCase()),
-                    'key-correct': lastTypedChar === key.toLowerCase() && isLastCharCorrect,
-                    'key-incorrect': lastTypedChar === key.toLowerCase() && !isLastCharCorrect,
-                    'key-hint': petHintChar === key.toLowerCase()
+                    'key-active': isKeyActive(key),
+                    'key-correct': isKeyCorrect(key),
+                    'key-incorrect': isKeyIncorrect(key),
+                    'key-hint': isKeyHinted(key),
+                    'key-required': isKeyRequired(key),
+                    'key-shift': key === 'SHIFT',
+                    'key-backspace': key === '⌫',
+                    'key-wide': key === 'SHIFT' || key === '⌫'
                   }"
                   @click="virtualKeyPress(key)"
                 >
-                  {{ key }}
+                  <span v-if="key === 'SHIFT'">⇧ Shift</span>
+                  <span v-else-if="key === '⌫'">⌫</span>
+                  <span v-else>{{ key }}</span>
                 </button>
+              </div>
+
+              <!-- Special keys row -->
+              <div class="flex justify-center gap-1 mt-3">
+                <button
+                  v-for="key in specialKeysRow"
+                  :key="key"
+                  class="keyboard-key"
+                  :class="{
+                    'key-active': isKeyActive(key),
+                    'key-correct': isKeyCorrect(key),
+                    'key-incorrect': isKeyIncorrect(key),
+                    'key-hint': isKeyHinted(key),
+                    'key-required': isKeyRequired(key),
+                    'key-space': key === 'SPACE'
+                  }"
+                  @click="virtualKeyPress(key)"
+                >
+                  <span v-if="key === 'SPACE'">🚀 スペースキー（空白）</span>
+                  <span v-else>{{ key }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Helper text -->
+            <div v-if="getCurrentCharRequirement" class="mt-4 text-center">
+              <div class="helper-text p-3 rounded-xl"
+                   :class="isLastCharCorrect === false ? 'bg-red-500/20 border border-red-400/50 animate-shake' : 'bg-blue-500/20 border border-blue-400/50'">
+
+                <!-- Error message -->
+                <div v-if="isLastCharCorrect === false" class="text-red-300 font-bold mb-2">
+                  ❌ 間違えました！正しいキーを押してください
+                </div>
+
+                <!-- Normal guidance -->
+                <div v-if="getCurrentCharRequirement.isSpace"
+                     :class="isLastCharCorrect === false ? 'text-red-200' : 'text-blue-300'"
+                     class="font-semibold">
+                  💡 次は「スペースキー」を押してね！
+                </div>
+                <div v-else-if="getCurrentCharRequirement.needsShift"
+                     :class="isLastCharCorrect === false ? 'text-red-200' : 'text-purple-300'"
+                     class="font-semibold">
+                  💡 大文字「{{ getCurrentCharRequirement.char }}」：Shiftキーを押しながら「{{ getCurrentCharRequirement.char.toLowerCase() }}」キーを押してね！
+                </div>
+                <div v-else
+                     :class="isLastCharCorrect === false ? 'text-red-200' : 'text-green-300'"
+                     class="font-semibold">
+                  💡 次は「{{ getCurrentCharRequirement.char }}」キーを押してね！
+                </div>
               </div>
             </div>
           </div>
@@ -741,15 +798,23 @@
         </div>
       </div>
     </div>
+
+    <!-- CommonFooter -->
+    <CommonFooter :active="'arena'" @navigate="handleNavigate" />
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import CommonFooter from '@/components/CommonFooter.vue'
+import { initializeUnifiedGame, completeUnifiedGame } from '@/utils/gameIntegration'
 
 export default {
   name: 'TypingArena',
+  components: {
+    CommonFooter
+  },
   setup() {
     const router = useRouter()
 
@@ -1270,12 +1335,28 @@ export default {
       }
     }
 
-    // Keyboard layout
+    // Enhanced keyboard layout with special keys
     const keyboardLayout = [
       ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
       ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-      ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+      ['SHIFT', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫']
     ]
+
+    // Special keys row
+    const specialKeysRow = ['SPACE']
+
+    // Get current character requirement
+    const getCurrentCharRequirement = computed(() => {
+      const currentChar = currentText.value[userInput.value.length]
+      if (!currentChar) return null
+
+      return {
+        char: currentChar,
+        isSpace: currentChar === ' ',
+        isUpperCase: currentChar === currentChar.toUpperCase() && currentChar.toLowerCase() !== currentChar.toUpperCase(),
+        needsShift: currentChar === currentChar.toUpperCase() && currentChar.toLowerCase() !== currentChar.toUpperCase()
+      }
+    })
 
     // Current content
     const currentTexts = ref([])
@@ -1324,11 +1405,10 @@ export default {
       gameState.value = 'typing'
       inGame.value = true
       
-      // Initialize story content based on current chapter
+      // Initialize story content based on current chapter with enhanced randomization
       const difficulty = ['eiken5', 'eiken4', 'eiken3', 'eikenPre2', 'eiken2'][currentChapter.value - 1]
       const levelContent = contentDatabase[difficulty]
-      currentTexts.value = [...levelContent.words.slice(0, 8), ...levelContent.sentences.slice(0, 4)]
-        .sort(() => Math.random() - 0.5)
+      currentTexts.value = createMixedContent(levelContent, 12)
       
       // Boss battle appears at the end of each chapter
       const isChapterEnd = Math.random() < 0.5 // 50% chance for now, will be based on actual progress
@@ -1345,11 +1425,9 @@ export default {
       gameState.value = 'typing'
       inGame.value = true
       
-      // Mix words and sentences
+      // Create enhanced mixed content with better randomization
       const levelContent = contentDatabase[selectedLevel.value]
-      currentTexts.value = [...levelContent.words, ...levelContent.sentences]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 20)
+      currentTexts.value = createMixedContent(levelContent, 20)
       
       initializeTypingGame()
     }
@@ -1398,7 +1476,62 @@ export default {
       return '#ef4444' // red
     }
 
+    // Enhanced shuffle function for better randomization
+    const shuffleArray = (array) => {
+      const shuffled = [...array]
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      }
+      return shuffled
+    }
+
+    // Mix different types of content for variety
+    const createMixedContent = (levelContent, count = 20) => {
+      const words = levelContent.words || []
+      const sentences = levelContent.sentences || []
+
+      // Create balanced mix of content types
+      const wordCount = Math.min(Math.ceil(count * 0.6), words.length) // 60% words
+      const sentenceCount = Math.min(count - wordCount, sentences.length) // remaining sentences
+
+      const selectedWords = shuffleArray(words).slice(0, wordCount)
+      const selectedSentences = shuffleArray(sentences).slice(0, sentenceCount)
+
+      // Combine and shuffle again for final random order
+      return shuffleArray([...selectedWords, ...selectedSentences])
+    }
+
+    const speakText = (text) => {
+      if ('speechSynthesis' in window) {
+        // Stop any ongoing speech
+        window.speechSynthesis.cancel()
+
+        const utterance = new SpeechSynthesisUtterance(text)
+        utterance.lang = 'en-US'
+        utterance.rate = 0.9
+        utterance.pitch = 1.0
+        utterance.volume = 0.8
+
+        // Try to use a US English voice if available
+        const voices = window.speechSynthesis.getVoices()
+        const usVoice = voices.find(voice =>
+          voice.lang.includes('en-US') &&
+          (voice.name.includes('Microsoft') || voice.name.includes('Google') || voice.name.includes('Alex'))
+        ) || voices.find(voice => voice.lang.includes('en-US'))
+
+        if (usVoice) {
+          utterance.voice = usVoice
+        }
+
+        window.speechSynthesis.speak(utterance)
+      }
+    }
+
     const initializeTypingGame = () => {
+      // 統合プログレッション初期化
+      initializeUnifiedGame('typing-arena')
+
       currentTextIndex.value = 0
       userInput.value = ''
       startTime.value = Date.now()
@@ -1421,82 +1554,137 @@ export default {
         updateWPM()
       }, 1000)
       
-      // Focus input
+      // Focus input and speak first text
       nextTick(() => {
         if (typingInput.value) {
           typingInput.value.focus()
         }
+
+        // Speak the first text after a short delay
+        setTimeout(() => {
+          if (currentText.value) {
+            speakText(currentText.value)
+          }
+        }, 500)
       })
     }
 
     const handleTyping = () => {
       const input = userInput.value
       const target = currentText.value
-      
+
       if (input.length > target.length) {
         userInput.value = input.slice(0, target.length)
         return
       }
-      
-      // Check current character
-      const currentIndex = input.length - 1
-      if (currentIndex >= 0) {
-        const currentChar = input[currentIndex]
-        const targetChar = target[currentIndex]
-        
-        lastTypedChar.value = currentChar.toLowerCase()
-        isLastCharCorrect.value = currentChar === targetChar
-        
-        if (currentChar === targetChar) {
-          correctCharacters.value++
-          streak.value++
-          maxStreak.value = Math.max(maxStreak.value, streak.value)
-        } else {
+
+      // Check each character from start to current position
+      let correctSoFar = true
+      for (let i = 0; i < input.length; i++) {
+        const inputChar = input[i]
+        const targetChar = target[i]
+
+        if (inputChar !== targetChar) {
+          correctSoFar = false
+          // Remove incorrect characters and stop
+          userInput.value = input.slice(0, i)
+
+          // Set feedback for the incorrect attempt
+          lastTypedChar.value = inputChar.toLowerCase()
+          isLastCharCorrect.value = false
+
           errors.value++
           streak.value = 0
+          totalCharacters.value++
+          updateAccuracy()
+
+          // Provide audio and visual feedback
+          playErrorSound()
+          return
         }
-        
+      }
+
+      // If we get here, all characters so far are correct
+      if (input.length > 0) {
+        const lastChar = input[input.length - 1]
+        lastTypedChar.value = lastChar.toLowerCase()
+        isLastCharCorrect.value = true
+
+        correctCharacters.value++
+        streak.value++
+        maxStreak.value = Math.max(maxStreak.value, streak.value)
         totalCharacters.value++
         updateAccuracy()
       }
-      
+
       // Check completion
       if (input === target) {
         completeCurrentText()
       }
     }
 
+    const playErrorSound = () => {
+      // Create a simple error sound using Web Audio API
+      if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+        const audioContext = new (AudioContext || webkitAudioContext)()
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1)
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
+
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.2)
+      }
+    }
+
     const completeCurrentText = () => {
       completedWords.value++
       showTranslation.value = true
-      
+
+      // Speak the completed text for pronunciation practice
+      speakText(currentText.value)
+
       // Deal damage to boss if in boss battle
       if (isBossBattle.value && currentBoss.value) {
         const damage = calculateDamage()
         bossHP.value = Math.max(0, bossHP.value - damage)
-        
+
         if (bossHP.value <= 0) {
           defeatBoss()
           return
         }
       }
-      
+
       // Show translation for 2 seconds
       setTimeout(() => {
         showTranslation.value = false
         currentTextIndex.value++
-        
+
         if (currentTextIndex.value >= currentTexts.value.length) {
           finishGame()
         } else {
           userInput.value = ''
           petHintChar.value = ''
-          
-          // Focus input for next text
+
+          // Focus input for next text and speak it
           nextTick(() => {
             if (typingInput.value) {
               typingInput.value.focus()
             }
+
+            // Speak the next text after a short delay
+            setTimeout(() => {
+              if (currentText.value) {
+                speakText(currentText.value)
+              }
+            }, 300)
           })
         }
       }, 2000)
@@ -1579,8 +1767,55 @@ export default {
       }, 150)
     }
 
+    // Key state helper functions
+    const isKeyActive = (key) => {
+      const requirement = getCurrentCharRequirement.value
+      if (!requirement) return false
+
+      if (key === 'SPACE') return requirement.isSpace
+      if (key === 'SHIFT') return requirement.needsShift
+      return key.toLowerCase() === requirement.char.toLowerCase()
+    }
+
+    const isKeyCorrect = (key) => {
+      if (key === 'SPACE') return lastTypedChar.value === ' ' && isLastCharCorrect.value
+      return lastTypedChar.value === key.toLowerCase() && isLastCharCorrect.value
+    }
+
+    const isKeyIncorrect = (key) => {
+      if (key === 'SPACE') return lastTypedChar.value === ' ' && !isLastCharCorrect.value
+      return lastTypedChar.value === key.toLowerCase() && !isLastCharCorrect.value
+    }
+
+    const isKeyHinted = (key) => {
+      if (key === 'SPACE') return petHintChar.value === ' '
+      return petHintChar.value === key.toLowerCase()
+    }
+
+    const isKeyRequired = (key) => {
+      const requirement = getCurrentCharRequirement.value
+      if (!requirement) return false
+
+      if (key === 'SPACE') return requirement.isSpace
+      if (key === 'SHIFT') return requirement.needsShift
+      return key.toLowerCase() === requirement.char.toLowerCase()
+    }
+
     const virtualKeyPress = (key) => {
-      userInput.value += key.toLowerCase()
+      if (key === 'SPACE') {
+        userInput.value += ' '
+      } else if (key === 'SHIFT') {
+        // Visual feedback only - actual shift handling is done by browser
+        return
+      } else if (key === '⌫') {
+        // Backspace functionality
+        if (userInput.value.length > 0) {
+          userInput.value = userInput.value.slice(0, -1)
+        }
+        return
+      } else {
+        userInput.value += key.toLowerCase()
+      }
       handleTyping()
     }
 
@@ -1600,7 +1835,19 @@ export default {
 
     const finishGame = () => {
       clearInterval(timer.value)
-      
+
+      // 統合プログレッションシステムに結果記録
+      const gameResult = completeUnifiedGame({
+        gameType: 'typing-arena',
+        score: Math.round(wpm.value * (accuracy.value / 100)),
+        accuracy: accuracy.value,
+        timeSpent: elapsedTime.value / 1000,
+        correctAnswers: Math.round((accuracy.value / 100) * currentText.value.length),
+        totalQuestions: currentText.value.length,
+        correctStreak: Math.round(wpm.value / 10), // WPMをストリークとして使用
+        difficulty: gameMode.value === 'story' ? 'normal' : 'easy'
+      }, { showContinuePrompt: true })
+
       if (gameMode.value === 'story') {
         const exp = calculateExperience()
         characterExp.value += exp
@@ -1835,6 +2082,38 @@ export default {
       router.back()
     }
 
+    const handleNavigate = (destination) => {
+      if (timer.value) {
+        clearInterval(timer.value)
+      }
+
+      switch(destination) {
+        case 'sound':
+          router.push('/sound-adventure')
+          break
+        case 'grammar':
+          router.push('/grammar-galaxy')
+          break
+        case 'arena':
+          router.push('/arena-hub')
+          break
+        case 'multi-layer':
+          router.push('/ai-practice-buddy')
+          break
+        case 'vr-academy':
+          router.push('/vr-academy')
+          break
+        case 'co-pilot':
+          router.push('/co-pilot-dock')
+          break
+        case 'profile':
+          router.push('/profile')
+          break
+        default:
+          router.push('/')
+      }
+    }
+
     // Lifecycle
     onUnmounted(() => {
       if (timer.value) {
@@ -1916,6 +2195,13 @@ export default {
       levelDescriptions,
       storyChapters,
       keyboardLayout,
+      specialKeysRow,
+      getCurrentCharRequirement,
+      isKeyActive,
+      isKeyCorrect,
+      isKeyIncorrect,
+      isKeyHinted,
+      isKeyRequired,
       currentTexts,
       currentText,
       currentTranslation,
@@ -1947,6 +2233,7 @@ export default {
       changeLevelAndRestart,
       continueStory,
       handleBack,
+      handleNavigate,
       interactWithPet,
       usePetHint,
       getPetStatus,
@@ -2165,10 +2452,21 @@ export default {
 
 .char-display {
   display: inline-block;
-  padding: 2px 4px;
+  padding: 4px 2px;
+  margin: 0 1px;
   border-radius: 4px;
-  font-weight: bold;
+  font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.5px;
+  min-width: 0.8em;
+  text-align: center;
+}
+
+.char-display.ml-2 {
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+  min-width: 0.3em;
+  background: transparent !important;
 }
 
 /* 3D Virtual Keyboard */
@@ -2226,6 +2524,70 @@ export default {
   background: linear-gradient(145deg, #3b82f6, #2563eb);
   border-color: rgba(59, 130, 246, 0.8);
   animation: pulse-hint 1s ease-in-out infinite;
+}
+
+.keyboard-key.key-wide {
+  min-width: 80px;
+}
+
+.keyboard-key.key-space {
+  min-width: 200px;
+  background: linear-gradient(145deg, #1e40af, #1d4ed8);
+  border-color: rgba(59, 130, 246, 0.7);
+}
+
+.keyboard-key.key-shift {
+  background: linear-gradient(145deg, #7c3aed, #8b5cf6);
+  border-color: rgba(139, 92, 246, 0.7);
+}
+
+.keyboard-key.key-backspace {
+  background: linear-gradient(145deg, #dc2626, #ef4444);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.keyboard-key.key-required {
+  background: linear-gradient(145deg, #059669, #10b981);
+  border-color: rgba(16, 185, 129, 0.8);
+  animation: pulse-required 1.5s ease-in-out infinite;
+  box-shadow:
+    0 0 20px rgba(16, 185, 129, 0.6),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+@keyframes pulse-required {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(16, 185, 129, 0.6),
+      0 4px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(16, 185, 129, 0.8),
+      0 6px 12px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+.helper-text {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }
 
 @keyframes pulse-hint {

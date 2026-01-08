@@ -1,9 +1,11 @@
-// Progress Tracking Composable
-// 学習進捗追跡とアチーブメント管理
+// Unified Progress Tracking Composable
+// 統一学習進捗追跡とアチーブメント管理
 
 import { ref, computed, watch } from 'vue'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
 import { grammarLevels, getPlayerLevel, getStarsToNextLevel } from '@/data/grammarLevels'
+import { LEARNING_LEVELS, LEARNING_AREAS } from './useUnifiedGameEngine.js'
+import logger from '@/utils/logger'
 
 export function useProgressTracking() {
   // ストア
@@ -80,12 +82,12 @@ export function useProgressTracking() {
       unlocked: false
     },
     {
-      id: 'constructor_architect',
-      name: '文法建築士',
-      description: 'GrammarConstructorで複合文を100個構築',
-      icon: '🏗️',
+      id: 'station_commander',
+      name: 'ステーション司令官',
+      description: 'Galaxy Grammar Stationで文構造を100個完成',
+      icon: '🛸',
       type: 'accumulation',
-      requirement: { gameId: 'grammarConstructor', constructions: 100 },
+      requirement: { gameId: 'galaxyGrammarStation', constructions: 100 },
       unlocked: false
     },
     {
@@ -171,7 +173,7 @@ export function useProgressTracking() {
   
   // 進捗更新
   const updateGameProgress = (gameId, planetId, result) => {
-    console.log('📊 Updating progress:', { gameId, planetId, result })
+    logger.log('📊 Updating progress:', { gameId, planetId, result })
     
     // ゲーム進捗更新
     if (!gameProgress.value[gameId]) {
@@ -333,7 +335,7 @@ export function useProgressTracking() {
       recentAchievements.value.pop()
     }
     
-    console.log('🏆 Achievement Unlocked:', achievement.name)
+    logger.log('🏆 Achievement Unlocked:', achievement.name)
     
     // 通知表示（実際のUI実装では通知コンポーネントを使用）
     showAchievementNotification(achievement)
@@ -342,7 +344,7 @@ export function useProgressTracking() {
   // アチーブメント通知表示
   const showAchievementNotification = (achievement) => {
     // ここでは単純にconsoleログ。実際の実装では通知UIを表示
-    console.log(`🎉 Achievement Unlocked: ${achievement.icon} ${achievement.name}`)
+    logger.log(`🎉 Achievement Unlocked: ${achievement.icon} ${achievement.name}`)
   }
   
   // 学習統計更新
@@ -371,9 +373,9 @@ export function useProgressTracking() {
       }
       
       localStorage.setItem('grammarGalaxyFoundationProgress', JSON.stringify(progressData))
-      console.log('💾 Progress saved successfully')
+      logger.log('💾 Progress saved successfully')
     } catch (error) {
-      console.error('❌ Failed to save progress:', error)
+      logger.error('❌ Failed to save progress:', error)
     }
   }
   
@@ -397,11 +399,11 @@ export function useProgressTracking() {
           .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
           .slice(0, 3)
         
-        console.log('📁 Progress loaded successfully')
+        logger.log('📁 Progress loaded successfully')
         return true
       }
     } catch (error) {
-      console.error('❌ Failed to load progress:', error)
+      logger.error('❌ Failed to load progress:', error)
     }
     return false
   }
@@ -431,7 +433,7 @@ export function useProgressTracking() {
     })
     
     saveProgress()
-    console.log('🔄 Progress reset successfully')
+    logger.log('🔄 Progress reset successfully')
   }
   
   // 詳細統計取得
@@ -457,6 +459,107 @@ export function useProgressTracking() {
       planets: planetProgress.value,
       learning: learningStats.value
     }
+  }
+
+  // 統一ゲームエンジン用の進捗更新
+  const updateProgress = (progressData) => {
+    const {
+      gameId,
+      learningArea,
+      score,
+      accuracy,
+      timeSpent,
+      completed,
+      starsEarned = calculateStars(accuracy, score),
+      completionTime = timeSpent
+    } = progressData
+
+    const result = {
+      score,
+      accuracy,
+      starsEarned,
+      completionTime,
+      averageReactionTime: timeSpent / (score / 100) // 概算
+    }
+
+    // 既存の進捗更新メソッドを使用
+    updateGameProgress(gameId, learningArea, result)
+  }
+
+  // 星の数を計算
+  const calculateStars = (accuracy, score) => {
+    if (accuracy >= 95 && score >= 1000) return 3
+    if (accuracy >= 80 && score >= 500) return 2
+    if (accuracy >= 60 && score >= 200) return 1
+    return 0
+  }
+
+  // 全体進捗取得（ロードマップ用）
+  const getOverallProgress = () => {
+    return {
+      totalXP: totalStars.value * 100,
+      level: currentPlayerLevel.value,
+      overallProgress: overallProgress.value,
+      areaProgress: {
+        [LEARNING_AREAS.PHONICS]: getAreaProgress(LEARNING_AREAS.PHONICS),
+        [LEARNING_AREAS.GRAMMAR]: getAreaProgress(LEARNING_AREAS.GRAMMAR),
+        [LEARNING_AREAS.VOCABULARY]: getAreaProgress(LEARNING_AREAS.VOCABULARY),
+        [LEARNING_AREAS.PRONUNCIATION]: getAreaProgress(LEARNING_AREAS.PRONUNCIATION),
+        [LEARNING_AREAS.TYPING]: getAreaProgress(LEARNING_AREAS.TYPING),
+        [LEARNING_AREAS.LISTENING]: getAreaProgress(LEARNING_AREAS.LISTENING),
+        [LEARNING_AREAS.INTEGRATED]: getAreaProgress(LEARNING_AREAS.INTEGRATED)
+      }
+    }
+  }
+
+  // 分野別進捗取得
+  const getAreaProgress = (area) => {
+    const areaGames = Object.keys(gameProgress.value).filter(gameId => {
+      // ゲームIDから学習分野を推測（実際の実装では gameConfig を使用）
+      if (area === LEARNING_AREAS.GRAMMAR) return gameId.includes('verb') || gameId.includes('grammar')
+      if (area === LEARNING_AREAS.PHONICS) return gameId.includes('sound') || gameId.includes('phonics')
+      if (area === LEARNING_AREAS.VOCABULARY) return gameId.includes('word') || gameId.includes('vocabulary')
+      if (area === LEARNING_AREAS.TYPING) return gameId.includes('typing')
+      return false
+    })
+
+    const totalGames = areaGames.length || 1
+    const completedGames = areaGames.filter(gameId =>
+      gameProgress.value[gameId]?.completions > 0
+    ).length
+
+    return Math.round((completedGames / totalGames) * 100)
+  }
+
+  // 推奨ゲーム取得
+  const getRecommendedGames = (playerLevel = null, currentArea = null) => {
+    const level = playerLevel || currentPlayerLevel.value
+    const recommendations = []
+
+    // プレイヤーのレベルと弱点に基づいて推奨
+    const weakAreas = Object.entries(getOverallProgress().areaProgress)
+      .filter(([area, progress]) => progress < 70)
+      .sort(([,a], [,b]) => a - b)
+      .slice(0, 2)
+
+    weakAreas.forEach(([area, progress]) => {
+      // 各分野の推奨ゲームを追加
+      if (area === LEARNING_AREAS.PHONICS) {
+        recommendations.push({
+          gameId: 'sound-farm',
+          reason: 'フォニックスの基礎を強化しましょう',
+          priority: 'high'
+        })
+      } else if (area === LEARNING_AREAS.GRAMMAR) {
+        recommendations.push({
+          gameId: 'be-verb-rush',
+          reason: '文法の理解を深めましょう',
+          priority: 'medium'
+        })
+      }
+    })
+
+    return recommendations
   }
   
   return {
@@ -486,6 +589,13 @@ export function useProgressTracking() {
     saveProgress,
     loadProgress,
     resetProgress,
-    getDetailedStats
+    getDetailedStats,
+
+    // Unified Engine Methods
+    updateProgress,
+    getOverallProgress,
+    getAreaProgress,
+    getRecommendedGames,
+    getPlayerLevel: () => currentPlayerLevel.value
   }
 }

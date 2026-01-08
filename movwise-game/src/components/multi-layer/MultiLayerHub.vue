@@ -443,6 +443,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { multiLayerEngine } from '@/services/multiLayerEngine'
@@ -468,12 +470,14 @@ export default {
     const zoneProgress = ref({
       rush: 0,
       construction: 0,
-      battle: 0
+      battle: 0,
+      phrase: 0
     })
     const zonePerformance = ref({
       rush: 0,
       construction: 0,
-      battle: 0
+      battle: 0,
+      phrase: 0
     })
     const topWeaknesses = ref([])
 
@@ -522,6 +526,11 @@ export default {
           name: 'Battle Zone',
           description: '他の学習者と競い合いながら実践的なスキルを磨きます。ゲーム感覚で楽しく学習できます。',
           component: 'BattleZoneGame'
+        },
+        phrase: {
+          name: 'Phrase Galaxy',
+          description: '流れる星と英熟語をマッチング！英検5級〜2級レベルの熟語を宇宙テーマで楽しく学習。',
+          component: 'PhraseGalaxy'
         }
       }
       
@@ -673,16 +682,17 @@ export default {
       // Direct router navigation to the zone games
       const routeMap = {
         rush: '/multi-layer/rush-zone',
-        construction: '/multi-layer/construction-zone', 
-        battle: '/multi-layer/battle-zone'
+        construction: '/multi-layer/construction-zone',
+        battle: '/multi-layer/battle-zone',
+        phrase: '/games/phrase-galaxy'
       }
       
       const targetRoute = routeMap[selectedZone.value]
       if (targetRoute) {
-        console.log('Navigating to:', targetRoute)
+        logger.log('Navigating to:', targetRoute)
         router.push(targetRoute)
       } else {
-        console.error('Unknown zone type:', selectedZone.value)
+        logger.error('Unknown zone type:', selectedZone.value)
       }
       
       closeZoneModal()
@@ -733,16 +743,18 @@ export default {
       const icons = {
         rush: '⚡',
         construction: '🏗️',
-        battle: '⚔️'
+        battle: '⚔️',
+        phrase: '🌌'
       }
       return icons[zoneType] || '❓'
     }
-    
+
     const getZoneName = (zoneType) => {
       const names = {
         rush: 'Rush Zone',
         construction: 'Construction Zone',
-        battle: 'Battle Zone'
+        battle: 'Battle Zone',
+        phrase: 'Phrase Galaxy'
       }
       return names[zoneType] || 'Unknown Zone'
     }
@@ -800,7 +812,7 @@ export default {
           router.push('/vr-academy')
           break
         default:
-          console.warn('Unknown navigation section:', section)
+          logger.warn('Unknown navigation section:', section)
       }
     }
 

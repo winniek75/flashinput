@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear MovWise Storage</title>
+</head>
+<body>
+    <h1>MovWise Storage Cleaner</h1>
+    <p>Click the button below to clear all localStorage data:</p>
+    <button onclick="clearStorage()">Clear All localStorage</button>
+    <div id="result"></div>
+
+    <script>
+        function clearStorage() {
+            // Clear all localStorage
+            localStorage.clear();
+
+            // Show what was cleared
+            document.getElementById('result').innerHTML = '<p style="color: green;">All localStorage data has been cleared!</p>';
+
+            console.log('localStorage cleared');
+        }
+
+        // Show current localStorage contents
+        console.log('Current localStorage:', localStorage);
+    </script>
+</body>
+</html>

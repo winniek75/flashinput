@@ -254,6 +254,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 export default {
@@ -549,7 +551,7 @@ export default {
         
         speechSynthesis.speak(utterance)
       } catch (error) {
-        console.error('Audio playback failed:', error)
+        logger.error('Audio playback failed:', error)
         isPlayingAudio.value = false
       }
     }

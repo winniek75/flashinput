@@ -814,18 +814,24 @@ export default {
     // 音声再生
     const playWordSound = async () => {
       if (isPlaying.value) return
-      
+
       isPlaying.value = true
+
+      // タイマーを開始（音声再生時に開始）
+      if (!isTimerActive.value) {
+        startTimer()
+      }
+
       const utterance = new SpeechSynthesisUtterance(currentWord.value.word)
       utterance.lang = 'en-US'
       utterance.rate = 0.7
       utterance.pitch = 1.1
       utterance.volume = 1.0
-      
+
       utterance.onend = () => {
         isPlaying.value = false
       }
-      
+
       speechSynthesis.speak(utterance)
     }
 
@@ -897,7 +903,8 @@ export default {
       showFeedback.value = false
       showHint.value = false
       availableLetters.value = generateAvailableLetters()
-      startTimer()
+      // タイマーは音声再生時に開始するため、ここでは開始しない
+      timeLeft.value = currentLevelData.value.timeLimit
     }
 
     // 文字選択
@@ -979,18 +986,19 @@ export default {
     // 次の単語
     const nextWord = () => {
       const nextIndex = currentWordIndex.value + 1
-      
+
       if (nextIndex >= Math.min(store.questionCount, currentLevelData.value.words.length)) {
         endGame()
         return
       }
-      
+
       currentWordIndex.value = nextIndex
       selectedLetters.value = ['', '', '']
       showFeedback.value = false
       showHint.value = false
       availableLetters.value = generateAvailableLetters()
-      startTimer()
+      // タイマーは音声再生時に開始するため、ここでは開始しない
+      timeLeft.value = currentLevelData.value.timeLimit
     }
 
     // ゲーム終了
@@ -1036,7 +1044,7 @@ export default {
 
     // ハブに戻る
     const goToHub = () => {
-      router.push('/sound-adventure')
+      router.push('/platforms/phonics-adventure')
     }
 
     // ルーターへ戻る

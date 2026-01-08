@@ -3,6 +3,7 @@
 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
+import logger from '@/utils/logger'
 
 export function useGrammarGame(gameConfig = {}) {
   // ストア
@@ -78,7 +79,7 @@ export function useGrammarGame(gameConfig = {}) {
   
   // ゲーム開始
   const startGame = (config = {}) => {
-    console.log('🎮 Starting Grammar Game:', config)
+    logger.log('🎮 Starting Grammar Game:', config)
     
     // 設定を適用
     timeRemaining.value = config.timeLimit || gameConfig.defaultTime || 60
@@ -100,7 +101,7 @@ export function useGrammarGame(gameConfig = {}) {
   
   // ゲーム終了
   const endGame = (reason = 'completed') => {
-    console.log('🎮 Ending Grammar Game:', reason)
+    logger.log('🎮 Ending Grammar Game:', reason)
     
     clearTimer()
     isGameActive.value = false
@@ -206,7 +207,7 @@ export function useGrammarGame(gameConfig = {}) {
       setTimeout(() => { showCombo.value = false }, 1500)
     }
     
-    console.log('✅ Correct Answer:', {
+    logger.log('✅ Correct Answer:', {
       streak: currentStreak.value,
       score: questionScore,
       reactionTime
@@ -231,7 +232,7 @@ export function useGrammarGame(gameConfig = {}) {
       endGame('gameOver')
     }
     
-    console.log('❌ Incorrect Answer:', {
+    logger.log('❌ Incorrect Answer:', {
       livesRemaining: lives.value,
       energyRemaining: energy.value,
       reactionTime
@@ -246,7 +247,7 @@ export function useGrammarGame(gameConfig = {}) {
     score.value += 500
     energy.value = Math.min(100, energy.value + 25)
     
-    console.log('🎉 Level Up!', currentLevel.value)
+    logger.log('🎉 Level Up!', currentLevel.value)
   }
   
   // スコアリセット
@@ -285,10 +286,10 @@ export function useGrammarGame(gameConfig = {}) {
         )
       }
       
-      console.log('💾 Game stats saved:', stats)
+      logger.log('💾 Game stats saved:', stats)
       return stats
     } catch (error) {
-      console.error('❌ Failed to save game stats:', error)
+      logger.error('❌ Failed to save game stats:', error)
     }
   }
   
@@ -298,9 +299,9 @@ export function useGrammarGame(gameConfig = {}) {
       // 実際の音声ファイルがある場合の実装
       const audio = new Audio(`/sounds/${soundType}.mp3`)
       audio.volume = 0.5
-      audio.play().catch(e => console.log('Sound play failed:', e))
+      audio.play().catch(e => logger.log('Sound play failed:', e))
     } catch (error) {
-      console.log('Sound not available:', soundType)
+      logger.log('Sound not available:', soundType)
     }
   }
   

@@ -7,7 +7,7 @@
           <ChevronLeftIcon class="h-6 w-6" />
           戻る
         </button>
-        <h1 class="game-title">🏃 Verb Runner</h1>
+        <h1 class="game-title">🎲 動詞タイムマシン</h1>
       </div>
       
       <div class="header-center">
@@ -45,7 +45,7 @@
           </div>
         </div>
         
-        <h2 class="intro-title">🌌 Galactic Verb Runner 🌌</h2>
+        <h2 class="intro-title">🌌 動詞タイムマシン 🌌</h2>
         <p class="intro-description">
           宇宙船を操縦して、正しい動詞の軌道を選ぼう！<br>
           <span class="controls-hint">PC: 1,2,3キー | タブレット: タップ | VR: 移動</span>
@@ -250,6 +250,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
@@ -315,6 +317,8 @@ export default {
     const selectionTimerId = ref(null)
     const targetTense = ref('') // 目標時制
     const tenseInstruction = ref('') // 時制の指示
+    const usedVerbs = ref(new Set()) // 使用済み動詞を追跡
+    const shuffledVerbs = ref([]) // シャッフルされた動詞リスト
     
     // 難易度設定
     const availableLevels = computed(() => [
@@ -386,7 +390,7 @@ export default {
     // 難易度選択
     const selectDifficulty = (level) => {
       selectedDifficulty.value = level
-      console.log('Selected difficulty:', level.name)
+      logger.log('Selected difficulty:', level.name)
     }
     
     // ゲーム開始
@@ -402,6 +406,9 @@ export default {
       totalQuestions.value = selectedDifficulty.value.questions
       maxSelectionTime.value = selectedDifficulty.value.selectionTime
       
+      // 動詞リストを初期化（重複防止のため）
+      initializeVerbList()
+      
       // キーボードイベントリスナー追加
       document.addEventListener('keydown', handleKeyPress)
       
@@ -411,23 +418,17 @@ export default {
     
     // 問題生成
     const generateQuestion = () => {
-      console.log('📝 Generating question:', currentQuestion.value, '/', totalQuestions.value)
+      logger.log('📝 Generating question:', currentQuestion.value, '/', totalQuestions.value)
       
       if (currentQuestion.value >= totalQuestions.value) {
-        console.log('🏁 All questions completed, ending game')
+        logger.log('🏁 All questions completed, ending game')
         endGame('completed')
         return
       }
       
-      // ランダムな動詞を選択
-      const verbs = selectedDifficulty.value.verbs
-      if (!verbs || verbs.length === 0) {
-        console.error('❌ No verbs available')
-        return
-      }
-      
-      currentVerb.value = verbs[Math.floor(Math.random() * verbs.length)]
-      console.log('🎯 Selected verb:', currentVerb.value?.infinitive)
+      // 重複しない動詞を選択
+      currentVerb.value = selectNextVerb()
+      logger.log('🎯 Selected verb:', currentVerb.value?.infinitive)
       
       // ターゲット時制を選択
       const availableTenses = selectedDifficulty.value.tenses
@@ -586,11 +587,47 @@ export default {
       return shuffled
     }
     
+    // 動詞リストを初期化（重複なしランダム選択のため）
+    const initializeVerbList = () => {
+      const verbs = selectedDifficulty.value.verbs
+      shuffledVerbs.value = shuffleArray(verbs)
+      usedVerbs.value.clear()
+      logger.log('🔄 Verb list initialized with', shuffledVerbs.value.length, 'verbs')
+    }
+    
+    // 重複しない動詞を選択
+    const selectNextVerb = () => {
+      const availableVerbs = shuffledVerbs.value.filter(verb => 
+        !usedVerbs.value.has(verb.infinitive)
+      )
+      
+      // すべての動詞を使い切った場合、リセット（但し直前の動詞は除外）
+      if (availableVerbs.length === 0) {
+        const lastVerb = currentVerb.value?.infinitive
+        usedVerbs.value.clear()
+        const freshVerbs = shuffledVerbs.value.filter(verb => 
+          verb.infinitive !== lastVerb
+        )
+        if (freshVerbs.length > 0) {
+          const selectedVerb = freshVerbs[0]
+          usedVerbs.value.add(selectedVerb.infinitive)
+          return selectedVerb
+        }
+        // フォールバック：ランダム選択
+        return shuffledVerbs.value[Math.floor(Math.random() * shuffledVerbs.value.length)]
+      }
+      
+      // 利用可能な動詞からランダムに選択
+      const selectedVerb = availableVerbs[Math.floor(Math.random() * availableVerbs.length)]
+      usedVerbs.value.add(selectedVerb.infinitive)
+      return selectedVerb
+    }
+    
     // レーンを選択
     const selectLane = (laneIndex) => {
       if (showResult.value || !isGameActive.value) return
       
-      console.log('🎯 Selected lane:', laneIndex, 'Option:', currentOptions.value[laneIndex])
+      logger.log('🎯 Selected lane:', laneIndex, 'Option:', currentOptions.value[laneIndex])
       
       currentLane.value = laneIndex
       
@@ -692,6 +729,10 @@ export default {
       currentLane.value = 1
       contextSentence.value = ''
       
+      // 動詞リストもリセット
+      usedVerbs.value.clear()
+      shuffledVerbs.value = []
+      
       gamePhase.value = 'intro'
     }
     
@@ -704,12 +745,12 @@ export default {
     
     // 戻る
     const goBack = () => {
-      router.push('/grammar-galaxy')
+      router.push('/platforms/grammar-galaxy')
     }
     
     // 初期化
     onMounted(() => {
-      console.log('🏃 VerbRunner mounted')
+      logger.log('🏃 VerbRunner mounted')
     })
     
     // クリーンアップ

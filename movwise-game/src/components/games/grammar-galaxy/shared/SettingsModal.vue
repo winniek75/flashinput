@@ -677,6 +677,8 @@
   </teleport>
   </template>
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
 import Icon from '@/components/shared/Icon.vue'
@@ -809,7 +811,7 @@ const saveSettings = async () => {
       closeModal()
     }, 500)
   } catch (error) {
-    console.error('Failed to save settings:', error)
+    logger.error('Failed to save settings:', error)
   } finally {
     saving.value = false
   }

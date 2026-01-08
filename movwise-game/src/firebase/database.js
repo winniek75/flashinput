@@ -12,6 +12,7 @@ import {
   onDisconnect
 } from 'firebase/database'
 import { database } from './config'
+import logger from '@/utils/logger'
 
 // Database paths for cooperative learning structure
 export const DB_PATHS = {
@@ -198,7 +199,7 @@ export class DatabaseService {
       this.presenceRefs.set(`${sessionId}_${userId}`, presenceRef)
       
     } catch (error) {
-      console.error('Failed to setup presence:', error)
+      logger.error('Failed to setup presence:', error)
     }
   }
 

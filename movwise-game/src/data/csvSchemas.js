@@ -25,15 +25,15 @@ export const GRAMMAR_CONTENT_SCHEMA = {
     category: {
       type: 'string',
       required: true,
-      enum: ['be_verb', 'general_verb', 'question', 'past_tense', 'complex'],
+      enum: ['be_verb', 'general_verb', 'question', 'past_tense', 'complex', 'modal'],
       description: '文法カテゴリ',
-      validation: value => ['be_verb', 'general_verb', 'question', 'past_tense', 'complex'].includes(value)
+      validation: value => ['be_verb', 'general_verb', 'question', 'past_tense', 'complex', 'modal'].includes(value)
     },
     type: {
       type: 'string',
       required: true,
       enum: [
-        'pronoun', 'be-verb', 'general', 'adjective', 'noun', 'adverb',
+        'pronoun', 'be-verb', 'general', 'verb', 'adjective', 'noun', 'adverb',
         'question', 'auxiliary', 'time_marker', 'modal', 'perfect',
         'participle', 'conjunction', 'comparative', 'superlative',
         'article', 'quantifier', 'phrasal', 'countable', 'uncountable'
@@ -200,7 +200,8 @@ export const VISUAL_ELEMENTS_SCHEMA = {
         'connect', 'split', 'branch', 'discover', 'schedule', 'victory',
         'unlock', 'chat', 'warm', 'relate', 'kind', 'sparkle', 'negative',
         'recent', 'wait', 'land', 'healthy', 'cycle', 'compare', 'aim',
-        'bloom', 'group', 'solve'
+        'bloom', 'group', 'solve', 'page-turn', 'flicker', 'pin', 'flash',
+        'speak', 'fadeIn', 'checkmark'
       ],
       description: 'アニメーション名'
     },

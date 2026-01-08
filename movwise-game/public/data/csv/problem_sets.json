@@ -358,5 +358,3020 @@
     ],
     "visual_theme": "future",
     "difficulty_score": 3
+  },
+  {
+    "set_id": 53,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "She is beautiful",
+    "hint_ja": "彼女は美しいです",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "beautiful", "position": "object"}
+    ],
+    "visual_theme": "beauty",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 54,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "It is cold",
+    "hint_ja": "それは寒いです",
+    "words_pool": [
+      {"word": "It", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "cold", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 55,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "We are friends",
+    "hint_ja": "私たちは友達です",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "friends", "position": "object"}
+    ],
+    "visual_theme": "friendship",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 56,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "They are tall",
+    "hint_ja": "彼らは背が高いです",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "tall", "position": "object"}
+    ],
+    "visual_theme": "size",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 57,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "I am young",
+    "hint_ja": "私は若いです",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "am", "position": "verb"},
+      {"word": "young", "position": "object"}
+    ],
+    "visual_theme": "age",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 58,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "You are smart",
+    "hint_ja": "あなたは賢いです",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "smart", "position": "object"}
+    ],
+    "visual_theme": "intelligence",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 59,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "He is strong",
+    "hint_ja": "彼は強いです",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "strong", "position": "object"}
+    ],
+    "visual_theme": "strength",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 60,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "She is kind",
+    "hint_ja": "彼女は優しいです",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "kind", "position": "object"}
+    ],
+    "visual_theme": "kindness",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 61,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "It is new",
+    "hint_ja": "それは新しいです",
+    "words_pool": [
+      {"word": "It", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "new", "position": "object"}
+    ],
+    "visual_theme": "newness",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 62,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "We are ready",
+    "hint_ja": "私たちは準備ができています",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "ready", "position": "object"}
+    ],
+    "visual_theme": "preparation",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 63,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I have a cat",
+    "hint_ja": "私は猫を飼っています",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "a cat", "position": "object"}
+    ],
+    "visual_theme": "pets",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 64,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "You drink water",
+    "hint_ja": "あなたは水を飲みます",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "drink", "position": "verb"},
+      {"word": "water", "position": "object"}
+    ],
+    "visual_theme": "drink",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 65,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "He reads books",
+    "hint_ja": "彼は本を読みます",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "reads", "position": "verb"},
+      {"word": "books", "position": "object"}
+    ],
+    "visual_theme": "reading",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 66,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "She writes letters",
+    "hint_ja": "彼女は手紙を書きます",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "writes", "position": "verb"},
+      {"word": "letters", "position": "object"}
+    ],
+    "visual_theme": "writing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 67,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "We walk together",
+    "hint_ja": "私たちは一緒に歩きます",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "walk", "position": "verb"},
+      {"word": "together", "position": "object"}
+    ],
+    "visual_theme": "walking",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 68,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "They run fast",
+    "hint_ja": "彼らは速く走ります",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "run", "position": "verb"},
+      {"word": "fast", "position": "object"}
+    ],
+    "visual_theme": "running",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 69,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I sleep early",
+    "hint_ja": "私は早く寝ます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "sleep", "position": "verb"},
+      {"word": "early", "position": "object"}
+    ],
+    "visual_theme": "sleep",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 70,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "You cook dinner",
+    "hint_ja": "あなたは夕食を作ります",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "cook", "position": "verb"},
+      {"word": "dinner", "position": "object"}
+    ],
+    "visual_theme": "cooking",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 71,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "He drives cars",
+    "hint_ja": "彼は車を運転します",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "drives", "position": "verb"},
+      {"word": "cars", "position": "object"}
+    ],
+    "visual_theme": "driving",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 72,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "She sings songs",
+    "hint_ja": "彼女は歌を歌います",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "sings", "position": "verb"},
+      {"word": "songs", "position": "object"}
+    ],
+    "visual_theme": "singing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 73,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "We dance together",
+    "hint_ja": "私たちは一緒に踊ります",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "dance", "position": "verb"},
+      {"word": "together", "position": "object"}
+    ],
+    "visual_theme": "dancing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 74,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "They work hard",
+    "hint_ja": "彼らは一生懸命働きます",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "work", "position": "verb"},
+      {"word": "hard", "position": "object"}
+    ],
+    "visual_theme": "work",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 75,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I draw pictures",
+    "hint_ja": "私は絵を描きます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "draw", "position": "verb"},
+      {"word": "pictures", "position": "object"}
+    ],
+    "visual_theme": "drawing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 76,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "You help me",
+    "hint_ja": "あなたは私を助けます",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "help", "position": "verb"},
+      {"word": "me", "position": "object"}
+    ],
+    "visual_theme": "helping",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 77,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "He opens doors",
+    "hint_ja": "彼はドアを開けます",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "opens", "position": "verb"},
+      {"word": "doors", "position": "object"}
+    ],
+    "visual_theme": "opening",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 78,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "She closes windows",
+    "hint_ja": "彼女は窓を閉めます",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "closes", "position": "verb"},
+      {"word": "windows", "position": "object"}
+    ],
+    "visual_theme": "closing",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 79,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "We clean rooms",
+    "hint_ja": "私たちは部屋を掃除します",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "clean", "position": "verb"},
+      {"word": "rooms", "position": "object"}
+    ],
+    "visual_theme": "cleaning",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 80,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "They wash dishes",
+    "hint_ja": "彼らは皿を洗います",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "wash", "position": "verb"},
+      {"word": "dishes", "position": "object"}
+    ],
+    "visual_theme": "washing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 81,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I buy food",
+    "hint_ja": "私は食べ物を買います",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "buy", "position": "verb"},
+      {"word": "food", "position": "object"}
+    ],
+    "visual_theme": "shopping",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 82,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "You sell cars",
+    "hint_ja": "あなたは車を売ります",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "sell", "position": "verb"},
+      {"word": "cars", "position": "object"}
+    ],
+    "visual_theme": "selling",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 83,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "He finds keys",
+    "hint_ja": "彼は鍵を見つけます",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "finds", "position": "verb"},
+      {"word": "keys", "position": "object"}
+    ],
+    "visual_theme": "finding",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 84,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "She loses money",
+    "hint_ja": "彼女はお金をなくします",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "loses", "position": "verb"},
+      {"word": "money", "position": "object"}
+    ],
+    "visual_theme": "losing",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 85,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "We love music",
+    "hint_ja": "私たちは音楽を愛しています",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "love", "position": "verb"},
+      {"word": "music", "position": "object"}
+    ],
+    "visual_theme": "love",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 86,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "They hate rain",
+    "hint_ja": "彼らは雨が嫌いです",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "hate", "position": "verb"},
+      {"word": "rain", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 87,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "question",
+    "target_sentence": "When is lunch?",
+    "hint_ja": "昼食はいつですか？",
+    "words_pool": [
+      {"word": "When", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "lunch", "position": "object"}
+    ],
+    "visual_theme": "time",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 88,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "question",
+    "target_sentence": "Why are you sad?",
+    "hint_ja": "なぜあなたは悲しいのですか？",
+    "words_pool": [
+      {"word": "Why", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "you sad", "position": "object"}
+    ],
+    "visual_theme": "emotion",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 89,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "question",
+    "target_sentence": "Which car is yours?",
+    "hint_ja": "どの車があなたのものですか？",
+    "words_pool": [
+      {"word": "Which car", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "yours", "position": "object"}
+    ],
+    "visual_theme": "possession",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 90,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "past_tense",
+    "target_sentence": "She was a teacher",
+    "hint_ja": "彼女は先生でした",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "was", "position": "verb"},
+      {"word": "a teacher", "position": "object"}
+    ],
+    "visual_theme": "profession",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 91,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "past_tense",
+    "target_sentence": "They were students",
+    "hint_ja": "彼らは学生でした",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "were", "position": "verb"},
+      {"word": "students", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 92,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "past_tense",
+    "target_sentence": "It was sunny",
+    "hint_ja": "晴れていました",
+    "words_pool": [
+      {"word": "It", "position": "subject"},
+      {"word": "was", "position": "verb"},
+      {"word": "sunny", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 93,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "I am reading",
+    "hint_ja": "私は読んでいます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "am", "position": "verb"},
+      {"word": "reading", "position": "object"}
+    ],
+    "visual_theme": "reading",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 94,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "You are sleeping",
+    "hint_ja": "あなたは眠っています",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "sleeping", "position": "object"}
+    ],
+    "visual_theme": "sleep",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 95,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "He is working",
+    "hint_ja": "彼は働いています",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "working", "position": "object"}
+    ],
+    "visual_theme": "work",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 96,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "She is cooking",
+    "hint_ja": "彼女は料理をしています",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "cooking", "position": "object"}
+    ],
+    "visual_theme": "cooking",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 97,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "We are walking",
+    "hint_ja": "私たちは歩いています",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "walking", "position": "object"}
+    ],
+    "visual_theme": "walking",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 98,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "They are playing",
+    "hint_ja": "彼らは遊んでいます",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "playing", "position": "object"}
+    ],
+    "visual_theme": "playing",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 99,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "I will go",
+    "hint_ja": "私は行きます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "go", "position": "object"}
+    ],
+    "visual_theme": "travel",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 100,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "You will learn",
+    "hint_ja": "あなたは学びます",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "learn", "position": "object"}
+    ],
+    "visual_theme": "learning",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 101,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "He will help",
+    "hint_ja": "彼は助けます",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "help", "position": "object"}
+    ],
+    "visual_theme": "helping",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 102,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "She will sing",
+    "hint_ja": "彼女は歌います",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "sing", "position": "object"}
+    ],
+    "visual_theme": "singing",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 103,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "We will meet",
+    "hint_ja": "私たちは会います",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "meet", "position": "object"}
+    ],
+    "visual_theme": "meeting",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 104,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "They will win",
+    "hint_ja": "彼らは勝ちます",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "will", "position": "verb"},
+      {"word": "win", "position": "object"}
+    ],
+    "visual_theme": "winning",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 105,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "I have finished",
+    "hint_ja": "私は終えました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "finished", "position": "object"}
+    ],
+    "visual_theme": "completion",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 106,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "You have seen",
+    "hint_ja": "あなたは見ました",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "seen", "position": "object"}
+    ],
+    "visual_theme": "seeing",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 107,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "He has written",
+    "hint_ja": "彼は書きました",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "has", "position": "verb"},
+      {"word": "written", "position": "object"}
+    ],
+    "visual_theme": "writing",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 108,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "She has done",
+    "hint_ja": "彼女はしました",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "has", "position": "verb"},
+      {"word": "done", "position": "object"}
+    ],
+    "visual_theme": "action",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 109,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "We have eaten",
+    "hint_ja": "私たちは食べました",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "eaten", "position": "object"}
+    ],
+    "visual_theme": "eating",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 110,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "perfect_tense",
+    "target_sentence": "They have gone",
+    "hint_ja": "彼らは行きました",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "gone", "position": "object"}
+    ],
+    "visual_theme": "travel",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 111,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "comparative",
+    "target_sentence": "I am taller than you",
+    "hint_ja": "私はあなたより背が高いです",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "am", "position": "verb"},
+      {"word": "taller than you", "position": "object"}
+    ],
+    "visual_theme": "comparison",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 112,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "comparative",
+    "target_sentence": "She is faster than him",
+    "hint_ja": "彼女は彼より速いです",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "faster than him", "position": "object"}
+    ],
+    "visual_theme": "speed",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 113,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "comparative",
+    "target_sentence": "This is better than that",
+    "hint_ja": "これはそれよりも良いです",
+    "words_pool": [
+      {"word": "This", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "better than that", "position": "object"}
+    ],
+    "visual_theme": "quality",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 114,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "superlative",
+    "target_sentence": "He is the tallest",
+    "hint_ja": "彼が一番背が高いです",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "the tallest", "position": "object"}
+    ],
+    "visual_theme": "height",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 115,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "superlative",
+    "target_sentence": "This is the best",
+    "hint_ja": "これが一番良いです",
+    "words_pool": [
+      {"word": "This", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "the best", "position": "object"}
+    ],
+    "visual_theme": "excellence",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 116,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "superlative",
+    "target_sentence": "She is the smartest",
+    "hint_ja": "彼女が一番賢いです",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "the smartest", "position": "object"}
+    ],
+    "visual_theme": "intelligence",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 117,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "preposition",
+    "target_sentence": "I go to school",
+    "hint_ja": "私は学校に行きます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "go", "position": "verb"},
+      {"word": "to school", "position": "object"}
+    ],
+    "visual_theme": "school",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 118,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "preposition",
+    "target_sentence": "She sits on chair",
+    "hint_ja": "彼女は椅子に座ります",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "sits", "position": "verb"},
+      {"word": "on chair", "position": "object"}
+    ],
+    "visual_theme": "furniture",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 119,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "preposition",
+    "target_sentence": "He runs in park",
+    "hint_ja": "彼は公園で走ります",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "runs", "position": "verb"},
+      {"word": "in park", "position": "object"}
+    ],
+    "visual_theme": "park",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 120,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "preposition",
+    "target_sentence": "We meet at station",
+    "hint_ja": "私たちは駅で会います",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "meet", "position": "verb"},
+      {"word": "at station", "position": "object"}
+    ],
+    "visual_theme": "station",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 121,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "preposition",
+    "target_sentence": "They work with us",
+    "hint_ja": "彼らは私たちと働きます",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "work", "position": "verb"},
+      {"word": "with us", "position": "object"}
+    ],
+    "visual_theme": "teamwork",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 122,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "If I go",
+    "hint_ja": "もし私が行けば",
+    "words_pool": [
+      {"word": "If", "position": "subject"},
+      {"word": "I", "position": "verb"},
+      {"word": "go", "position": "object"}
+    ],
+    "visual_theme": "condition",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 123,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "When she comes",
+    "hint_ja": "彼女が来る時",
+    "words_pool": [
+      {"word": "When", "position": "subject"},
+      {"word": "she", "position": "verb"},
+      {"word": "comes", "position": "object"}
+    ],
+    "visual_theme": "time",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 124,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "Because he is sick",
+    "hint_ja": "彼が病気なので",
+    "words_pool": [
+      {"word": "Because", "position": "subject"},
+      {"word": "he", "position": "verb"},
+      {"word": "is sick", "position": "object"}
+    ],
+    "visual_theme": "reason",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 125,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "Although it rains",
+    "hint_ja": "雨が降るけれど",
+    "words_pool": [
+      {"word": "Although", "position": "subject"},
+      {"word": "it", "position": "verb"},
+      {"word": "rains", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 126,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "Before we eat",
+    "hint_ja": "私たちが食べる前に",
+    "words_pool": [
+      {"word": "Before", "position": "subject"},
+      {"word": "we", "position": "verb"},
+      {"word": "eat", "position": "object"}
+    ],
+    "visual_theme": "sequence",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 127,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "After they leave",
+    "hint_ja": "彼らが去った後",
+    "words_pool": [
+      {"word": "After", "position": "subject"},
+      {"word": "they", "position": "verb"},
+      {"word": "leave", "position": "object"}
+    ],
+    "visual_theme": "departure",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 128,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "passive",
+    "target_sentence": "I am helped",
+    "hint_ja": "私は助けられます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "am", "position": "verb"},
+      {"word": "helped", "position": "object"}
+    ],
+    "visual_theme": "assistance",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 129,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "passive",
+    "target_sentence": "You are invited",
+    "hint_ja": "あなたは招待されます",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "invited", "position": "object"}
+    ],
+    "visual_theme": "invitation",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 130,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "passive",
+    "target_sentence": "It is made",
+    "hint_ja": "それは作られます",
+    "words_pool": [
+      {"word": "It", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "made", "position": "object"}
+    ],
+    "visual_theme": "creation",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 131,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "subjunctive",
+    "target_sentence": "If I were you",
+    "hint_ja": "もし私があなたなら",
+    "words_pool": [
+      {"word": "If I", "position": "subject"},
+      {"word": "were", "position": "verb"},
+      {"word": "you", "position": "object"}
+    ],
+    "visual_theme": "hypothetical",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 132,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "subjunctive",
+    "target_sentence": "I wish I could",
+    "hint_ja": "できればいいのに",
+    "words_pool": [
+      {"word": "I wish", "position": "subject"},
+      {"word": "I", "position": "verb"},
+      {"word": "could", "position": "object"}
+    ],
+    "visual_theme": "wish",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 133,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "perfect_continuous",
+    "target_sentence": "I have been working",
+    "hint_ja": "私はずっと働いています",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "have been", "position": "verb"},
+      {"word": "working", "position": "object"}
+    ],
+    "visual_theme": "duration",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 134,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "perfect_continuous",
+    "target_sentence": "She has been studying",
+    "hint_ja": "彼女はずっと勉強しています",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "has been", "position": "verb"},
+      {"word": "studying", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 135,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "complex_modal",
+    "target_sentence": "You should have done",
+    "hint_ja": "あなたはするべきでした",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "should have", "position": "verb"},
+      {"word": "done", "position": "object"}
+    ],
+    "visual_theme": "regret",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 136,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "complex_modal",
+    "target_sentence": "He must have gone",
+    "hint_ja": "彼は行ったに違いない",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "must have", "position": "verb"},
+      {"word": "gone", "position": "object"}
+    ],
+    "visual_theme": "deduction",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 137,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "complex_modal",
+    "target_sentence": "They could have won",
+    "hint_ja": "彼らは勝てたかもしれない",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "could have", "position": "verb"},
+      {"word": "won", "position": "object"}
+    ],
+    "visual_theme": "possibility",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 138,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "gerund",
+    "target_sentence": "I enjoy reading",
+    "hint_ja": "私は読書を楽しみます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "enjoy", "position": "verb"},
+      {"word": "reading", "position": "object"}
+    ],
+    "visual_theme": "hobby",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 139,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "gerund",
+    "target_sentence": "She keeps trying",
+    "hint_ja": "彼女は試し続けます",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "keeps", "position": "verb"},
+      {"word": "trying", "position": "object"}
+    ],
+    "visual_theme": "persistence",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 140,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "infinitive",
+    "target_sentence": "I want to learn",
+    "hint_ja": "私は学びたいです",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "want", "position": "verb"},
+      {"word": "to learn", "position": "object"}
+    ],
+    "visual_theme": "desire",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 141,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "infinitive",
+    "target_sentence": "He decided to go",
+    "hint_ja": "彼は行くことに決めました",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "decided", "position": "verb"},
+      {"word": "to go", "position": "object"}
+    ],
+    "visual_theme": "decision",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 142,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "relative_clause",
+    "target_sentence": "The man who came",
+    "hint_ja": "来た男性",
+    "words_pool": [
+      {"word": "The man", "position": "subject"},
+      {"word": "who", "position": "verb"},
+      {"word": "came", "position": "object"}
+    ],
+    "visual_theme": "identification",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 143,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "relative_clause",
+    "target_sentence": "The book which I read",
+    "hint_ja": "私が読んだ本",
+    "words_pool": [
+      {"word": "The book", "position": "subject"},
+      {"word": "which I", "position": "verb"},
+      {"word": "read", "position": "object"}
+    ],
+    "visual_theme": "literature",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 144,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "relative_clause",
+    "target_sentence": "The place where we met",
+    "hint_ja": "私たちが出会った場所",
+    "words_pool": [
+      {"word": "The place", "position": "subject"},
+      {"word": "where we", "position": "verb"},
+      {"word": "met", "position": "object"}
+    ],
+    "visual_theme": "location",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 145,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "reported_speech",
+    "target_sentence": "He said he was busy",
+    "hint_ja": "彼は忙しいと言いました",
+    "words_pool": [
+      {"word": "He said", "position": "subject"},
+      {"word": "he", "position": "verb"},
+      {"word": "was busy", "position": "object"}
+    ],
+    "visual_theme": "communication",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 146,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "reported_speech",
+    "target_sentence": "She told me she would come",
+    "hint_ja": "彼女は来ると私に言いました",
+    "words_pool": [
+      {"word": "She told me", "position": "subject"},
+      {"word": "she", "position": "verb"},
+      {"word": "would come", "position": "object"}
+    ],
+    "visual_theme": "promise",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 147,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "reported_speech",
+    "target_sentence": "They asked if I knew",
+    "hint_ja": "彼らは私が知っているか尋ねました",
+    "words_pool": [
+      {"word": "They asked", "position": "subject"},
+      {"word": "if I", "position": "verb"},
+      {"word": "knew", "position": "object"}
+    ],
+    "visual_theme": "inquiry",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 148,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "causative",
+    "target_sentence": "I made him do it",
+    "hint_ja": "私は彼にそれをさせました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "made", "position": "verb"},
+      {"word": "him do it", "position": "object"}
+    ],
+    "visual_theme": "compulsion",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 149,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "causative",
+    "target_sentence": "She let me go",
+    "hint_ja": "彼女は私を行かせてくれました",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "let", "position": "verb"},
+      {"word": "me go", "position": "object"}
+    ],
+    "visual_theme": "permission",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 150,
+    "level": "advanced",
+    "eiken_level": "2",
+    "category": "causative",
+    "target_sentence": "We had it repaired",
+    "hint_ja": "私たちはそれを修理してもらいました",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "had", "position": "verb"},
+      {"word": "it repaired", "position": "object"}
+    ],
+    "visual_theme": "service",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 151,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "inversion",
+    "target_sentence": "Never have I seen",
+    "hint_ja": "見たことがない",
+    "words_pool": [
+      {"word": "Never", "position": "subject"},
+      {"word": "have I", "position": "verb"},
+      {"word": "seen", "position": "object"}
+    ],
+    "visual_theme": "emphasis",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 152,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "inversion",
+    "target_sentence": "Only then did he realize",
+    "hint_ja": "その時になって彼は気づいた",
+    "words_pool": [
+      {"word": "Only then", "position": "subject"},
+      {"word": "did he", "position": "verb"},
+      {"word": "realize", "position": "object"}
+    ],
+    "visual_theme": "realization",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 153,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "complex_conditional",
+    "target_sentence": "Had I known earlier",
+    "hint_ja": "もっと早く知っていたら",
+    "words_pool": [
+      {"word": "Had I", "position": "subject"},
+      {"word": "known", "position": "verb"},
+      {"word": "earlier", "position": "object"}
+    ],
+    "visual_theme": "regret",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 154,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "complex_conditional",
+    "target_sentence": "Were it not for",
+    "hint_ja": "もし〜がなければ",
+    "words_pool": [
+      {"word": "Were it", "position": "subject"},
+      {"word": "not", "position": "verb"},
+      {"word": "for", "position": "object"}
+    ],
+    "visual_theme": "exception",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 155,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "participle",
+    "target_sentence": "Walking down the street",
+    "hint_ja": "道を歩いていると",
+    "words_pool": [
+      {"word": "Walking", "position": "subject"},
+      {"word": "down", "position": "verb"},
+      {"word": "the street", "position": "object"}
+    ],
+    "visual_theme": "action",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 156,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "participle",
+    "target_sentence": "Having finished work",
+    "hint_ja": "仕事を終えて",
+    "words_pool": [
+      {"word": "Having", "position": "subject"},
+      {"word": "finished", "position": "verb"},
+      {"word": "work", "position": "object"}
+    ],
+    "visual_theme": "completion",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 157,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "abstract_noun",
+    "target_sentence": "The importance of education",
+    "hint_ja": "教育の重要性",
+    "words_pool": [
+      {"word": "The importance", "position": "subject"},
+      {"word": "of", "position": "verb"},
+      {"word": "education", "position": "object"}
+    ],
+    "visual_theme": "concept",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 158,
+    "level": "advanced",
+    "eiken_level": "pre-1",
+    "category": "abstract_noun",
+    "target_sentence": "His contribution to society",
+    "hint_ja": "社会への彼の貢献",
+    "words_pool": [
+      {"word": "His contribution", "position": "subject"},
+      {"word": "to", "position": "verb"},
+      {"word": "society", "position": "object"}
+    ],
+    "visual_theme": "impact",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 159,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "complex_structure",
+    "target_sentence": "Not only did he succeed",
+    "hint_ja": "彼は成功しただけでなく",
+    "words_pool": [
+      {"word": "Not only", "position": "subject"},
+      {"word": "did he", "position": "verb"},
+      {"word": "succeed", "position": "object"}
+    ],
+    "visual_theme": "achievement",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 160,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "complex_structure",
+    "target_sentence": "So impressive was his speech",
+    "hint_ja": "彼のスピーチは非常に印象的だった",
+    "words_pool": [
+      {"word": "So impressive", "position": "subject"},
+      {"word": "was", "position": "verb"},
+      {"word": "his speech", "position": "object"}
+    ],
+    "visual_theme": "eloquence",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 161,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "sophisticated_modal",
+    "target_sentence": "He ought to have known",
+    "hint_ja": "彼は知っているべきでした",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "ought to have", "position": "verb"},
+      {"word": "known", "position": "object"}
+    ],
+    "visual_theme": "obligation",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 162,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "sophisticated_modal",
+    "target_sentence": "She would rather have stayed",
+    "hint_ja": "彼女はむしろ留まりたかった",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "would rather have", "position": "verb"},
+      {"word": "stayed", "position": "object"}
+    ],
+    "visual_theme": "preference",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 163,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "nominal_clause",
+    "target_sentence": "What he said was true",
+    "hint_ja": "彼が言ったことは本当でした",
+    "words_pool": [
+      {"word": "What he said", "position": "subject"},
+      {"word": "was", "position": "verb"},
+      {"word": "true", "position": "object"}
+    ],
+    "visual_theme": "truth",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 164,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "nominal_clause",
+    "target_sentence": "That he succeeded surprised us",
+    "hint_ja": "彼が成功したことは私たちを驚かせた",
+    "words_pool": [
+      {"word": "That he succeeded", "position": "subject"},
+      {"word": "surprised", "position": "verb"},
+      {"word": "us", "position": "object"}
+    ],
+    "visual_theme": "surprise",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 165,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "ellipsis",
+    "target_sentence": "If possible, please help",
+    "hint_ja": "可能であれば、お手伝いください",
+    "words_pool": [
+      {"word": "If possible", "position": "subject"},
+      {"word": "please", "position": "verb"},
+      {"word": "help", "position": "object"}
+    ],
+    "visual_theme": "request",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 166,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "ellipsis",
+    "target_sentence": "When necessary, we intervene",
+    "hint_ja": "必要な時、私たちは介入します",
+    "words_pool": [
+      {"word": "When necessary", "position": "subject"},
+      {"word": "we", "position": "verb"},
+      {"word": "intervene", "position": "object"}
+    ],
+    "visual_theme": "intervention",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 167,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "emphatic_structure",
+    "target_sentence": "It was John who did it",
+    "hint_ja": "それをしたのはジョンでした",
+    "words_pool": [
+      {"word": "It was John", "position": "subject"},
+      {"word": "who", "position": "verb"},
+      {"word": "did it", "position": "object"}
+    ],
+    "visual_theme": "identification",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 168,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "emphatic_structure",
+    "target_sentence": "What I need is time",
+    "hint_ja": "私に必要なのは時間です",
+    "words_pool": [
+      {"word": "What I need", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "time", "position": "object"}
+    ],
+    "visual_theme": "necessity",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 169,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "advanced_passive",
+    "target_sentence": "The decision is being made",
+    "hint_ja": "決定が下されています",
+    "words_pool": [
+      {"word": "The decision", "position": "subject"},
+      {"word": "is being", "position": "verb"},
+      {"word": "made", "position": "object"}
+    ],
+    "visual_theme": "process",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 170,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "advanced_passive",
+    "target_sentence": "The plan has been approved",
+    "hint_ja": "計画は承認されました",
+    "words_pool": [
+      {"word": "The plan", "position": "subject"},
+      {"word": "has been", "position": "verb"},
+      {"word": "approved", "position": "object"}
+    ],
+    "visual_theme": "authorization",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 171,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "complex_comparison",
+    "target_sentence": "The more you study, the better",
+    "hint_ja": "勉強すればするほど良い",
+    "words_pool": [
+      {"word": "The more you study", "position": "subject"},
+      {"word": "the", "position": "verb"},
+      {"word": "better", "position": "object"}
+    ],
+    "visual_theme": "correlation",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 172,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "complex_comparison",
+    "target_sentence": "No sooner had he left",
+    "hint_ja": "彼が出発するやいなや",
+    "words_pool": [
+      {"word": "No sooner", "position": "subject"},
+      {"word": "had he", "position": "verb"},
+      {"word": "left", "position": "object"}
+    ],
+    "visual_theme": "timing",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 173,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "metaphorical",
+    "target_sentence": "Time flies when having fun",
+    "hint_ja": "楽しい時は時間が飛ぶように過ぎる",
+    "words_pool": [
+      {"word": "Time", "position": "subject"},
+      {"word": "flies", "position": "verb"},
+      {"word": "when having fun", "position": "object"}
+    ],
+    "visual_theme": "metaphor",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 174,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "metaphorical",
+    "target_sentence": "Knowledge is power",
+    "hint_ja": "知識は力です",
+    "words_pool": [
+      {"word": "Knowledge", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "power", "position": "object"}
+    ],
+    "visual_theme": "wisdom",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 175,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "idiomatic",
+    "target_sentence": "Break a leg",
+    "hint_ja": "頑張って（幸運を祈る）",
+    "words_pool": [
+      {"word": "Break", "position": "subject"},
+      {"word": "a", "position": "verb"},
+      {"word": "leg", "position": "object"}
+    ],
+    "visual_theme": "encouragement",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 176,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "idiomatic",
+    "target_sentence": "It's raining cats and dogs",
+    "hint_ja": "土砂降りです",
+    "words_pool": [
+      {"word": "It's raining", "position": "subject"},
+      {"word": "cats and", "position": "verb"},
+      {"word": "dogs", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 177,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "philosophical",
+    "target_sentence": "To be or not to be",
+    "hint_ja": "生きるか死ぬか",
+    "words_pool": [
+      {"word": "To be", "position": "subject"},
+      {"word": "or not", "position": "verb"},
+      {"word": "to be", "position": "object"}
+    ],
+    "visual_theme": "existence",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 178,
+    "level": "advanced",
+    "eiken_level": "1",
+    "category": "philosophical",
+    "target_sentence": "Life is what happens",
+    "hint_ja": "人生とは起こることです",
+    "words_pool": [
+      {"word": "Life", "position": "subject"},
+      {"word": "is what", "position": "verb"},
+      {"word": "happens", "position": "object"}
+    ],
+    "visual_theme": "philosophy",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 179,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "The cat is cute",
+    "hint_ja": "猫はかわいいです",
+    "words_pool": [
+      {"word": "The cat", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "cute", "position": "object"}
+    ],
+    "visual_theme": "animals",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 180,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "We are friends",
+    "hint_ja": "私たちは友達です",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "friends", "position": "object"}
+    ],
+    "visual_theme": "friendship",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 181,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I eat breakfast",
+    "hint_ja": "私は朝食を食べます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "eat", "position": "verb"},
+      {"word": "breakfast", "position": "object"}
+    ],
+    "visual_theme": "food",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 182,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "She plays piano",
+    "hint_ja": "彼女はピアノを弾きます",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "plays", "position": "verb"},
+      {"word": "piano", "position": "object"}
+    ],
+    "visual_theme": "music",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 183,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "They watch TV",
+    "hint_ja": "彼らはテレビを見ます",
+    "words_pool": [
+      {"word": "They", "position": "subject"},
+      {"word": "watch", "position": "verb"},
+      {"word": "TV", "position": "object"}
+    ],
+    "visual_theme": "entertainment",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 184,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "My mom is kind",
+    "hint_ja": "私のお母さんは優しいです",
+    "words_pool": [
+      {"word": "My mom", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "kind", "position": "object"}
+    ],
+    "visual_theme": "family",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 185,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Birds fly high",
+    "hint_ja": "鳥は高く飛びます",
+    "words_pool": [
+      {"word": "Birds", "position": "subject"},
+      {"word": "fly", "position": "verb"},
+      {"word": "high", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 186,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "The sky is blue",
+    "hint_ja": "空は青いです",
+    "words_pool": [
+      {"word": "The sky", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "blue", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 187,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "We study English",
+    "hint_ja": "私たちは英語を勉強します",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "study", "position": "verb"},
+      {"word": "English", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 188,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "This is fun",
+    "hint_ja": "これは楽しいです",
+    "words_pool": [
+      {"word": "This", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "fun", "position": "object"}
+    ],
+    "visual_theme": "emotion",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 189,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "I drink water",
+    "hint_ja": "私は水を飲みます",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "drink", "position": "verb"},
+      {"word": "water", "position": "object"}
+    ],
+    "visual_theme": "drink",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 190,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Dogs bark loudly",
+    "hint_ja": "犬は大きく吠えます",
+    "words_pool": [
+      {"word": "Dogs", "position": "subject"},
+      {"word": "bark", "position": "verb"},
+      {"word": "loudly", "position": "object"}
+    ],
+    "visual_theme": "animals",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 191,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Flowers are pretty",
+    "hint_ja": "花はきれいです",
+    "words_pool": [
+      {"word": "Flowers", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "pretty", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 192,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "He reads books",
+    "hint_ja": "彼は本を読みます",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "reads", "position": "verb"},
+      {"word": "books", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 193,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Today is sunny",
+    "hint_ja": "今日は晴れです",
+    "words_pool": [
+      {"word": "Today", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "sunny", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 194,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Kids play games",
+    "hint_ja": "子供たちはゲームをします",
+    "words_pool": [
+      {"word": "Kids", "position": "subject"},
+      {"word": "play", "position": "verb"},
+      {"word": "games", "position": "object"}
+    ],
+    "visual_theme": "entertainment",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 195,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Music is nice",
+    "hint_ja": "音楽は素敵です",
+    "words_pool": [
+      {"word": "Music", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "nice", "position": "object"}
+    ],
+    "visual_theme": "music",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 196,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Fish swim fast",
+    "hint_ja": "魚は速く泳ぎます",
+    "words_pool": [
+      {"word": "Fish", "position": "subject"},
+      {"word": "swim", "position": "verb"},
+      {"word": "fast", "position": "object"}
+    ],
+    "visual_theme": "animals",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 197,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "School is important",
+    "hint_ja": "学校は大切です",
+    "words_pool": [
+      {"word": "School", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "important", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 198,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Stars shine brightly",
+    "hint_ja": "星は明るく輝きます",
+    "words_pool": [
+      {"word": "Stars", "position": "subject"},
+      {"word": "shine", "position": "verb"},
+      {"word": "brightly", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 199,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Pizza is delicious",
+    "hint_ja": "ピザは美味しいです",
+    "words_pool": [
+      {"word": "Pizza", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "delicious", "position": "object"}
+    ],
+    "visual_theme": "food",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 200,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Babies cry sometimes",
+    "hint_ja": "赤ちゃんは時々泣きます",
+    "words_pool": [
+      {"word": "Babies", "position": "subject"},
+      {"word": "cry", "position": "verb"},
+      {"word": "sometimes", "position": "object"}
+    ],
+    "visual_theme": "family",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 201,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Sports are exciting",
+    "hint_ja": "スポーツはワクワクします",
+    "words_pool": [
+      {"word": "Sports", "position": "subject"},
+      {"word": "are", "position": "verb"},
+      {"word": "exciting", "position": "object"}
+    ],
+    "visual_theme": "sports",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 202,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "general_verb",
+    "target_sentence": "Trees grow tall",
+    "hint_ja": "木は高く成長します",
+    "words_pool": [
+      {"word": "Trees", "position": "subject"},
+      {"word": "grow", "position": "verb"},
+      {"word": "tall", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 2
+  },
+  {
+    "set_id": 203,
+    "level": "beginner",
+    "eiken_level": "5",
+    "category": "be_verb",
+    "target_sentence": "Winter is cold",
+    "hint_ja": "冬は寒いです",
+    "words_pool": [
+      {"word": "Winter", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "cold", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 1
+  },
+  {
+    "set_id": 204,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "questions",
+    "target_sentence": "Where do you live?",
+    "hint_ja": "どこに住んでいますか？",
+    "words_pool": [
+      {"word": "Where", "position": "subject"},
+      {"word": "do you", "position": "verb"},
+      {"word": "live?", "position": "object"}
+    ],
+    "visual_theme": "location",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 205,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "past_tense",
+    "target_sentence": "I visited Tokyo yesterday",
+    "hint_ja": "私は昨日東京を訪れました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "visited Tokyo", "position": "verb"},
+      {"word": "yesterday", "position": "object"}
+    ],
+    "visual_theme": "travel",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 206,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_continuous",
+    "target_sentence": "She is studying hard",
+    "hint_ja": "彼女は一生懸命勉強しています",
+    "words_pool": [
+      {"word": "She", "position": "subject"},
+      {"word": "is studying", "position": "verb"},
+      {"word": "hard", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 207,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "modal_verbs",
+    "target_sentence": "You should exercise daily",
+    "hint_ja": "毎日運動すべきです",
+    "words_pool": [
+      {"word": "You", "position": "subject"},
+      {"word": "should exercise", "position": "verb"},
+      {"word": "daily", "position": "object"}
+    ],
+    "visual_theme": "health",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 208,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "comparative",
+    "target_sentence": "Summer is hotter than spring",
+    "hint_ja": "夏は春より暑いです",
+    "words_pool": [
+      {"word": "Summer", "position": "subject"},
+      {"word": "is hotter", "position": "verb"},
+      {"word": "than spring", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 209,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "future_tense",
+    "target_sentence": "We will meet tomorrow",
+    "hint_ja": "明日会いましょう",
+    "words_pool": [
+      {"word": "We", "position": "subject"},
+      {"word": "will meet", "position": "verb"},
+      {"word": "tomorrow", "position": "object"}
+    ],
+    "visual_theme": "planning",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 210,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "negative",
+    "target_sentence": "He doesn't like vegetables",
+    "hint_ja": "彼は野菜が好きではありません",
+    "words_pool": [
+      {"word": "He", "position": "subject"},
+      {"word": "doesn't like", "position": "verb"},
+      {"word": "vegetables", "position": "object"}
+    ],
+    "visual_theme": "food",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 211,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_perfect",
+    "target_sentence": "I have finished homework",
+    "hint_ja": "宿題を終えました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "have finished", "position": "verb"},
+      {"word": "homework", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 212,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conditional",
+    "target_sentence": "If it rains, stay home",
+    "hint_ja": "雨が降ったら家にいなさい",
+    "words_pool": [
+      {"word": "If it", "position": "subject"},
+      {"word": "rains, stay", "position": "verb"},
+      {"word": "home", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 213,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "passive",
+    "target_sentence": "The book was written",
+    "hint_ja": "その本は書かれました",
+    "words_pool": [
+      {"word": "The book", "position": "subject"},
+      {"word": "was", "position": "verb"},
+      {"word": "written", "position": "object"}
+    ],
+    "visual_theme": "literature",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 214,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "indirect_question",
+    "target_sentence": "I wonder what happened",
+    "hint_ja": "何が起きたのだろう",
+    "words_pool": [
+      {"word": "I wonder", "position": "subject"},
+      {"word": "what", "position": "verb"},
+      {"word": "happened", "position": "object"}
+    ],
+    "visual_theme": "curiosity",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 215,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "gerund",
+    "target_sentence": "Swimming is healthy",
+    "hint_ja": "水泳は健康的です",
+    "words_pool": [
+      {"word": "Swimming", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "healthy", "position": "object"}
+    ],
+    "visual_theme": "sports",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 216,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "infinitive",
+    "target_sentence": "I want to travel",
+    "hint_ja": "旅行したいです",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "want to", "position": "verb"},
+      {"word": "travel", "position": "object"}
+    ],
+    "visual_theme": "travel",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 217,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "tag_question",
+    "target_sentence": "It's cold, isn't it?",
+    "hint_ja": "寒いですよね？",
+    "words_pool": [
+      {"word": "It's cold,", "position": "subject"},
+      {"word": "isn't", "position": "verb"},
+      {"word": "it?", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 218,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "reported_speech",
+    "target_sentence": "She said she was tired",
+    "hint_ja": "彼女は疲れたと言いました",
+    "words_pool": [
+      {"word": "She said", "position": "subject"},
+      {"word": "she was", "position": "verb"},
+      {"word": "tired", "position": "object"}
+    ],
+    "visual_theme": "communication",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 219,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "conjunction",
+    "target_sentence": "Study hard or fail",
+    "hint_ja": "一生懸命勉強しないと失敗します",
+    "words_pool": [
+      {"word": "Study", "position": "subject"},
+      {"word": "hard or", "position": "verb"},
+      {"word": "fail", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 220,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "adverb_clause",
+    "target_sentence": "When I arrive, call me",
+    "hint_ja": "着いたら電話してください",
+    "words_pool": [
+      {"word": "When I", "position": "subject"},
+      {"word": "arrive,", "position": "verb"},
+      {"word": "call me", "position": "object"}
+    ],
+    "visual_theme": "communication",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 221,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "superlative",
+    "target_sentence": "This is the best",
+    "hint_ja": "これが最高です",
+    "words_pool": [
+      {"word": "This", "position": "subject"},
+      {"word": "is the", "position": "verb"},
+      {"word": "best", "position": "object"}
+    ],
+    "visual_theme": "comparison",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 222,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "present_perfect_continuous",
+    "target_sentence": "I've been waiting here",
+    "hint_ja": "ここで待っています",
+    "words_pool": [
+      {"word": "I've", "position": "subject"},
+      {"word": "been waiting", "position": "verb"},
+      {"word": "here", "position": "object"}
+    ],
+    "visual_theme": "time",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 223,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "causative",
+    "target_sentence": "Let me help you",
+    "hint_ja": "手伝わせてください",
+    "words_pool": [
+      {"word": "Let me", "position": "subject"},
+      {"word": "help", "position": "verb"},
+      {"word": "you", "position": "object"}
+    ],
+    "visual_theme": "helping",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 224,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "emphasis",
+    "target_sentence": "I do love music",
+    "hint_ja": "本当に音楽が好きです",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "do love", "position": "verb"},
+      {"word": "music", "position": "object"}
+    ],
+    "visual_theme": "music",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 225,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "relative_clause",
+    "target_sentence": "The man who called",
+    "hint_ja": "電話をかけた男性",
+    "words_pool": [
+      {"word": "The man", "position": "subject"},
+      {"word": "who", "position": "verb"},
+      {"word": "called", "position": "object"}
+    ],
+    "visual_theme": "people",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 226,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "exclamation",
+    "target_sentence": "What a beautiful day!",
+    "hint_ja": "なんて美しい日でしょう！",
+    "words_pool": [
+      {"word": "What a", "position": "subject"},
+      {"word": "beautiful", "position": "verb"},
+      {"word": "day!", "position": "object"}
+    ],
+    "visual_theme": "weather",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 227,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "phrasal_verb",
+    "target_sentence": "Please turn off lights",
+    "hint_ja": "電気を消してください",
+    "words_pool": [
+      {"word": "Please", "position": "subject"},
+      {"word": "turn off", "position": "verb"},
+      {"word": "lights", "position": "object"}
+    ],
+    "visual_theme": "energy",
+    "difficulty_score": 3
+  },
+  {
+    "set_id": 228,
+    "level": "intermediate",
+    "eiken_level": "4",
+    "category": "used_to",
+    "target_sentence": "I used to dance",
+    "hint_ja": "以前はダンスをしていました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "used to", "position": "verb"},
+      {"word": "dance", "position": "object"}
+    ],
+    "visual_theme": "activities",
+    "difficulty_score": 4
+  },
+  {
+    "set_id": 229,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "subjunctive",
+    "target_sentence": "If I were rich",
+    "hint_ja": "もし私が金持ちだったら",
+    "words_pool": [
+      {"word": "If I", "position": "subject"},
+      {"word": "were", "position": "verb"},
+      {"word": "rich", "position": "object"}
+    ],
+    "visual_theme": "hypothetical",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 230,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "perfect_continuous",
+    "target_sentence": "They had been working",
+    "hint_ja": "彼らは働き続けていました",
+    "words_pool": [
+      {"word": "They had", "position": "subject"},
+      {"word": "been", "position": "verb"},
+      {"word": "working", "position": "object"}
+    ],
+    "visual_theme": "work",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 231,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "inversion",
+    "target_sentence": "Never have I seen",
+    "hint_ja": "今まで見たことがない",
+    "words_pool": [
+      {"word": "Never", "position": "subject"},
+      {"word": "have I", "position": "verb"},
+      {"word": "seen", "position": "object"}
+    ],
+    "visual_theme": "emphasis",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 232,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "participle",
+    "target_sentence": "Having finished, she left",
+    "hint_ja": "終えてから彼女は去りました",
+    "words_pool": [
+      {"word": "Having", "position": "subject"},
+      {"word": "finished, she", "position": "verb"},
+      {"word": "left", "position": "object"}
+    ],
+    "visual_theme": "sequence",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 233,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "mixed_conditional",
+    "target_sentence": "Had I known earlier",
+    "hint_ja": "もっと早く知っていたら",
+    "words_pool": [
+      {"word": "Had I", "position": "subject"},
+      {"word": "known", "position": "verb"},
+      {"word": "earlier", "position": "object"}
+    ],
+    "visual_theme": "regret",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 234,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "cleft_sentence",
+    "target_sentence": "It was John who",
+    "hint_ja": "それはジョンだった",
+    "words_pool": [
+      {"word": "It was", "position": "subject"},
+      {"word": "John", "position": "verb"},
+      {"word": "who", "position": "object"}
+    ],
+    "visual_theme": "emphasis",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 235,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "reduced_relative",
+    "target_sentence": "The book written by",
+    "hint_ja": "〜によって書かれた本",
+    "words_pool": [
+      {"word": "The book", "position": "subject"},
+      {"word": "written", "position": "verb"},
+      {"word": "by", "position": "object"}
+    ],
+    "visual_theme": "literature",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 236,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "modal_perfect",
+    "target_sentence": "She must have forgotten",
+    "hint_ja": "彼女は忘れたに違いない",
+    "words_pool": [
+      {"word": "She must", "position": "subject"},
+      {"word": "have", "position": "verb"},
+      {"word": "forgotten", "position": "object"}
+    ],
+    "visual_theme": "deduction",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 237,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "wish_clause",
+    "target_sentence": "I wish I could",
+    "hint_ja": "できたらいいのに",
+    "words_pool": [
+      {"word": "I wish", "position": "subject"},
+      {"word": "I", "position": "verb"},
+      {"word": "could", "position": "object"}
+    ],
+    "visual_theme": "desire",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 238,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "subjunctive_mood",
+    "target_sentence": "I suggest he go",
+    "hint_ja": "彼が行くことを提案します",
+    "words_pool": [
+      {"word": "I suggest", "position": "subject"},
+      {"word": "he", "position": "verb"},
+      {"word": "go", "position": "object"}
+    ],
+    "visual_theme": "suggestion",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 239,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "emphatic_do",
+    "target_sentence": "I did tell you",
+    "hint_ja": "確かに言いました",
+    "words_pool": [
+      {"word": "I", "position": "subject"},
+      {"word": "did tell", "position": "verb"},
+      {"word": "you", "position": "object"}
+    ],
+    "visual_theme": "emphasis",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 240,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "causative_passive",
+    "target_sentence": "I was made to wait",
+    "hint_ja": "待たされました",
+    "words_pool": [
+      {"word": "I was", "position": "subject"},
+      {"word": "made to", "position": "verb"},
+      {"word": "wait", "position": "object"}
+    ],
+    "visual_theme": "obligation",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 241,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "fronting",
+    "target_sentence": "Beautiful was the sunset",
+    "hint_ja": "夕日は美しかった",
+    "words_pool": [
+      {"word": "Beautiful", "position": "subject"},
+      {"word": "was the", "position": "verb"},
+      {"word": "sunset", "position": "object"}
+    ],
+    "visual_theme": "nature",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 242,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "ellipsis",
+    "target_sentence": "I can and I will",
+    "hint_ja": "できるし、するつもりだ",
+    "words_pool": [
+      {"word": "I can", "position": "subject"},
+      {"word": "and I", "position": "verb"},
+      {"word": "will", "position": "object"}
+    ],
+    "visual_theme": "determination",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 243,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "nominal_clause",
+    "target_sentence": "What matters is effort",
+    "hint_ja": "大切なのは努力です",
+    "words_pool": [
+      {"word": "What matters", "position": "subject"},
+      {"word": "is", "position": "verb"},
+      {"word": "effort", "position": "object"}
+    ],
+    "visual_theme": "values",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 244,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "appositive",
+    "target_sentence": "Tokyo, the capital, is",
+    "hint_ja": "首都である東京は",
+    "words_pool": [
+      {"word": "Tokyo, the", "position": "subject"},
+      {"word": "capital,", "position": "verb"},
+      {"word": "is", "position": "object"}
+    ],
+    "visual_theme": "geography",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 245,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "absolute_construction",
+    "target_sentence": "Weather permitting, we'll go",
+    "hint_ja": "天気が良ければ行きます",
+    "words_pool": [
+      {"word": "Weather", "position": "subject"},
+      {"word": "permitting,", "position": "verb"},
+      {"word": "we'll go", "position": "object"}
+    ],
+    "visual_theme": "planning",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 246,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "split_infinitive",
+    "target_sentence": "To boldly go forward",
+    "hint_ja": "勇敢に前進する",
+    "words_pool": [
+      {"word": "To boldly", "position": "subject"},
+      {"word": "go", "position": "verb"},
+      {"word": "forward", "position": "object"}
+    ],
+    "visual_theme": "courage",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 247,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "double_negative",
+    "target_sentence": "I can't not go",
+    "hint_ja": "行かないわけにはいかない",
+    "words_pool": [
+      {"word": "I can't", "position": "subject"},
+      {"word": "not", "position": "verb"},
+      {"word": "go", "position": "object"}
+    ],
+    "visual_theme": "obligation",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 248,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "tag_inversion",
+    "target_sentence": "Beautiful, isn't it?",
+    "hint_ja": "美しいですね？",
+    "words_pool": [
+      {"word": "Beautiful,", "position": "subject"},
+      {"word": "isn't", "position": "verb"},
+      {"word": "it?", "position": "object"}
+    ],
+    "visual_theme": "appreciation",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 249,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "concessive",
+    "target_sentence": "Much as I tried",
+    "hint_ja": "どんなに試みても",
+    "words_pool": [
+      {"word": "Much as", "position": "subject"},
+      {"word": "I", "position": "verb"},
+      {"word": "tried", "position": "object"}
+    ],
+    "visual_theme": "effort",
+    "difficulty_score": 6
+  },
+  {
+    "set_id": 250,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "correlative",
+    "target_sentence": "The more, the better",
+    "hint_ja": "多ければ多いほど良い",
+    "words_pool": [
+      {"word": "The more,", "position": "subject"},
+      {"word": "the", "position": "verb"},
+      {"word": "better", "position": "object"}
+    ],
+    "visual_theme": "comparison",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 251,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "existential",
+    "target_sentence": "There seems to be",
+    "hint_ja": "〜があるようです",
+    "words_pool": [
+      {"word": "There", "position": "subject"},
+      {"word": "seems to", "position": "verb"},
+      {"word": "be", "position": "object"}
+    ],
+    "visual_theme": "observation",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 252,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "pseudo_cleft",
+    "target_sentence": "What I need is",
+    "hint_ja": "私が必要なのは",
+    "words_pool": [
+      {"word": "What I", "position": "subject"},
+      {"word": "need", "position": "verb"},
+      {"word": "is", "position": "object"}
+    ],
+    "visual_theme": "needs",
+    "difficulty_score": 5
+  },
+  {
+    "set_id": 253,
+    "level": "advanced",
+    "eiken_level": "3",
+    "category": "extraposition",
+    "target_sentence": "It's important to study",
+    "hint_ja": "勉強することは重要です",
+    "words_pool": [
+      {"word": "It's", "position": "subject"},
+      {"word": "important to", "position": "verb"},
+      {"word": "study", "position": "object"}
+    ],
+    "visual_theme": "education",
+    "difficulty_score": 5
   }
 ]

@@ -309,6 +309,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // ゲーム状態
@@ -629,7 +631,7 @@ const playAgain = () => {
 
 const returnToMenu = () => {
   // ゲームメニューに戻る処理
-  console.log('Returning to main menu...')
+  logger.log('Returning to main menu...')
 }
 
 const playAudio = () => {

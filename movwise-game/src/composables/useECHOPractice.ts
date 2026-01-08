@@ -2,6 +2,7 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAIPracticeStore } from '@/stores/aiPracticeStore'
 import type { VRScenario } from '@/types/ai-practice'
+import logger from '@/utils/logger'
 
 export function useECHOPractice() {
   const aiPracticeStore = useAIPracticeStore()
@@ -146,7 +147,7 @@ export function useECHOPractice() {
     try {
       speechRecognition.value.start()
     } catch (error) {
-      console.error('音声認識開始エラー:', error)
+      logger.error('音声認識開始エラー:', error)
       stopVoiceRecording()
     }
   }
@@ -180,7 +181,7 @@ export function useECHOPractice() {
   }
 
   const getScenarioProgress = (scenario: VRScenario) => {
-    const completedObjectives = 0 // TODO: Track objective completion
+    const completedObjectives = objectives.filter(o => o.completed).length // Track completed objectives
     return (completedObjectives / scenario.objectives.length) * 100
   }
 
@@ -206,7 +207,7 @@ export function useECHOPractice() {
   // Watch for errors
   watch(error, (newError) => {
     if (newError) {
-      console.error('ECHO Practice Error:', newError)
+      logger.error('ECHO Practice Error:', newError)
       setTimeout(() => {
         aiPracticeStore.clearError()
       }, 5000)
@@ -245,7 +246,7 @@ export function useECHOPractice() {
         userInput.value = transcript
         
         // Show confidence indicator
-        console.log(`Speech recognition confidence: ${(confidence * 100).toFixed(1)}%`)
+        logger.log(`Speech recognition confidence: ${(confidence * 100).toFixed(1)}%`)
         
         // Auto-submit after speech recognition
         setTimeout(() => {
@@ -260,7 +261,7 @@ export function useECHOPractice() {
       }
       
       speechRecognition.value.onerror = (event: any) => {
-        console.error('音声認識エラー:', event.error)
+        logger.error('音声認識エラー:', event.error)
         stopVoiceRecording()
         
         let errorMessage = '音声認識でエラーが発生しました。'
@@ -287,7 +288,7 @@ export function useECHOPractice() {
       }
     } else {
       speechSupported.value = false
-      console.warn('この端末では音声認識がサポートされていません')
+      logger.warn('この端末では音声認識がサポートされていません')
     }
   }
 

@@ -44,6 +44,7 @@ export default defineConfig({
     emptyOutDir: true,
     // Code splitting configuration
     rollupOptions: {
+      external: ['socket.io-client', 'express', 'cors', 'dotenv', 'stripe', 'qrcode'],
       output: {
         // Manual chunks for better caching
         manualChunks: {

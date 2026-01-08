@@ -307,6 +307,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   SpeakerIcon, HeadphonesIcon, MicIcon, Volume2Icon, VolumeXIcon,
@@ -431,7 +433,7 @@ const detectDevices = async () => {
 
     devicesDetected.value = true
   } catch (error) {
-    console.warn('Device detection error:', error)
+    logger.warn('Device detection error:', error)
     outputDeviceStatus.value = 'error'
   } finally {
     isDetecting.value = false
@@ -465,7 +467,7 @@ const playVolumeTest = async (test) => {
       speechSynthesis.speak(utterance)
     })
   } catch (error) {
-    console.warn('Volume test error:', error)
+    logger.warn('Volume test error:', error)
   } finally {
     isPlaying.value = false
   }
@@ -489,7 +491,7 @@ const playTestPhoneme = async () => {
   try {
     await playNativePhoneme(currentTestPhoneme.value.symbol)
   } catch (error) {
-    console.warn('Phoneme test error:', error)
+    logger.warn('Phoneme test error:', error)
   } finally {
     isPlaying.value = false
   }
@@ -538,7 +540,7 @@ const startRecording = async () => {
     }, 3000)
 
   } catch (error) {
-    console.warn('Recording start error:', error)
+    logger.warn('Recording start error:', error)
   }
 }
 
@@ -632,7 +634,7 @@ onMounted(async () => {
   try {
     await initNativeAudio()
   } catch (error) {
-    console.warn('Audio initialization error:', error)
+    logger.warn('Audio initialization error:', error)
   }
 
   // Auto-detect devices on mount

@@ -152,6 +152,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useConnectionStore } from '@/stores/connectionStatus'
 
@@ -220,7 +222,7 @@ export default {
     
     // オフラインモード開始
     const enableOfflineMode = () => {
-      console.log('🛸 Enabling offline mode...')
+      logger.log('🛸 Enabling offline mode...')
       isOfflineMode.value = true
       showOfflineDialog.value = false
       showBanner.value = true
@@ -242,7 +244,7 @@ export default {
     
     // オフラインモード終了
     const disableOfflineMode = () => {
-      console.log('🌐 Disabling offline mode...')
+      logger.log('🌐 Disabling offline mode...')
       isOfflineMode.value = false
       showBanner.value = false
       showConnectionRestored.value = false
@@ -276,10 +278,10 @@ export default {
           }
           
           localStorage.setItem('movwise_offline_saves', JSON.stringify(saves))
-          console.log('💾 Current progress saved to offline storage')
+          logger.log('💾 Current progress saved to offline storage')
         }
       } catch (error) {
-        console.error('Failed to save current progress:', error)
+        logger.error('Failed to save current progress:', error)
       }
     }
     
@@ -291,9 +293,9 @@ export default {
           ...save,
           timestamp: new Date(save.timestamp)
         }))
-        console.log(`📂 Loaded ${savedProgress.value.length} saved games`)
+        logger.log(`📂 Loaded ${savedProgress.value.length} saved games`)
       } catch (error) {
-        console.error('Failed to load saved progress:', error)
+        logger.error('Failed to load saved progress:', error)
         savedProgress.value = []
       }
     }
@@ -315,7 +317,7 @@ export default {
     
     // ゲーム復元
     const restoreGame = (save) => {
-      console.log('🔄 Restoring game from save:', save.id)
+      logger.log('🔄 Restoring game from save:', save.id)
       
       // 実際のプロジェクトでは、ゲーム状態を復元
       emit('game-restored', save)
@@ -342,7 +344,7 @@ export default {
           showConnectionRestored.value = true
         }
       } catch (error) {
-        console.error('Connection check failed:', error)
+        logger.error('Connection check failed:', error)
       } finally {
         setTimeout(() => {
           isCheckingConnection.value = false
@@ -386,7 +388,7 @@ export default {
         }, 1000)
         
       } catch (error) {
-        console.error('Sync failed:', error)
+        logger.error('Sync failed:', error)
         isSyncing.value = false
         emit('sync-failed', error)
         
@@ -440,7 +442,7 @@ export default {
     
     // ライフサイクル
     onMounted(() => {
-      console.log('🛸 OfflineMode component mounted')
+      logger.log('🛸 OfflineMode component mounted')
       loadSavedProgress()
       
       // 初期状態の確認

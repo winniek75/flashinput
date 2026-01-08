@@ -1,6 +1,7 @@
 // src/composables/useGameAudio.js - 完全版（エラー対策）
 import { ref, reactive, computed, onMounted, onUnmounted, readonly } from 'vue'
 import { phonemeAudioService } from '@/services/phonemeAudioService'
+import logger from '@/utils/logger'
 
 export function useGameAudio() {
   // === リアクティブな状態 ===
@@ -127,7 +128,7 @@ export function useGameAudio() {
       }
       return patterns[effectType] || [50]
     } catch (error) {
-      console.warn('Vibration pattern error:', error)
+      logger.warn('Vibration pattern error:', error)
       return [50]
     }
   }
@@ -137,7 +138,7 @@ export function useGameAudio() {
     try {
       const effect = effectSounds[soundType]
       if (!effect) {
-        console.warn('Unknown effect type:', soundType)
+        logger.warn('Unknown effect type:', soundType)
         return false
       }
 
@@ -156,11 +157,11 @@ export function useGameAudio() {
         navigator.vibrate(pattern)
       }
 
-      console.log(`Visual feedback: ${soundType}`)
+      logger.log(`Visual feedback: ${soundType}`)
       return true
 
     } catch (error) {
-      console.warn('Visual feedback error:', error)
+      logger.warn('Visual feedback error:', error)
       return false
     }
   }
@@ -188,7 +189,7 @@ export function useGameAudio() {
           supportedFeatures.audioContext = true
         }
       } catch (error) {
-        console.warn('Web Audio API not supported:', error)
+        logger.warn('Web Audio API not supported:', error)
         supportedFeatures.webAudio = false
         supportedFeatures.audioContext = false
       }
@@ -199,7 +200,7 @@ export function useGameAudio() {
           speechRecognition.value = new SpeechRecognition()
           setupSpeechRecognition()
         } catch (error) {
-          console.warn('Speech Recognition initialization failed:', error)
+          logger.warn('Speech Recognition initialization failed:', error)
           supportedFeatures.speechRecognition = false
         }
       }
@@ -207,13 +208,13 @@ export function useGameAudio() {
       isInitialized.value = true
       contextState.value = supportedFeatures.speechSynthesis ? 'ready' : 'limited'
 
-      console.log('Audio system initialized with speech recognition')
-      console.log('Supported features:', supportedFeatures)
+      logger.log('Audio system initialized with speech recognition')
+      logger.log('Supported features:', supportedFeatures)
 
       return true
 
     } catch (error) {
-      console.error('Audio initialization failed:', error)
+      logger.error('Audio initialization failed:', error)
       audioError.value = error.message
       return false
     }
@@ -234,11 +235,11 @@ export function useGameAudio() {
         return await playPhoneme(data)
       }
 
-      console.log(`Unknown sound type: ${type} - ${data}`)
+      logger.log(`Unknown sound type: ${type} - ${data}`)
       return playVisualFeedback('button')
 
     } catch (error) {
-      console.error('Sound playback error:', error)
+      logger.error('Sound playback error:', error)
       audioError.value = error.message
       return playVisualFeedback('button')
     }
@@ -262,12 +263,12 @@ export function useGameAudio() {
         phoneme = phonemeObj.ipa
         nativeTips = phonemeObj.nativeTips || ''
       } else {
-        console.warn('No phoneme data provided for playback')
+        logger.warn('No phoneme data provided for playback')
         isPlaying.value = false
         return playVisualFeedback('button')
       }
 
-      console.log('🎵 Playing phoneme audio file:', phoneme, '| Tips:', nativeTips)
+      logger.log('🎵 Playing phoneme audio file:', phoneme, '| Tips:', nativeTips)
       
       // 実際の音声ファイルを再生
       await phonemeAudioService.playPhoneme(phoneme, {
@@ -276,11 +277,11 @@ export function useGameAudio() {
       })
       
       isPlaying.value = false
-      console.log('✅ Phoneme audio completed:', phoneme)
+      logger.log('✅ Phoneme audio completed:', phoneme)
       return true
 
     } catch (error) {
-      console.warn('⚠️ Phoneme audio playback error:', error)
+      logger.warn('⚠️ Phoneme audio playback error:', error)
       isPlaying.value = false
       
       // フォールバック: Speech Synthesis を使用
@@ -292,7 +293,7 @@ export function useGameAudio() {
   const playPhonemeWithSpeechSynthesis = async (phonemeObj) => {
     try {
       if (!supportedFeatures.speechSynthesis) {
-        console.log('Speech synthesis not supported, using visual feedback only')
+        logger.log('Speech synthesis not supported, using visual feedback only')
         return playVisualFeedback('button')
       }
 
@@ -324,7 +325,7 @@ export function useGameAudio() {
         
         if (bestNativeVoice) {
           utterance.voice = bestNativeVoice
-          console.log('🎙️ Fallback: Using speech synthesis for:', ipaSymbol)
+          logger.log('🎙️ Fallback: Using speech synthesis for:', ipaSymbol)
         }
 
         utterance.onend = () => {
@@ -334,7 +335,7 @@ export function useGameAudio() {
 
         utterance.onerror = (error) => {
           isPlaying.value = false
-          console.warn('Speech synthesis fallback error:', error)
+          logger.warn('Speech synthesis fallback error:', error)
           playVisualFeedback('incorrect')
           resolve(false)
         }
@@ -343,7 +344,7 @@ export function useGameAudio() {
       })
 
     } catch (error) {
-      console.warn('Speech synthesis fallback failed:', error)
+      logger.warn('Speech synthesis fallback failed:', error)
       isPlaying.value = false
       return playVisualFeedback('incorrect')
     }
@@ -353,7 +354,7 @@ export function useGameAudio() {
   const playWord = async (wordObj) => {
     try {
       if (!soundEnabled.value || !supportedFeatures.speechSynthesis) {
-        console.log('Word playback disabled or not supported:', wordObj?.word)
+        logger.log('Word playback disabled or not supported:', wordObj?.word)
         return playVisualFeedback('button')
       }
 
@@ -365,7 +366,7 @@ export function useGameAudio() {
       const wordType = wordObj?.type || 'general'
       
       if (!word) {
-        console.warn('No word provided for playback')
+        logger.warn('No word provided for playback')
         return playVisualFeedback('button')
       }
 
@@ -387,26 +388,26 @@ export function useGameAudio() {
         
         if (bestNativeVoice) {
           utterance.voice = bestNativeVoice
-          console.log('🎙️ Using premium native voice for word:', bestNativeVoice.name, '| Word:', word, '| Type:', wordType)
+          logger.log('🎙️ Using premium native voice for word:', bestNativeVoice.name, '| Word:', word, '| Type:', wordType)
         }
 
         utterance.onend = () => {
           isPlaying.value = false
-          console.log('✅ Native word completed:', word, '| Optimized:', optimizedWord)
+          logger.log('✅ Native word completed:', word, '| Optimized:', optimizedWord)
           resolve(true)
         }
 
         utterance.onerror = (error) => {
           isPlaying.value = false
-          console.warn('⚠️ Native word error:', error)
+          logger.warn('⚠️ Native word error:', error)
           playVisualFeedback('incorrect')
           resolve(false)
         }
 
         utterance.onstart = () => {
-          console.log('🎤 Native word started:', word)
+          logger.log('🎤 Native word started:', word)
           if (pronunciation) {
-            console.log('🔊 Pronunciation guide:', pronunciation)
+            logger.log('🔊 Pronunciation guide:', pronunciation)
           }
         }
 
@@ -416,7 +417,7 @@ export function useGameAudio() {
 
     } catch (error) {
       isPlaying.value = false
-      console.warn('Native word playback error:', error)
+      logger.warn('Native word playback error:', error)
       return playVisualFeedback('button')
     }
   }
@@ -424,10 +425,10 @@ export function useGameAudio() {
   // === 効果音再生（視覚的フィードバックのみ） ===
   const playEffectSound = async (effectType, options = {}) => {
     try {
-      console.log('Effect sound (visual only):', effectType)
+      logger.log('Effect sound (visual only):', effectType)
       return playVisualFeedback(effectType)
     } catch (error) {
-      console.warn('Effect sound error:', error)
+      logger.warn('Effect sound error:', error)
       return false
     }
   }
@@ -436,7 +437,7 @@ export function useGameAudio() {
   const playSequence = async (sequence, options = {}) => {
     try {
       if (!Array.isArray(sequence)) {
-        console.warn('Invalid sequence format')
+        logger.warn('Invalid sequence format')
         return false
       }
 
@@ -451,7 +452,7 @@ export function useGameAudio() {
       }
       return true
     } catch (error) {
-      console.warn('Sequence playback error:', error)
+      logger.warn('Sequence playback error:', error)
       return false
     }
   }
@@ -459,10 +460,10 @@ export function useGameAudio() {
   // === 自動再生機能（無効化） ===
   const playAutoAudio = async (phoneme, word = null) => {
     try {
-      console.log('Auto audio disabled:', { phoneme, word })
+      logger.log('Auto audio disabled:', { phoneme, word })
       return false
     } catch (error) {
-      console.warn('Auto audio error:', error)
+      logger.warn('Auto audio error:', error)
       return false
     }
   }
@@ -470,10 +471,10 @@ export function useGameAudio() {
   // === Be Verb Rush専用：カウントダウン音声 ===
   const playCountdown = async (number) => {
     try {
-      console.log('Countdown (visual only):', number)
+      logger.log('Countdown (visual only):', number)
       return playVisualFeedback('countdown')
     } catch (error) {
-      console.warn('Countdown failed:', error)
+      logger.warn('Countdown failed:', error)
       return false
     }
   }
@@ -481,10 +482,10 @@ export function useGameAudio() {
   // === Be Verb Rush専用：ゲーム開始音 ===
   const playGameStart = async () => {
     try {
-      console.log('Game start (visual only)')
+      logger.log('Game start (visual only)')
       return playVisualFeedback('gameStart')
     } catch (error) {
-      console.warn('Game start failed:', error)
+      logger.warn('Game start failed:', error)
       return false
     }
   }
@@ -492,11 +493,11 @@ export function useGameAudio() {
   // === Be Verb Rush専用：ゲーム終了音 ===
   const playGameEnd = async (isSuccess = true) => {
     try {
-      console.log('Game end (visual only):', isSuccess)
+      logger.log('Game end (visual only):', isSuccess)
       const effectType = isSuccess ? 'complete' : 'gameEnd'
       return playVisualFeedback(effectType)
     } catch (error) {
-      console.warn('Game end failed:', error)
+      logger.warn('Game end failed:', error)
       return false
     }
   }
@@ -504,10 +505,10 @@ export function useGameAudio() {
   // === Be Verb Rush専用：コンボ音 ===
   const playCombo = async (comboCount) => {
     try {
-      console.log('Combo (visual only):', comboCount)
+      logger.log('Combo (visual only):', comboCount)
       return playVisualFeedback('combo')
     } catch (error) {
-      console.warn('Combo failed:', error)
+      logger.warn('Combo failed:', error)
       return false
     }
   }
@@ -515,10 +516,10 @@ export function useGameAudio() {
   // === Be Verb Rush専用：時間警告音 ===
   const playTimeWarning = async () => {
     try {
-      console.log('Time warning (visual only)')
+      logger.log('Time warning (visual only)')
       return playVisualFeedback('timeWarning')
     } catch (error) {
-      console.warn('Time warning failed:', error)
+      logger.warn('Time warning failed:', error)
       return false
     }
   }
@@ -527,9 +528,9 @@ export function useGameAudio() {
   const setVolume = (volume) => {
     try {
       currentVolume.value = Math.max(0, Math.min(1, volume))
-      console.log('Volume set (audio disabled):', currentVolume.value)
+      logger.log('Volume set (audio disabled):', currentVolume.value)
     } catch (error) {
-      console.warn('Volume setting error:', error)
+      logger.warn('Volume setting error:', error)
     }
   }
 
@@ -544,26 +545,26 @@ export function useGameAudio() {
   // === 音声設定の切り替え（無効化） ===
   const toggleSound = () => {
     try {
-      console.log('Sound toggle (disabled for stability)')
+      logger.log('Sound toggle (disabled for stability)')
     } catch (error) {
-      console.warn('Sound toggle error:', error)
+      logger.warn('Sound toggle error:', error)
     }
   }
 
   const toggleVibration = () => {
     try {
-      console.log('Vibration toggle')
+      logger.log('Vibration toggle')
       // バイブレーション設定の切り替えは実装可能
     } catch (error) {
-      console.warn('Vibration toggle error:', error)
+      logger.warn('Vibration toggle error:', error)
     }
   }
 
   const toggleAutoPlay = () => {
     try {
-      console.log('Auto play toggle (disabled)')
+      logger.log('Auto play toggle (disabled)')
     } catch (error) {
-      console.warn('Auto play toggle error:', error)
+      logger.warn('Auto play toggle error:', error)
     }
   }
 
@@ -581,17 +582,17 @@ export function useGameAudio() {
 
     // イベントハンドラー
     recognition.onstart = () => {
-      console.log('🎤 Speech recognition started')
+      logger.log('🎤 Speech recognition started')
       isRecording.value = true
     }
 
     recognition.onend = () => {
-      console.log('🎤 Speech recognition ended')
+      logger.log('🎤 Speech recognition ended')
       isRecording.value = false
     }
 
     recognition.onresult = (event) => {
-      console.log('🎤 Speech recognition result:', event)
+      logger.log('🎤 Speech recognition result:', event)
       
       const results = []
       for (let i = 0; i < event.results.length; i++) {
@@ -612,7 +613,7 @@ export function useGameAudio() {
     }
 
     recognition.onerror = (event) => {
-      console.error('🎤 Speech recognition error:', event.error)
+      logger.error('🎤 Speech recognition error:', event.error)
       isRecording.value = false
       audioError.value = `Speech recognition error: ${event.error}`
     }
@@ -626,7 +627,7 @@ export function useGameAudio() {
       }
 
       if (isRecording.value) {
-        console.warn('Recording already in progress')
+        logger.warn('Recording already in progress')
         return false
       }
 
@@ -648,11 +649,11 @@ export function useGameAudio() {
       lastRecognitionConfidence.value = 0
       speechRecognition.value.start()
 
-      console.log('🎤 Recording started')
+      logger.log('🎤 Recording started')
       return true
 
     } catch (error) {
-      console.error('Recording start error:', error)
+      logger.error('Recording start error:', error)
       audioError.value = error.message
       isRecording.value = false
       return false
@@ -663,7 +664,7 @@ export function useGameAudio() {
   const stopRecording = async () => {
     try {
       if (!isRecording.value) {
-        console.warn('No recording in progress')
+        logger.warn('No recording in progress')
         return false
       }
 
@@ -678,11 +679,11 @@ export function useGameAudio() {
         audioStream.value = null
       }
 
-      console.log('🎤 Recording stopped')
+      logger.log('🎤 Recording stopped')
       return true
 
     } catch (error) {
-      console.error('Recording stop error:', error)
+      logger.error('Recording stop error:', error)
       audioError.value = error.message
       return false
     }
@@ -701,7 +702,7 @@ export function useGameAudio() {
       const recognizedText = bestResult.transcript.toLowerCase().trim()
       const confidence = bestResult.confidence
 
-      console.log('🔍 Analyzing pronunciation:', {
+      logger.log('🔍 Analyzing pronunciation:', {
         target: targetPhoneme,
         recognized: recognizedText,
         confidence: confidence
@@ -728,7 +729,7 @@ export function useGameAudio() {
       }
 
     } catch (error) {
-      console.error('Audio analysis error:', error)
+      logger.error('Audio analysis error:', error)
       isAnalyzing.value = false
       
       // フォールバック: ランダムスコア
@@ -797,7 +798,7 @@ export function useGameAudio() {
       }
 
     } catch (error) {
-      console.error('Score calculation error:', error)
+      logger.error('Score calculation error:', error)
       return {
         score: 60,
         accuracy: 0.6,
@@ -822,7 +823,7 @@ export function useGameAudio() {
       return Math.max(0, similarity + phonemeAdjustment)
 
     } catch (error) {
-      console.error('Phoneme score calculation error:', error)
+      logger.error('Phoneme score calculation error:', error)
       return 0.5
     }
   }
@@ -849,7 +850,7 @@ export function useGameAudio() {
       return baseScore
 
     } catch (error) {
-      console.error('CV combination adjustment error:', error)
+      logger.error('CV combination adjustment error:', error)
       return baseScore
     }
   }
@@ -910,7 +911,7 @@ export function useGameAudio() {
       return adjustment
 
     } catch (error) {
-      console.error('Phoneme adjustment error:', error)
+      logger.error('Phoneme adjustment error:', error)
       return 0
     }
   }
@@ -918,7 +919,7 @@ export function useGameAudio() {
   // === 音声テスト機能 ===
   const testAudio = async () => {
     try {
-      console.log('Audio test with speech recognition')
+      logger.log('Audio test with speech recognition')
 
       const testSequence = [
         { type: 'effect', data: 'button', options: { volume: 0.5 } },
@@ -931,13 +932,13 @@ export function useGameAudio() {
 
       // 音声認識テスト
       if (supportedFeatures.speechRecognition) {
-        console.log('Testing speech recognition...')
+        logger.log('Testing speech recognition...')
         // テストは実際の録音なしで実行
       }
 
       return true
     } catch (error) {
-      console.warn('Audio test failed:', error)
+      logger.warn('Audio test failed:', error)
       return false
     }
   }
@@ -946,12 +947,12 @@ export function useGameAudio() {
   const speakText = async (text, options = {}) => {
     try {
       if (!soundEnabled.value) {
-        console.log('Sound is disabled')
+        logger.log('Sound is disabled')
         return playVisualFeedback('speak')
       }
 
       if (!supportedFeatures.speechSynthesis) {
-        console.warn('Speech synthesis not supported')
+        logger.warn('Speech synthesis not supported')
         return playVisualFeedback('speak')
       }
 
@@ -969,17 +970,17 @@ export function useGameAudio() {
       // イベントハンドラー
       utterance.onstart = () => {
         isPlaying.value = true
-        console.log(`🔊 Speaking: "${text}"`)
+        logger.log(`🔊 Speaking: "${text}"`)
       }
       
       utterance.onend = () => {
         isPlaying.value = false
-        console.log('🔊 Speech completed')
+        logger.log('🔊 Speech completed')
       }
       
       utterance.onerror = (event) => {
         isPlaying.value = false
-        console.error('Speech synthesis error:', event)
+        logger.error('Speech synthesis error:', event)
         audioError.value = event.error
       }
       
@@ -998,7 +999,7 @@ export function useGameAudio() {
       })
       
     } catch (error) {
-      console.error('speakText error:', error)
+      logger.error('speakText error:', error)
       audioError.value = error.message
       return playVisualFeedback('speak')
     }
@@ -1009,32 +1010,32 @@ export function useGameAudio() {
     try {
       speechSynthesis.cancel() // 進行中の音声を停止
       isPlaying.value = false
-      console.log('Audio stopped')
+      logger.log('Audio stopped')
     } catch (error) {
-      console.warn('Stop audio error:', error)
+      logger.warn('Stop audio error:', error)
     }
   }
 
   // === 音声キューのクリア ===
   const clearAudioQueue = () => {
     try {
-      console.log('Audio queue cleared')
+      logger.log('Audio queue cleared')
     } catch (error) {
-      console.warn('Clear audio queue error:', error)
+      logger.warn('Clear audio queue error:', error)
     }
   }
 
   // === エラーハンドリング ===
   const handleAudioError = (error) => {
     try {
-      console.error('Audio error:', error)
+      logger.error('Audio error:', error)
       audioError.value = error.message
       isPlaying.value = false
 
       // エラー通知として視覚的フィードバック
       playVisualFeedback('incorrect')
     } catch (fallbackError) {
-      console.warn('Error handling failed:', fallbackError)
+      logger.warn('Error handling failed:', fallbackError)
     }
   }
 
@@ -1051,7 +1052,7 @@ export function useGameAudio() {
         visualFeedbackEnabled: true
       }
     } catch (error) {
-      console.warn('Get audio status error:', error)
+      logger.warn('Get audio status error:', error)
       return {
         isEnabled: false,
         isInitialized: false,
@@ -1068,7 +1069,7 @@ export function useGameAudio() {
   const enableAudio = async () => {
     try {
       if (!supportedFeatures.speechSynthesis) {
-        console.warn('Speech synthesis not supported')
+        logger.warn('Speech synthesis not supported')
         audioError.value = 'Speech synthesis not supported'
         return false
       }
@@ -1078,12 +1079,12 @@ export function useGameAudio() {
         speechSynthesis.resume()
       }
 
-      console.log('Audio enabled successfully')
+      logger.log('Audio enabled successfully')
       audioError.value = null
       contextState.value = 'ready'
       return true
     } catch (error) {
-      console.warn('Enable audio error:', error)
+      logger.warn('Enable audio error:', error)
       audioError.value = error.message
       return false
     }
@@ -1092,22 +1093,22 @@ export function useGameAudio() {
   // === 音声無効化 ===
   const disableAudio = () => {
     try {
-      console.log('Audio disabled')
+      logger.log('Audio disabled')
       speechSynthesis.cancel() // 進行中の音声を停止
       stopAudio()
       contextState.value = 'disabled'
     } catch (error) {
-      console.warn('Disable audio error:', error)
+      logger.warn('Disable audio error:', error)
     }
   }
 
   // === オーディオコンテキスト再開（無効化） ===
   const resumeAudioContext = async () => {
     try {
-      console.log('Audio context resume (disabled)')
+      logger.log('Audio context resume (disabled)')
       return false
     } catch (error) {
-      console.warn('Audio context resume error:', error)
+      logger.warn('Audio context resume error:', error)
       return false
     }
   }
@@ -1116,9 +1117,9 @@ export function useGameAudio() {
   onMounted(async () => {
     try {
       await initializeAudio()
-      console.log('✅ useGameAudio mounted successfully (visual feedback mode)')
+      logger.log('✅ useGameAudio mounted successfully (visual feedback mode)')
     } catch (error) {
-      console.warn('Audio mount error:', error)
+      logger.warn('Audio mount error:', error)
       handleAudioError(error)
     }
   })
@@ -1127,9 +1128,9 @@ export function useGameAudio() {
     try {
       stopAudio()
       clearAudioQueue()
-      console.log('✅ useGameAudio unmounted successfully')
+      logger.log('✅ useGameAudio unmounted successfully')
     } catch (error) {
-      console.warn('Audio unmount error:', error)
+      logger.warn('Audio unmount error:', error)
     }
   })
 
@@ -1242,7 +1243,7 @@ export function useGameAudio() {
   const speakGrammarInstruction = async (instruction, grammarType = 'general') => {
     try {
       if (!soundEnabled.value || !supportedFeatures.speechSynthesis) {
-        console.log('Grammar instruction playback disabled')
+        logger.log('Grammar instruction playback disabled')
         return playVisualFeedback('button')
       }
       
@@ -1265,7 +1266,7 @@ export function useGameAudio() {
         speechSynthesis.speak(utterance)
       })
     } catch (error) {
-      console.warn('Grammar instruction error:', error)
+      logger.warn('Grammar instruction error:', error)
       return false
     }
   }
@@ -1301,14 +1302,14 @@ export function useGameAudio() {
       
       return new Promise((resolve) => {
         utterance.onend = () => {
-          console.log('✅ Grammar sentence completed:', sentence)
+          logger.log('✅ Grammar sentence completed:', sentence)
           resolve(true)
         }
         utterance.onerror = () => resolve(false)
         speechSynthesis.speak(utterance)
       })
     } catch (error) {
-      console.warn('Sentence pronunciation error:', error)
+      logger.warn('Sentence pronunciation error:', error)
       return false
     }
   }

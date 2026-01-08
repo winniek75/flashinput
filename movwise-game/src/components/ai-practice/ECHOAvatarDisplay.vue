@@ -123,6 +123,8 @@
 </template>
 
 <script setup lang="ts">
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, shallowRef } from 'vue'
 import type { ECHOEmotion, AnimationState, ECHOCharacter } from '@/types/ai-practice'
 import { useECHOAnimation } from '@/composables/useECHOAnimation'
@@ -345,10 +347,10 @@ const startAnimationLoop = () => {
         
         if (currentFPS < 30 && shouldAnimate.value) {
           shouldAnimate.value = false
-          console.warn('ECHOAvatarDisplay: Performance degraded, reducing animations', { fps: currentFPS })
+          logger.warn('ECHOAvatarDisplay: Performance degraded, reducing animations', { fps: currentFPS })
         } else if (currentFPS > 45 && !shouldAnimate.value) {
           shouldAnimate.value = true
-          console.log('ECHOAvatarDisplay: Performance recovered, enabling animations', { fps: currentFPS })
+          logger.log('ECHOAvatarDisplay: Performance recovered, enabling animations', { fps: currentFPS })
         }
       }
     }

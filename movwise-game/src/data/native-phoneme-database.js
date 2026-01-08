@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // src/data/native-phoneme-database.js
 // MovWISE Native English Pronunciation - Accurate 44 Phonemes Database (General American English)
 // Specifically designed for Japanese learners to achieve native-like pronunciation
@@ -468,7 +470,18 @@ export const NATIVE_AUDIO_MAPPING = {
   '/ɔr/': 'or.m4a',   // more
   '/ɪr/': 'ear.m4a',  // near
   '/ɛr/': 'air.m4a',  // care
-  '/ʊr/': 'ure.m4a'   // cure
+  '/ʊr/': 'ure.m4a',  // cure
+  
+  // Jolly Phonics specific sounds
+  '/ks/': 'x.m4a',        // 'x' sound
+  '/kw/': 'qu.m4a',       // 'qu' sound
+  '/tʃ/': 'ch.m4a',       // 'ch' as in chair
+  '/dʒ/': 'j.m4a',        // 'j' as in jump
+  '/θ/': 'th_voiceless.m4a',  // 'th' voiceless
+  '/ð/': 'th_voiced.m4a',     // 'th' voiced
+  '/uː/': 'oo_long.m4a',      // 'oo' long as in moon
+  '/juː/': 'ue.m4a',          // 'ue' as in blue
+  '/ər/': 'er.m4a'            // 'er' as in her
 };
 
 // Critical Pronunciation Tips for Japanese Learners
@@ -513,13 +526,16 @@ export const JAPANESE_LEARNER_TIPS = {
   ]
 };
 
-// Learning Stage Dependencies
+// Learning Stage Dependencies - Jolly Phonics Groups Only
 export const STAGE_DEPENDENCIES = {
-  stage1B: ['stage1A'],
-  stage1C: ['stage1A', 'stage1B'],
-  stage2A: ['stage1A', 'stage1B', 'stage1C'],
-  stage2B: ['stage2A'],
-  stage2C: ['stage2A', 'stage2B']
+  // Jolly Phonics groups - progressive learning
+  group1: [], // No dependencies - starting point
+  group2: ['group1'],
+  group3: ['group2'],
+  group4: ['group3'],
+  group5: ['group4'],
+  group6: ['group5'],
+  group7: ['group6']
 };
 
 // Mastery Criteria for Native Pronunciation
@@ -667,58 +683,764 @@ export const PHONEME_GROUPS = {
   }
 };
 
-// Learning Path for Native Pronunciation Mastery
+// Learning Path for Jolly Phonics Mastery
 export const LEARNING_PATH = [
   {
-    stage: 'stage1A',
-    name: 'Foundation Phonemes',
-    description: 'Critical sounds for Japanese learners',
-    requiredMastery: 0.90,
-    estimatedTime: '2-3 weeks',
-    focus: 'Basic distinctions and aspiration'
+    stage: 'group1',
+    name: 'First Sounds',
+    description: 'Foundation letters: s, a, t, i, p, n',
+    requiredMastery: 0.85,
+    estimatedTime: '1-2 weeks',
+    focus: 'Basic sound recognition and production'
   },
   {
-    stage: 'stage1B',
-    name: 'Critical Distinctions',
-    description: 'Key phonemic contrasts',
-    requiredMastery: 0.90,
-    estimatedTime: '2-3 weeks',
-    focus: 'Vowel quality and consonant voicing'
+    stage: 'group2',
+    name: 'Building Blocks',
+    description: 'Key consonants and vowels: c/k, e, h, r, m, d',
+    requiredMastery: 0.85,
+    estimatedTime: '1-2 weeks',
+    focus: 'Expanding phonetic awareness'
   },
   {
-    stage: 'stage1C',
-    name: 'L/R Mastery',
-    description: 'Liquid distinction training',
+    stage: 'group3',
+    name: 'Core Sounds',
+    description: 'Essential phonemes: g, o, u, l, f, b',
+    requiredMastery: 0.85,
+    estimatedTime: '2-3 weeks',
+    focus: 'L/R distinction for Japanese learners'
+  },
+  {
+    stage: 'group4',
+    name: 'Complex Sounds',
+    description: 'Diphthongs and digraphs: ai, j, oa, ie, ee, or',
+    requiredMastery: 0.90,
+    estimatedTime: '2-3 weeks',
+    focus: 'Long vowels and diphthongs'
+  },
+  {
+    stage: 'group5',
+    name: 'Advanced Phonemes',
+    description: 'Special sounds: z, w, ng, v, oo (short/long)',
+    requiredMastery: 0.90,
+    estimatedTime: '2-3 weeks',
+    focus: 'Challenging consonants and vowel variants'
+  },
+  {
+    stage: 'group6',
+    name: 'Difficult Sounds',
+    description: 'Complex consonants: y, x, ch, sh, th (both)',
     requiredMastery: 0.95,
     estimatedTime: '3-4 weeks',
-    focus: 'Liquid consonants and velar stops'
+    focus: 'Most challenging sounds for Japanese learners'
   },
   {
-    stage: 'stage2A',
-    name: 'Voicing Mastery',
-    description: 'Voiced/voiceless pairs',
-    requiredMastery: 0.90,
-    estimatedTime: '2-3 weeks',
-    focus: 'Maintaining voicing throughout'
-  },
-  {
-    stage: 'stage2B',
-    name: 'TH Sound Mastery',
-    description: 'Dental fricatives',
+    stage: 'group7',
+    name: 'Mastery Level',
+    description: 'Advanced patterns: qu, ou, oi, ue, er, ar',
     requiredMastery: 0.95,
     estimatedTime: '3-4 weeks',
-    focus: 'Most difficult sounds for Japanese'
-  },
-  {
-    stage: 'stage2C',
-    name: 'Advanced Distinctions',
-    description: 'Complex vowel patterns',
-    requiredMastery: 0.90,
-    estimatedTime: '2-3 weeks',
-    focus: 'Vowel reduction and quality'
+    focus: 'R-controlled vowels and complex clusters'
   }
 ];
+
+// ジョリーフォニックス準拠のグループ
+// Jolly Phonics Groups - progressive phonics learning system
+const JOLLY_PHONICS_GROUPS = {
+  // Group 1: First letters taught - s, a, t, i, p, n
+  group1: [
+    {
+      symbol: '/s/',
+      ipa: 's',
+      description: 'Voiceless alveolar fricative',
+      examples: ['sun', 'sit', 'snake', 'mouse'],
+      difficulty: 1,
+      group: 'fricatives',
+      audioFile: 's.m4a',
+      jollyPhonicsOrder: 1
+    },
+    {
+      symbol: '/æ/', // 'a' as in cat
+      ipa: 'æ',
+      description: 'Near-open front unrounded vowel',
+      examples: ['cat', 'hat', 'apple', 'ant'],
+      difficulty: 2,
+      group: 'short_vowels',
+      audioFile: 'a1.m4a',
+      jollyPhonicsOrder: 2
+    },
+    {
+      symbol: '/t/',
+      ipa: 't',
+      description: 'Voiceless alveolar plosive',
+      examples: ['top', 'cat', 'tent', 'hat'],
+      difficulty: 1,
+      group: 'plosives',
+      audioFile: 't.m4a',
+      jollyPhonicsOrder: 3
+    },
+    {
+      symbol: '/ɪ/', // 'i' as in sit
+      ipa: 'ɪ',
+      description: 'Near-close near-front unrounded vowel',
+      examples: ['sit', 'bit', 'pig', 'ink'],
+      difficulty: 2,
+      group: 'short_vowels',
+      audioFile: 'i1.m4a',
+      jollyPhonicsOrder: 4
+    },
+    {
+      symbol: '/p/',
+      ipa: 'p',
+      description: 'Voiceless bilabial plosive',
+      examples: ['pat', 'cup', 'pen', 'pig'],
+      difficulty: 1,
+      group: 'plosives',
+      audioFile: 'p.m4a',
+      jollyPhonicsOrder: 5
+    },
+    {
+      symbol: '/n/',
+      ipa: 'n',
+      description: 'Voiced alveolar nasal',
+      examples: ['net', 'sun', 'pen', 'ant'],
+      difficulty: 1,
+      group: 'nasals',
+      audioFile: 'n.m4a',
+      jollyPhonicsOrder: 6
+    }
+  ],
+
+  // Group 2: c, k, e, h, r, m, d
+  group2: [
+    {
+      symbol: '/k/', // 'c' and 'k' sound
+      ipa: 'k',
+      description: 'Voiceless velar plosive',
+      examples: ['cat', 'back', 'kite', 'duck'],
+      difficulty: 1,
+      group: 'plosives',
+      audioFile: 'k.m4a',
+      jollyPhonicsOrder: 7
+    },
+    {
+      symbol: '/ɛ/', // 'e' as in bed
+      ipa: 'ɛ',
+      description: 'Open-mid front unrounded vowel',
+      examples: ['bed', 'red', 'hen', 'egg'],
+      difficulty: 2,
+      group: 'short_vowels',
+      audioFile: 'e1.m4a',
+      jollyPhonicsOrder: 8
+    },
+    {
+      symbol: '/h/',
+      ipa: 'h',
+      description: 'Voiceless glottal fricative',
+      examples: ['hat', 'hen', 'house', 'hand'],
+      difficulty: 1,
+      group: 'fricatives',
+      audioFile: 'h.m4a',
+      jollyPhonicsOrder: 9
+    },
+    {
+      symbol: '/r/',
+      ipa: 'r',
+      description: 'Voiced postalveolar approximant',
+      examples: ['red', 'run', 'car', 'arm'],
+      difficulty: 4,
+      group: 'liquids',
+      audioFile: 'r.m4a',
+      jollyPhonicsOrder: 10
+    },
+    {
+      symbol: '/m/',
+      ipa: 'm',
+      description: 'Voiced bilabial nasal',
+      examples: ['man', 'him', 'mouse', 'arm'],
+      difficulty: 1,
+      group: 'nasals',
+      audioFile: 'm.m4a',
+      jollyPhonicsOrder: 11
+    },
+    {
+      symbol: '/d/',
+      ipa: 'd',
+      description: 'Voiced alveolar plosive',
+      examples: ['dog', 'red', 'hand', 'mud'],
+      difficulty: 2,
+      group: 'plosives',
+      audioFile: 'd.m4a',
+      jollyPhonicsOrder: 12
+    }
+  ],
+
+  // Group 3: g, o, u, l, f, b
+  group3: [
+    {
+      symbol: '/g/',
+      ipa: 'g',
+      description: 'Voiced velar plosive',
+      examples: ['go', 'big', 'dog', 'frog'],
+      difficulty: 2,
+      group: 'plosives',
+      audioFile: 'g.m4a',
+      jollyPhonicsOrder: 13
+    },
+    {
+      symbol: '/ɒ/', // 'o' as in hot (British) or /ɑ/ in American
+      ipa: 'ɑ',
+      description: 'Open back unrounded vowel',
+      examples: ['hot', 'dog', 'log', 'top'],
+      difficulty: 2,
+      group: 'short_vowels',
+      audioFile: 'o1.m4a',
+      jollyPhonicsOrder: 14
+    },
+    {
+      symbol: '/ʌ/', // 'u' as in cup
+      ipa: 'ʌ',
+      description: 'Open-mid back unrounded vowel',
+      examples: ['cup', 'run', 'sun', 'bug'],
+      difficulty: 3,
+      group: 'short_vowels',
+      audioFile: 'u1.m4a',
+      jollyPhonicsOrder: 15
+    },
+    {
+      symbol: '/l/',
+      ipa: 'l',
+      description: 'Voiced alveolar lateral approximant',
+      examples: ['leg', 'bell', 'log', 'fall'],
+      difficulty: 4,
+      group: 'liquids',
+      audioFile: 'l.m4a',
+      jollyPhonicsOrder: 16
+    },
+    {
+      symbol: '/f/',
+      ipa: 'f',
+      description: 'Voiceless labiodental fricative',
+      examples: ['fish', 'off', 'fun', 'leaf'],
+      difficulty: 1,
+      group: 'fricatives',
+      audioFile: 'f.m4a',
+      jollyPhonicsOrder: 17
+    },
+    {
+      symbol: '/b/',
+      ipa: 'b',
+      description: 'Voiced bilabial plosive',
+      examples: ['bat', 'cub', 'big', 'web'],
+      difficulty: 1,
+      group: 'plosives',
+      audioFile: 'b.m4a',
+      jollyPhonicsOrder: 18
+    }
+  ],
+
+  // Group 4: ai, j, oa, ie, ee, or  
+  group4: [
+    {
+      symbol: '/eɪ/', // 'ai' diphthong
+      ipa: 'eɪ',
+      description: 'Close-mid front to near-close near-front diphthong',
+      examples: ['rain', 'play', 'day', 'make'],
+      difficulty: 3,
+      group: 'diphthongs',
+      audioFile: 'ai.m4a',
+      jollyPhonicsOrder: 19
+    },
+    {
+      symbol: '/dʒ/',
+      ipa: 'dʒ',
+      description: 'Voiced postalveolar affricate',
+      examples: ['jump', 'bridge', 'cage', 'jam'],
+      difficulty: 3,
+      group: 'affricates',
+      audioFile: 'j.m4a',
+      jollyPhonicsOrder: 20
+    },
+    {
+      symbol: '/oʊ/', // 'oa' as in boat
+      ipa: 'oʊ',
+      description: 'Close-mid back to near-close near-back diphthong',
+      examples: ['boat', 'coat', 'road', 'goat'],
+      difficulty: 3,
+      group: 'diphthongs',
+      audioFile: 'oa.m4a',
+      jollyPhonicsOrder: 21
+    },
+    {
+      symbol: '/aɪ/', // 'ie' as in pie
+      ipa: 'aɪ',
+      description: 'Open front to near-close near-front diphthong',
+      examples: ['pie', 'tie', 'lie', 'die'],
+      difficulty: 3,
+      group: 'diphthongs',
+      audioFile: 'ie.m4a',
+      jollyPhonicsOrder: 22
+    },
+    {
+      symbol: '/iː/', // 'ee' as in see
+      ipa: 'iː',
+      description: 'Close front unrounded vowel (long)',
+      examples: ['see', 'tree', 'bee', 'free'],
+      difficulty: 2,
+      group: 'long_vowels',
+      audioFile: 'ee.m4a',
+      jollyPhonicsOrder: 23
+    },
+    {
+      symbol: '/ɔr/', // 'or' as in for
+      ipa: 'ɔr',
+      description: 'Open-mid back rounded vowel + r',
+      examples: ['for', 'door', 'more', 'store'],
+      difficulty: 3,
+      group: 'r_controlled',
+      audioFile: 'or.m4a',
+      jollyPhonicsOrder: 24
+    }
+  ],
+
+  // Group 5: z, w, ng, v, oo (short), oo (long)
+  group5: [
+    {
+      symbol: '/z/',
+      ipa: 'z',
+      description: 'Voiced alveolar fricative',
+      examples: ['zoo', 'buzz', 'zip', 'maze'],
+      difficulty: 2,
+      group: 'fricatives',
+      audioFile: 'z.m4a',
+      jollyPhonicsOrder: 25
+    },
+    {
+      symbol: '/w/',
+      ipa: 'w',
+      description: 'Voiced labial-velar approximant',
+      examples: ['win', 'well', 'way', 'snow'],
+      difficulty: 2,
+      group: 'semivowels',
+      audioFile: 'w.m4a',
+      jollyPhonicsOrder: 26
+    },
+    {
+      symbol: '/ŋ/', // 'ng' as in sing
+      ipa: 'ŋ',
+      description: 'Voiced velar nasal',
+      examples: ['sing', 'ring', 'long', 'hang'],
+      difficulty: 3,
+      group: 'nasals',
+      audioFile: 'ng.m4a',
+      jollyPhonicsOrder: 27
+    },
+    {
+      symbol: '/v/',
+      ipa: 'v',
+      description: 'Voiced labiodental fricative',
+      examples: ['van', 'five', 'love', 'have'],
+      difficulty: 2,
+      group: 'fricatives',
+      audioFile: 'v.m4a',
+      jollyPhonicsOrder: 28
+    },
+    {
+      symbol: '/ʊ/', // 'oo' short as in book
+      ipa: 'ʊ',
+      description: 'Near-close near-back rounded vowel',
+      examples: ['book', 'look', 'good', 'foot'],
+      difficulty: 3,
+      group: 'short_vowels',
+      audioFile: 'oo_short.m4a',
+      jollyPhonicsOrder: 29
+    },
+    {
+      symbol: '/uː/', // 'oo' long as in moon
+      ipa: 'uː',
+      description: 'Close back rounded vowel (long)',
+      examples: ['moon', 'food', 'blue', 'true'],
+      difficulty: 2,
+      group: 'long_vowels',
+      audioFile: 'oo_long.m4a',
+      jollyPhonicsOrder: 30
+    }
+  ],
+
+  // Group 6: y, x, ch, sh, th (voiced), th (voiceless)
+  group6: [
+    {
+      symbol: '/j/', // 'y' as consonant
+      ipa: 'j',
+      description: 'Voiced palatal approximant',
+      examples: ['yes', 'you', 'yard', 'yet'],
+      difficulty: 2,
+      group: 'semivowels',
+      audioFile: 'y.m4a',
+      jollyPhonicsOrder: 31
+    },
+    {
+      symbol: '/ks/', // 'x' sound
+      ipa: 'ks',
+      description: 'Voiceless velar plosive + voiceless alveolar fricative',
+      examples: ['box', 'fox', 'six', 'fix'],
+      difficulty: 2,
+      group: 'consonant_clusters',
+      audioFile: 'x.m4a',
+      jollyPhonicsOrder: 32
+    },
+    {
+      symbol: '/tʃ/', // 'ch' as in chair
+      ipa: 'tʃ',
+      description: 'Voiceless postalveolar affricate',
+      examples: ['chair', 'much', 'watch', 'beach'],
+      difficulty: 3,
+      group: 'affricates',
+      audioFile: 'ch.m4a',
+      jollyPhonicsOrder: 33
+    },
+    {
+      symbol: '/ʃ/', // 'sh' as in shop
+      ipa: 'ʃ',
+      description: 'Voiceless postalveolar fricative',
+      examples: ['shop', 'fish', 'wish', 'cash'],
+      difficulty: 3,
+      group: 'fricatives',
+      audioFile: 'sh.m4a',
+      jollyPhonicsOrder: 34
+    },
+    {
+      symbol: '/θ/', // 'th' voiceless as in think
+      ipa: 'θ',
+      description: 'Voiceless dental fricative',
+      examples: ['think', 'bath', 'three', 'mouth'],
+      difficulty: 5,
+      group: 'fricatives',
+      audioFile: 'th_voiceless.m4a',
+      jollyPhonicsOrder: 35
+    },
+    {
+      symbol: '/ð/', // 'th' voiced as in this
+      ipa: 'ð',
+      description: 'Voiced dental fricative',
+      examples: ['this', 'that', 'the', 'mother'],
+      difficulty: 5,
+      group: 'fricatives',
+      audioFile: 'th_voiced.m4a',
+      jollyPhonicsOrder: 36
+    }
+  ],
+
+  // Group 7: qu, ou, oi, ue, er, ar
+  group7: [
+    {
+      symbol: '/kw/', // 'qu' as in queen
+      ipa: 'kw',
+      description: 'Voiceless velar plosive + voiced labial-velar approximant',
+      examples: ['queen', 'quick', 'quiet', 'question'],
+      difficulty: 2,
+      group: 'consonant_clusters',
+      audioFile: 'qu.m4a',
+      jollyPhonicsOrder: 37
+    },
+    {
+      symbol: '/aʊ/', // 'ou' as in house
+      ipa: 'aʊ',
+      description: 'Open front to near-close near-back diphthong',
+      examples: ['house', 'mouse', 'about', 'cloud'],
+      difficulty: 3,
+      group: 'diphthongs',
+      audioFile: 'ou.m4a',
+      jollyPhonicsOrder: 38
+    },
+    {
+      symbol: '/ɔɪ/', // 'oi' as in boy
+      ipa: 'ɔɪ',
+      description: 'Open-mid back rounded to near-close near-front diphthong',
+      examples: ['boy', 'toy', 'coin', 'voice'],
+      difficulty: 3,
+      group: 'diphthongs',
+      audioFile: 'oi.m4a',
+      jollyPhonicsOrder: 39
+    },
+    {
+      symbol: '/juː/', // 'ue' as in blue
+      ipa: 'juː',
+      description: 'Voiced palatal approximant + close back rounded vowel',
+      examples: ['blue', 'clue', 'true', 'glue'],
+      difficulty: 3,
+      group: 'complex_vowels',
+      audioFile: 'ue.m4a',
+      jollyPhonicsOrder: 40
+    },
+    {
+      symbol: '/ər/', // 'er' as in her
+      ipa: 'ər',
+      description: 'Mid-central vowel + r (rhotic)',
+      examples: ['her', 'bird', 'word', 'turn'],
+      difficulty: 4,
+      group: 'r_controlled',
+      audioFile: 'er.m4a',
+      jollyPhonicsOrder: 41
+    },
+    {
+      symbol: '/ɑr/', // 'ar' as in car
+      ipa: 'ɑr',
+      description: 'Open back unrounded vowel + r',
+      examples: ['car', 'star', 'farm', 'park'],
+      difficulty: 3,
+      group: 'r_controlled',
+      audioFile: 'ar.m4a',
+      jollyPhonicsOrder: 42
+    }
+  ]
+};
+
+// ジョリーフォニックスグループをNATIVE_PHONEME_PROGRESSIONに追加
+Object.assign(NATIVE_PHONEME_PROGRESSION, JOLLY_PHONICS_GROUPS);
 
 // Export for backwards compatibility
 export const PHONEME_PROGRESSION = NATIVE_PHONEME_PROGRESSION;
 export const AUDIO_MAPPING = NATIVE_AUDIO_MAPPING;
+
+// =====================================
+// WORD-LEVEL PHONEME DETECTION DATA
+// =====================================
+
+export const WORD_PHONEME_PRACTICE = {
+  // Jolly Phonics Group 1: s, a, t, i, p, n
+  group1: {
+    '/s/': {
+      target: [
+        { word: 'sun', japanese: '太陽', hasTarget: true },
+        { word: 'sit', japanese: '座る', hasTarget: true },
+        { word: 'bus', japanese: 'バス', hasTarget: true },
+        { word: 'yes', japanese: 'はい', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false }
+      ]
+    },
+    '/æ/': {
+      target: [
+        { word: 'cat', japanese: '猫', hasTarget: true },
+        { word: 'hat', japanese: '帽子', hasTarget: true },
+        { word: 'bag', japanese: 'かばん', hasTarget: true },
+        { word: 'man', japanese: '男性', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false }
+      ]
+    },
+    '/t/': {
+      target: [
+        { word: 'tap', japanese: '叩く', hasTarget: true },
+        { word: 'top', japanese: '頂上', hasTarget: true },
+        { word: 'cat', japanese: '猫', hasTarget: true },
+        { word: 'sit', japanese: '座る', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false }
+      ]
+    },
+    '/ɪ/': {
+      target: [
+        { word: 'sit', japanese: '座る', hasTarget: true },
+        { word: 'big', japanese: '大きい', hasTarget: true },
+        { word: 'pin', japanese: 'ピン', hasTarget: true },
+        { word: 'tin', japanese: '缶', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false }
+      ]
+    },
+    '/p/': {
+      target: [
+        { word: 'pen', japanese: 'ペン', hasTarget: true },
+        { word: 'pin', japanese: 'ピン', hasTarget: true },
+        { word: 'cup', japanese: 'カップ', hasTarget: true },
+        { word: 'tap', japanese: '叩く', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false }
+      ]
+    },
+    '/n/': {
+      target: [
+        { word: 'net', japanese: '網', hasTarget: true },
+        { word: 'pin', japanese: 'ピン', hasTarget: true },
+        { word: 'sun', japanese: '太陽', hasTarget: true },
+        { word: 'tin', japanese: '缶', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false },
+        { word: 'tap', japanese: '叩く', hasTarget: false }
+      ]
+    }
+  },
+  
+  // Jolly Phonics Group 2: c, k, e, h, r, m, d
+  group2: {
+    '/k/': {
+      target: [
+        { word: 'cat', japanese: '猫', hasTarget: true },
+        { word: 'cup', japanese: 'カップ', hasTarget: true },
+        { word: 'can', japanese: 'できる', hasTarget: true },
+        { word: 'cut', japanese: '切る', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false }
+      ]
+    },
+    '/ɛ/': {
+      target: [
+        { word: 'pen', japanese: 'ペン', hasTarget: true },
+        { word: 'net', japanese: '網', hasTarget: true },
+        { word: 'red', japanese: '赤', hasTarget: true },
+        { word: 'hen', japanese: 'めんどり', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'cup', japanese: 'カップ', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false }
+      ]
+    },
+    '/h/': {
+      target: [
+        { word: 'hat', japanese: '帽子', hasTarget: true },
+        { word: 'hen', japanese: 'めんどり', hasTarget: true },
+        { word: 'hit', japanese: '打つ', hasTarget: true },
+        { word: 'hop', japanese: '跳ぶ', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false }
+      ]
+    },
+    '/r/': {
+      target: [
+        { word: 'red', japanese: '赤', hasTarget: true },
+        { word: 'run', japanese: '走る', hasTarget: true },
+        { word: 'rat', japanese: 'ネズミ', hasTarget: true },
+        { word: 'rip', japanese: '破る', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false }
+      ]
+    },
+    '/m/': {
+      target: [
+        { word: 'man', japanese: '男性', hasTarget: true },
+        { word: 'map', japanese: '地図', hasTarget: true },
+        { word: 'mud', japanese: '泥', hasTarget: true },
+        { word: 'met', japanese: '会った', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'dog', japanese: '犬', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false }
+      ]
+    },
+    '/d/': {
+      target: [
+        { word: 'dog', japanese: '犬', hasTarget: true },
+        { word: 'dad', japanese: 'お父さん', hasTarget: true },
+        { word: 'dig', japanese: '掘る', hasTarget: true },
+        { word: 'dim', japanese: '薄暗い', hasTarget: true }
+      ],
+      distractor: [
+        { word: 'sun', japanese: '太陽', hasTarget: false },
+        { word: 'cat', japanese: '猫', hasTarget: false },
+        { word: 'pen', japanese: 'ペン', hasTarget: false },
+        { word: 'big', japanese: '大きい', hasTarget: false },
+        { word: 'run', japanese: '走る', hasTarget: false },
+        { word: 'hat', japanese: '帽子', hasTarget: false }
+      ]
+    }
+  }
+  
+  // Additional groups can be added here for group3-7...
+};
+
+// Helper function to generate word-level questions
+export function generateWordLevelQuestion(phoneme, stage = 'group1', difficulty = 'normal') {
+  const stageData = WORD_PHONEME_PRACTICE[stage];
+  if (!stageData || !stageData[phoneme]) {
+    logger.warn(`No word data found for phoneme ${phoneme} in stage ${stage}`);
+    return null;
+  }
+
+  const { target, distractor } = stageData[phoneme];
+  
+  // Select one word with target phoneme
+  const targetWord = target[Math.floor(Math.random() * target.length)];
+  
+  // Select distractor words based on difficulty
+  const numDistractors = difficulty === 'easy' ? 1 : difficulty === 'hard' ? 3 : 2;
+  const selectedDistractors = [];
+  
+  // Randomly select distractors
+  const shuffledDistractors = [...distractor].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < numDistractors && i < shuffledDistractors.length; i++) {
+    selectedDistractors.push(shuffledDistractors[i]);
+  }
+  
+  // Combine and shuffle choices
+  const choices = [targetWord, ...selectedDistractors].sort(() => Math.random() - 0.5);
+  const correctIndex = choices.findIndex(choice => choice.hasTarget);
+  
+  return {
+    targetPhoneme: phoneme,
+    choices: choices,
+    correctAnswer: correctIndex,
+    questionType: 'word-detection'
+  };
+}

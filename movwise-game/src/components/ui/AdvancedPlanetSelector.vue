@@ -392,7 +392,7 @@ export default {
     const planets = ref([
       {
         id: 'phonics',
-        name: 'フォニックス・ワールド',
+        name: 'サウンド・ネビュラ',
         type: 'Core Learning System',
         emoji: '🟡',
         description: '44個の英語音素をマスターし、音韻認識能力を向上させる基盤学習システム。段階的な習得により、正確な発音技術を身につけます。',
@@ -436,7 +436,7 @@ export default {
         isNew: false,
         isCompleted: false,
         isRecommended: false,
-        unlockRequirement: 'フォニックス・ワールド 20%達成',
+        unlockRequirement: 'サウンド・ネビュラ 20%達成',
         unlockProgress: 100,
         gradient: 'radial-gradient(circle at 30% 30%, #4169E1, #1E90FF, #00BFFF)',
         color: '#4169E1',
@@ -464,7 +464,7 @@ export default {
         isNew: false,
         isCompleted: false,
         isRecommended: true,
-        unlockRequirement: 'フォニックス・ワールド 30%達成',
+        unlockRequirement: 'サウンド・ネビュラ 30%達成',
         unlockProgress: 100,
         gradient: 'radial-gradient(circle at 30% 30%, #32CD32, #228B22, #006400)',
         color: '#32CD32',

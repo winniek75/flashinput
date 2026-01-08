@@ -5,6 +5,7 @@
 
 import { io } from 'socket.io-client'
 import { ref, reactive } from 'vue'
+import logger from '@/utils/logger'
 
 export class CollaborativeSession {
   constructor() {
@@ -45,10 +46,10 @@ export class CollaborativeSession {
       })
       
       this.setupSocketEvents()
-      console.log('📡 Collaborative session initialized')
+      logger.log('📡 Collaborative session initialized')
       
     } catch (error) {
-      console.error('Failed to initialize collaborative session:', error)
+      logger.error('Failed to initialize collaborative session:', error)
       throw error
     }
   }
@@ -59,7 +60,7 @@ export class CollaborativeSession {
   setupSocketEvents() {
     // 接続確立
     this.socket.on('connect', () => {
-      console.log('🔗 Connected to collaboration server')
+      logger.log('🔗 Connected to collaboration server')
       this.sessionState.isConnected = true
     })
 
@@ -67,7 +68,7 @@ export class CollaborativeSession {
     this.socket.on('session-created', (sessionData) => {
       this.sessionState.sessionId = sessionData.sessionId
       this.sessionState.role = sessionData.role
-      console.log(`👨‍🏫 Session created: ${sessionData.sessionId}`)
+      logger.log(`👨‍🏫 Session created: ${sessionData.sessionId}`)
     })
 
     // セッション参加成功
@@ -75,13 +76,13 @@ export class CollaborativeSession {
       this.sessionState.sessionId = sessionData.sessionId
       this.sessionState.role = sessionData.role
       this.sessionState.participants = sessionData.participants
-      console.log(`🎓 Joined session: ${sessionData.sessionId}`)
+      logger.log(`🎓 Joined session: ${sessionData.sessionId}`)
     })
 
     // 新しい参加者
     this.socket.on('participant-joined', (participant) => {
       this.sessionState.participants.push(participant)
-      console.log(`👋 New participant: ${participant.name}`)
+      logger.log(`👋 New participant: ${participant.name}`)
     })
 
     // WebRTCシグナリング
@@ -107,7 +108,7 @@ export class CollaborativeSession {
 
     // エラーハンドリング
     this.socket.on('error', (error) => {
-      console.error('📡 Session error:', error)
+      logger.error('📡 Session error:', error)
     })
   }
 
@@ -198,10 +199,10 @@ export class CollaborativeSession {
       // WebRTC接続の設定
       await this.setupWebRTCConnection()
       
-      console.log('🖥️ Screen sharing started')
+      logger.log('🖥️ Screen sharing started')
       
     } catch (error) {
-      console.error('Failed to start screen sharing:', error)
+      logger.error('Failed to start screen sharing:', error)
       throw error
     }
   }
@@ -225,7 +226,7 @@ export class CollaborativeSession {
     })
     
     this.dataChannel.onopen = () => {
-      console.log('📊 Data channel opened')
+      logger.log('📊 Data channel opened')
     }
     
     this.dataChannel.onmessage = (event) => {
@@ -283,7 +284,7 @@ export class CollaborativeSession {
     this.peerConnection.ontrack = (event) => {
       this.remoteStream = event.streams[0]
       this.onRemoteStreamReceived?.(this.remoteStream)
-      console.log('📺 Student screen received')
+      logger.log('📺 Student screen received')
     }
 
     // データチャンネル受信
@@ -398,7 +399,7 @@ export class CollaborativeSession {
     this.sessionState.sessionId = null
     this.sessionState.participants = []
     
-    console.log('👋 Session ended')
+    logger.log('👋 Session ended')
   }
 
   // コールバック関数（外部で設定）

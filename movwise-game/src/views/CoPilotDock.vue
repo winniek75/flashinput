@@ -1,1004 +1,508 @@
 <template>
-  <div class="min-h-screen galaxy-background">
-    <!-- Galaxy Background -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-      <div class="stars-layer-1"></div>
-      <div class="stars-layer-2"></div>
-      <div class="stars-layer-3"></div>
-    </div>
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <!-- Header -->
+    <header class="bg-slate-800/90 backdrop-blur-lg border-b border-slate-700 sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Back Button -->
+          <button
+            @click="$router.push('/dashboard/teacher')"
+            class="flex items-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-600/70 rounded-lg transition-all border border-slate-600/50"
+          >
+            <span class="text-xl">←</span>
+            <span class="text-sm text-slate-300">ダッシュボードに戻る</span>
+          </button>
 
-    <!-- Dynamic Header Based on Mode -->
-    <header class="relative z-10 px-6 py-8">
-      <div class="max-w-7xl mx-auto">
-        <!-- Navigation & Mode Switcher -->
-        <div class="flex items-center justify-between mb-8">
-          <div class="flex items-center gap-4">
-            <button 
-              @click="$router.push('/')" 
-              class="flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-700/70 rounded-xl transition-all border border-slate-600/50"
-            >
-              <span class="text-xl">🏠</span>
-              <span class="text-sm text-slate-300">ホーム</span>
-            </button>
+          <!-- Title -->
+          <div class="text-center">
+            <h1 class="text-2xl font-bold text-white">🤝 協力学習セッション</h1>
+            <p class="text-sm text-slate-400">リアルタイム共同学習管理</p>
           </div>
 
-          <!-- Mode Selector -->
-          <div class="mode-selector">
-            <button 
-              v-for="mode in availableModes" 
-              :key="mode.key"
-              @click="switchMode(mode.key)"
-              :class="[
-                'mode-btn',
-                { 'mode-active': currentMode === mode.key }
-              ]"
-            >
-              <span class="mode-icon">{{ mode.icon }}</span>
-              <span class="mode-label">{{ mode.label }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Dynamic Title Based on Mode -->
-        <div class="text-center mb-8">
-          <h1 class="text-4xl md:text-5xl font-bold text-yellow-400 cosmic-title mb-4">
-            {{ modeConfig.title }}
-          </h1>
-          <p class="text-xl mb-2 text-slate-400">
-            {{ modeConfig.subtitle }}
-          </p>
-          <p class="text-base text-slate-400 max-w-3xl mx-auto">
-            {{ modeConfig.description }}
-          </p>
-        </div>
-
-        <!-- Dock Overview Stats -->
-        <div class="dock-stats-overview">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-icon cosmic-glow">🚀</span>
-              <div class="stat-content">
-                <div class="stat-value text-yellow-400">{{ dockOverview.activeCaptains }}</div>
-                <div class="stat-label text-slate-400">アクティブ船長</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon cosmic-glow">🎯</span>
-              <div class="stat-content">
-                <div class="stat-value text-yellow-400">{{ dockOverview.totalSessions }}</div>
-                <div class="stat-label">総訓練セッション</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon cosmic-glow">👥</span>
-              <div class="stat-content">
-                <div class="stat-value text-yellow-400">{{ dockOverview.activeStudents }}</div>
-                <div class="stat-label">訓練中の生徒</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon cosmic-glow">📈</span>
-              <div class="stat-content">
-                <div class="stat-value text-yellow-400">{{ dockOverview.successRate }}%</div>
-                <div class="stat-label">成功率</div>
-              </div>
-            </div>
+          <!-- Status -->
+          <div class="flex items-center gap-2 px-3 py-2 bg-green-500/20 border border-green-500/30 rounded-lg">
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span class="text-green-400 font-medium text-sm">オンライン</span>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="relative z-10 px-6 pb-20">
-      <div class="max-w-7xl mx-auto">
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
 
-        <!-- Individual Mode Layout -->
-        <div v-if="isIndividualMode" class="individual-mode-layout">
-          <!-- Main Captain Section -->
-          <section class="main-captain-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">👨‍🚀</span>
-                <span>メイン船長（指導責任者）</span>
-              </h2>
-              <p class="section-subtitle">
-                あなた専属の経験豊富な英語学習船長
-              </p>
-            </div>
-            
-            <div class="main-captain-container">
-              <CaptainCard 
-                :captain="mainCaptain"
-                size="large"
-                @selectCaptain="handleCaptainSelection"
-                @cardClick="showCaptainDetails"
-              />
-            </div>
-          </section>
-
-          <!-- Expansion Plans Section -->
-          <section v-if="showExpansionPlans" class="expansion-section mb-12">
-            <ExpansionPlans />
-          </section>
-
-          <!-- Future Captains Preview -->
-          <section class="future-captains-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">🌟</span>
-                <span>着任予定船長</span>
-              </h2>
-              <p class="section-subtitle">
-                ドック拡張計画で参加予定の優秀な指導船長たち
-              </p>
-            </div>
-            
-            <div class="future-captains-grid">
-              <CaptainCard 
-                v-for="captain in futureCaptains" 
-                :key="captain.id"
-                :captain="captain"
-                size="standard"
-                @viewDetails="showCaptainDetails"
-                @viewSchedule="showJoinSchedule"
-              />
-            </div>
-          </section>
-        </div>
-
-        <!-- Multi Mode Layout -->
-        <div v-else-if="isMultiMode" class="multi-mode-layout">
-          <!-- All Captains Section -->
-          <section class="all-captains-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">👥</span>
-                <span>指導船長チーム</span>
-              </h2>
-              <p class="section-subtitle">
-                専門分野別の経験豊富な船長陣
-              </p>
-            </div>
-            
-            <div class="captains-grid">
-              <CaptainCard 
-                v-for="captain in allCaptains" 
-                :key="captain.id"
-                :captain="captain"
-                size="standard"
-                @selectCaptain="handleCaptainSelection"
-                @viewDetails="showCaptainDetails"
-              />
-            </div>
-          </section>
-
-          <!-- Team Collaboration Features -->
-          <section class="collaboration-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">🤝</span>
-                <span>チーム連携訓練</span>
-              </h2>
-            </div>
-            
-            <div class="collaboration-features">
-              <div class="feature-card" @click="startTeamMission">
-                <div class="feature-icon">🚀</div>
-                <div class="feature-content">
-                  <h3>合同ミッション</h3>
-                  <p>複数船長による協力指導</p>
-                </div>
-              </div>
-              <div class="feature-card" @click="scheduleGroupSession">
-                <div class="feature-icon">📅</div>
-                <div class="feature-content">
-                  <h3>グループセッション</h3>
-                  <p>生徒同士の切磋琢磨</p>
-                </div>
-              </div>
-              <div class="feature-card" @click="viewTeamAnalytics">
-                <div class="feature-icon">📊</div>
-                <div class="feature-content">
-                  <h3>チーム分析</h3>
-                  <p>総合学習効果測定</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <!-- Expanding Mode Layout -->
-        <div v-else-if="isExpandingMode" class="expanding-mode-layout">
-          <!-- Current Setup -->
-          <section class="current-setup-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">🏗️</span>
-                <span>現在の体制</span>
-              </h2>
-            </div>
-            
-            <div class="current-captain-container">
-              <CaptainCard 
-                :captain="mainCaptain"
-                size="large"
-                @selectCaptain="handleCaptainSelection"
-              />
-            </div>
-          </section>
-
-          <!-- Expansion Progress -->
-          <section class="expansion-progress-section mb-12">
-            <ExpansionPlans />
-          </section>
-
-          <!-- Preview of Coming Changes -->
-          <section class="preview-section mb-12">
-            <div class="section-header mb-8">
-              <h2 class="section-title">
-                <span class="title-icon">🔮</span>
-                <span>拡張後の予想図</span>
-              </h2>
-            </div>
-            
-            <div class="preview-grid">
-              <div class="preview-card current">
-                <h3>現在</h3>
-                <div class="preview-stats">
-                  <div>船長: 1名</div>
-                  <div>最大生徒: 30名</div>
-                  <div>同時セッション: 5</div>
-                </div>
-              </div>
-              <div class="preview-arrow">→</div>
-              <div class="preview-card future">
-                <h3>拡張後</h3>
-                <div class="preview-stats">
-                  <div>船長: {{ plannedCaptainCount }}名</div>
-                  <div>最大生徒: {{ plannedStudentCapacity }}名</div>
-                  <div>同時セッション: {{ plannedSessionCapacity }}</div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <!-- Quick Actions (All Modes) -->
-        <section class="quick-actions-section">
-          <div class="section-header mb-8">
-            <h2 class="section-title">
-              <span class="title-icon">⚡</span>
-              <span>クイックアクション</span>
-            </h2>
+      <!-- Quick Session Start -->
+      <section class="mb-8">
+        <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-lg border border-blue-500/30 rounded-2xl p-6">
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-white mb-2">🚀 クイック協力セッション開始</h2>
+            <p class="text-slate-300">ワンクリックで生徒との協力学習を始めましょう</p>
           </div>
-          
-          <div class="quick-actions-grid">
-            <button 
-              @click="quickStartTraining"
-              class="action-card primary-action"
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <button
+              @click="startQuickSession('phonics')"
+              class="session-card bg-blue-500/20 border-blue-500/30 hover:bg-blue-500/30"
             >
-              <div class="action-icon">🚀</div>
-              <div class="action-content">
-                <h3>即時訓練開始</h3>
-                <p>利用可能な船長で今すぐ開始</p>
-              </div>
+              <span class="text-2xl mb-2">🎵</span>
+              <span class="font-bold">音韻協力学習</span>
+              <span class="text-xs opacity-80">フォニックス・発音練習</span>
             </button>
-            
-            <button 
-              @click="scheduleTraining"
-              class="action-card secondary-action"
+
+            <button
+              @click="startQuickSession('grammar')"
+              class="session-card bg-purple-500/20 border-purple-500/30 hover:bg-purple-500/30"
             >
-              <div class="action-icon">📅</div>
-              <div class="action-content">
-                <h3>訓練予約</h3>
-                <p>希望日時で訓練を予約</p>
-              </div>
+              <span class="text-2xl mb-2">🌌</span>
+              <span class="font-bold">文法協力学習</span>
+              <span class="text-xs opacity-80">Grammar Galaxy</span>
             </button>
-            
-            <button 
-              @click="viewTrainingHistory"
-              class="action-card secondary-action"
+
+            <button
+              @click="startQuickSession('vocabulary')"
+              class="session-card bg-green-500/20 border-green-500/30 hover:bg-green-500/30"
             >
-              <div class="action-icon">📊</div>
-              <div class="action-content">
-                <h3>訓練履歴</h3>
-                <p>過去の訓練記録を確認</p>
-              </div>
-            </button>
-            
-            <button 
-              @click="customizeTraining"
-              class="action-card secondary-action"
-            >
-              <div class="action-icon">⚙️</div>
-              <div class="action-content">
-                <h3>訓練カスタマイズ</h3>
-                <p>学習内容・難易度調整</p>
-              </div>
+              <span class="text-2xl mb-2">📚</span>
+              <span class="font-bold">語彙協力学習</span>
+              <span class="text-xs opacity-80">Vocabulary World</span>
             </button>
           </div>
-        </section>
 
-      </div>
+          <div class="text-center">
+            <button
+              @click="startCustomSession"
+              class="px-6 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 rounded-lg transition-all text-yellow-300 font-bold"
+            >
+              ⚙️ カスタムセッション設定
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Sessions -->
+      <section class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">📊</span>
+          アクティブセッション
+        </h2>
+
+        <div v-if="activeSessions.length === 0" class="bg-slate-800/60 border border-slate-700 rounded-lg p-6 text-center">
+          <div class="text-4xl mb-3">😴</div>
+          <p class="text-slate-400">現在アクティブなセッションはありません</p>
+          <p class="text-sm text-slate-500 mt-1">上記のボタンから新しいセッションを開始しましょう</p>
+        </div>
+
+        <div v-else class="space-y-4">
+          <div
+            v-for="session in activeSessions"
+            :key="session.id"
+            class="bg-slate-800/60 border border-slate-700 rounded-lg p-4"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ session.icon }}</span>
+                <div>
+                  <h3 class="text-white font-semibold">{{ session.title }}</h3>
+                  <p class="text-sm text-slate-400">{{ session.students.length }}名参加中 • {{ session.duration }}</p>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  @click="joinSession(session)"
+                  class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-lg text-green-300 text-sm font-bold transition-all"
+                >
+                  参加
+                </button>
+                <button
+                  @click="endSession(session)"
+                  class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 text-sm font-bold transition-all"
+                >
+                  終了
+                </button>
+              </div>
+            </div>
+
+            <!-- Session participants -->
+            <div v-if="session.students.length > 0" class="mt-3 pt-3 border-t border-slate-700">
+              <p class="text-xs text-slate-400 mb-2">参加生徒:</p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="student in session.students"
+                  :key="student.id"
+                  class="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs"
+                >
+                  {{ student.name }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Session History -->
+      <section class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">📝</span>
+          最近の協力セッション
+        </h2>
+
+        <div class="bg-slate-800/60 border border-slate-700 rounded-lg p-6">
+          <div class="space-y-3">
+            <div
+              v-for="historyItem in sessionHistory"
+              :key="historyItem.id"
+              class="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg"
+            >
+              <div class="flex items-center gap-3">
+                <span class="text-xl">{{ historyItem.icon }}</span>
+                <div>
+                  <p class="text-white font-medium">{{ historyItem.title }}</p>
+                  <p class="text-xs text-slate-400">{{ historyItem.date }} • {{ historyItem.duration }} • {{ historyItem.participants }}名参加</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold text-green-400">{{ historyItem.successRate }}%</div>
+                <div class="text-xs text-slate-400">成功率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Session Management Tools -->
+      <section class="mb-8">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">🛠️</span>
+          セッション管理ツール
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            @click="openStudentMonitor"
+            class="management-tool bg-blue-500/20 border-blue-500/30 hover:bg-blue-500/30"
+          >
+            <span class="text-2xl mb-2">👁️</span>
+            <span class="font-bold">生徒モニタリング</span>
+            <span class="text-xs opacity-80">リアルタイム学習状況確認</span>
+          </button>
+
+          <button
+            @click="scheduleSession"
+            class="management-tool bg-purple-500/20 border-purple-500/30 hover:bg-purple-500/30"
+          >
+            <span class="text-2xl mb-2">📅</span>
+            <span class="font-bold">セッション予約</span>
+            <span class="text-xs opacity-80">事前予約・スケジュール管理</span>
+          </button>
+
+          <button
+            @click="viewAnalytics"
+            class="management-tool bg-green-500/20 border-green-500/30 hover:bg-green-500/30"
+          >
+            <span class="text-2xl mb-2">📈</span>
+            <span class="font-bold">学習分析</span>
+            <span class="text-xs opacity-80">効果測定・進捗レポート</span>
+          </button>
+        </div>
+      </section>
+
     </main>
 
-    <!-- Mode Switch Confirmation Modal -->
-    <Transition name="modal">
-      <div v-if="showModeConfirmation" class="modal-overlay" @click="cancelModeSwitch">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>モード変更確認</h3>
-            <button @click="cancelModeSwitch" class="modal-close">×</button>
+    <!-- Session Creation Modal -->
+    <div v-if="showSessionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" @click="closeSessionModal">
+      <div class="max-w-md mx-4 bg-slate-800/95 border border-slate-600 rounded-2xl p-6" @click.stop>
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-bold text-white mb-2">{{ modalData.title }}</h3>
+          <p class="text-slate-400">{{ modalData.description }}</p>
+        </div>
+
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">セッション名</label>
+            <input
+              v-model="sessionName"
+              class="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white"
+              placeholder="例: 午後の音韻練習"
+            >
           </div>
-          <div class="modal-body">
-            <p>ドックモードを「{{ pendingModeChange?.label }}」に変更しますか？</p>
-            <div class="mode-change-details">
-              <div class="current-mode">
-                <h4>現在</h4>
-                <p>{{ modeConfig.title }}</p>
-              </div>
-              <div class="arrow">→</div>
-              <div class="new-mode">
-                <h4>変更後</h4>
-                <p>{{ pendingModeChange?.title }}</p>
-              </div>
+
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">参加生徒を選択</label>
+            <div class="space-y-2 max-h-32 overflow-y-auto">
+              <label
+                v-for="student in availableStudents"
+                :key="student.id"
+                class="flex items-center gap-2 p-2 bg-slate-700/30 rounded cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  v-model="selectedStudents"
+                  :value="student.id"
+                  class="rounded"
+                >
+                <span class="text-white">{{ student.name }}</span>
+                <span class="text-xs text-slate-400">({{ student.level }})</span>
+              </label>
             </div>
           </div>
-          <div class="modal-footer">
-            <button @click="cancelModeSwitch" class="btn-secondary">キャンセル</button>
-            <button @click="confirmModeSwitch" class="btn-primary">変更する</button>
-          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            @click="closeSessionModal"
+            class="flex-1 py-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-slate-300 font-bold transition-all"
+          >
+            キャンセル
+          </button>
+          <button
+            @click="createSession"
+            class="flex-1 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white font-bold transition-all"
+          >
+            セッション開始
+          </button>
         </div>
       </div>
-    </Transition>
+    </div>
 
-    <!-- 統一フッターナビゲーション -->
-    <CommonFooter 
-      :active="'profile'"
-      @navigate="handleFooterNavigation"
-    />
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDockStore } from '@/stores/dockStore'
-import { storeToRefs } from 'pinia'
-import CaptainCard from '@/components/CaptainCard.vue'
-import ExpansionPlans from '@/components/ExpansionPlans.vue'
-import CommonFooter from '@/components/CommonFooter.vue'
+import logger from '@/utils/logger'
 
 export default {
   name: 'CoPilotDock',
-  components: {
-    CaptainCard,
-    ExpansionPlans,
-    CommonFooter
-  },
   setup() {
     const router = useRouter()
-    const dockStore = useDockStore()
-    
-    // Store state
-    const { 
-      dockSettings, 
-      mainCaptain, 
-      additionalCaptains, 
-      dockStats,
-      isIndividualMode,
-      isMultiMode,
-      isExpandingMode,
-      availableCaptains,
-      nextExpansionMilestone
-    } = storeToRefs(dockStore)
 
-    // Local reactive state
-    const showModeConfirmation = ref(false)
-    const pendingModeChange = ref(null)
-    const currentMode = ref(dockSettings.value.mode)
+    // Reactive state
+    const showSessionModal = ref(false)
+    const sessionName = ref('')
+    const selectedStudents = ref([])
 
-    // Mode configurations
-    const modeConfigurations = {
-      individual: {
-        title: '👨‍🚀 個人指導ドック',
-        subtitle: '専属船長による個別指導',
-        description: '経験豊富な専属船長があなたの学習進度に合わせてマンツーマン指導を行います'
+    const modalData = ref({
+      type: '',
+      title: '',
+      description: ''
+    })
+
+    // Mock data
+    const activeSessions = ref([
+      // Currently empty - will be populated when sessions are created
+    ])
+
+    const sessionHistory = ref([
+      {
+        id: 1,
+        title: '音韻協力学習セッション',
+        icon: '🎵',
+        date: '今日 14:30',
+        duration: '25分',
+        participants: 3,
+        successRate: 92
       },
-      multi: {
-        title: '👥 チーム指導ドック',
-        subtitle: '複数船長による専門指導',
-        description: '各分野の専門船長チームが連携し、総合的な英語力向上をサポートします'
+      {
+        id: 2,
+        title: '文法協力学習セッション',
+        icon: '🌌',
+        date: '今日 13:00',
+        duration: '30分',
+        participants: 5,
+        successRate: 88
       },
-      expanding: {
-        title: '🏗️ 拡張中ドック',
-        subtitle: '成長・発展中の指導体制',
-        description: '現在は個人指導ですが、段階的に船長陣を拡充し、より充実したサービスを準備中です'
+      {
+        id: 3,
+        title: '語彙協力学習セッション',
+        icon: '📚',
+        date: '昨日 15:45',
+        duration: '20分',
+        participants: 4,
+        successRate: 95
       }
-    }
+    ])
 
-    const availableModes = [
-      { key: 'individual', icon: '👨‍🚀', label: '個人指導', title: modeConfigurations.individual.title },
-      { key: 'expanding', icon: '🏗️', label: '拡張中', title: modeConfigurations.expanding.title },
-      { key: 'multi', icon: '👥', label: 'チーム', title: modeConfigurations.multi.title }
-    ]
-
-    // Computed properties
-    const modeConfig = computed(() => {
-      return modeConfigurations[currentMode.value] || modeConfigurations.individual
-    })
-
-    const dockOverview = computed(() => {
-      const activeCaptains = availableCaptains.value.filter(c => c.status === 'active').length
-      return {
-        activeCaptains,
-        totalSessions: dockStats.value.totalSessions || 0,
-        activeStudents: dockStats.value.activeStudents || 0,
-        successRate: dockStats.value.completionRate || 0
-      }
-    })
-
-    const futureCaptains = computed(() => {
-      return additionalCaptains.value.filter(c => c.status !== 'active')
-    })
-
-    const allCaptains = computed(() => {
-      return availableCaptains.value
-    })
-
-    const showExpansionPlans = computed(() => {
-      return isIndividualMode.value || isExpandingMode.value
-    })
-
-    const plannedCaptainCount = computed(() => {
-      return isExpandingMode.value ? 3 : 5
-    })
-
-    const plannedStudentCapacity = computed(() => {
-      return plannedCaptainCount.value * 30
-    })
-
-    const plannedSessionCapacity = computed(() => {
-      return plannedCaptainCount.value * 10
-    })
+    const availableStudents = ref([
+      { id: 1, name: '田中花音', level: 'レベル 3' },
+      { id: 2, name: '佐藤健太', level: 'レベル 2' },
+      { id: 3, name: '山田美咲', level: 'レベル 4' },
+      { id: 4, name: '鈴木大輝', level: 'レベル 2' },
+      { id: 5, name: '高橋あゆみ', level: 'レベル 3' }
+    ])
 
     // Methods
-    const switchMode = (mode) => {
-      if (mode === currentMode.value) return
-      
-      const modeData = availableModes.find(m => m.key === mode)
-      pendingModeChange.value = modeData
-      showModeConfirmation.value = true
+    const startQuickSession = (type) => {
+      const gameTypes = {
+        phonics: {
+          title: '音韻協力学習セッション',
+          description: 'フォニックスと発音練習を協力して学習',
+          icon: '🎵'
+        },
+        grammar: {
+          title: '文法協力学習セッション',
+          description: '英文法を楽しく協力学習',
+          icon: '🌌'
+        },
+        vocabulary: {
+          title: '語彙協力学習セッション',
+          description: '語彙力向上を協力して取り組み',
+          icon: '📚'
+        }
+      }
+
+      modalData.value = {
+        type,
+        ...gameTypes[type]
+      }
+
+      sessionName.value = gameTypes[type].title
+      showSessionModal.value = true
     }
 
-    const confirmModeSwitch = () => {
-      if (pendingModeChange.value) {
-        dockStore.setDockMode(pendingModeChange.value.key)
-        currentMode.value = pendingModeChange.value.key
-        showModeConfirmation.value = false
-        pendingModeChange.value = null
-        
-        // Show success message
-        showNotification(`ドックモードを「${pendingModeChange.value?.label}」に変更しました`)
+    const startCustomSession = () => {
+      modalData.value = {
+        type: 'custom',
+        title: 'カスタム協力セッション',
+        description: '自由に学習内容を設定した協力セッション'
+      }
+      sessionName.value = ''
+      showSessionModal.value = true
+    }
+
+    const createSession = () => {
+      if (!sessionName.value || selectedStudents.value.length === 0) {
+        alert('セッション名と参加生徒を選択してください')
+        return
+      }
+
+      // Create new session
+      const newSession = {
+        id: Date.now(),
+        title: sessionName.value,
+        icon: modalData.value.icon || '🎯',
+        type: modalData.value.type,
+        students: availableStudents.value.filter(s => selectedStudents.value.includes(s.id)),
+        duration: '0分',
+        startTime: new Date()
+      }
+
+      activeSessions.value.push(newSession)
+
+      logger.log(`🚀 Created new session: ${newSession.title} with ${newSession.students.length} students`)
+
+      // Close modal and reset
+      closeSessionModal()
+
+      // Show success message
+      alert(`✅ セッション「${newSession.title}」を開始しました！\n参加生徒: ${newSession.students.map(s => s.name).join(', ')}`)
+    }
+
+    const closeSessionModal = () => {
+      showSessionModal.value = false
+      sessionName.value = ''
+      selectedStudents.value = []
+      modalData.value = { type: '', title: '', description: '' }
+    }
+
+    const joinSession = (session) => {
+      logger.log(`👨‍🏫 Joining session: ${session.title}`)
+      alert(`🎯 セッション「${session.title}」に参加しました！\n\n実際のゲーム機能は各学習プラットフォーム内で実装されます:\n• 音韻学習: Phonics Adventure\n• 文法学習: Grammar Galaxy\n• 語彙学習: Vocabulary World`)
+    }
+
+    const endSession = (session) => {
+      const index = activeSessions.value.findIndex(s => s.id === session.id)
+      if (index !== -1) {
+        // Calculate session duration
+        const duration = Math.floor((new Date() - session.startTime) / 60000)
+
+        // Move to history
+        sessionHistory.value.unshift({
+          id: session.id,
+          title: session.title,
+          icon: session.icon,
+          date: '今',
+          duration: `${duration}分`,
+          participants: session.students.length,
+          successRate: Math.floor(Math.random() * 20 + 80) // Mock success rate
+        })
+
+        // Remove from active sessions
+        activeSessions.value.splice(index, 1)
+
+        logger.log(`🏁 Ended session: ${session.title}`)
+        alert(`✅ セッション「${session.title}」を終了しました`)
       }
     }
 
-    const cancelModeSwitch = () => {
-      showModeConfirmation.value = false
-      pendingModeChange.value = null
+    const openStudentMonitor = () => {
+      alert('👁️ 生徒モニタリング機能\n\n開発予定機能:\n• リアルタイム学習進捗表示\n• 個別生徒の詳細状況\n• 学習困難度の検出\n• 個別サポート提案')
     }
 
-    const handleCaptainSelection = (captain) => {
-      console.log('Captain selected:', captain)
-      // 開発中のため、現時点ではアラートで対応
-      alert(`🚀 船長「${captain.name}」との協力訓練を開始します！\n\n※この機能は開発中のため、今後実装予定です。\n現在は以下のゲームで学習を続けてください：\n• サウンド星雲\n• 文法銀河`)
+    const scheduleSession = () => {
+      alert('📅 セッション予約機能\n\n開発予定機能:\n• 日時指定での予約\n• 定期セッション設定\n• 生徒の空き状況確認\n• 自動リマインダー')
     }
 
-    const showCaptainDetails = (captain) => {
-      console.log('Show captain details:', captain)
-      // Implementation for captain details modal/page
+    const viewAnalytics = () => {
+      alert('📈 学習分析機能\n\n開発予定機能:\n• セッション効果測定\n• 学習進捗グラフ\n• 協力学習効果分析\n• 改善提案レポート')
     }
 
-    const showJoinSchedule = (captain) => {
-      console.log('Show join schedule for:', captain)
-      // Implementation for join schedule display
-    }
-
-    const quickStartTraining = () => {
-      const activeCaptain = availableCaptains.value.find(c => c.status === 'active')
-      if (activeCaptain) {
-        handleCaptainSelection(activeCaptain)
-      } else {
-        showNotification('現在利用可能な船長がいません', 'warning')
-      }
-    }
-
-    const scheduleTraining = () => {
-      alert('📅 訓練予約機能は開発中です！\n\n将来的には以下の機能を提供予定：\n• 希望日時での予約\n• 船長の空き状況確認\n• リマインダー設定')
-    }
-
-    const viewTrainingHistory = () => {
-      alert('📊 訓練履歴機能は開発中です！\n\n将来的には以下の情報を確認可能：\n• 過去の学習記録\n• スコア推移\n• 学習時間統計')
-    }
-
-    const customizeTraining = () => {
-      alert('⚙️ 訓練カスタマイズ機能は開発中です！\n\n将来的には以下を設定可能：\n• 学習難易度\n• 専門分野の選択\n• 学習時間の調整')
-    }
-
-    const startTeamMission = () => {
-      showNotification('チームミッション機能は開発中です！')
-    }
-
-    const scheduleGroupSession = () => {
-      showNotification('グループセッション機能は開発中です！')
-    }
-
-    const viewTeamAnalytics = () => {
-      showNotification('チーム分析機能は開発中です！')
-    }
-
-    const showNotification = (message, type = 'info') => {
-      // Simple notification implementation
-      console.log(`Notification (${type}):`, message)
-      // In a real app, you'd use a proper notification system
-    }
-
-    // 統一フッターナビゲーションメソッド
-    const handleFooterNavigation = (section) => {
-      switch (section) {
-        case 'sound':
-          router.push('/sound-adventure')
-          break
-        case 'grammar':
-          router.push('/grammar-galaxy-hub')
-          break
-        case 'multi-layer':
-          router.push('/multi-layer')
-          break
-        case 'co-pilot':
-          // 現在のページ（Co-Pilot Dock）なので何もしない
-          break
-        case 'vr-academy':
-          router.push('/vr-academy')
-          break
-        default:
-          console.warn('Unknown navigation section:', section)
-      }
-    }
-
-    // Watchers
-    watch(() => dockSettings.value.mode, (newMode) => {
-      currentMode.value = newMode
-    })
-
-    // Lifecycle
     onMounted(() => {
-      dockStore.initializeDock()
+      logger.log('🤝 CoPilot Dock loaded - Simplified collaborative learning interface')
     })
 
     return {
       // State
-      currentMode,
-      showModeConfirmation,
-      pendingModeChange,
-      
-      // Store state
-      mainCaptain,
-      additionalCaptains,
-      dockStats,
-      isIndividualMode,
-      isMultiMode,
-      isExpandingMode,
-      
-      // Computed
-      modeConfig,
-      dockOverview,
-      futureCaptains,
-      allCaptains,
-      showExpansionPlans,
-      plannedCaptainCount,
-      plannedStudentCapacity,
-      plannedSessionCapacity,
-      availableModes,
-      
+      showSessionModal,
+      sessionName,
+      selectedStudents,
+      modalData,
+      activeSessions,
+      sessionHistory,
+      availableStudents,
+
       // Methods
-      switchMode,
-      confirmModeSwitch,
-      cancelModeSwitch,
-      handleCaptainSelection,
-      showCaptainDetails,
-      showJoinSchedule,
-      quickStartTraining,
-      scheduleTraining,
-      viewTrainingHistory,
-      customizeTraining,
-      startTeamMission,
-      scheduleGroupSession,
-      viewTeamAnalytics,
-      handleFooterNavigation
+      startQuickSession,
+      startCustomSession,
+      createSession,
+      closeSessionModal,
+      joinSession,
+      endSession,
+      openStudentMonitor,
+      scheduleSession,
+      viewAnalytics
     }
   }
 }
 </script>
 
 <style scoped>
-/* Base Styles */
-.galaxy-background {
-  background: var(--space-void, linear-gradient(135deg, #0f172a 0%, #1e293b 100%));
-  color: white;
+/* Session Cards */
+.session-card {
+  @apply p-4 rounded-lg border transition-all duration-300 cursor-pointer text-center;
+  @apply flex flex-col items-center gap-1 text-white;
 }
 
-.stars-layer-1,
-.stars-layer-2,
-.stars-layer-3 {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(2px 2px at 40px 60px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 20px 50px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 30px 100px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 40px 60px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 110px 90px, #fff, rgba(0,0,0,0)),
-              radial-gradient(2px 2px at 190px 150px, #fff, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  animation: twinkle 4s infinite;
-  opacity: 0.3;
+.session-card:hover {
+  @apply transform -translate-y-1 shadow-lg;
 }
 
-.stars-layer-2 {
-  background-size: 300px 300px;
-  animation-delay: 1s;
-  opacity: 0.2;
+/* Management Tools */
+.management-tool {
+  @apply p-6 rounded-lg border transition-all duration-300 cursor-pointer text-center;
+  @apply flex flex-col items-center gap-1 text-white;
 }
 
-.stars-layer-3 {
-  background-size: 400px 400px;
-  animation-delay: 2s;
-  opacity: 0.1;
+.management-tool:hover {
+  @apply transform -translate-y-1 shadow-lg;
 }
 
-@keyframes twinkle {
-  0% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-  100% { opacity: 0.3; }
-}
-
-/* Mode Selector */
-.mode-selector {
-  @apply flex gap-2 p-2 rounded-2xl;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-}
-
-.mode-btn {
-  @apply px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2;
-  background: transparent;
-  color: #94a3b8;
-}
-
-.mode-btn:hover {
-  background: rgba(99, 102, 241, 0.2);
-  color: #fbbf24;
-}
-
-.mode-btn.mode-active {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-}
-
-.mode-icon {
-  @apply text-lg;
-}
-
-.mode-label {
-  @apply text-sm font-medium;
-}
-
-/* Dock Stats Overview */
-.dock-stats-overview {
-  @apply mb-12;
-}
-
-.stats-grid {
-  @apply grid grid-cols-2 md:grid-cols-4 gap-6;
-}
-
-.stat-card {
-  @apply p-6 rounded-2xl flex items-center gap-4 transition-all duration-300;
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid rgba(99, 102, 241, 0.3);
-  backdrop-filter: blur(20px);
-}
-
-.stat-card:hover {
-  border-color: rgba(99, 102, 241, 0.6);
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  @apply text-3xl;
-}
-
-.stat-content {
-  @apply flex-1;
-}
-
-.stat-value {
-  @apply text-2xl font-bold mb-1;
-  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.3));
-}
-
-.stat-label {
-  @apply text-sm text-slate-400;
-}
-
-/* Section Styles */
-.section-header {
-  @apply text-center;
-}
-
-.section-title {
-  @apply flex items-center justify-center gap-3 text-3xl font-bold text-yellow-400 mb-4;
-  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.3));
-}
-
-.title-icon {
-  @apply text-4xl;
-}
-
-.section-subtitle {
-  @apply text-lg text-slate-400;
-}
-
-/* Layout Grids */
-.main-captain-container {
-  @apply flex justify-center;
-}
-
-.future-captains-grid,
-.captains-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.collaboration-features {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
-}
-
-.feature-card {
-  @apply p-6 rounded-2xl cursor-pointer transition-all duration-300;
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid rgba(99, 102, 241, 0.3);
-  backdrop-filter: blur(20px);
-}
-
-.feature-card:hover {
-  border-color: rgba(99, 102, 241, 0.6);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-}
-
-.feature-icon {
-  @apply text-4xl mb-4;
-}
-
-.feature-content h3 {
-  @apply text-xl font-bold text-yellow-400 mb-2;
-}
-
-.feature-content p {
-  @apply text-slate-400;
-}
-
-/* Preview Section */
-.preview-grid {
-  @apply flex items-center justify-center gap-8;
-}
-
-.preview-card {
-  @apply p-6 rounded-2xl text-center min-w-[200px];
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid rgba(99, 102, 241, 0.3);
-}
-
-.preview-card.current {
-  border-color: rgba(251, 191, 36, 0.4);
-}
-
-.preview-card.future {
-  border-color: rgba(34, 197, 94, 0.4);
-}
-
-.preview-card h3 {
-  @apply text-xl font-bold text-yellow-400 mb-4;
-}
-
-.preview-stats {
-  @apply space-y-2 text-slate-400;
-}
-
-.preview-arrow {
-  @apply text-3xl text-yellow-400;
-}
-
-/* Quick Actions */
-.quick-actions-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
-}
-
-.action-card {
-  @apply p-6 rounded-2xl transition-all duration-300 cursor-pointer text-left;
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid rgba(99, 102, 241, 0.3);
-  backdrop-filter: blur(20px);
-}
-
-.action-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-}
-
-.primary-action {
-  border-color: rgba(34, 197, 94, 0.6);
-}
-
-.primary-action:hover {
-  border-color: rgba(34, 197, 94, 0.8);
-  box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
-}
-
-.secondary-action:hover {
-  border-color: rgba(99, 102, 241, 0.6);
-}
-
-.action-icon {
-  @apply text-4xl mb-4;
-}
-
-.action-content h3 {
-  @apply text-xl font-bold text-yellow-400 mb-2;
-}
-
-.action-content p {
-  @apply text-slate-400;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50;
-}
-
-.modal-content {
-  @apply max-w-md mx-4 rounded-3xl overflow-hidden;
-  background: rgba(15, 23, 42, 0.95);
-  border: 2px solid rgba(99, 102, 241, 0.5);
-  backdrop-filter: blur(20px);
-}
-
-.modal-header {
-  @apply flex items-center justify-between p-6 border-b border-slate-600/50;
-}
-
-.modal-header h3 {
-  @apply text-xl font-bold text-yellow-400;
-}
-
-.modal-close {
-  @apply w-8 h-8 rounded-full bg-slate-700/50 hover:bg-slate-600/50 flex items-center justify-center transition-colors;
-}
-
-.modal-body {
-  @apply p-6;
-}
-
-.mode-change-details {
-  @apply flex items-center justify-center gap-4 mt-4 p-4 rounded-xl bg-slate-800/50;
-}
-
-.current-mode,
-.new-mode {
-  @apply text-center;
-}
-
-.current-mode h4,
-.new-mode h4 {
-  @apply text-sm text-slate-400 mb-1;
-}
-
-.arrow {
-  @apply text-xl text-yellow-400;
-}
-
-.modal-footer {
-  @apply flex gap-3 p-6 border-t border-slate-600/50;
-}
-
-.btn-secondary {
-  @apply flex-1 py-3 rounded-xl font-bold bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 transition-colors;
-}
-
-.btn-primary {
-  @apply flex-1 py-3 rounded-xl font-bold text-white transition-all;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-}
-
-.btn-primary:hover {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-}
-
-/* Animations */
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.8);
-}
-
-/* Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .mode-selector {
-    @apply flex-col gap-1 p-1;
-  }
-  
-  .stats-grid {
-    @apply grid-cols-2 gap-4;
-  }
-  
-  .future-captains-grid,
-  .captains-grid {
-    @apply grid-cols-1;
-  }
-  
-  .quick-actions-grid {
-    @apply grid-cols-1 gap-4;
-  }
-  
-  .preview-grid {
-    @apply flex-col gap-4;
-  }
-  
-  .preview-arrow {
-    @apply rotate-90;
-  }
-}
-
-@media (max-width: 640px) {
-  .section-title {
-    @apply text-2xl;
-  }
-  
-  .title-icon {
-    @apply text-3xl;
-  }
-  
-  .collaboration-features {
-    @apply grid-cols-1;
-  }
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .stat-card,
-  .feature-card,
-  .action-card {
-    transition: none;
-  }
-  
-  .stat-card:hover,
-  .feature-card:hover,
-  .action-card:hover {
-    transform: none;
-  }
-  
-  .stars-layer-1,
-  .stars-layer-2,
-  .stars-layer-3 {
-    animation: none;
+  .session-card,
+  .management-tool {
+    @apply p-3;
   }
 }
 </style>

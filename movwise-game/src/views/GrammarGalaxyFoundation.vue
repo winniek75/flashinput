@@ -172,7 +172,9 @@
                   <span>ベスト:</span>
                   <span>{{ rush.bestScore }}</span>
                 </div>
-                <button class="w-full galaxy-button galaxy-button-primary py-3 rounded-xl font-bold text-white hover:shadow-lg transition-all duration-200">
+                <button
+                  @click="playRushGame(rush.id)"
+                  class="w-full galaxy-button galaxy-button-primary py-3 rounded-xl font-bold text-white hover:shadow-lg transition-all duration-200">
                   ▶️ PLAY
                 </button>
               </div>
@@ -213,6 +215,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
@@ -236,9 +240,9 @@ const router = useRouter()
 let grammarStore = null
 try {
   grammarStore = useGrammarGalaxyStore()
-  console.log('✅ Grammar store initialized successfully')
+  logger.log('✅ Grammar store initialized successfully')
 } catch (error) {
-  console.error('❌ Failed to initialize grammar store:', error)
+  logger.error('❌ Failed to initialize grammar store:', error)
   // エラーが発生した場合はホームに戻る
   router.push('/')
 }
@@ -255,7 +259,7 @@ const playerLevel = computed(() => {
   try {
     return grammarStore?.playerData?.level || 1
   } catch (error) {
-    console.warn('Error accessing playerData.level:', error)
+    logger.warn('Error accessing playerData.level:', error)
     return 1
   }
 })
@@ -264,7 +268,7 @@ const totalStars = computed(() => {
   try {
     return grammarStore?.playerData?.totalStars || 0
   } catch (error) {
-    console.warn('Error accessing playerData.totalStars:', error)
+    logger.warn('Error accessing playerData.totalStars:', error)
     return 0
   }
 })
@@ -273,7 +277,7 @@ const totalGamesCompleted = computed(() => {
   try {
     return grammarStore?.playerData?.totalGamesCompleted || 0
   } catch (error) {
-    console.warn('Error accessing playerData.totalGamesCompleted:', error)
+    logger.warn('Error accessing playerData.totalGamesCompleted:', error)
     return 0
   }
 })
@@ -282,7 +286,7 @@ const planetsData = computed(() => {
   try {
     return grammarStore?.planetsData || {}
   } catch (error) {
-    console.warn('Error accessing planetsData:', error)
+    logger.warn('Error accessing planetsData:', error)
     return {}
   }
 })
@@ -294,7 +298,7 @@ const unlockedPlanetsCount = computed(() => {
       grammarStore.isPlanetUnlocked?.(planetId)
     ).length
   } catch (error) {
-    console.warn('Error calculating unlocked planets:', error)
+    logger.warn('Error calculating unlocked planets:', error)
     return 0
   }
 })
@@ -304,7 +308,7 @@ const completionRate = computed(() => {
     const stats = grammarStore?.getStatistics?.() || {}
     return Math.round(stats.gameCompletionRate || 0)
   } catch (error) {
-    console.warn('Error calculating completion rate:', error)
+    logger.warn('Error calculating completion rate:', error)
     return 0
   }
 })
@@ -314,7 +318,7 @@ const selectedPlanetInfo = computed(() => {
   try {
     return grammarStore.getPlanetInfo?.(selectedPlanetId.value) || null
   } catch (error) {
-    console.warn('Error getting planet info:', error)
+    logger.warn('Error getting planet info:', error)
     return null
   }
 })
@@ -349,7 +353,7 @@ const selectedPlanetGames = computed(() => {
       playCount: game.attempts || 0
     }))
   } catch (error) {
-    console.warn('Error converting planet games:', error)
+    logger.warn('Error converting planet games:', error)
     return []
   }
 })
@@ -359,7 +363,7 @@ const hasRecommendedGame = computed(() => {
     const activity = grammarStore?.recommendedActivity
     return activity && activity.type === 'game'
   } catch (error) {
-    console.warn('Error checking recommended game:', error)
+    logger.warn('Error checking recommended game:', error)
     return false
   }
 })
@@ -370,7 +374,7 @@ const recommendedGameText = computed(() => {
     if (!activity) return 'まずは惑星を解禁しましょう'
     return activity.description || activity.name
   } catch (error) {
-    console.warn('Error getting recommended game text:', error)
+    logger.warn('Error getting recommended game text:', error)
     return 'まずは惑星を解禁しましょう'
   }
 })
@@ -379,7 +383,7 @@ const rushZoneList = computed(() => {
   try {
     return grammarStore?.rushZoneData ? Object.values(grammarStore.rushZoneData) : []
   } catch (error) {
-    console.warn('Error getting rush zone data:', error)
+    logger.warn('Error getting rush zone data:', error)
     return []
   }
 })
@@ -389,17 +393,17 @@ const isPlanetUnlocked = (planetId) => {
   try {
     return grammarStore?.isPlanetUnlocked?.(planetId) || false
   } catch (error) {
-    console.warn('Error checking planet unlock status:', error)
+    logger.warn('Error checking planet unlock status:', error)
     return false
   }
 }
 
 const selectPlanet = (planetId) => {
-  console.log('selectPlanet called:', planetId)
+  logger.log('selectPlanet called:', planetId)
   
   try {
     if (!grammarStore) {
-      console.error('Grammar store not available')
+      logger.error('Grammar store not available')
       alert('エラー: データの読み込みに失敗しました')
       return
     }
@@ -407,44 +411,44 @@ const selectPlanet = (planetId) => {
     const planet = grammarStore.getPlanetInfo?.(planetId)
     const unlocked = grammarStore.isPlanetUnlocked?.(planetId)
     
-    console.log('planet info:', planet)
-    console.log('isPlanetUnlocked:', unlocked)
+    logger.log('planet info:', planet)
+    logger.log('isPlanetUnlocked:', unlocked)
     
     if (!planet) {
-      console.warn('Planet not found:', planetId)
+      logger.warn('Planet not found:', planetId)
       alert('エラー: 惑星情報が見つかりません')
       return
     }
     
     if (!unlocked) {
-      console.warn('Planet is locked:', planetId)
+      logger.warn('Planet is locked:', planetId)
       alert('🔒 この惑星はまだアンロックされていません')
       return
     }
 
     selectedPlanetId.value = planetId
     showGameSelection.value = true
-    console.log('selectedPlanetId:', selectedPlanetId.value, 'showGameSelection:', showGameSelection.value)
-    console.log('selectedPlanetInfo.value.games:', selectedPlanetInfo.value.games)
+    logger.log('selectedPlanetId:', selectedPlanetId.value, 'showGameSelection:', showGameSelection.value)
+    logger.log('selectedPlanetInfo.value.games:', selectedPlanetInfo.value.games)
     selectedPlanetInfo.value.games.forEach((game, index) => {
-      console.log(`Store Game ${index}:`, { id: game.id, name: game.name, unlocked: game.unlocked })
+      logger.log(`Store Game ${index}:`, { id: game.id, name: game.name, unlocked: game.unlocked })
     })
-    console.log('selectedPlanetGames:', selectedPlanetGames.value)
+    logger.log('selectedPlanetGames:', selectedPlanetGames.value)
     selectedPlanetGames.value.forEach((game, index) => {
-      console.log(`Game ${index}:`, { id: game.id, title: game.title, isLocked: game.isLocked })
+      logger.log(`Game ${index}:`, { id: game.id, title: game.title, isLocked: game.isLocked })
     })
   } catch (error) {
-    console.error('Error in selectPlanet:', error)
+    logger.error('Error in selectPlanet:', error)
     alert('エラーが発生しました。ページを再読み込みしてください。')
   }
 }
 
 const startGame = (planetId, gameId) => {
   try {
-    console.log('startGame called with:', { planetId, gameId })
+    logger.log('startGame called with:', { planetId, gameId })
     navigateToGame(planetId, gameId)
   } catch (error) {
-    console.error('Error starting game:', error)
+    logger.error('Error starting game:', error)
     alert('ゲームの開始に失敗しました')
   }
 }
@@ -452,7 +456,7 @@ const startGame = (planetId, gameId) => {
 const startRecommendedGame = () => {
   try {
     if (!grammarStore) return
-    
+
     const activity = grammarStore.recommendedActivity
     if (activity && activity.type === 'game') {
       navigateToGame(activity.planetId || 'beVerb', activity.id)
@@ -460,8 +464,35 @@ const startRecommendedGame = () => {
       selectPlanet(activity.id)
     }
   } catch (error) {
-    console.error('Error starting recommended game:', error)
+    logger.error('Error starting recommended game:', error)
     alert('推奨ゲームの開始に失敗しました')
+  }
+}
+
+const playRushGame = (rushId) => {
+  try {
+    logger.log('playRushGame called with:', rushId)
+
+    switch (rushId) {
+      case 'beVerbRush':
+        router.push({ name: 'be-verb-rush' })
+        break
+      case 'verbRush':
+        router.push({ name: 'verb-rush' })
+        break
+      case 'wordRush':
+        router.push({ name: 'WordRushGame' })
+        break
+      case 'verbPatternGalaxy':
+        router.push({ name: 'verb-pattern-galaxy-hub' })
+        break
+      default:
+        logger.warn('Unknown rush game:', rushId)
+        alert('このゲームはまだ実装されていません')
+    }
+  } catch (error) {
+    logger.error('Error starting rush game:', error)
+    alert('ゲームの開始に失敗しました')
   }
 }
 
@@ -478,14 +509,14 @@ const continueProgress = () => {
       }
     }
   } catch (error) {
-    console.error('Error continuing progress:', error)
+    logger.error('Error continuing progress:', error)
     alert('進捗の継続に失敗しました')
   }
 }
 
 const navigateToGame = (planetId, gameId) => {
   try {
-    console.log('navigateToGame called with:', { planetId, gameId })
+    logger.log('navigateToGame called with:', { planetId, gameId })
     // ゲームIDに基づいてルートを決定
     const routeMap = {
       grammarColorCode: 'grammar-color-code',
@@ -511,22 +542,22 @@ const navigateToGame = (planetId, gameId) => {
     }
     
     const routeName = routeMap[gameId]
-    console.log('Route mapping result:', { gameId, routeName })
+    logger.log('Route mapping result:', { gameId, routeName })
     
     if (routeName) {
-      console.log('Navigating to route:', { name: routeName, params: { planetId } })
+      logger.log('Navigating to route:', { name: routeName, params: { planetId } })
       
       // Grammar Reflex Arenaの場合はparamsなしで試す
       const routeConfig = gameId === 'grammarReflexArena' || gameId === 'grammar-reflex-arena' 
         ? { name: routeName }
         : { name: routeName, params: { planetId } }
       
-      console.log('Final route config:', routeConfig)
+      logger.log('Final route config:', routeConfig)
       
       router.push(routeConfig).then(() => {
-        console.log('Navigation successful')
+        logger.log('Navigation successful')
       }).catch(err => {
-        console.error('Navigation error:', err)
+        logger.error('Navigation error:', err)
         // フォールバック: グラマーカラーコードゲームに移動
         router.push({
           name: 'grammar-color-code',
@@ -534,34 +565,34 @@ const navigateToGame = (planetId, gameId) => {
         })
       })
     } else {
-      console.warn('Unknown game ID:', gameId)
+      logger.warn('Unknown game ID:', gameId)
       // デフォルトはgrammar-color-code
       router.push({
         name: 'grammar-color-code',
         params: { planetId: planetId || 'beVerb' }
       }).catch(err => {
-        console.error('Default navigation error:', err)
+        logger.error('Default navigation error:', err)
         alert('ゲームページに移動できませんでした')
       })
     }
   } catch (error) {
-    console.error('Error in navigateToGame:', error)
+    logger.error('Error in navigateToGame:', error)
     alert('ゲームの開始に失敗しました')
   }
 }
 
 const onStartGame = ({ game, settings }) => {
   try {
-    console.log('onStartGame called with:', { game, settings })
+    logger.log('onStartGame called with:', { game, settings })
     showGameSelection.value = false
     if (selectedPlanetId.value && game?.id) {
       navigateToGame(selectedPlanetId.value, game.id)
     } else {
-      console.error('Missing planetId or game.id:', { selectedPlanetId: selectedPlanetId.value, gameId: game?.id })
+      logger.error('Missing planetId or game.id:', { selectedPlanetId: selectedPlanetId.value, gameId: game?.id })
       alert('ゲーム情報が不完全です')
     }
   } catch (error) {
-    console.error('Error in onStartGame:', error)
+    logger.error('Error in onStartGame:', error)
     alert('ゲームの開始に失敗しました')
   }
 }
@@ -576,7 +607,7 @@ const handleBackToGalaxy = (event) => {
 }
 
 const handleFooterNavigation = (section) => {
-  console.log('Footer navigation clicked:', section)
+  logger.log('Footer navigation clicked:', section)
   
   try {
     switch (section) {
@@ -601,11 +632,11 @@ const handleFooterNavigation = (section) => {
         router.push({ name: 'VRAcademy' })
         break
       default:
-        console.warn('Unknown navigation section:', section)
+        logger.warn('Unknown navigation section:', section)
         router.push({ name: 'home' })
     }
   } catch (error) {
-    console.error('Footer navigation error:', error)
+    logger.error('Footer navigation error:', error)
     router.push({ name: 'home' })
   }
 }
@@ -615,12 +646,12 @@ onMounted(() => {
   try {
     if (grammarStore && typeof grammarStore.loadProgress === 'function') {
       grammarStore.loadProgress()
-      console.log('✅ Grammar store progress loaded')
+      logger.log('✅ Grammar store progress loaded')
     } else {
-      console.warn('⚠️ Grammar store not properly initialized')
+      logger.warn('⚠️ Grammar store not properly initialized')
     }
   } catch (error) {
-    console.error('❌ Error loading progress:', error)
+    logger.error('❌ Error loading progress:', error)
   }
 })
 </script>

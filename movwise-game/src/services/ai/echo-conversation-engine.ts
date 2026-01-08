@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 import type { 
   ECHOResponse, 
   ConversationTurn, 
@@ -30,7 +32,7 @@ export class ECHOConversationEngine {
       
       return response
     } catch (error) {
-      console.error('Error generating ECHO response:', error)
+      logger.error('Error generating ECHO response:', error)
       return this.getFallbackResponse()
     }
   }

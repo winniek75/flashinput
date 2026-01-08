@@ -50,14 +50,78 @@
       </div>
     </header>
 
+    <!-- 3D Mode Toggle -->
+    <div class="fixed top-20 right-6 z-20">
+      <button
+        @click="toggle3DMode"
+        class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700
+               text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105
+               flex items-center space-x-2 shadow-lg backdrop-blur"
+      >
+        <i :class="is3DMode ? 'fas fa-cube' : 'fas fa-circle'"></i>
+        <span>{{ is3DMode ? '3Dモード' : '2Dモード' }}</span>
+      </button>
+    </div>
+
+    <!-- 3D Mode Instructions -->
+    <div
+      v-if="is3DMode && showInstructions"
+      class="fixed top-32 right-6 z-20 bg-slate-800/90 backdrop-blur rounded-lg p-4 text-white text-sm max-w-xs"
+    >
+      <div class="flex justify-between items-start mb-2">
+        <h4 class="font-semibold text-cyan-300">3D操作方法</h4>
+        <button @click="showInstructions = false" class="text-gray-400 hover:text-white">×</button>
+      </div>
+      <ul class="space-y-1 text-xs">
+        <li><kbd>マウスドラッグ</kbd> - 視点回転</li>
+        <li><kbd>WASD</kbd> - 前後左右移動</li>
+        <li><kbd>Space</kbd> - 上昇</li>
+        <li><kbd>Shift</kbd> - 下降</li>
+        <li><kbd>Q/E</kbd> - 左右回転</li>
+      </ul>
+    </div>
+
     <!-- Main Game Area -->
     <main class="relative z-10 flex-1 p-6">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           <!-- Radar Display (Captain/Co-Pilot shared view) -->
           <div class="lg:col-span-2">
+            <!-- 3D Canvas Container -->
+            <div
+              v-if="is3DMode"
+              ref="canvas3D"
+              class="w-full h-96 bg-black rounded-xl border border-cyan-500/30 relative overflow-hidden"
+              @mousedown="onMouseDown"
+              @mousemove="onMouseMove"
+              @mouseup="onMouseUp"
+              @mouseleave="onMouseUp"
+              @wheel="onWheel"
+              tabindex="0"
+              @keydown="onKeyDown"
+              @keyup="onKeyUp"
+            >
+              <canvas ref="threeCanvas" class="w-full h-full canvas-3d"></canvas>
+
+              <!-- 3D UI Overlay -->
+              <div class="absolute top-4 left-4 text-white text-sm bg-black/50 rounded px-2 py-1">
+                <div>位置: ({{ Math.round(camera3D.position.x) }}, {{ Math.round(camera3D.position.y) }}, {{ Math.round(camera3D.position.z) }})</div>
+                <div>音素: {{ currentPhoneme || '待機中' }}</div>
+                <div v-if="detected3DTargets.length > 0">発見: {{ detected3DTargets.length }}個</div>
+              </div>
+
+              <!-- Crosshair -->
+              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                <div class="w-8 h-8 border-2 border-cyan-400 rounded-full opacity-50">
+                  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-cyan-400 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Traditional 2D Radar Display -->
             <RadarDisplay
+              v-else
               :current-phoneme="currentPhoneme"
               :scanning="isScanning"
               :phoneme-detected="phonemeDetected"
@@ -263,6 +327,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useCooperativeGameStore } from '@/stores/cooperativeGame'
 import { useAuthStore } from '@/stores/auth'
@@ -272,6 +338,9 @@ import RadarDisplay from './RadarDisplay.vue'
 import PhonemeDetector from './PhonemeDetector.vue'
 import CooperativeScoring from './CooperativeScoring.vue'
 import EmergencyCallButton from './EmergencyCallButton.vue'
+
+// Three.js imports for 3D mode
+import * as THREE from 'three'
 
 // Props
 const props = defineProps({
@@ -321,6 +390,25 @@ const stars = ref([])
 // Confetti particles for success animation
 const confettiParticles = ref([])
 
+// 3D Mode variables
+const is3DMode = ref(false)
+const showInstructions = ref(true)
+const canvas3D = ref(null)
+const threeCanvas = ref(null)
+const scene3D = ref(null)
+const camera3D = ref(null)
+const renderer3D = ref(null)
+const radarSphere = ref(null)
+const phonemeTargets3D = ref([])
+const detected3DTargets = ref([])
+
+// Mouse and keyboard controls
+const mouseDown = ref(false)
+const lastMouseX = ref(0)
+const lastMouseY = ref(0)
+const keysPressed = ref(new Set())
+const moveSpeed = ref(2)
+
 // Computed
 const userRole = computed(() => authStore.currentUser?.role || authStore.userRole)
 
@@ -353,7 +441,7 @@ const initializeGame = async () => {
     generateStars()
     
   } catch (error) {
-    console.error('Failed to initialize game:', error)
+    logger.error('Failed to initialize game:', error)
   } finally {
     isLoading.value = false
   }
@@ -577,7 +665,7 @@ const generateConfetti = () => {
 
 const showGameCompleteAnimation = () => {
   // Implementation for game completion
-  console.log('Game completed!')
+  logger.log('Game completed!')
 }
 
 const handleEmergencyCall = async (message) => {
@@ -599,6 +687,325 @@ const getMessageStyle = (message) => {
   return styles[message.type] || 'border-gray-500 text-gray-300'
 }
 
+// 3D Mode Methods
+const toggle3DMode = () => {
+  is3DMode.value = !is3DMode.value
+  showInstructions.value = is3DMode.value
+
+  if (is3DMode.value) {
+    setTimeout(() => {
+      init3DScene()
+    }, 100)
+  } else {
+    cleanup3DScene()
+  }
+}
+
+const init3DScene = () => {
+  if (!threeCanvas.value) return
+
+  // Create scene
+  scene3D.value = new THREE.Scene()
+  scene3D.value.background = new THREE.Color(0x000511)
+
+  // Create camera
+  camera3D.value = new THREE.PerspectiveCamera(
+    75,
+    threeCanvas.value.clientWidth / threeCanvas.value.clientHeight,
+    0.1,
+    1000
+  )
+  camera3D.value.position.set(0, 0, 10)
+
+  // Create renderer
+  renderer3D.value = new THREE.WebGLRenderer({
+    canvas: threeCanvas.value,
+    antialias: true
+  })
+  renderer3D.value.setSize(threeCanvas.value.clientWidth, threeCanvas.value.clientHeight)
+
+  // Create space environment
+  createSpaceEnvironment()
+
+  // Create radar sphere
+  createRadarSphere()
+
+  // Create phoneme targets
+  createPhonemeTargets()
+
+  // Start render loop
+  animate3D()
+}
+
+const createSpaceEnvironment = () => {
+  // Add stars
+  const starGeometry = new THREE.BufferGeometry()
+  const starMaterial = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 2,
+    sizeAttenuation: true
+  })
+
+  const starVertices = []
+  for (let i = 0; i < 1000; i++) {
+    const x = (Math.random() - 0.5) * 2000
+    const y = (Math.random() - 0.5) * 2000
+    const z = (Math.random() - 0.5) * 2000
+    starVertices.push(x, y, z)
+  }
+
+  starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3))
+  const stars3D = new THREE.Points(starGeometry, starMaterial)
+  scene3D.value.add(stars3D)
+
+  // Add ambient light
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.3)
+  scene3D.value.add(ambientLight)
+
+  // Add directional light
+  const directionalLight = new THREE.DirectionalLight(0x00aaff, 0.7)
+  directionalLight.position.set(1, 1, 1)
+  scene3D.value.add(directionalLight)
+}
+
+const createRadarSphere = () => {
+  const geometry = new THREE.SphereGeometry(15, 32, 32)
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x00ffaa,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.3
+  })
+
+  radarSphere.value = new THREE.Mesh(geometry, material)
+  scene3D.value.add(radarSphere.value)
+
+  // Add radar ring effect
+  const ringGeometry = new THREE.RingGeometry(14, 16, 32)
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: 0x00ffaa,
+    transparent: true,
+    opacity: 0.5,
+    side: THREE.DoubleSide
+  })
+
+  const radarRing = new THREE.Mesh(ringGeometry, ringMaterial)
+  radarRing.rotation.x = Math.PI / 2
+  scene3D.value.add(radarRing)
+}
+
+const createPhonemeTargets = () => {
+  phonemeTargets3D.value = []
+
+  // Create 5-8 phoneme targets randomly positioned around the radar sphere
+  const targetCount = 5 + Math.floor(Math.random() * 4)
+
+  for (let i = 0; i < targetCount; i++) {
+    const geometry = new THREE.SphereGeometry(0.8, 16, 16)
+    const material = new THREE.MeshPhongMaterial({
+      color: i === 0 ? 0xff6600 : 0x6666ff, // First target is the correct one
+      transparent: true,
+      opacity: 0.8
+    })
+
+    const target = new THREE.Mesh(geometry, material)
+
+    // Position randomly around the radar sphere
+    const radius = 12 + Math.random() * 8
+    const theta = Math.random() * Math.PI * 2
+    const phi = Math.random() * Math.PI
+
+    target.position.set(
+      radius * Math.sin(phi) * Math.cos(theta),
+      radius * Math.sin(phi) * Math.sin(theta),
+      radius * Math.cos(phi)
+    )
+
+    target.userData = {
+      isCorrect: i === 0,
+      phoneme: i === 0 ? currentPhoneme.value : `dummy_${i}`,
+      detected: false
+    }
+
+    scene3D.value.add(target)
+    phonemeTargets3D.value.push(target)
+  }
+}
+
+// Mouse controls
+const onMouseDown = (event) => {
+  mouseDown.value = true
+  lastMouseX.value = event.clientX
+  lastMouseY.value = event.clientY
+  canvas3D.value.style.cursor = 'grabbing'
+}
+
+const onMouseMove = (event) => {
+  if (!mouseDown.value || !camera3D.value) return
+
+  const deltaX = event.clientX - lastMouseX.value
+  const deltaY = event.clientY - lastMouseY.value
+
+  // Rotate camera based on mouse movement
+  const rotationSpeed = 0.005
+
+  // Create a spherical coordinate system for camera rotation
+  const spherical = new THREE.Spherical()
+  spherical.setFromVector3(camera3D.value.position)
+
+  spherical.theta -= deltaX * rotationSpeed
+  spherical.phi += deltaY * rotationSpeed
+
+  // Limit vertical rotation
+  spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi))
+
+  camera3D.value.position.setFromSpherical(spherical)
+  camera3D.value.lookAt(0, 0, 0)
+
+  lastMouseX.value = event.clientX
+  lastMouseY.value = event.clientY
+}
+
+const onMouseUp = () => {
+  mouseDown.value = false
+  if (canvas3D.value) {
+    canvas3D.value.style.cursor = 'grab'
+  }
+}
+
+const onWheel = (event) => {
+  if (!camera3D.value) return
+
+  const delta = event.deltaY * 0.01
+  const direction = camera3D.value.position.clone().normalize()
+
+  camera3D.value.position.addScaledVector(direction, delta)
+
+  // Limit zoom distance
+  const distance = camera3D.value.position.length()
+  if (distance < 5) {
+    camera3D.value.position.setLength(5)
+  } else if (distance > 50) {
+    camera3D.value.position.setLength(50)
+  }
+}
+
+// Keyboard controls
+const onKeyDown = (event) => {
+  keysPressed.value.add(event.code)
+  handleMovement()
+}
+
+const onKeyUp = (event) => {
+  keysPressed.value.delete(event.code)
+}
+
+const handleMovement = () => {
+  if (!camera3D.value) return
+
+  const forward = new THREE.Vector3(0, 0, -1)
+  const right = new THREE.Vector3(1, 0, 0)
+  const up = new THREE.Vector3(0, 1, 0)
+
+  // Transform directions relative to camera
+  forward.applyQuaternion(camera3D.value.quaternion)
+  right.applyQuaternion(camera3D.value.quaternion)
+
+  const moveVector = new THREE.Vector3()
+
+  if (keysPressed.value.has('KeyW')) moveVector.add(forward)
+  if (keysPressed.value.has('KeyS')) moveVector.sub(forward)
+  if (keysPressed.value.has('KeyA')) moveVector.sub(right)
+  if (keysPressed.value.has('KeyD')) moveVector.add(right)
+  if (keysPressed.value.has('Space')) moveVector.add(up)
+  if (keysPressed.value.has('ShiftLeft')) moveVector.sub(up)
+
+  if (moveVector.length() > 0) {
+    moveVector.normalize()
+    camera3D.value.position.addScaledVector(moveVector, moveSpeed.value * 0.1)
+  }
+
+  // Handle rotation
+  if (keysPressed.value.has('KeyQ')) {
+    camera3D.value.rotateZ(0.02)
+  }
+  if (keysPressed.value.has('KeyE')) {
+    camera3D.value.rotateZ(-0.02)
+  }
+}
+
+const animate3D = () => {
+  if (!renderer3D.value || !scene3D.value || !camera3D.value) return
+
+  // Rotate radar sphere
+  if (radarSphere.value) {
+    radarSphere.value.rotation.y += 0.01
+  }
+
+  // Animate phoneme targets
+  phonemeTargets3D.value.forEach((target, index) => {
+    target.rotation.y += 0.02
+    target.rotation.x += 0.01
+
+    // Pulse effect for undetected targets
+    if (!target.userData.detected) {
+      const scale = 1 + 0.2 * Math.sin(Date.now() * 0.005 + index)
+      target.scale.setScalar(scale)
+    }
+  })
+
+  // Check for target detection (simple distance-based)
+  checkTargetDetection()
+
+  renderer3D.value.render(scene3D.value, camera3D.value)
+
+  if (is3DMode.value) {
+    requestAnimationFrame(animate3D)
+  }
+}
+
+const checkTargetDetection = () => {
+  if (!camera3D.value) return
+
+  const raycaster = new THREE.Raycaster()
+  const direction = new THREE.Vector3(0, 0, -1)
+  direction.applyQuaternion(camera3D.value.quaternion)
+
+  raycaster.set(camera3D.value.position, direction)
+
+  const intersects = raycaster.intersectObjects(phonemeTargets3D.value)
+
+  if (intersects.length > 0) {
+    const target = intersects[0].object
+    if (!target.userData.detected && intersects[0].distance < 5) {
+      target.userData.detected = true
+      target.material.color.setHex(0x00ff00)
+      detected3DTargets.value.push(target)
+
+      if (target.userData.isCorrect) {
+        onPhonemeFound(target.userData.phoneme)
+      }
+    }
+  }
+}
+
+const cleanup3DScene = () => {
+  if (renderer3D.value) {
+    renderer3D.value.dispose()
+    renderer3D.value = null
+  }
+
+  if (scene3D.value) {
+    scene3D.value.clear()
+    scene3D.value = null
+  }
+
+  camera3D.value = null
+  radarSphere.value = null
+  phonemeTargets3D.value = []
+  detected3DTargets.value = []
+}
+
 // Lifecycle
 onMounted(() => {
   initializeGame()
@@ -606,6 +1013,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   cooperativeGameService.cleanup()
+  cleanup3DScene()
 })
 
 // Watch for session changes
@@ -614,10 +1022,52 @@ watch(() => props.sessionId, (newSessionId) => {
     initializeGame()
   }
 })
+
+// Watch for phoneme changes in 3D mode
+watch(currentPhoneme, (newPhoneme) => {
+  if (is3DMode.value && scene3D.value) {
+    // Clear existing targets
+    phonemeTargets3D.value.forEach(target => {
+      scene3D.value.remove(target)
+    })
+
+    // Create new targets for the new phoneme
+    createPhonemeTargets()
+    detected3DTargets.value = []
+  }
+})
 </script>
 
 <style scoped>
 @import '@/assets/css/sound-radar-animations.css';
+
+/* 3D Mode Styles */
+.canvas-3d {
+  cursor: grab;
+  user-select: none;
+}
+
+.canvas-3d:active {
+  cursor: grabbing;
+}
+
+.canvas-3d:focus {
+  outline: 2px solid #00aaff;
+  outline-offset: 2px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 4px;
+  font-size: 10px;
+  color: #fff;
+  vertical-align: middle;
+  background-color: #4a5568;
+  border: solid 1px #2d3748;
+  border-bottom-color: #1a202c;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #1a202c;
+}
 
 .sound-radar-game {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;

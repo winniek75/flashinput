@@ -252,6 +252,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
 import Icon from '@/components/shared/Icon.vue'
@@ -443,10 +445,10 @@ const defaultGames = ref([
 
 // 利用可能なゲーム（プロップスまたはデフォルト）
 const availableGames = computed(() => {
-  console.log('GameSelectionModal - props.availableGames:', props.availableGames)
-  console.log('GameSelectionModal - defaultGames:', defaultGames.value.length, 'items')
+  logger.log('GameSelectionModal - props.availableGames:', props.availableGames)
+  logger.log('GameSelectionModal - defaultGames:', defaultGames.value.length, 'items')
   const result = props.availableGames.length > 0 ? props.availableGames : defaultGames.value
-  console.log('GameSelectionModal - using games:', result.length, 'items', result.map(g => ({ id: g.id, title: g.title, isLocked: g.isLocked })))
+  logger.log('GameSelectionModal - using games:', result.length, 'items', result.map(g => ({ id: g.id, title: g.title, isLocked: g.isLocked })))
   return result
 })
 
@@ -486,16 +488,16 @@ const filteredGames = computed(() => {
 
 // メソッド
 const selectGame = (game) => {
-  console.log('selectGame called with:', game)
-  console.log('game.isLocked:', game.isLocked, 'game.id:', game.id)
+  logger.log('selectGame called with:', game)
+  logger.log('game.isLocked:', game.isLocked, 'game.id:', game.id)
   
   // 開発用：すべてのゲームを強制的にアンロック
   if (game.isLocked) {
-    console.log('Game is locked, but forcing unlock for development')
+    logger.log('Game is locked, but forcing unlock for development')
   }
   
   selectedGame.value = game
-  console.log('selectedGame set to:', selectedGame.value)
+  logger.log('selectedGame set to:', selectedGame.value)
   
   // ゲーム設定をリセット
   gameSettings.value = {
@@ -506,23 +508,23 @@ const selectGame = (game) => {
   }
   
   emit('game-selected', game)
-  console.log('game-selected event emitted')
+  logger.log('game-selected event emitted')
 }
 
 const startSelectedGame = async () => {
-  console.log('startSelectedGame called, selectedGame:', selectedGame.value)
+  logger.log('startSelectedGame called, selectedGame:', selectedGame.value)
   if (!selectedGame.value) {
-    console.log('Cannot start game - no selected game')
+    logger.log('Cannot start game - no selected game')
     return
   }
   
   // 開発用：すべてのゲームを強制的にアンロック
   if (selectedGame.value.isLocked) {
-    console.log('Game is locked, but forcing unlock for development')
+    logger.log('Game is locked, but forcing unlock for development')
   }
   
   loading.value = true
-  console.log('Starting game:', selectedGame.value.id)
+  logger.log('Starting game:', selectedGame.value.id)
   
   try {
     // ゲーム開始イベントを発火
@@ -530,12 +532,12 @@ const startSelectedGame = async () => {
       game: selectedGame.value,
       settings: gameSettings.value
     })
-    console.log('start-game event emitted successfully')
+    logger.log('start-game event emitted successfully')
     
     // モーダルを閉じる
     closeModal()
   } catch (error) {
-    console.error('Failed to start game:', error)
+    logger.error('Failed to start game:', error)
   } finally {
     loading.value = false
   }

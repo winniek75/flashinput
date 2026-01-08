@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { COSMIC_RANKS, COSMIC_RANK_SETTINGS, allCosmicMissions } from '@/data/grammar/cosmicGrammarData.js'
 import { LEVEL_SETTINGS, allQuestions } from '@/data/grammar/grammarReflexData.js'
+import logger from '@/utils/logger'
 
 export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
   // === 状態管理 ===
@@ -163,20 +164,6 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
           route: '/grammar-galaxy/question-word-detective',
           description: '写真を見て瞬時に正しい疑問詞を選ぼう！What, Who, When, Where, Why, How を使い分けて探偵スキルを磨こう。'
         },
-        {
-          id: 'grammarConstructor',
-          name: 'Grammar Constructor',
-          icon: '🏗️',
-          type: 'sentence-construction',
-          unlocked: true,
-          stars: 0,
-          maxStars: 3,
-          bestScore: 0,
-          completionTime: null,
-          attempts: 0,
-          route: '/grammar-galaxy/grammar-constructor',
-          description: '文法ブロックをドラッグ&ドロップして正しい英文を建設しよう！主語・動詞・目的語を正しい順序で組み立てよう。'
-        }
       ]
     }
   })
@@ -299,7 +286,7 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
    */
   const isGameUnlocked = (gameId) => {
     // Development mode: all games unlocked
-    console.log(`🔓 Game unlock check: ${gameId} - UNLOCKED (development mode)`)
+    logger.log(`🔓 Game unlock check: ${gameId} - UNLOCKED (development mode)`)
     return true
   }
 
@@ -397,9 +384,9 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
         lastSaved: new Date().toISOString()
       }
       localStorage.setItem('grammarGalaxyProgress', JSON.stringify(saveData))
-      console.log('✅ Grammar Galaxy progress saved successfully')
+      logger.log('✅ Grammar Galaxy progress saved successfully')
     } catch (error) {
-      console.error('❌ Failed to save grammar galaxy progress:', error)
+      logger.error('❌ Failed to save grammar galaxy progress:', error)
     }
   }
 
@@ -443,11 +430,11 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
           })
         }
 
-        console.log('✅ Grammar Galaxy progress loaded successfully')
+        logger.log('✅ Grammar Galaxy progress loaded successfully')
         return true
       }
     } catch (error) {
-      console.error('❌ Failed to load grammar galaxy progress:', error)
+      logger.error('❌ Failed to load grammar galaxy progress:', error)
     }
     return false
   }
@@ -500,7 +487,7 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
     })
 
     saveProgress()
-    console.log('✅ Grammar Galaxy progress reset successfully')
+    logger.log('✅ Grammar Galaxy progress reset successfully')
   }
 
 
@@ -545,6 +532,19 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
       averageAccuracy: 0,
       lastPlayDate: null,
       unlockRequirement: '基本Rush完了'
+    },
+    verbPatternGalaxy: {
+      id: 'verbPatternGalaxy',
+      name: '動詞パターン銀河',
+      icon: '🌌',
+      unlocked: true,
+      mastery: 0,
+      todaySessions: 0,
+      bestScore: 0,
+      totalAttempts: 0,
+      averageAccuracy: 0,
+      lastPlayDate: null,
+      unlockRequirement: 'Grammar Galaxy 基礎編 30%完了'
     }
   })
 
@@ -633,13 +633,15 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
   
   // 開発用: 全ゲームを強制的にアンロック（loadProgress後に実行）
   setTimeout(() => {
-    console.log('🔓 Force unlocking all games for development...')
+    // 開発環境でのみ、簡潔なログを1回だけ出力
+    if (import.meta.env.DEV) {
+      logger.log('🔓 Unlocking all games for development mode')
+    }
     
     // Be動詞惑星のゲームをアンロック
     if (planetsData.value.beVerb?.games) {
       planetsData.value.beVerb.games.forEach(game => {
         game.unlocked = true
-        console.log(`✅ ${game.name} force unlocked`)
       })
     }
     
@@ -647,7 +649,6 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
     if (planetsData.value.generalVerb?.games) {
       planetsData.value.generalVerb.games.forEach(game => {
         game.unlocked = true
-        console.log(`✅ ${game.name} force unlocked`)
       })
     }
     
@@ -655,7 +656,6 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
     if (planetsData.value.wordOrder?.games) {
       planetsData.value.wordOrder.games.forEach(game => {
         game.unlocked = true
-        console.log(`✅ ${game.name} force unlocked`)
       })
     }
     
@@ -663,13 +663,11 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
     if (planetsData.value.grammarFoundation?.games) {
       planetsData.value.grammarFoundation.games.forEach(game => {
         game.unlocked = true
-        console.log(`✅ ${game.name} force unlocked`)
       })
     }
     
     // 変更を保存
     saveProgress()
-    console.log('🎮 All games are now unlocked for everyone!')
   }, 100)
 
   return {
@@ -729,10 +727,10 @@ export const useGrammarGalaxyStore = defineStore('grammarGalaxy', () => {
 export const initializeGrammarGalaxyStore = () => {
   try {
     const store = useGrammarGalaxyStore()
-    console.log('✅ Grammar Galaxy Store initialized manually')
+    logger.log('✅ Grammar Galaxy Store initialized manually')
     return store
   } catch (error) {
-    console.error('❌ Failed to initialize Grammar Galaxy Store:', error)
+    logger.error('❌ Failed to initialize Grammar Galaxy Store:', error)
     return null
   }
 }

@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import logger from '@/utils/logger'
 
 export const useSoundAdventureStore = defineStore('soundAdventure', () => {
   // === Sound Adventure 進捗データ ===
@@ -15,7 +16,7 @@ export const useSoundAdventureStore = defineStore('soundAdventure', () => {
     currentLevel: 1,
     lastPlayDate: null,
 
-    // 音素習得データ（44音素）
+    // 音素習得データ（42音素）
     phonemesMastery: {
       // 短母音
       short_vowels: {
@@ -447,7 +448,7 @@ export const useSoundAdventureStore = defineStore('soundAdventure', () => {
       }
       localStorage.setItem('soundAdventureProgress', JSON.stringify(saveData))
     } catch (error) {
-      console.error('Failed to save sound adventure progress:', error)
+      logger.error('Failed to save sound adventure progress:', error)
     }
   }
 
@@ -465,7 +466,7 @@ export const useSoundAdventureStore = defineStore('soundAdventure', () => {
         }
       }
     } catch (error) {
-      console.error('Failed to load sound adventure progress:', error)
+      logger.error('Failed to load sound adventure progress:', error)
     }
     return false
   }

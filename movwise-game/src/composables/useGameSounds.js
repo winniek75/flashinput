@@ -1,5 +1,6 @@
 // src/composables/useGameSounds.js - 完全自動生成版音響システム
 import { ref, onMounted, onUnmounted } from 'vue'
+import logger from '@/utils/logger'
 
 export function useGameSounds() {
   const isEnabled = ref(true)
@@ -83,15 +84,63 @@ export function useGameSounds() {
       duration: 1200,
       waveType: 'sine',
       description: '新記録音'
+    },
+    select: {
+      type: 'pop',
+      frequency: 600,
+      duration: 120,
+      waveType: 'sine',
+      description: '選択音（惑星クリック時）'
+    },
+    hover: {
+      type: 'pop',
+      frequency: 400,
+      duration: 60,
+      waveType: 'triangle',
+      description: 'ホバー音'
+    },
+    connect: {
+      type: 'sweep',
+      startFreq: 300,
+      endFreq: 500,
+      duration: 200,
+      waveType: 'sine',
+      description: '接続音（惑星間の線）'
     }
   }
 
-  // BGM用の和音進行（自動生成）
+  // BGM用の和音進行（自動生成）- 宇宙・SF風
   const bgmChordProgression = [
-    [261, 329, 392], // C major
-    [294, 369, 440], // D minor
-    [330, 392, 494], // F major
-    [392, 494, 587]  // G major
+    [82, 123, 164, 246],   // E (低音ベース・神秘的)
+    [87, 130, 174, 261],   // F (浮遊感)
+    [73, 110, 146, 220],   // D (深宇宙)
+    [98, 147, 196, 294],   // G (展開)
+    [65, 98, 130, 195],    // C (ダークな低音)
+    [77, 116, 155, 233],   // Eb (異次元感)
+    [92, 138, 185, 277],   // F# (緊張感)
+    [82, 123, 164, 246]    // E (回帰)
+  ]
+
+  // Rush Zone用のポップで楽しいBGM進行（明るく弾むような音楽）
+  const rushZoneBgmProgression = [
+    [261, 329, 392, 523],   // C (明るいベース・ドミソド)
+    [349, 440, 523, 659],   // F (弾むような・ファラドミ)
+    [392, 493, 587, 784],   // G (エネルギッシュ・ソシレソ)
+    [261, 329, 392, 523],   // C (リフレイン)
+    [440, 554, 659, 880],   // A (高揚感・ラドミラ)
+    [349, 440, 523, 659],   // F (楽しい展開)
+    [392, 493, 587, 784],   // G (クライマックス)
+    [261, 329, 392, 523]    // C (解決)
+  ]
+
+  // ポップなアルペジオパターン（Rush Zone用）
+  const rushArpeggioPattern = [
+    { freq: 261, delay: 0 },     // C
+    { freq: 329, delay: 100 },   // E
+    { freq: 392, delay: 200 },   // G
+    { freq: 523, delay: 300 },   // C (octave)
+    { freq: 392, delay: 400 },   // G
+    { freq: 329, delay: 500 }    // E
   ]
 
   // Web Audio API初期化
@@ -99,10 +148,10 @@ export function useGameSounds() {
     try {
       audioContext.value = new (window.AudioContext || window.webkitAudioContext)()
       isInitialized.value = true
-      console.log('🎵 Web Audio API initialized (full auto-generation mode)')
+      logger.log('🎵 Web Audio API initialized (full auto-generation mode)')
       return true
     } catch (error) {
-      console.warn('Audio initialization failed:', error)
+      logger.warn('Audio initialization failed:', error)
       return false
     }
   }
@@ -193,21 +242,77 @@ export function useGameSounds() {
   }
 
   // BGM生成（和音進行のループ）
-  const generateBGM = () => {
+  const generateBGM = (isRushZone = false) => {
     if (!audioContext.value || !isEnabled.value) return
 
+    const chordProgression = isRushZone ? rushZoneBgmProgression : bgmChordProgression
+    const tempo = isRushZone ? 800 : 1500 // Rush Zoneは速いテンポ
+    const chordDuration = isRushZone ? 1200 : 3000 // Rush Zoneは短い持続時間
+
     const playChord = (chordFreqs, duration) => {
-      const oscillators = chordFreqs.map(freq => {
+      const oscillators = chordFreqs.map((freq, index) => {
         const oscillator = audioContext.value.createOscillator()
         const gainNode = audioContext.value.createGain()
+        const filter = audioContext.value.createBiquadFilter()
+        const panner = audioContext.value.createStereoPanner()
 
-        oscillator.connect(gainNode)
+        // 接続: oscillator -> filter -> panner -> gain -> destination
+        oscillator.connect(filter)
+        filter.connect(panner)
+        panner.connect(gainNode)
         gainNode.connect(audioContext.value.destination)
 
         oscillator.frequency.setValueAtTime(freq, audioContext.value.currentTime)
-        oscillator.type = 'triangle'
+        
+        // 音色の設定（Rush Zoneは明るくポップな音色）
+        if (isRushZone) {
+          // Rush Zone用の明るいポップな音色
+          if (index === 0) {
+            oscillator.type = 'square' // パンチのあるベース
+            gainNode.gain.setValueAtTime(volume.value * 0.15, audioContext.value.currentTime)
+          } else if (index === 1) {
+            oscillator.type = 'sawtooth' // 明るい中音域
+            gainNode.gain.setValueAtTime(volume.value * 0.12, audioContext.value.currentTime)
+          } else {
+            oscillator.type = 'sine' // クリアな高音
+            gainNode.gain.setValueAtTime(volume.value * 0.10, audioContext.value.currentTime)
+          }
+        } else {
+          // 通常の宇宙的な音色
+          if (index === 0) {
+            oscillator.type = 'sawtooth' // ベース音（太い音）
+            gainNode.gain.setValueAtTime(volume.value * 0.12, audioContext.value.currentTime)
+          } else if (index === 1) {
+            oscillator.type = 'triangle' // 中音域（温かみ）
+            gainNode.gain.setValueAtTime(volume.value * 0.08, audioContext.value.currentTime)
+          } else {
+            oscillator.type = 'sine' // 高音域（クリア）
+            gainNode.gain.setValueAtTime(volume.value * 0.06, audioContext.value.currentTime)
+          }
+        }
 
-        gainNode.gain.setValueAtTime(volume.value * 0.1, audioContext.value.currentTime) // BGMは控えめ
+        // フィルター設定（Rush Zoneは明るく開放的）
+        filter.type = 'lowpass'
+        filter.frequency.setValueAtTime(
+          isRushZone ? 2000 + (index * 400) : 600 + (index * 300),
+          audioContext.value.currentTime
+        )
+        filter.Q.setValueAtTime(isRushZone ? 5 : 10, audioContext.value.currentTime)
+
+        // ステレオ効果（音の広がり）
+        panner.pan.setValueAtTime((index - 1.5) * 0.3, audioContext.value.currentTime)
+
+        // フェードイン・アウト（Rush Zoneは速いアタック）
+        const attackTime = isRushZone ? 0.05 : 0.3
+        const releaseTime = isRushZone ? 0.2 : 0.5
+        gainNode.gain.exponentialRampToValueAtTime(
+          gainNode.gain.value, 
+          audioContext.value.currentTime + attackTime
+        )
+        gainNode.gain.exponentialRampToValueAtTime(
+          0.001, 
+          audioContext.value.currentTime + duration / 1000 - releaseTime
+        )
 
         oscillator.start(audioContext.value.currentTime)
         oscillator.stop(audioContext.value.currentTime + duration / 1000)
@@ -218,24 +323,43 @@ export function useGameSounds() {
       return oscillators
     }
 
+    // Rush Zone用のアルペジオ追加
+    const playArpeggio = () => {
+      if (!isRushZone || !isEnabled.value) return
+
+      rushArpeggioPattern.forEach(({ freq, delay }) => {
+        setTimeout(() => {
+          if (isEnabled.value) {
+            createTone(freq, 200, 'sine', 0.08)
+          }
+        }, delay)
+      })
+    }
+
     const playBGMLoop = () => {
       if (!isEnabled.value) return
 
-      bgmChordProgression.forEach((chord, index) => {
+      chordProgression.forEach((chord, index) => {
         setTimeout(() => {
           if (isEnabled.value) {
-            const oscillators = playChord(chord, 2000) // 2秒間隔
+            const oscillators = playChord(chord, chordDuration)
             bgmOscillators.value.push(...oscillators)
+            
+            // Rush Zoneでアルペジオを追加（リズミカルな要素）
+            if (isRushZone && index % 2 === 0) {
+              playArpeggio()
+            }
           }
-        }, index * 2000)
+        }, index * tempo)
       })
 
-      // 8秒後にループ
+      // ループタイミング調整
+      const loopTime = isRushZone ? 6400 : 12000 // Rush Zoneは速いループ
       setTimeout(() => {
         if (isEnabled.value) {
           playBGMLoop()
         }
-      }, 8000)
+      }, loopTime)
     }
 
     playBGMLoop()
@@ -259,7 +383,7 @@ export function useGameSounds() {
 
     const soundDef = soundDefinitions[soundKey]
     if (!soundDef) {
-      console.warn(`Unknown sound: ${soundKey}`)
+      logger.warn(`Unknown sound: ${soundKey}`)
       return
     }
 
@@ -311,15 +435,20 @@ export function useGameSounds() {
           await createTone(soundDef.frequency || 440, soundDef.duration || 200, soundDef.waveType || 'sine')
       }
     } catch (error) {
-      console.warn(`Failed to play sound: ${soundKey}`, error)
+      logger.warn(`Failed to play sound: ${soundKey}`, error)
     }
   }
 
   // BGM制御
-  const playBGM = async () => {
+  const playBGM = async (isRushZone = false) => {
     if (!isEnabled.value || !isInitialized.value) return
     stopBGM() // 既存のBGMを停止
-    generateBGM()
+    generateBGM(isRushZone)
+  }
+
+  // Rush Zone専用BGM
+  const playRushZoneBGM = async () => {
+    return playBGM(true)
   }
 
   const pauseBGM = () => stopBGM()
@@ -387,15 +516,15 @@ export function useGameSounds() {
 
   // テスト用サウンドプレビュー
   const testAllSounds = async () => {
-    console.log('🎵 Testing all generated sounds...')
+    logger.log('🎵 Testing all generated sounds...')
 
     for (const [soundKey, soundDef] of Object.entries(soundDefinitions)) {
-      console.log(`🔊 Playing: ${soundKey} - ${soundDef.description}`)
+      logger.log(`🔊 Playing: ${soundKey} - ${soundDef.description}`)
       await playSound(soundKey)
       await new Promise(resolve => setTimeout(resolve, 800)) // 間隔を空ける
     }
 
-    console.log('✅ Sound test completed')
+    logger.log('✅ Sound test completed')
   }
 
   // サウンド一覧取得
@@ -441,6 +570,7 @@ export function useGameSounds() {
 
     // BGM
     playBGM,
+    playRushZoneBGM,
     pauseBGM,
     stopBGM,
 

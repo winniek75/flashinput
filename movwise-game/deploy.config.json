@@ -1,0 +1,77 @@
+{
+  "name": "movwise-game-production",
+  "environments": {
+    "production": {
+      "domain": "your-production-domain.com",
+      "ssl": {
+        "enabled": true,
+        "certPath": "/etc/ssl/certs/movwise.crt",
+        "keyPath": "/etc/ssl/private/movwise.key"
+      },
+      "stripe": {
+        "mode": "live",
+        "webhook_url": "https://your-production-domain.com/api/subscription/webhook"
+      },
+      "database": {
+        "type": "postgresql",
+        "url": "postgres://username:password@host:5432/movwise_prod"
+      },
+      "monitoring": {
+        "sentry": "https://your-sentry-dsn",
+        "analytics": true,
+        "errorTracking": true
+      }
+    },
+    "staging": {
+      "domain": "staging.your-domain.com",
+      "ssl": {
+        "enabled": true
+      },
+      "stripe": {
+        "mode": "test",
+        "webhook_url": "https://staging.your-domain.com/api/subscription/webhook"
+      },
+      "database": {
+        "type": "postgresql",
+        "url": "postgres://username:password@host:5432/movwise_staging"
+      }
+    }
+  },
+  "build": {
+    "outputDir": "dist",
+    "staticDir": "public",
+    "compressionEnabled": true,
+    "minification": true
+  },
+  "security": {
+    "corsOrigins": [
+      "https://your-production-domain.com",
+      "https://www.your-production-domain.com"
+    ],
+    "rateLimiting": {
+      "enabled": true,
+      "maxRequests": 100,
+      "windowMs": 900000
+    },
+    "helmet": {
+      "contentSecurityPolicy": true,
+      "hsts": true,
+      "noSniff": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "combined",
+    "rotation": {
+      "enabled": true,
+      "maxSize": "10MB",
+      "maxFiles": 5
+    }
+  },
+  "health": {
+    "endpoint": "/health",
+    "checkDatabase": true,
+    "checkStripe": true,
+    "checkRedis": false
+  }
+}

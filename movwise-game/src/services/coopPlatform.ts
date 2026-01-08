@@ -4,6 +4,7 @@
  */
 
 import { io, Socket } from 'socket.io-client'
+import logger from '@/utils/logger'
 
 export interface Instructor {
   id: string
@@ -85,7 +86,7 @@ export class CoopPlatformService {
     })
 
     this.socket.on('connect', () => {
-      console.log('🔗 Co-Learning Platform connected')
+      logger.log('🔗 Co-Learning Platform connected')
     })
 
     this.socket.on('instructor-list-updated', (instructors: Instructor[]) => {
@@ -275,7 +276,7 @@ export class CoopPlatformService {
         }
       }
     } catch (error) {
-      console.error('Error starting voice chat:', error)
+      logger.error('Error starting voice chat:', error)
       throw error
     }
   }
@@ -307,7 +308,7 @@ export class CoopPlatformService {
         this.stopScreenShare()
       }
     } catch (error) {
-      console.error('Error starting screen share:', error)
+      logger.error('Error starting screen share:', error)
       throw error
     }
   }
@@ -459,23 +460,23 @@ export class CoopPlatformService {
 
   // デフォルトハンドラー
   private handleSessionResponse(response: any): void {
-    console.log('Session response:', response)
+    logger.log('Session response:', response)
   }
 
   private handleEmergencyAssignment(assignment: any): void {
-    console.log('Emergency assignment:', assignment)
+    logger.log('Emergency assignment:', assignment)
   }
 
   private handleIncomingMessage(message: ChatMessage): void {
-    console.log('Incoming message:', message)
+    logger.log('Incoming message:', message)
   }
 
   private handleGrammarCorrection(correction: any): void {
-    console.log('Grammar correction:', correction)
+    logger.log('Grammar correction:', correction)
   }
 
   private onRemoteStreamReceived(stream: MediaStream): void {
-    console.log('Remote stream received:', stream)
+    logger.log('Remote stream received:', stream)
   }
 
   /**

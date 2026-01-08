@@ -1,0 +1,789 @@
+[
+  {
+    "id": "chapter_sound_awakening",
+    "title": "Sound Planet Awakening",
+    "subtitle": "The Journey Begins",
+    "planet": "soundPlanet",
+    "chapterNumber": 1,
+    "requiredCrystals": 0,
+    "vrReadinessRequired": 0,
+    "scenes": [
+      {
+        "id": "scene_intro_awakening",
+        "type": "cutscene",
+        "title": "The Call of the Cosmos",
+        "characters": [
+          {
+            "id": "narrator",
+            "name": "Cosmic Guide",
+            "avatar": "/images/characters/narrator.png",
+            "position": "center",
+            "emotion": "neutral",
+            "vrModel": "/models/characters/narrator.glb"
+          }
+        ],
+        "background": {
+          "image": "/images/story/space_awakening.jpg",
+          "vrEnvironment": "cosmic_void",
+          "music": "/audio/music/cosmic_awakening.mp3",
+          "ambientSound": "/audio/ambient/space.wav",
+          "parallax": [
+            {
+              "image": "/images/story/stars_far.png",
+              "speed": 0.1,
+              "zIndex": 1
+            },
+            {
+              "image": "/images/story/nebula.png",
+              "speed": 0.3,
+              "zIndex": 2
+            }
+          ]
+        },
+        "dialogues": [
+          {
+            "id": "narr_001",
+            "characterId": "narrator",
+            "text": "Welcome, young explorer, to the Language Galaxy Adventure. The cosmos calls to those brave enough to learn.",
+            "audioUrl": "/audio/dialogue/narr_001.mp3",
+            "duration": 4000,
+            "effects": [
+              {
+                "type": "fadeIn",
+                "duration": 1000
+              }
+            ],
+            "vrGesture": {
+              "type": "wave",
+              "intensity": 0.8,
+              "duration": 2000
+            }
+          },
+          {
+            "id": "narr_002",
+            "characterId": "narrator",
+            "text": "Seven planets await your discovery, each holding ancient knowledge of language and sound. Your journey begins on the Sound Planet.",
+            "audioUrl": "/audio/dialogue/narr_002.mp3",
+            "duration": 5000,
+            "effects": [
+              {
+                "type": "typewriter",
+                "duration": 3000
+              }
+            ],
+            "vrGesture": {
+              "type": "point",
+              "intensity": 1.0,
+              "duration": 3000
+            }
+          }
+        ],
+        "nextScene": "scene_meet_echo",
+        "vrScenario": {
+          "id": "vr_cosmic_introduction",
+          "title": "Cosmic Introduction VR",
+          "description": "Experience the galaxy awakening in immersive VR",
+          "spatialioId": "sp_cosmic_intro_001",
+          "previewImage": "/images/vr/cosmic_intro_preview.jpg",
+          "requiredVRReadiness": 20,
+          "estimatedDuration": 5,
+          "participants": 1,
+          "objectives": [
+            {
+              "id": "obj_explore_galaxy",
+              "description": "Explore the galaxy overview",
+              "type": "exploration",
+              "rewards": [
+                {
+                  "type": "crystal",
+                  "value": 2,
+                  "description": "Exploration crystals"
+                }
+              ]
+            }
+          ],
+          "environments": [
+            {
+              "id": "env_cosmic_void",
+              "name": "Cosmic Void",
+              "description": "The space between worlds",
+              "lighting": "space",
+              "weather": "clear"
+            }
+          ],
+          "interactions": [
+            {
+              "id": "int_gaze_planets",
+              "type": "eyeTracking",
+              "trigger": "lookAt:planet",
+              "response": {
+                "visual": {
+                  "type": "glow",
+                  "duration": 2000,
+                  "intensity": 0.8
+                },
+                "audio": {
+                  "type": "3d",
+                  "url": "/audio/sfx/planet_discovery.wav",
+                  "volume": 0.7,
+                  "spatialRange": 10
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "scene_meet_echo",
+        "type": "dialogue",
+        "title": "Meeting Echo",
+        "characters": [
+          {
+            "id": "echo",
+            "name": "Echo",
+            "avatar": "/images/characters/echo.png",
+            "position": "left",
+            "emotion": "excited",
+            "vrModel": "/models/characters/echo.glb"
+          },
+          {
+            "id": "player",
+            "name": "You",
+            "avatar": "/images/characters/player_default.png",
+            "position": "right",
+            "emotion": "neutral"
+          }
+        ],
+        "background": {
+          "image": "/images/story/sound_planet_surface.jpg",
+          "vrEnvironment": "sound_planet_intro",
+          "music": "/audio/music/sound_planet_theme.mp3",
+          "ambientSound": "/audio/ambient/crystal_hum.wav"
+        },
+        "dialogues": [
+          {
+            "id": "echo_001",
+            "characterId": "echo",
+            "text": "Hey there! I'm Echo, your guide on Sound Planet! Ready to discover the magic of phonics and sounds?",
+            "audioUrl": "/audio/dialogue/echo_001.mp3",
+            "duration": 4000,
+            "effects": [
+              {
+                "type": "slideIn",
+                "duration": 800
+              }
+            ],
+            "vrGesture": {
+              "type": "wave",
+              "intensity": 1.0,
+              "duration": 2000
+            }
+          }
+        ],
+        "nextScene": "scene_first_choice",
+        "triggers": [
+          {
+            "event": "planetReached",
+            "target": "soundPlanet"
+          }
+        ]
+      },
+      {
+        "id": "scene_first_choice",
+        "type": "choice",
+        "title": "Your First Decision",
+        "characters": [
+          {
+            "id": "echo",
+            "name": "Echo",
+            "avatar": "/images/characters/echo.png",
+            "position": "center",
+            "emotion": "happy"
+          }
+        ],
+        "background": {
+          "image": "/images/story/sound_planet_surface.jpg",
+          "vrEnvironment": "sound_planet_choice",
+          "music": "/audio/music/sound_planet_theme.mp3"
+        },
+        "dialogues": [
+          {
+            "id": "echo_choice_001",
+            "characterId": "echo",
+            "text": "So, what would you like to learn first? Each path will teach you something special!",
+            "audioUrl": "/audio/dialogue/echo_choice_001.mp3",
+            "duration": 3000
+          }
+        ],
+        "choices": [
+          {
+            "id": "choice_sounds_first",
+            "text": "I want to learn about different sounds!",
+            "consequences": [
+              {
+                "type": "relationship",
+                "target": "echo",
+                "value": 10
+              },
+              {
+                "type": "skill",
+                "target": "phonics",
+                "value": 5
+              }
+            ],
+            "nextScene": "scene_sounds_lesson",
+            "vrAction": {
+              "type": "gesture",
+              "trigger": "pointToSounds",
+              "feedback": {
+                "visual": "sounds_highlight",
+                "haptic": 0.5,
+                "audio": "/audio/sfx/choice_confirm.wav"
+              }
+            }
+          },
+          {
+            "id": "choice_letters_first",
+            "text": "Show me how letters make sounds!",
+            "consequences": [
+              {
+                "type": "relationship",
+                "target": "echo",
+                "value": 8
+              },
+              {
+                "type": "skill",
+                "target": "phonics",
+                "value": 3
+              }
+            ],
+            "nextScene": "scene_letters_lesson",
+            "vrAction": {
+              "type": "gesture",
+              "trigger": "pointToLetters",
+              "feedback": {
+                "visual": "letters_highlight",
+                "haptic": 0.5,
+                "audio": "/audio/sfx/choice_confirm.wav"
+              }
+            }
+          }
+        ],
+        "nextScene": null
+      },
+      {
+        "id": "scene_sounds_lesson",
+        "type": "gameIntro",
+        "title": "Sound Discovery",
+        "characters": [
+          {
+            "id": "echo",
+            "name": "Echo",
+            "avatar": "/images/characters/echo.png",
+            "position": "left",
+            "emotion": "excited"
+          }
+        ],
+        "background": {
+          "image": "/images/story/sound_crystal_cave.jpg",
+          "vrEnvironment": "crystal_cave",
+          "music": "/audio/music/learning_theme.mp3",
+          "ambientSound": "/audio/ambient/crystal_cave.wav"
+        },
+        "dialogues": [
+          {
+            "id": "echo_lesson_001",
+            "characterId": "echo",
+            "text": "Great choice! Let's explore the Crystal Cave where sounds echo and dance. Each crystal holds a different phoneme!",
+            "audioUrl": "/audio/dialogue/echo_lesson_001.mp3",
+            "duration": 5000,
+            "effects": [
+              {
+                "type": "glow",
+                "duration": 2000
+              }
+            ]
+          },
+          {
+            "id": "echo_lesson_002",
+            "characterId": "echo",
+            "text": "Touch the crystals and listen carefully. Can you match the sounds to the letters? Let's begin!",
+            "audioUrl": "/audio/dialogue/echo_lesson_002.mp3",
+            "duration": 4000
+          }
+        ],
+        "nextScene": null,
+        "triggers": [
+          {
+            "event": "gameComplete",
+            "target": "phonics_matching"
+          }
+        ]
+      }
+    ],
+    "milestones": [
+      {
+        "id": "milestone_first_meeting",
+        "title": "First Contact",
+        "description": "Met Echo on Sound Planet",
+        "condition": {
+          "type": "chapter_complete",
+          "target": "scene_meet_echo",
+          "operator": "==",
+          "value": true
+        },
+        "unlocks": [
+          {
+            "type": "scene",
+            "target": "scene_first_choice",
+            "message": "Choice system unlocked!"
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "type": "crystal",
+        "value": 5,
+        "description": "Sound Planet Discovery Crystals",
+        "icon": "💎"
+      },
+      {
+        "type": "skill",
+        "value": 10,
+        "description": "Phonics Foundation",
+        "icon": "🔤"
+      }
+    ],
+    "vrScenarios": [
+      {
+        "id": "vr_sound_planet_exploration",
+        "title": "Sound Planet VR Adventure",
+        "description": "Immersive exploration of Sound Planet with 3D phonics interactions",
+        "spatialioId": "sp_sound_planet_001",
+        "previewImage": "/images/vr/sound_planet_preview.jpg",
+        "requiredVRReadiness": 30,
+        "estimatedDuration": 15,
+        "participants": 4,
+        "objectives": [
+          {
+            "id": "obj_collect_sound_crystals",
+            "description": "Collect 10 sound crystals by correctly identifying phonemes",
+            "type": "learning",
+            "rewards": [
+              {
+                "type": "crystal",
+                "value": 10,
+                "description": "VR Sound Crystals"
+              },
+              {
+                "type": "skill",
+                "value": 15,
+                "description": "Advanced Phonics"
+              }
+            ]
+          },
+          {
+            "id": "obj_collaborative_sound_puzzle",
+            "description": "Work with other players to solve the Great Sound Puzzle",
+            "type": "social",
+            "rewards": [
+              {
+                "type": "unlock",
+                "value": 1,
+                "description": "Team Player Badge"
+              }
+            ]
+          }
+        ],
+        "environments": [
+          {
+            "id": "env_crystal_cave",
+            "name": "Crystal Sound Cave",
+            "description": "A magical cave filled with resonating crystals",
+            "assetBundle": "/assets/vr/sound_cave.bundle",
+            "spatialioEnvironment": "crystal_cave_v2",
+            "lighting": "day",
+            "weather": "clear"
+          },
+          {
+            "id": "env_echo_valley",
+            "name": "Echo Valley",
+            "description": "A valley where sounds bounce and multiply",
+            "lighting": "sunset",
+            "weather": "clear"
+          }
+        ],
+        "interactions": [
+          {
+            "id": "int_crystal_touch",
+            "type": "handTracking",
+            "trigger": "touchCrystal",
+            "response": {
+              "visual": {
+                "type": "particle",
+                "duration": 3000,
+                "intensity": 1.0
+              },
+              "audio": {
+                "type": "3d",
+                "url": "/audio/sfx/crystal_chime.wav",
+                "volume": 0.8,
+                "spatialRange": 5
+              },
+              "haptic": {
+                "type": "vibration",
+                "intensity": 0.7,
+                "duration": 500
+              },
+              "social": {
+                "type": "broadcast",
+                "scope": "room",
+                "message": "Player discovered a sound crystal!"
+              }
+            }
+          },
+          {
+            "id": "int_voice_recognition",
+            "type": "voiceCommand",
+            "trigger": "speakPhoneme",
+            "response": {
+              "visual": {
+                "type": "glow",
+                "duration": 2000,
+                "intensity": 0.9
+              },
+              "audio": {
+                "type": "feedback",
+                "url": "/audio/sfx/correct_sound.wav",
+                "volume": 1.0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter_word_discovery",
+    "title": "Word Planet Discovery",
+    "subtitle": "Building Vocabulary",
+    "planet": "wordPlanet",
+    "chapterNumber": 2,
+    "requiredCrystals": 5,
+    "vrReadinessRequired": 50,
+    "scenes": [
+      {
+        "id": "scene_word_planet_arrival",
+        "type": "cutscene",
+        "title": "Arriving at Word Planet",
+        "characters": [
+          {
+            "id": "sage",
+            "name": "Sage",
+            "avatar": "/images/characters/sage.png",
+            "position": "center",
+            "emotion": "wise",
+            "vrModel": "/models/characters/sage.glb"
+          }
+        ],
+        "background": {
+          "image": "/images/story/word_planet_library.jpg",
+          "vrEnvironment": "infinite_library",
+          "music": "/audio/music/word_planet_theme.mp3",
+          "ambientSound": "/audio/ambient/library_whispers.wav"
+        },
+        "dialogues": [
+          {
+            "id": "sage_001",
+            "characterId": "sage",
+            "text": "Welcome to Word Planet, seeker of knowledge. Here, words have power beyond imagination. I am Sage, keeper of the Infinite Library.",
+            "audioUrl": "/audio/dialogue/sage_001.mp3",
+            "duration": 6000,
+            "effects": [
+              {
+                "type": "fadeIn",
+                "duration": 1500
+              }
+            ],
+            "vrGesture": {
+              "type": "explain",
+              "intensity": 0.9,
+              "duration": 4000
+            }
+          }
+        ],
+        "nextScene": "scene_library_tour",
+        "conditions": [
+          {
+            "type": "crystal",
+            "target": "total",
+            "operator": ">=",
+            "value": 5
+          },
+          {
+            "type": "vr_readiness",
+            "target": "overall",
+            "operator": ">=",
+            "value": 50
+          }
+        ]
+      }
+    ],
+    "milestones": [
+      {
+        "id": "milestone_word_mastery",
+        "title": "Word Master",
+        "description": "Mastered basic vocabulary on Word Planet",
+        "condition": {
+          "type": "skill",
+          "target": "vocabulary",
+          "operator": ">=",
+          "value": 25
+        },
+        "unlocks": [
+          {
+            "type": "vrScenario",
+            "target": "vr_vocabulary_master",
+            "message": "Advanced VR vocabulary training unlocked!"
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "type": "crystal",
+        "value": 8,
+        "description": "Word Planet Vocabulary Crystals",
+        "icon": "📚"
+      },
+      {
+        "type": "skill",
+        "value": 15,
+        "description": "Vocabulary Expansion",
+        "icon": "🧠"
+      }
+    ],
+    "vrScenarios": [
+      {
+        "id": "vr_infinite_library",
+        "title": "Infinite Library VR Experience",
+        "description": "Explore an endless library where words come to life in 3D",
+        "spatialioId": "sp_infinite_library_001",
+        "previewImage": "/images/vr/infinite_library_preview.jpg",
+        "requiredVRReadiness": 60,
+        "estimatedDuration": 20,
+        "participants": 6,
+        "objectives": [
+          {
+            "id": "obj_word_construction",
+            "description": "Build 3D words by combining letter blocks",
+            "type": "creative",
+            "rewards": [
+              {
+                "type": "skill",
+                "value": 20,
+                "description": "Advanced Word Building"
+              }
+            ]
+          }
+        ],
+        "environments": [
+          {
+            "id": "env_floating_library",
+            "name": "Floating Library",
+            "description": "Books and words float in a gravity-defying space",
+            "lighting": "day",
+            "weather": "clear"
+          }
+        ],
+        "interactions": [
+          {
+            "id": "int_word_grab",
+            "type": "handTracking",
+            "trigger": "grabWord",
+            "response": {
+              "visual": {
+                "type": "morph",
+                "duration": 2000,
+                "intensity": 1.0
+              },
+              "haptic": {
+                "type": "texture",
+                "intensity": 0.8,
+                "duration": 1000
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter_grammar_mastery",
+    "title": "Grammar Planet Mastery",
+    "subtitle": "Language Structure",
+    "planet": "grammarPlanet",
+    "chapterNumber": 3,
+    "requiredCrystals": 15,
+    "vrReadinessRequired": 75,
+    "scenes": [
+      {
+        "id": "scene_grammar_introduction",
+        "type": "dialogue",
+        "title": "The Grammar Guardian",
+        "characters": [
+          {
+            "id": "guardian",
+            "name": "Grammar Guardian",
+            "avatar": "/images/characters/guardian.png",
+            "position": "center",
+            "emotion": "determined",
+            "vrModel": "/models/characters/guardian.glb"
+          }
+        ],
+        "background": {
+          "image": "/images/story/grammar_planet_citadel.jpg",
+          "vrEnvironment": "language_citadel",
+          "music": "/audio/music/grammar_planet_theme.mp3",
+          "ambientSound": "/audio/ambient/mechanical_hum.wav"
+        },
+        "dialogues": [
+          {
+            "id": "guardian_001",
+            "characterId": "guardian",
+            "text": "Grammar is the backbone of all communication. Master it, and you master the very structure of thought itself.",
+            "audioUrl": "/audio/dialogue/guardian_001.mp3",
+            "duration": 5000,
+            "effects": [
+              {
+                "type": "typewriter",
+                "duration": 3000
+              }
+            ],
+            "vrGesture": {
+              "type": "explain",
+              "intensity": 1.0,
+              "duration": 3000
+            }
+          }
+        ],
+        "nextScene": "scene_grammar_challenge",
+        "conditions": [
+          {
+            "type": "crystal",
+            "target": "total",
+            "operator": ">=",
+            "value": 15
+          },
+          {
+            "type": "vr_readiness",
+            "target": "overall",
+            "operator": ">=",
+            "value": 75
+          }
+        ]
+      }
+    ],
+    "milestones": [
+      {
+        "id": "milestone_grammar_expert",
+        "title": "Grammar Expert",
+        "description": "Achieved mastery of advanced grammar concepts",
+        "condition": {
+          "type": "skill",
+          "target": "grammar",
+          "operator": ">=",
+          "value": 50
+        },
+        "unlocks": [
+          {
+            "type": "chapter",
+            "target": "chapter_rhythm_harmony",
+            "message": "Rhythm Planet unlocked!"
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "type": "crystal",
+        "value": 12,
+        "description": "Grammar Planet Structure Crystals",
+        "icon": "⚙️"
+      },
+      {
+        "type": "vrAccess",
+        "value": "advanced_grammar_lab",
+        "description": "Advanced Grammar VR Lab Access",
+        "icon": "🔬"
+      }
+    ],
+    "vrScenarios": [
+      {
+        "id": "vr_grammar_construction",
+        "title": "Grammar Construction VR Lab",
+        "description": "Build sentences in 3D space and see grammar rules come alive",
+        "spatialioId": "sp_grammar_lab_001",
+        "previewImage": "/images/vr/grammar_lab_preview.jpg",
+        "requiredVRReadiness": 80,
+        "estimatedDuration": 25,
+        "participants": 8,
+        "objectives": [
+          {
+            "id": "obj_sentence_architecture",
+            "description": "Construct complex sentence structures in 3D",
+            "type": "learning",
+            "rewards": [
+              {
+                "type": "skill",
+                "value": 25,
+                "description": "Master Grammar Architect"
+              }
+            ]
+          },
+          {
+            "id": "obj_team_grammar_challenge",
+            "description": "Collaborate to solve advanced grammar puzzles",
+            "type": "social",
+            "rewards": [
+              {
+                "type": "badge",
+                "value": 1,
+                "description": "Grammar Team Leader"
+              }
+            ]
+          }
+        ],
+        "environments": [
+          {
+            "id": "env_grammar_laboratory",
+            "name": "Floating Grammar Laboratory",
+            "description": "A high-tech lab where grammar rules are visualized in 3D",
+            "lighting": "day",
+            "weather": "clear"
+          }
+        ],
+        "interactions": [
+          {
+            "id": "int_sentence_building",
+            "type": "handTracking",
+            "trigger": "assembleSentence",
+            "response": {
+              "visual": {
+                "type": "glow",
+                "duration": 3000,
+                "intensity": 1.0
+              },
+              "social": {
+                "type": "collaborate",
+                "scope": "team",
+                "message": "Sentence component added!"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

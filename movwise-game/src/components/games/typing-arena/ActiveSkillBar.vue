@@ -561,7 +561,7 @@ watch(displaySkills, (newSkills) => {
 }
 
 .gcd-fill {
-  @apply h-full bg-red-500 transition-all duration-1000 linear;
+  @apply h-full bg-red-500 transition-all duration-1000 ease-linear;
 }
 
 .gcd-text {

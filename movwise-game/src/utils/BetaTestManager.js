@@ -4,6 +4,7 @@
  */
 
 import { BETA_TEST_CONFIG, MONETIZATION_CONFIG } from '@/config/deployment'
+import logger from '@/utils/logger'
 
 class BetaTestManager {
   constructor() {
@@ -22,7 +23,7 @@ class BetaTestManager {
     this.startDate = new Date()
     this.endDate = new Date(Date.now() + BETA_TEST_CONFIG.TEST_DURATION_DAYS * 24 * 60 * 60 * 1000)
     
-    console.log('🧪 BetaTestManager initialized')
+    logger.log('🧪 BetaTestManager initialized')
     
     if (this.isActive) {
       this.initializeBetaTest()
@@ -33,7 +34,7 @@ class BetaTestManager {
    * βテストの初期化
    */
   initializeBetaTest() {
-    console.log('🚀 Initializing Beta Test...')
+    logger.log('🚀 Initializing Beta Test...')
     
     // 既存参加者データの読み込み
     this.loadParticipants()
@@ -53,7 +54,7 @@ class BetaTestManager {
     // 使用状況の監視開始
     this.startUsageMonitoring()
     
-    console.log('✅ Beta Test initialized')
+    logger.log('✅ Beta Test initialized')
   }
 
   /**
@@ -102,12 +103,12 @@ class BetaTestManager {
       // ウェルカムメッセージの送信
       this.sendWelcomeMessage(participant)
       
-      console.log(`✅ Beta participant registered: ${type} ${participant.id}`)
+      logger.log(`✅ Beta participant registered: ${type} ${participant.id}`)
       
       return participant
       
     } catch (error) {
-      console.error('Failed to register beta participant:', error)
+      logger.error('Failed to register beta participant:', error)
       throw error
     }
   }
@@ -152,12 +153,12 @@ class BetaTestManager {
       // フィードバック送信の確認
       this.sendFeedbackConfirmation(participant, feedback)
       
-      console.log(`💬 Feedback collected from ${participantId}`)
+      logger.log(`💬 Feedback collected from ${participantId}`)
       
       return feedback
       
     } catch (error) {
-      console.error('Failed to collect feedback:', error)
+      logger.error('Failed to collect feedback:', error)
       throw error
     }
   }
@@ -169,7 +170,7 @@ class BetaTestManager {
     try {
       const participant = this.findParticipant(participantId)
       if (!participant) {
-        console.warn(`Participant not found: ${participantId}`)
+        logger.warn(`Participant not found: ${participantId}`)
         return
       }
       
@@ -214,7 +215,7 @@ class BetaTestManager {
       this.saveMetrics()
       
     } catch (error) {
-      console.error('Failed to record usage:', error)
+      logger.error('Failed to record usage:', error)
     }
   }
 
@@ -269,7 +270,7 @@ class BetaTestManager {
       recommendations: this.generateRecommendations()
     }
     
-    console.log('📊 Beta test report generated:', report)
+    logger.log('📊 Beta test report generated:', report)
     return report
   }
 
@@ -283,7 +284,7 @@ class BetaTestManager {
       this.sendFeedbackReminders()
     }, reminderInterval)
     
-    console.log('🔔 Feedback collection started')
+    logger.log('🔔 Feedback collection started')
   }
 
   /**
@@ -300,7 +301,7 @@ class BetaTestManager {
       this.detectInactiveParticipants()
     }, 24 * 60 * 60 * 1000) // 1日ごと
     
-    console.log('📈 Usage monitoring started')
+    logger.log('📈 Usage monitoring started')
   }
 
   // === プライベートメソッド ===
@@ -409,7 +410,7 @@ class BetaTestManager {
    */
   showNotification(message) {
     // 実装：実際のプロジェクトでは通知システムを呼び出し
-    console.log('📢 Beta Test Notification:', message)
+    logger.log('📢 Beta Test Notification:', message)
   }
 
   /**

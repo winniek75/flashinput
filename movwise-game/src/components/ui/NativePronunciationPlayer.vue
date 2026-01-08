@@ -109,6 +109,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { Volume2Icon, Loader2Icon, ChevronDownIcon, Play, AlertCircleIcon } from 'lucide-vue-next'
 import { useGameAudio } from '@/composables/useGameAudio'
@@ -254,7 +256,7 @@ const playPhonemeSequence = async () => {
       emit('phoneme-played', phoneme)
       await new Promise(resolve => setTimeout(resolve, 500)) // 音素間の間隔
     } catch (error) {
-      console.warn('音素再生エラー:', error)
+      logger.warn('音素再生エラー:', error)
     }
   }
 }
@@ -264,7 +266,7 @@ const playIndividualPhoneme = async (phoneme) => {
     await playNativePhoneme(phoneme.symbol)
     emit('phoneme-played', phoneme)
   } catch (error) {
-    console.warn('音素再生エラー:', error)
+    logger.warn('音素再生エラー:', error)
   }
 }
 
@@ -306,7 +308,7 @@ onMounted(async () => {
       }, 500)
     }
   } catch (error) {
-    console.warn('Native audio initialization failed:', error)
+    logger.warn('Native audio initialization failed:', error)
   }
 })
 </script>

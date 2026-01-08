@@ -1,0 +1,806 @@
+{
+  "id": "chapter4_speed_station",
+  "title": "第4章: Speed Stationの疾風",
+  "description": "Speed Racerとの運命的な出会い、タイピングと宇宙船制御の奥深い関係、そして仲間を救う緊急ミッション",
+  "background_music": "/audio/music/speed_station_theme.mp3",
+  "estimated_duration": 45,
+  "character_focus": ["speed_racer", "captain_nova", "aura"],
+  "learning_objectives": [
+    "タイピング速度と正確性の向上",
+    "プレッシャー下での集中力",
+    "チームワークと時間管理"
+  ],
+  "scenes": [
+    {
+      "id": "speed_station_arrival",
+      "title": "スピードステーション到着",
+      "background": "/images/backgrounds/speed_station_exterior.jpg",
+      "duration": 8000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "amazed",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "analytical",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "すごい...まるで光の流れのような場所だ",
+          "emotion": "wonder",
+          "startTime": 1000,
+          "duration": 3000
+        },
+        {
+          "speaker": "aura",
+          "text": "このステーションは宇宙最速の通信ハブです",
+          "emotion": "informative",
+          "startTime": 4500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "ここで本当に必要な力を身につけられるのか？",
+          "emotion": "determined",
+          "startTime": 8000,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "pan",
+          "startTime": 0,
+          "duration": 8000,
+          "parameters": { "x": -20, "y": 10 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 0,
+          "duration": 8000,
+          "parameters": {
+            "count": 40,
+            "symbols": ["⚡", "✨", "💫"],
+            "colors": ["#00FFFF", "#FFD700", "#FF69B4"],
+            "speed": 2
+          }
+        }
+      ],
+      "choices": [
+        {
+          "id": "approach_confident",
+          "text": "自信を持って施設に入る",
+          "consequence": "Speed Racerがプレイヤーの気概に注目",
+          "relationship_change": { "speed_racer": 5 }
+        },
+        {
+          "id": "approach_cautious",
+          "text": "慎重に周囲を観察してから入る",
+          "consequence": "細かい観察力をSpeed Racerに評価される",
+          "relationship_change": { "speed_racer": 3 }
+        }
+      ]
+    },
+    {
+      "id": "speed_racer_introduction",
+      "title": "Speed Racerとの出会い",
+      "background": "/images/backgrounds/speed_station_control_room.jpg",
+      "duration": 12000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "center",
+          "emotion": "confident",
+          "size": "large",
+          "enterTime": 2000
+        },
+        {
+          "id": "captain_nova",
+          "position": "left",
+          "emotion": "surprised",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "curious",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "speed_racer",
+          "text": "よう、新入り！俺がSpeed Racerだ",
+          "emotion": "energetic",
+          "startTime": 2500,
+          "duration": 2500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "ここでは指の動きが宇宙船の運命を決める",
+          "emotion": "serious",
+          "startTime": 5500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "タイピングが...宇宙船の制御に？",
+          "emotion": "confused",
+          "startTime": 9000,
+          "duration": 2500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "言葉は宇宙の言語だ。正確で速い入力が生死を分ける",
+          "emotion": "philosophical",
+          "startTime": 12000,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "zoom",
+          "startTime": 2000,
+          "duration": 6000,
+          "parameters": { "scale": 1.2 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "flash",
+          "startTime": 2000,
+          "duration": 300,
+          "parameters": { "intensity": 0.6 }
+        },
+        {
+          "type": "particles",
+          "startTime": 5000,
+          "duration": 7000,
+          "parameters": {
+            "count": 30,
+            "symbols": ["⌨️", "🚀", "⚡"],
+            "colors": ["#00FFFF", "#FFFF00", "#FF4500"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "typing_control_lesson",
+      "title": "タイピング制御の秘密",
+      "background": "/images/backgrounds/holographic_keyboard.jpg",
+      "duration": 15000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "center",
+          "emotion": "focused",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "focused",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "speed_racer",
+          "text": "見てろ。これが真のタイピング制御だ",
+          "emotion": "concentrated",
+          "startTime": 1000,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "信じられない...文字が宇宙船のコマンドに...",
+          "emotion": "amazed",
+          "startTime": 5000,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "単語一つ一つが推進力となり、文章が航路を決める",
+          "emotion": "instructive",
+          "startTime": 9000,
+          "duration": 3500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "速さだけじゃダメだ。正確性こそが命を守る",
+          "emotion": "serious",
+          "startTime": 13000,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "pan",
+          "startTime": 4000,
+          "duration": 8000,
+          "parameters": { "x": 30, "y": -15 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "hologram",
+          "startTime": 1000,
+          "duration": 14000,
+          "parameters": {
+            "type": "keyboard_projection",
+            "intensity": 0.8
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 5000,
+          "duration": 10000,
+          "parameters": {
+            "count": 50,
+            "symbols": ["📝", "⚡", "🌟", "🚀"],
+            "colors": ["#00FFFF", "#FFD700", "#ADFF2F"]
+          }
+        }
+      ],
+      "interactive_elements": [
+        {
+          "type": "typing_demo",
+          "startTime": 6000,
+          "duration": 8000,
+          "parameters": {
+            "words": ["NAVIGATION", "VELOCITY", "TRAJECTORY", "PRECISION"],
+            "speed_requirement": 60
+          }
+        }
+      ]
+    },
+    {
+      "id": "emergency_alert",
+      "title": "緊急事態発生",
+      "background": "/images/backgrounds/emergency_alert_station.jpg",
+      "duration": 10000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "center",
+          "emotion": "alert",
+          "size": "large"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "urgent",
+          "size": "medium",
+          "enterTime": 2000
+        },
+        {
+          "id": "captain_nova",
+          "position": "left",
+          "emotion": "concerned",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "aura",
+          "text": "緊急警報！Professor PhonixとLexiaの信号が途絶えました！",
+          "emotion": "alarmed",
+          "startTime": 2500,
+          "duration": 3500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "くそっ！宇宙嵐に巻き込まれたか",
+          "emotion": "frustrated",
+          "startTime": 6500,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "助けに行こう！すぐに！",
+          "emotion": "determined",
+          "startTime": 9500,
+          "duration": 2000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "shake",
+          "startTime": 2000,
+          "duration": 8000,
+          "parameters": { "intensity": 8 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "emergency_lights",
+          "startTime": 0,
+          "duration": 10000,
+          "parameters": {
+            "color": "#FF0000",
+            "flash_interval": 500
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 2000,
+          "duration": 8000,
+          "parameters": {
+            "count": 60,
+            "symbols": ["⚠️", "💥", "🆘"],
+            "colors": ["#FF0000", "#FF4500", "#FFD700"]
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/emergency_alarm.mp3",
+          "startTime": 0,
+          "volume": 0.7,
+          "loop": true
+        }
+      ]
+    },
+    {
+      "id": "rescue_mission_prep",
+      "title": "救助ミッション準備",
+      "background": "/images/backgrounds/mission_preparation.jpg",
+      "duration": 12000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "center",
+          "emotion": "focused",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "determined",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "left",
+          "emotion": "analytical",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "speed_racer",
+          "text": "宇宙嵐の中を進むには完璧な制御が必要だ",
+          "emotion": "serious",
+          "startTime": 1000,
+          "duration": 3000
+        },
+        {
+          "speaker": "aura",
+          "text": "計算によると、95%以上の正確性が必要です",
+          "emotion": "analytical",
+          "startTime": 4500,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "いいか、俺が航路をタイプする。お前は推進システムを頼む",
+          "emotion": "commanding",
+          "startTime": 8000,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "わかった。仲間を必ず救い出そう",
+          "emotion": "determined",
+          "startTime": 12000,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "zoom",
+          "startTime": 8000,
+          "duration": 4000,
+          "parameters": { "scale": 1.3 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "hologram",
+          "startTime": 4000,
+          "duration": 8000,
+          "parameters": {
+            "type": "mission_briefing",
+            "content": ["STORM_NAVIGATION", "PRECISION_MODE", "RESCUE_PROTOCOL"]
+          }
+        }
+      ],
+      "choices": [
+        {
+          "id": "volunteer_primary",
+          "text": "メイン制御を自分が担当する",
+          "consequence": "高難易度だが大きな成長の機会",
+          "relationship_change": { "speed_racer": 10 }
+        },
+        {
+          "id": "request_support",
+          "text": "サポート役として参加する",
+          "consequence": "安全だが学習効果は控えめ",
+          "relationship_change": { "speed_racer": 5 }
+        }
+      ]
+    },
+    {
+      "id": "storm_navigation",
+      "title": "宇宙嵐の航行",
+      "background": "/images/backgrounds/space_storm.jpg",
+      "duration": 18000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "left",
+          "emotion": "intense",
+          "size": "medium"
+        },
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "focused",
+          "size": "large"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "monitoring",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "speed_racer",
+          "text": "嵐の中心に入るぞ！集中しろ！",
+          "emotion": "commanding",
+          "startTime": 1000,
+          "duration": 2500
+        },
+        {
+          "speaker": "aura",
+          "text": "エネルギー波動が激化しています！",
+          "emotion": "urgent",
+          "startTime": 4000,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんなの想いを乗せて...このタイピングで！",
+          "emotion": "determined",
+          "startTime": 8000,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "すげえ！お前のタイピングに魂がこもってる！",
+          "emotion": "amazed",
+          "startTime": 12000,
+          "duration": 3000
+        },
+        {
+          "speaker": "aura",
+          "text": "仲間の生体信号を検出！もう少しです！",
+          "emotion": "excited",
+          "startTime": 15500,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "shake",
+          "startTime": 0,
+          "duration": 18000,
+          "parameters": { "intensity": 12 }
+        },
+        {
+          "type": "zoom",
+          "startTime": 8000,
+          "duration": 5000,
+          "parameters": { "scale": 1.4 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "storm_effects",
+          "startTime": 0,
+          "duration": 18000,
+          "parameters": {
+            "lightning": true,
+            "turbulence": "high",
+            "energy_waves": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 8000,
+          "duration": 10000,
+          "parameters": {
+            "count": 80,
+            "symbols": ["⚡", "💫", "✨", "🌟"],
+            "colors": ["#FFFFFF", "#00FFFF", "#FFD700", "#FF69B4"],
+            "speed": 3
+          }
+        }
+      ],
+      "interactive_elements": [
+        {
+          "type": "crisis_typing",
+          "startTime": 6000,
+          "duration": 10000,
+          "parameters": {
+            "commands": [
+              "STABILIZE NAVIGATION",
+              "BOOST SHIELD POWER", 
+              "LOCK ONTO SIGNAL",
+              "ENGAGE RESCUE MODE"
+            ],
+            "difficulty": "high",
+            "time_pressure": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/space_storm.mp3",
+          "startTime": 0,
+          "volume": 0.6,
+          "loop": true
+        },
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/typing_intensity.mp3",
+          "startTime": 8000,
+          "volume": 0.4
+        }
+      ]
+    },
+    {
+      "id": "rescue_success",
+      "title": "救助成功",
+      "background": "/images/backgrounds/rescue_success.jpg",
+      "duration": 14000,
+      "characters": [
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "grateful",
+          "size": "medium",
+          "enterTime": 2000
+        },
+        {
+          "id": "lexia",
+          "position": "center",
+          "emotion": "relieved",
+          "size": "medium",
+          "enterTime": 2500
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "proud",
+          "size": "medium"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "impressed",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "far-left",
+          "emotion": "happy",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "professor_phonix",
+          "text": "あ、ありがとう...本当にありがとう",
+          "emotion": "tearful",
+          "startTime": 3000,
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "もうだめかと思った...でも信じてたの！",
+          "emotion": "emotional",
+          "startTime": 6500,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "お前のタイピング...俺を超えてたぜ",
+          "emotion": "admiring",
+          "startTime": 10000,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんながいるから...できたんだ",
+          "emotion": "humble",
+          "startTime": 13000,
+          "duration": 2000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "pan",
+          "startTime": 2000,
+          "duration": 10000,
+          "parameters": { "x": -40, "y": 0 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "celebration",
+          "startTime": 3000,
+          "duration": 11000,
+          "parameters": {
+            "type": "gentle_sparkles",
+            "intensity": 0.7
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 6000,
+          "duration": 8000,
+          "parameters": {
+            "count": 40,
+            "symbols": ["💕", "✨", "🌟", "💖"],
+            "colors": ["#FFB6C1", "#87CEEB", "#FFD700", "#98FB98"]
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/reunion_theme.mp3",
+          "startTime": 2000,
+          "volume": 0.4,
+          "fadeIn": true
+        }
+      ]
+    },
+    {
+      "id": "speed_station_mastery",
+      "title": "スピードの真理",
+      "background": "/images/backgrounds/speed_station_sunset.jpg",
+      "duration": 16000,
+      "characters": [
+        {
+          "id": "speed_racer",
+          "position": "center",
+          "emotion": "wise",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "understanding",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "speed_racer",
+          "text": "真のスピードは...ただ速いだけじゃない",
+          "emotion": "philosophical",
+          "startTime": 2000,
+          "duration": 3500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "仲間への想い、助けたい気持ち...それが本当の力だ",
+          "emotion": "emotional",
+          "startTime": 6000,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "ありがとう、Speed Racer。大切なことを教わった",
+          "emotion": "grateful",
+          "startTime": 10500,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "お前ならきっと...最後まで仲間を守り抜ける",
+          "emotion": "confident",
+          "startTime": 14000,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "zoom",
+          "startTime": 6000,
+          "duration": 6000,
+          "parameters": { "scale": 1.2 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "sunset_glow",
+          "startTime": 0,
+          "duration": 16000,
+          "parameters": {
+            "intensity": 0.8,
+            "color": "#FF8C00"
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 6000,
+          "duration": 10000,
+          "parameters": {
+            "count": 30,
+            "symbols": ["⚡", "🌟", "💫"],
+            "colors": ["#FFD700", "#FF8C00", "#FFFF00"]
+          }
+        }
+      ]
+    }
+  ],
+  "chapter_completion": {
+    "achievements": [
+      {
+        "id": "speed_master",
+        "title": "スピードマスター",
+        "description": "緊急時でも正確なタイピングを維持した"
+      },
+      {
+        "id": "hero_rescue",
+        "title": "英雄的救助",
+        "description": "仲間を危険から救い出した"
+      },
+      {
+        "id": "speed_racer_bond",
+        "title": "Speed Racerとの絆",
+        "description": "タイピングの真髄を理解した"
+      }
+    ],
+    "unlocked_content": [
+      "Speed Station Advanced Training",
+      "Emergency Response Mode",
+      "Character Story: Speed Racer's Past"
+    ],
+    "next_chapter": "chapter5_cooperation_colony",
+    "relationship_changes": {
+      "speed_racer": 15,
+      "professor_phonix": 10,
+      "lexia": 10,
+      "aura": 8
+    }
+  },
+  "learning_assessment": {
+    "skills_tested": [
+      "高速タイピング",
+      "プレッシャー下での正確性",
+      "協調性",
+      "緊急時判断力"
+    ],
+    "difficulty_progression": {
+      "early_scenes": "medium",
+      "crisis_scenes": "high",
+      "final_scenes": "medium"
+    }
+  }
+}

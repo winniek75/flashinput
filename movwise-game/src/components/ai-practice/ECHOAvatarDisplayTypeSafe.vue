@@ -142,6 +142,8 @@
 </template>
 
 <script setup lang="ts">
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, shallowRef, type PropType } from 'vue'
 import type { 
   ECHOEmotion, 
@@ -283,7 +285,7 @@ const handleError = (error: ECHOError): void => {
   emit('error', error)
   
   if (props.debug) {
-    console.error('ECHOAvatarDisplay Error:', error)
+    logger.error('ECHOAvatarDisplay Error:', error)
   }
   
   // Auto-recovery for recoverable errors
@@ -293,7 +295,7 @@ const handleError = (error: ECHOError): void => {
       currentError.value = null
       
       if (props.debug) {
-        console.log('ECHOAvatarDisplay: Attempting recovery from error')
+        logger.log('ECHOAvatarDisplay: Attempting recovery from error')
       }
     }, 2000)
   }
@@ -551,13 +553,13 @@ const startAnimationLoop = (): void => {
             emit('performance-warning', performanceStats.value)
             
             if (props.debug) {
-              console.warn('ECHOAvatarDisplay: Performance degraded', performanceStats.value)
+              logger.warn('ECHOAvatarDisplay: Performance degraded', performanceStats.value)
             }
           } else if (currentFPS > 45 && !shouldAnimate.value) {
             shouldAnimate.value = true
             
             if (props.debug) {
-              console.log('ECHOAvatarDisplay: Performance recovered', performanceStats.value)
+              logger.log('ECHOAvatarDisplay: Performance recovered', performanceStats.value)
             }
           }
           
@@ -687,7 +689,7 @@ onMounted(async (): Promise<void> => {
       startAnimationLoop()
       
       if (props.debug) {
-        console.log('ECHOAvatarDisplay: Successfully mounted and initialized')
+        logger.log('ECHOAvatarDisplay: Successfully mounted and initialized')
       }
     }
   } catch (error) {
@@ -723,11 +725,11 @@ onUnmounted((): void => {
     emit('animation-end', props.emotion)
     
     if (props.debug) {
-      console.log('ECHOAvatarDisplay: Successfully unmounted and cleaned up')
+      logger.log('ECHOAvatarDisplay: Successfully unmounted and cleaned up')
     }
   } catch (error) {
     // Log cleanup errors but don't throw (component is unmounting)
-    console.error('ECHOAvatarDisplay: Error during cleanup:', error)
+    logger.error('ECHOAvatarDisplay: Error during cleanup:', error)
   }
 })
 </script>

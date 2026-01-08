@@ -1,0 +1,594 @@
+/* Language Galaxy Transitions
+ * Unified transition system for enhanced UX
+ * Performance-optimized animations with hardware acceleration
+ */
+
+:root {
+  /* Animation Durations */
+  --transition-micro: 0.1s;
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+  --transition-lazy: 0.8s;
+
+  /* Easing Functions */
+  --ease-in-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-quad: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --ease-in-cubic: cubic-bezier(0.550, 0.055, 0.675, 0.190);
+  --ease-out-cubic: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+  --ease-cosmic: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Z-index layers */
+  --z-modal: 1000;
+  --z-dropdown: 900;
+  --z-header: 100;
+  --z-overlay: 50;
+}
+
+/* Base Animation Classes */
+.animation-base {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Page Transitions */
+.page-enter-active {
+  transition: all var(--transition-normal) var(--ease-out-cubic);
+}
+
+.page-leave-active {
+  transition: all var(--transition-fast) var(--ease-in-cubic);
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+.page-enter-to,
+.page-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Slide Transitions for Planet Navigation */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all var(--transition-normal) var(--ease-in-out-cubic);
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+/* Fade Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-normal) var(--ease-in-out-quad);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Scale Transitions for Modals */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all var(--transition-normal) var(--ease-out-cubic);
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateY(10px);
+}
+
+/* Bounce Transitions for Game Elements */
+.bounce-enter-active {
+  animation: bounceIn var(--transition-slow) var(--ease-bounce);
+}
+
+.bounce-leave-active {
+  animation: bounceOut var(--transition-fast) var(--ease-in-cubic);
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+  }
+  70% {
+    transform: scale(0.95) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bounceOut {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* Cosmic Transitions for Planet Switches */
+.cosmic-enter-active,
+.cosmic-leave-active {
+  transition: all var(--transition-slow) var(--ease-cosmic);
+}
+
+.cosmic-enter-from {
+  opacity: 0;
+  transform: rotateY(90deg) scale(0.8);
+  filter: blur(10px);
+}
+
+.cosmic-leave-to {
+  opacity: 0;
+  transform: rotateY(-90deg) scale(0.8);
+  filter: blur(10px);
+}
+
+/* List Transitions for Game Cards */
+.list-enter-active,
+.list-leave-active {
+  transition: all var(--transition-normal) var(--ease-out-cubic);
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.list-move {
+  transition: transform var(--transition-normal) var(--ease-in-out-cubic);
+}
+
+.list-leave-active {
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+
+/* Stagger Animations for List Items */
+.stagger-item {
+  transition: all var(--transition-normal) var(--ease-out-cubic);
+}
+
+.stagger-enter-active {
+  transition-delay: calc(var(--stagger-delay, 0) * 0.1s);
+}
+
+/* Loading Transitions */
+.loading-enter-active,
+.loading-leave-active {
+  transition: all var(--transition-normal) var(--ease-in-out-cubic);
+}
+
+.loading-enter-from,
+.loading-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Galaxy Map Transitions */
+.galaxy-zoom-enter-active,
+.galaxy-zoom-leave-active {
+  transition: all var(--transition-lazy) var(--ease-in-out-cubic);
+}
+
+.galaxy-zoom-enter-from {
+  opacity: 0;
+  transform: scale(0.1) rotate(180deg);
+}
+
+.galaxy-zoom-leave-to {
+  opacity: 0;
+  transform: scale(3) rotate(-180deg);
+}
+
+/* Game Result Transitions */
+.result-enter-active {
+  animation: resultShow var(--transition-slow) var(--ease-bounce);
+}
+
+.result-leave-active {
+  animation: resultHide var(--transition-normal) var(--ease-in-cubic);
+}
+
+@keyframes resultShow {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotateY(180deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1) rotateY(90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+@keyframes resultHide {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+}
+
+/* Character Portrait Transitions */
+.character-enter-active {
+  animation: characterAppear var(--transition-normal) var(--ease-out-cubic);
+}
+
+.character-leave-active {
+  animation: characterDisappear var(--transition-fast) var(--ease-in-cubic);
+}
+
+@keyframes characterAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.8);
+    filter: brightness(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes characterDisappear {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+}
+
+/* VR Portal Transitions */
+.vr-portal-enter-active {
+  animation: portalOpen var(--transition-lazy) var(--ease-cosmic);
+}
+
+.vr-portal-leave-active {
+  animation: portalClose var(--transition-normal) var(--ease-in-cubic);
+}
+
+@keyframes portalOpen {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+    border-radius: 50%;
+    filter: hue-rotate(0deg) brightness(0.5);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2) rotate(180deg);
+    border-radius: 20%;
+    filter: hue-rotate(180deg) brightness(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+    border-radius: 0%;
+    filter: hue-rotate(360deg) brightness(1);
+  }
+}
+
+@keyframes portalClose {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(90deg);
+    filter: brightness(0.3);
+  }
+}
+
+/* Notification Transitions */
+.notification-enter-active {
+  animation: notificationSlideIn var(--transition-normal) var(--ease-out-cubic);
+}
+
+.notification-leave-active {
+  animation: notificationSlideOut var(--transition-fast) var(--ease-in-cubic);
+}
+
+@keyframes notificationSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes notificationSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+  }
+}
+
+/* Achievement Unlock Transitions */
+.achievement-enter-active {
+  animation: achievementUnlock var(--transition-lazy) var(--ease-bounce);
+}
+
+@keyframes achievementUnlock {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotateZ(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotateZ(5deg);
+  }
+  70% {
+    transform: scale(0.9) rotateZ(-2deg);
+  }
+  85% {
+    transform: scale(1.05) rotateZ(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateZ(0deg);
+  }
+}
+
+/* Progress Bar Transitions */
+.progress-enter-active {
+  animation: progressGrow var(--transition-normal) var(--ease-out-cubic);
+}
+
+@keyframes progressGrow {
+  0% {
+    width: 0%;
+    opacity: 0.5;
+  }
+  100% {
+    width: var(--progress-width);
+    opacity: 1;
+  }
+}
+
+/* Button Hover Effects */
+.btn-cosmic {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-fast) var(--ease-out-cubic);
+}
+
+.btn-cosmic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left var(--transition-normal) var(--ease-in-out-cubic);
+}
+
+.btn-cosmic:hover::before {
+  left: 100%;
+}
+
+.btn-cosmic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-cosmic:active {
+  transform: translateY(0);
+  transition-duration: var(--transition-micro);
+}
+
+/* Card Hover Effects */
+.card-interactive {
+  transition: all var(--transition-fast) var(--ease-out-cubic);
+}
+
+.card-interactive:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.card-interactive:hover .card-content {
+  transform: translateZ(20px);
+}
+
+/* Focus Transitions for Accessibility */
+.focus-ring {
+  position: relative;
+  transition: all var(--transition-fast) var(--ease-out-cubic);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  transform: scale(1.02);
+}
+
+.focus-ring:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid #4299e1;
+  border-radius: inherit;
+  animation: focusPulse 2s ease-in-out infinite;
+}
+
+@keyframes focusPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Loading Spinner Animations */
+.spinner-cosmic {
+  animation: spinCosmic 2s linear infinite;
+}
+
+@keyframes spinCosmic {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+  75% {
+    transform: rotate(270deg) scale(0.9);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Particle Effect Transitions */
+.particle-enter-active {
+  animation: particleFloat var(--transition-lazy) var(--ease-out-cubic);
+}
+
+.particle-leave-active {
+  animation: particleFade var(--transition-normal) var(--ease-in-cubic);
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.5) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(360deg);
+  }
+}
+
+@keyframes particleFade {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .particle-enter-active,
+  .particle-leave-active,
+  .cosmic-enter-active,
+  .cosmic-leave-active,
+  .galaxy-zoom-enter-active,
+  .galaxy-zoom-leave-active {
+    animation: none !important;
+    transition: opacity var(--transition-fast) ease !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .focus-ring:focus-visible {
+    box-shadow: 0 0 0 4px #000, 0 0 0 8px #fff;
+  }
+  
+  .card-interactive:hover {
+    border: 3px solid #000;
+  }
+}
+
+/* Performance Optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.optimize-animations {
+  contain: layout style paint;
+}
+
+/* Utility Classes */
+.transition-none { transition: none !important; }
+.transition-fast { transition: all var(--transition-fast) var(--ease-out-cubic); }
+.transition-normal { transition: all var(--transition-normal) var(--ease-out-cubic); }
+.transition-slow { transition: all var(--transition-slow) var(--ease-out-cubic); }
+
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-500 { transition-delay: 0.5s; }
+
+.ease-linear { transition-timing-function: linear; }
+.ease-in { transition-timing-function: var(--ease-in-cubic); }
+.ease-out { transition-timing-function: var(--ease-out-cubic); }
+.ease-in-out { transition-timing-function: var(--ease-in-out-cubic); }
+.ease-cosmic { transition-timing-function: var(--ease-cosmic); }
+.ease-bounce { transition-timing-function: var(--ease-bounce); }

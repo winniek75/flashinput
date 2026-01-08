@@ -116,6 +116,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, watch, onMounted, onUnmounted, provide } from 'vue'
 import { useEmergencyCallStore } from '@/stores/emergencyCall'
 import { useAuthStore } from '@/stores/auth'
@@ -194,7 +196,7 @@ const onEmergencyTriggered = (emergencyData) => {
 
 const onAutoEmergencyDetected = (detectionData) => {
   // Auto-detection triggered
-  console.log('Auto emergency detected:', detectionData)
+  logger.log('Auto emergency detected:', detectionData)
   emit('emergency-triggered', {
     ...detectionData,
     autoDetected: true
@@ -261,7 +263,7 @@ const triggerTestEmergency = async () => {
 
 const toggleAutoDetection = () => {
   // This would toggle auto-detection if it were configurable
-  console.log('Auto detection toggled')
+  logger.log('Auto detection toggled')
 }
 
 // System monitoring
@@ -324,9 +326,9 @@ const initializeEmergencySystem = async () => {
       await Notification.requestPermission()
     }
     
-    console.log('Emergency call system initialized')
+    logger.log('Emergency call system initialized')
   } catch (error) {
-    console.error('Failed to initialize emergency system:', error)
+    logger.error('Failed to initialize emergency system:', error)
     showSystemAlert('緊急コールシステムの初期化に失敗しました。')
   }
 }

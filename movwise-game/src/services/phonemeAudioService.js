@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // src/services/phonemeAudioService.js - 音素音声ファイル管理サービス
 
 export class PhonemeAudioService {
@@ -181,7 +183,7 @@ export class PhonemeAudioService {
       const response = await fetch(filePath, { method: 'HEAD' })
       return response.ok
     } catch (error) {
-      console.warn('File check failed:', filePath, error)
+      logger.warn('File check failed:', filePath, error)
       return false
     }
   }
@@ -214,12 +216,12 @@ export class PhonemeAudioService {
       return new Promise((resolve, reject) => {
         audio.addEventListener('canplaythrough', () => {
           this.audioCache.set(cacheKey, audio)
-          console.log('✅ Audio loaded:', filePath)
+          logger.log('✅ Audio loaded:', filePath)
           resolve(audio)
         })
         
         audio.addEventListener('error', (error) => {
-          console.error('❌ Audio load failed:', filePath, error)
+          logger.error('❌ Audio load failed:', filePath, error)
           reject(error)
         })
         
@@ -227,7 +229,7 @@ export class PhonemeAudioService {
       })
       
     } catch (error) {
-      console.error('Audio creation failed:', filePath, error)
+      logger.error('Audio creation failed:', filePath, error)
       throw error
     }
   }
@@ -249,7 +251,7 @@ export class PhonemeAudioService {
       throw new Error(`No audio file found for phoneme: ${phoneme}`)
       
     } catch (error) {
-      console.error('Phoneme playback failed:', phoneme, error)
+      logger.error('Phoneme playback failed:', phoneme, error)
       throw error
     }
   }
@@ -257,34 +259,34 @@ export class PhonemeAudioService {
   // CV組み合わせの再生
   async playCVCombination(filePaths, options = {}) {
     try {
-      console.log('🎯 Playing CV combination:', filePaths.combination)
-      console.log('📁 Consonant file:', filePaths.consonant)
-      console.log('📁 Vowel file:', filePaths.vowel)
+      logger.log('🎯 Playing CV combination:', filePaths.combination)
+      logger.log('📁 Consonant file:', filePaths.consonant)
+      logger.log('📁 Vowel file:', filePaths.vowel)
       
       const consonantAudio = await this.loadAudioFile(filePaths.consonant, filePaths.combination + '_consonant')
       const vowelAudio = await this.loadAudioFile(filePaths.vowel, filePaths.combination + '_vowel')
       
       // 子音を再生
-      console.log('🎵 Playing consonant...')
+      logger.log('🎵 Playing consonant...')
       await this.playAudioWithOptions(consonantAudio, { ...options, volume: options.volume || 0.8 })
       
       // 短い間隔をあけて母音を再生
       return new Promise((resolve, reject) => {
         setTimeout(async () => {
           try {
-            console.log('🎵 Playing vowel...')
+            logger.log('🎵 Playing vowel...')
             await this.playAudioWithOptions(vowelAudio, options)
-            console.log('✅ CV combination playback completed')
+            logger.log('✅ CV combination playback completed')
             resolve(true)
           } catch (error) {
-            console.error('❌ Vowel playback failed:', error)
+            logger.error('❌ Vowel playback failed:', error)
             reject(error)
           }
         }, options.delay || 200)
       })
       
     } catch (error) {
-      console.error('❌ CV combination playback failed:', error)
+      logger.error('❌ CV combination playback failed:', error)
       throw error
     }
   }
@@ -296,7 +298,7 @@ export class PhonemeAudioService {
       audio.volume = Math.max(0, Math.min(1, options.volume || 0.8))
       audio.playbackRate = Math.max(0.5, Math.min(2, options.rate || 1.0))
       
-      console.log('🎵 Playing audio with options:', {
+      logger.log('🎵 Playing audio with options:', {
         volume: audio.volume,
         rate: audio.playbackRate,
         src: audio.src
@@ -307,7 +309,7 @@ export class PhonemeAudioService {
       
       // イベントリスナー
       const onEnded = () => {
-        console.log('✅ Audio playback ended successfully')
+        logger.log('✅ Audio playback ended successfully')
         audio.removeEventListener('ended', onEnded)
         audio.removeEventListener('error', onError)
         this.currentAudio = null
@@ -315,7 +317,7 @@ export class PhonemeAudioService {
       }
       
       const onError = (error) => {
-        console.error('❌ Audio playback error:', error)
+        logger.error('❌ Audio playback error:', error)
         audio.removeEventListener('ended', onEnded)
         audio.removeEventListener('error', onError)
         this.currentAudio = null
@@ -328,9 +330,9 @@ export class PhonemeAudioService {
       // 再生開始
       audio.currentTime = 0
       audio.play()
-        .then(() => console.log('🎵 Audio play() succeeded'))
+        .then(() => logger.log('🎵 Audio play() succeeded'))
         .catch((error) => {
-          console.error('❌ Audio play() failed:', error)
+          logger.error('❌ Audio play() failed:', error)
           reject(error)
         })
     })
@@ -338,7 +340,7 @@ export class PhonemeAudioService {
   
   // Stop all currently playing audio
   stopAll() {
-    console.log('🛑 Stopping all audio playback')
+    logger.log('🛑 Stopping all audio playback')
     if (this.currentAudio) {
       this.currentAudio.pause()
       this.currentAudio.currentTime = 0
@@ -373,7 +375,7 @@ export class PhonemeAudioService {
   // キャッシュをクリア
   clearCache() {
     this.audioCache.clear()
-    console.log('Audio cache cleared')
+    logger.log('Audio cache cleared')
   }
   
   // リソースを解放

@@ -242,6 +242,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGrammarGalaxyStore } from '@/stores/grammarGalaxyStore'
@@ -372,7 +374,7 @@ export default {
       
       // ゲームデータの検証と初期化
       if (!props.questions || props.questions.length === 0) {
-        console.error('No questions provided for game')
+        logger.error('No questions provided for game')
         return
       }
 

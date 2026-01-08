@@ -151,6 +151,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch } from 'vue'
 import DraggablePart from './DraggablePart.vue'
 import DropSlot from './DropSlot.vue'
@@ -239,7 +241,7 @@ const onDrop = (event, slot, slotIndex) => {
   // Check if the part type matches the slot type
   if (draggedPart.value.type !== slot.type) {
     // Show error feedback
-    console.warn('Part type mismatch:', draggedPart.value.type, 'vs', slot.type)
+    logger.warn('Part type mismatch:', draggedPart.value.type, 'vs', slot.type)
     return
   }
   
@@ -294,7 +296,7 @@ const validateAndSubmit = () => {
     }, 2000)
   } else {
     // Show validation error
-    console.warn('Construction validation failed')
+    logger.warn('Construction validation failed')
   }
 }
 

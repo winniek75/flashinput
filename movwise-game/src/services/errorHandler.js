@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // Comprehensive error handling system for MovWISE cooperative learning
 export class ErrorHandler {
   constructor() {
@@ -31,13 +33,18 @@ export class ErrorHandler {
   initialize() {
     // Set up global error handlers
     this.setupGlobalHandlers()
-    console.log('Error handler initialized')
+    logger.log('Error handler initialized')
   }
 
   // Set up global error handlers
   setupGlobalHandlers() {
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
+      // Filter out Chrome extension message channel errors
+      if (event.reason?.message?.includes('message channel closed before a response was received')) {
+        return // Ignore Chrome extension errors
+      }
+
       this.handleError({
         type: ErrorHandler.ERROR_TYPES.UNKNOWN,
         severity: ErrorHandler.SEVERITY.HIGH,
@@ -133,7 +140,7 @@ export class ErrorHandler {
 
   // Handle critical errors
   handleCriticalError(error) {
-    console.error('CRITICAL ERROR:', error)
+    logger.error('CRITICAL ERROR:', error)
     
     // Could send to external error reporting service
     this.reportCriticalError(error)
@@ -146,7 +153,7 @@ export class ErrorHandler {
   async reportCriticalError(error) {
     try {
       // In a real implementation, this would send to an error reporting service
-      console.log('Reporting critical error to external service:', error)
+      logger.log('Reporting critical error to external service:', error)
       
       // Example: Send to Firebase, Sentry, or custom endpoint
       // await fetch('/api/errors', {
@@ -156,14 +163,14 @@ export class ErrorHandler {
       // })
       
     } catch (reportError) {
-      console.error('Failed to report critical error:', reportError)
+      logger.error('Failed to report critical error:', reportError)
     }
   }
 
   // Show critical error notification to user
   showCriticalErrorNotification(error) {
     // This would integrate with your notification system
-    console.warn('Critical error notification:', error.message)
+    logger.warn('Critical error notification:', error.message)
   }
 
   // Log error appropriately
@@ -328,7 +335,7 @@ export class ErrorHandler {
       try {
         callback(error)
       } catch (callbackError) {
-        console.error('Error in error callback:', callbackError)
+        logger.error('Error in error callback:', callbackError)
       }
     })
   }
@@ -381,7 +388,7 @@ export class ErrorHandler {
 
   // Recovery methods
   async attemptRecovery(error) {
-    console.log('Attempting recovery for error:', error.id)
+    logger.log('Attempting recovery for error:', error.id)
 
     switch (error.type) {
       case ErrorHandler.ERROR_TYPES.NETWORK:
@@ -398,7 +405,7 @@ export class ErrorHandler {
   async recoverFromNetworkError(error) {
     // Try to reconnect
     if (navigator.onLine) {
-      console.log('Network appears to be available, attempting reconnect...')
+      logger.log('Network appears to be available, attempting reconnect...')
       return true
     }
     return false
@@ -406,13 +413,13 @@ export class ErrorHandler {
 
   async recoverFromFirebaseError(error) {
     // Try Firebase reconnection
-    console.log('Attempting Firebase reconnection...')
+    logger.log('Attempting Firebase reconnection...')
     return false // Implement specific recovery logic
   }
 
   async recoverFromSessionError(error) {
     // Try to rejoin session or create new one
-    console.log('Attempting session recovery...')
+    logger.log('Attempting session recovery...')
     return false // Implement specific recovery logic
   }
 }

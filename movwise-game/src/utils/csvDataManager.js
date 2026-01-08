@@ -2,6 +2,7 @@ import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 import fs from 'fs';
 import path from 'path';
+import logger from '@/utils/logger'
 
 // CSVファイルのパス
 const CSV_PATHS = {
@@ -21,7 +22,7 @@ export const loadCSVData = (gameType) => {
       skip_empty_lines: true
     });
   } catch (error) {
-    console.error(`Error loading CSV data for ${gameType}:`, error);
+    logger.error(`Error loading CSV data for ${gameType}:`, error);
     return [];
   }
 };
@@ -43,7 +44,7 @@ export const saveCSVData = (gameType, data) => {
     fs.writeFileSync(filePath, csvContent);
     return true;
   } catch (error) {
-    console.error(`Error saving CSV data for ${gameType}:`, error);
+    logger.error(`Error saving CSV data for ${gameType}:`, error);
     return false;
   }
 };

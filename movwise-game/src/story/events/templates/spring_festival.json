@@ -1,0 +1,319 @@
+{
+  "id": "spring_festival_template",
+  "title": "春祭り - 新たな始まり",
+  "subtitle": "桜咲く季節の特別な物語",
+  "description": "春の訪れと共に始まる、新しい冒険と出会いの物語。桜の花びらが舞い踊る中で、キャラクターたちと一緒に新しい学習の旅を始めましょう。",
+  "type": "seasonal",
+  "seasonalPeriod": "spring",
+  "priority": 90,
+  "duration": 14,
+  "requirements": [
+    {
+      "type": "level",
+      "value": 10,
+      "description": "基本的な学習レベル10以上",
+      "optional": false
+    }
+  ],
+  "rewards": [
+    {
+      "id": "spring_cherry_blossom_art",
+      "type": "character_art",
+      "name": "桜舞い散る記念イラスト",
+      "description": "春祭りの美しい瞬間を描いた特別なイラスト",
+      "rarity": "rare",
+      "permanent": true,
+      "tradeable": false,
+      "previewImage": "/images/rewards/spring_festival_art.jpg"
+    },
+    {
+      "id": "spring_vocabulary_boost",
+      "type": "special_item",
+      "name": "春の言葉コレクション",
+      "description": "春にちなんだ美しい言葉たちの特別なコレクション",
+      "rarity": "epic",
+      "permanent": true,
+      "tradeable": false
+    },
+    {
+      "id": "new_beginning_title",
+      "type": "title",
+      "name": "新たな始まりの探検家",
+      "description": "春祭りで新しいスタートを切った証",
+      "rarity": "rare",
+      "permanent": true,
+      "tradeable": false
+    }
+  ],
+  "scenes": [
+    {
+      "id": "spring_arrival",
+      "title": "春の到来",
+      "description": "Language Galaxy に春が訪れ、桜の花が咲き始める",
+      "background": "/images/events/spring/cherry_blossom_garden.jpg",
+      "bgm": "/audio/events/spring/gentle_spring_breeze.mp3",
+      "duration": 20000,
+      "characters": ["aura", "lexia", "unity"],
+      "dialogue": [
+        {
+          "speaker": "aura",
+          "text": "データ分析：春の季節パラメータが最適値に到達しました。新しい学習サイクルの開始です",
+          "emotion": "analytical_excitement",
+          "timing": 2000
+        },
+        {
+          "speaker": "lexia",
+          "text": "わあ！桜の花がこんなに美しく咲いてる！新しい言葉たちも花びらみたいに舞い踊ってるよ！",
+          "emotion": "joyful_wonder",
+          "timing": 5000
+        },
+        {
+          "speaker": "unity",
+          "text": "春は調和の季節...みんなで新しい冒険を始める時ですね",
+          "emotion": "peaceful_anticipation",
+          "timing": 8000
+        }
+      ],
+      "choices": [
+        {
+          "id": "embrace_spring",
+          "text": "春の冒険を始めよう！",
+          "consequence": "積極的な春体験開始",
+          "rewardModifier": 20,
+          "characterImpact": {
+            "lexia": 15,
+            "unity": 10
+          }
+        },
+        {
+          "id": "observe_spring",
+          "text": "まずは春の美しさを味わおう",
+          "consequence": "穏やかな春鑑賞体験",
+          "rewardModifier": 10,
+          "characterImpact": {
+            "unity": 15,
+            "aura": 10
+          }
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "seasonal_atmosphere",
+          "description": "桜の花びらが画面を舞い踊る",
+          "parameters": {
+            "petalCount": 50,
+            "windStrength": "gentle",
+            "colorVariation": ["pink", "white", "light_pink"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "new_friends_gathering",
+      "title": "新しい仲間との出会い",
+      "description": "春祭りで新しいキャラクターたちと出会う",
+      "background": "/images/events/spring/festival_grounds.jpg",
+      "bgm": "/audio/events/spring/friendship_melody.mp3",
+      "duration": 25000,
+      "characters": ["professor_phonix", "grammar_guardian", "speed_racer"],
+      "dialogue": [
+        {
+          "speaker": "professor_phonix",
+          "text": "春祭りにようこそ！新しい季節は新しい学びの始まりじゃ",
+          "emotion": "wise_welcoming",
+          "timing": 2000
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "春の文法構造は...とても美しい調和を持っています",
+          "emotion": "contemplative_beauty",
+          "timing": 6000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "新しいスピード記録を作るチャンス！春風と一緒に駆け抜けよう！",
+          "emotion": "energetic_enthusiasm",
+          "timing": 10000
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "character_costume",
+          "description": "キャラクターたちが春祭り用の特別な衣装を着用",
+          "parameters": {
+            "theme": "spring_festival",
+            "colorScheme": "pastel"
+          }
+        }
+      ]
+    },
+    {
+      "id": "spring_learning_challenge",
+      "title": "春の学習チャレンジ",
+      "description": "春にちなんだ特別な学習活動に参加",
+      "background": "/images/events/spring/learning_pavilion.jpg",
+      "duration": 30000,
+      "characters": ["captain_nova", "lexia", "unity"],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "春の言葉を集めて、美しい詩を作ってみよう！",
+          "emotion": "creative_inspiration",
+          "timing": 2000
+        },
+        {
+          "speaker": "lexia",
+          "text": "「sakura」「renewal」「bloom」...春の言葉たちが踊り出すね！",
+          "emotion": "linguistic_excitement",
+          "timing": 6000
+        },
+        {
+          "speaker": "unity",
+          "text": "みんなの言葉が調和して、素晴らしい作品になりそうです",
+          "emotion": "harmonious_anticipation",
+          "timing": 10000
+        }
+      ],
+      "choices": [
+        {
+          "id": "creative_poetry",
+          "text": "創造的な詩を作る",
+          "consequence": "芸術性重視の春体験",
+          "rewardModifier": 25,
+          "characterImpact": {
+            "unity": 20,
+            "lexia": 15
+          }
+        },
+        {
+          "id": "collaborative_story",
+          "text": "みんなで物語を作る",
+          "consequence": "協力重視の春体験",
+          "rewardModifier": 20,
+          "characterImpact": {
+            "captain_nova": 15,
+            "unity": 15,
+            "lexia": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "spring_celebration",
+      "title": "春祭りのクライマックス",
+      "description": "みんなで春祭りの最高潮を迎える",
+      "background": "/images/events/spring/grand_celebration.jpg",
+      "bgm": "/audio/events/spring/celebration_symphony.mp3",
+      "duration": 20000,
+      "characters": ["all_main_characters"],
+      "dialogue": [
+        {
+          "speaker": "all_characters",
+          "text": "新しい季節、新しい冒険、そして新しい友達！みんなで最高の春を迎えましょう！",
+          "emotion": "collective_celebration",
+          "timing": 5000
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "seasonal_atmosphere",
+          "description": "春祭りの盛大な花火と桜吹雪",
+          "parameters": {
+            "fireworks": true,
+            "intenseCherryBlossoms": true,
+            "celebratory": true
+          }
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "lexia",
+      "role": "main",
+      "costume": "spring_festival_dress",
+      "specialDialogue": true,
+      "relationshipBonus": 25,
+      "exclusiveScenes": ["spring_word_dance", "poetry_creation"]
+    },
+    {
+      "id": "unity",
+      "role": "main",
+      "costume": "harmony_spring_robes",
+      "specialDialogue": true,
+      "relationshipBonus": 20,
+      "exclusiveScenes": ["spring_harmony", "collaborative_creation"]
+    },
+    {
+      "id": "aura",
+      "role": "support",
+      "costume": "data_spring_interface",
+      "specialDialogue": true,
+      "relationshipBonus": 15,
+      "exclusiveScenes": ["spring_analysis"]
+    }
+  ],
+  "specialMechanics": [
+    {
+      "name": "spring_word_collection",
+      "description": "春にちなんだ特別な言葉を集める",
+      "type": "collection",
+      "parameters": {
+        "targetWords": ["bloom", "renewal", "growth", "cherry", "fresh", "awakening"],
+        "bonusPoints": 50,
+        "timeLimit": 900000
+      },
+      "rewards": ["spring_vocabulary_boost"]
+    },
+    {
+      "name": "cherry_blossom_poetry",
+      "description": "桜をテーマにした詩を創作する",
+      "type": "creative",
+      "parameters": {
+        "theme": "cherry_blossoms",
+        "minWords": 20,
+        "creativityBonus": true
+      },
+      "rewards": ["new_beginning_title"]
+    },
+    {
+      "name": "spring_friendship_moments",
+      "description": "キャラクターたちとの特別な春の思い出を作る",
+      "type": "collaboration",
+      "parameters": {
+        "requiredInteractions": 5,
+        "emotionalDepth": "meaningful",
+        "seasonalBonus": true
+      },
+      "rewards": ["spring_cherry_blossom_art"]
+    }
+  ],
+  "progressTracking": {
+    "participationRate": 0,
+    "scenesCompleted": [],
+    "rewardsEarned": [],
+    "choicesMade": {},
+    "specialAchievements": [],
+    "totalScore": 0
+  },
+  "bannerConfig": {
+    "bannerImage": "/images/events/spring/spring_festival_banner.jpg",
+    "accentColor": "#FFB6C1",
+    "fontStyle": "elegant",
+    "animationType": "seasonal",
+    "countdownStyle": "cherry_blossom",
+    "layout": "full_width"
+  },
+  "storyData": {
+    "mainStoryline": "spring_renewal_and_new_beginnings",
+    "characterArcs": {
+      "lexia": "spring_word_discovery",
+      "unity": "seasonal_harmony_guide",
+      "aura": "spring_data_analyst"
+    },
+    "worldBuilding": "cherry_blossom_festival_grounds",
+    "thematicElements": ["renewal", "growth", "hope", "friendship", "creativity"],
+    "emotionalTones": ["fresh", "optimistic", "peaceful", "inspiring", "joyful"],
+    "learningObjectives": ["seasonal_vocabulary", "creative_expression", "collaborative_learning", "cultural_appreciation"]
+  }
+}

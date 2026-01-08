@@ -1,0 +1,1017 @@
+{
+  "id": "chapter5_cooperation_colony",
+  "title": "第5章: Cooperation Colonyの調和",
+  "description": "Unityとの出会いから学ぶ協力の力、全キャラクター再集結、そして絆で成し遂げる奇跡の大規模ミッション",
+  "background_music": "/audio/music/cooperation_colony_theme.mp3",
+  "estimated_duration": 50,
+  "character_focus": ["unity", "captain_nova", "all_characters"],
+  "learning_objectives": [
+    "協調性とチームワーク",
+    "異なる個性の活かし方",
+    "集団での問題解決能力"
+  ],
+  "scenes": [
+    {
+      "id": "colony_discovery",
+      "title": "協力コロニー発見",
+      "background": "/images/backgrounds/cooperation_colony_exterior.jpg",
+      "duration": 10000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "curious",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "analytical",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "aura",
+          "text": "このコロニーは...他とは全く違います",
+          "emotion": "intrigued",
+          "startTime": 1500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "まるで生きているみたい...住民みんなが一つの生命体のように",
+          "emotion": "wonder",
+          "startTime": 5000,
+          "duration": 4000
+        },
+        {
+          "speaker": "aura",
+          "text": "協力と調和の究極形態...これが真の文明でしょうか",
+          "emotion": "philosophical",
+          "startTime": 9500,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "pan",
+          "startTime": 0,
+          "duration": 10000,
+          "parameters": { "x": 50, "y": -20 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "organic_glow",
+          "startTime": 0,
+          "duration": 10000,
+          "parameters": {
+            "intensity": 0.6,
+            "color": "#32CD32",
+            "pulse": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 2000,
+          "duration": 8000,
+          "parameters": {
+            "count": 35,
+            "symbols": ["🌿", "🤝", "💚", "🌺"],
+            "colors": ["#32CD32", "#90EE90", "#00FA9A", "#98FB98"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "unity_first_meeting",
+      "title": "Unityとの邂逅",
+      "background": "/images/backgrounds/harmony_garden.jpg",
+      "duration": 15000,
+      "characters": [
+        {
+          "id": "unity",
+          "position": "center",
+          "emotion": "serene",
+          "size": "large",
+          "enterTime": 3000
+        },
+        {
+          "id": "captain_nova",
+          "position": "left",
+          "emotion": "respectful",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "admiring",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "ようこそ、若き探求者よ。私はUnity...調和の女神",
+          "emotion": "gentle",
+          "startTime": 4000,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "あなたから感じる...この暖かい光は",
+          "emotion": "moved",
+          "startTime": 8500,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "一人では決して生まれない光...みんなの心が重なって生まれる奇跡",
+          "emotion": "mystical",
+          "startTime": 11500,
+          "duration": 4500
+        },
+        {
+          "speaker": "aura",
+          "text": "これが...真の協力の力なのですね",
+          "emotion": "understanding",
+          "startTime": 16500,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "zoom",
+          "startTime": 3000,
+          "duration": 8000,
+          "parameters": { "scale": 1.3 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "divine_light",
+          "startTime": 3000,
+          "duration": 12000,
+          "parameters": {
+            "intensity": 0.9,
+            "color": "#FFFFFF",
+            "ethereal": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 4000,
+          "duration": 11000,
+          "parameters": {
+            "count": 60,
+            "symbols": ["✨", "🌟", "💖", "🕊️"],
+            "colors": ["#FFFFFF", "#FFD700", "#FFC0CB", "#87CEEB"]
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/divine_entrance.mp3",
+          "startTime": 3000,
+          "volume": 0.5
+        }
+      ]
+    },
+    {
+      "id": "cooperation_philosophy",
+      "title": "協力の哲学",
+      "background": "/images/backgrounds/wisdom_circle.jpg",
+      "duration": 18000,
+      "characters": [
+        {
+          "id": "unity",
+          "position": "center",
+          "emotion": "wise",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "contemplative",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "個々の力は限られている...しかし心を合わせれば無限になる",
+          "emotion": "philosophical",
+          "startTime": 2000,
+          "duration": 4500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "でも...一人一人違うから、合わせるのは難しくて",
+          "emotion": "uncertain",
+          "startTime": 7000,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "違うからこそ美しい。音楽を聴いてごらん",
+          "emotion": "encouraging",
+          "startTime": 10500,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "異なる音が重なって、一つでは作れない和音を生む",
+          "emotion": "mystical",
+          "startTime": 14000,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "そうか...違いこそが調和の源なんだ",
+          "emotion": "enlightened",
+          "startTime": 18500,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "circular_pan",
+          "startTime": 10000,
+          "duration": 8000,
+          "parameters": { "radius": 30, "speed": 0.5 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "harmony_visualization",
+          "startTime": 10500,
+          "duration": 7500,
+          "parameters": {
+            "waves": true,
+            "colors": ["#FF69B4", "#87CEEB", "#98FB98", "#FFD700"],
+            "frequency": "musical"
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/harmony_demonstration.mp3",
+          "startTime": 10500,
+          "volume": 0.3
+        }
+      ]
+    },
+    {
+      "id": "friends_reunion",
+      "title": "仲間たちの再集結",
+      "background": "/images/backgrounds/reunion_plaza.jpg",
+      "duration": 20000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "joyful",
+          "size": "medium"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "proud",
+          "size": "medium",
+          "enterTime": 2000
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "excited",
+          "size": "medium",
+          "enterTime": 3000
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "pleased",
+          "size": "medium",
+          "enterTime": 5000
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "energetic",
+          "size": "medium",
+          "enterTime": 6000
+        },
+        {
+          "id": "aura",
+          "position": "center-back",
+          "emotion": "happy",
+          "size": "small",
+          "enterTime": 1000
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "みんな〜！久しぶり！元気だった？",
+          "emotion": "ecstatic",
+          "startTime": 3500,
+          "duration": 2500
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "ほほう、みんな見違えるように成長したのう",
+          "emotion": "proud",
+          "startTime": 6500,
+          "duration": 3000
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "この絆こそが...最も美しい構造だ",
+          "emotion": "moved",
+          "startTime": 10000,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "おう！今度は全員で力を合わせるときだな！",
+          "emotion": "determined",
+          "startTime": 13500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんながいれば...どんなことでも乗り越えられる",
+          "emotion": "confident",
+          "startTime": 17000,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "group_focus",
+          "startTime": 7000,
+          "duration": 13000,
+          "parameters": { "zoom_out": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "reunion_celebration",
+          "startTime": 3000,
+          "duration": 17000,
+          "parameters": {
+            "sparkles": true,
+            "color_burst": true,
+            "intensity": 0.8
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 6000,
+          "duration": 14000,
+          "parameters": {
+            "count": 80,
+            "symbols": ["🎉", "💖", "✨", "🌟", "🤝"],
+            "colors": ["#FF69B4", "#FFD700", "#87CEEB", "#98FB98", "#DDA0DD"]
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/friendship_theme.mp3",
+          "startTime": 3000,
+          "volume": 0.4,
+          "fadeIn": true
+        }
+      ]
+    },
+    {
+      "id": "crisis_announcement",
+      "title": "危機の知らせ",
+      "background": "/images/backgrounds/emergency_council.jpg",
+      "duration": 12000,
+      "characters": [
+        {
+          "id": "unity",
+          "position": "center",
+          "emotion": "serious",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "concerned",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "left",
+          "emotion": "analytical",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "実は...Language Galaxyに深刻な危機が迫っている",
+          "emotion": "grave",
+          "startTime": 2000,
+          "duration": 4000
+        },
+        {
+          "speaker": "aura",
+          "text": "複数の星系で言語障壁が発生...通信が途絶えています",
+          "emotion": "urgent",
+          "startTime": 6500,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "それって...Universal Translatorと関係が？",
+          "emotion": "worried",
+          "startTime": 10500,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "おそらく...だからこそ、みんなの力が必要なの",
+          "emotion": "determined",
+          "startTime": 13500,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "zoom",
+          "startTime": 2000,
+          "duration": 10000,
+          "parameters": { "scale": 1.4 }
+        }
+      ],
+      "effects": [
+        {
+          "type": "holographic_map",
+          "startTime": 6000,
+          "duration": 6000,
+          "parameters": {
+            "show_crisis_zones": true,
+            "warning_indicators": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "cooperation_mission_planning",
+      "title": "協力ミッション計画",
+      "background": "/images/backgrounds/strategy_room.jpg",
+      "duration": 25000,
+      "characters": [
+        {
+          "id": "unity",
+          "position": "center",
+          "emotion": "leader",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "center-right",
+          "emotion": "focused",
+          "size": "medium"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "thoughtful",
+          "size": "medium"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "eager",
+          "size": "medium"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "analytical",
+          "size": "medium"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "ready",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "この危機を乗り越えるには、みんなの特技を組み合わせる必要がある",
+          "emotion": "strategist",
+          "startTime": 2000,
+          "duration": 4500
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "わしは音の共鳴で通信路を開こう",
+          "emotion": "determined",
+          "startTime": 7000,
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "私は言葉の橋で心をつなぐ！",
+          "emotion": "enthusiastic",
+          "startTime": 10500,
+          "duration": 2500
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "文法の秩序で混乱を収める",
+          "emotion": "resolute",
+          "startTime": 13500,
+          "duration": 2500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "俺のスピードで情報を瞬時に伝達する",
+          "emotion": "confident",
+          "startTime": 16500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "そして僕は...みんなをつなぐ役目を",
+          "emotion": "humble",
+          "startTime": 20000,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "完璧な調和ね。では、始めましょう",
+          "emotion": "satisfied",
+          "startTime": 23000,
+          "duration": 2500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "team_formation",
+          "startTime": 7000,
+          "duration": 16000,
+          "parameters": { "focus_rotation": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "strategy_visualization",
+          "startTime": 2000,
+          "duration": 23000,
+          "parameters": {
+            "connection_lines": true,
+            "role_indicators": true,
+            "tactical_overlay": true
+          }
+        }
+      ],
+      "choices": [
+        {
+          "id": "coordinate_role",
+          "text": "全体の調整役を担う",
+          "consequence": "高い責任だが大きな成長の機会",
+          "relationship_change": { "unity": 15, "all": 5 }
+        },
+        {
+          "id": "support_role",
+          "text": "みんなをサポートする役に回る",
+          "consequence": "サポート力向上、チーム貢献度アップ",
+          "relationship_change": { "unity": 10, "all": 8 }
+        }
+      ]
+    },
+    {
+      "id": "mega_cooperation_mission",
+      "title": "大規模協力ミッション実行",
+      "background": "/images/backgrounds/cosmic_operation_center.jpg",
+      "duration": 30000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "focused",
+          "size": "large"
+        },
+        {
+          "id": "unity",
+          "position": "center-back",
+          "emotion": "guiding",
+          "size": "medium"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "concentrating",
+          "size": "small"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "working",
+          "size": "small"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "organizing",
+          "size": "small"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "operating",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "今よ！みんなの心を一つに！",
+          "emotion": "commanding",
+          "startTime": 2000,
+          "duration": 2500
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "音の共鳴、開始！",
+          "emotion": "intense",
+          "startTime": 5000,
+          "duration": 2000
+        },
+        {
+          "speaker": "lexia",
+          "text": "言葉の橋、架橋完了！",
+          "emotion": "triumphant",
+          "startTime": 8000,
+          "duration": 2000
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "文法構造、安定化！",
+          "emotion": "precise",
+          "startTime": 11000,
+          "duration": 2000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "高速伝達、全域展開！",
+          "emotion": "energetic",
+          "startTime": 14000,
+          "duration": 2000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんなの力が...一つになって！",
+          "emotion": "amazed",
+          "startTime": 17000,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "美しい...これが真の協力の力",
+          "emotion": "moved",
+          "startTime": 21000,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "やった！通信が復活してる！",
+          "emotion": "joyful",
+          "startTime": 25000,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "おめでとう...あなたたちは奇跡を起こした",
+          "emotion": "proud",
+          "startTime": 28000,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "dynamic_coordination",
+          "startTime": 2000,
+          "duration": 26000,
+          "parameters": { "follow_action": true, "epic_scale": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "mega_cooperation",
+          "startTime": 2000,
+          "duration": 26000,
+          "parameters": {
+            "energy_streams": true,
+            "harmony_waves": true,
+            "character_auras": true,
+            "crescendo_effect": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 5000,
+          "duration": 20000,
+          "parameters": {
+            "count": 150,
+            "symbols": ["⚡", "💫", "🌟", "✨", "💖", "🌈"],
+            "colors": ["#FFD700", "#FF69B4", "#87CEEB", "#98FB98", "#DDA0DD", "#FF6347"],
+            "speed": 2.5,
+            "epic_mode": true
+          }
+        }
+      ],
+      "interactive_elements": [
+        {
+          "type": "coordination_challenge",
+          "startTime": 8000,
+          "duration": 15000,
+          "parameters": {
+            "multi_character_input": true,
+            "synchronization_required": true,
+            "team_commands": [
+              "PHONIX_RESONANCE",
+              "LEXIA_BRIDGE",
+              "GUARDIAN_ORDER",
+              "RACER_SPEED",
+              "NOVA_UNITY"
+            ]
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/epic_cooperation.mp3",
+          "startTime": 2000,
+          "volume": 0.6,
+          "crescendo": true
+        },
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/power_surge.mp3",
+          "startTime": 17000,
+          "volume": 0.7
+        }
+      ]
+    },
+    {
+      "id": "bond_transformation",
+      "title": "絆による変貌",
+      "background": "/images/backgrounds/transformation_space.jpg",
+      "duration": 16000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "transformed",
+          "size": "large"
+        },
+        {
+          "id": "unity",
+          "position": "right",
+          "emotion": "proud",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "見なさい...あなたの中に新しい力が宿っている",
+          "emotion": "mystical",
+          "startTime": 2000,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "この温かい光は...みんなとの絆から？",
+          "emotion": "wonder",
+          "startTime": 6500,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "そう...真の協力を知った者だけが得られる力",
+          "emotion": "affirming",
+          "startTime": 10000,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "もう一人じゃない...みんながいつも一緒にいる",
+          "emotion": "enlightened",
+          "startTime": 14000,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "transformation_focus",
+          "startTime": 2000,
+          "duration": 12000,
+          "parameters": { "divine_angle": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "power_awakening",
+          "startTime": 2000,
+          "duration": 14000,
+          "parameters": {
+            "transformation_light": true,
+            "bond_visualization": true,
+            "power_surge": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "colony_celebration",
+      "title": "コロニー全体の祝祭",
+      "background": "/images/backgrounds/colony_celebration.jpg",
+      "duration": 18000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "humble",
+          "size": "medium"
+        },
+        {
+          "id": "unity",
+          "position": "center-back",
+          "emotion": "joyful",
+          "size": "large"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "proud",
+          "size": "medium"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "ecstatic",
+          "size": "medium"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "pleased",
+          "size": "medium"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "celebratory",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "今日、新しい伝説が生まれました",
+          "emotion": "ceremonial",
+          "startTime": 2000,
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "みんなで作った奇跡だね！",
+          "emotion": "joyful",
+          "startTime": 6000,
+          "duration": 2000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "わしも若い頃を思い出したぞい",
+          "emotion": "nostalgic",
+          "startTime": 8500,
+          "duration": 2500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "チームワークってやつが分かったぜ",
+          "emotion": "understanding",
+          "startTime": 11500,
+          "duration": 2500
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "完璧な構造...美しい調和だった",
+          "emotion": "satisfied",
+          "startTime": 14500,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんな...ありがとう。本当にありがとう",
+          "emotion": "grateful",
+          "startTime": 17500,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "celebration_sweep",
+          "startTime": 0,
+          "duration": 18000,
+          "parameters": { "festive": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "grand_celebration",
+          "startTime": 0,
+          "duration": 18000,
+          "parameters": {
+            "fireworks": true,
+            "colony_wide": true,
+            "joy_particles": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/victory_celebration.mp3",
+          "startTime": 0,
+          "volume": 0.5,
+          "festive": true
+        }
+      ]
+    }
+  ],
+  "chapter_completion": {
+    "achievements": [
+      {
+        "id": "cooperation_master",
+        "title": "協力の達人",
+        "description": "真のチームワークを体得した"
+      },
+      {
+        "id": "unity_bond",
+        "title": "Unityとの絆",
+        "description": "調和の女神から特別な力を授かった"
+      },
+      {
+        "id": "miracle_worker",
+        "title": "奇跡の実現者",
+        "description": "仲間と共に不可能を可能にした"
+      }
+    ],
+    "unlocked_content": [
+      "Cooperation Colony Harmony Mode",
+      "Team Coordination Challenges",
+      "Unity's Sacred Teachings"
+    ],
+    "next_chapter": "chapter6_construction_zone",
+    "relationship_changes": {
+      "unity": 20,
+      "professor_phonix": 12,
+      "lexia": 12,
+      "grammar_guardian": 12,
+      "speed_racer": 12,
+      "aura": 10
+    },
+    "special_unlocks": [
+      {
+        "id": "harmony_power",
+        "name": "調和の力",
+        "description": "仲間との絆から生まれる特別な力"
+      }
+    ]
+  },
+  "learning_assessment": {
+    "skills_tested": [
+      "協調性",
+      "リーダーシップ",
+      "チーム調整力",
+      "マルチタスク能力"
+    ],
+    "difficulty_progression": {
+      "early_scenes": "medium",
+      "cooperation_scenes": "high",
+      "final_scenes": "medium"
+    },
+    "team_dynamics": {
+      "individual_strengths": "emphasized",
+      "collective_power": "demonstrated",
+      "synergy_effects": "maximized"
+    }
+  }
+}

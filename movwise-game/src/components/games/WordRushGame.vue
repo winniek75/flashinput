@@ -1,69 +1,85 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-pink-600 relative overflow-hidden">
-    <!-- 背景パーティクル -->
+  <div class="min-h-screen galaxy-background relative overflow-hidden">
+    <!-- 宇宙背景レイヤー -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div class="stars-layer-1"></div>
+      <div class="stars-layer-2"></div>
+      <div class="stars-layer-3"></div>
+    </div>
+    
+    <!-- 浮遊する宇宙パーティクル -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div
         v-for="particle in backgroundParticles"
         :key="particle.id"
-        class="absolute bg-white rounded-full opacity-20"
+        class="absolute bg-galaxy-star rounded-full cosmic-glow"
         :style="{
           left: `${particle.x}%`,
           top: `${particle.y}%`,
           width: `${particle.size}px`,
           height: `${particle.size}px`,
-          animation: `float ${particle.duration}s ease-in-out infinite`,
+          animation: `cosmic-float ${particle.duration}s ease-in-out infinite`,
           animationDelay: `${particle.delay}s`
         }"
       />
     </div>
 
-    <!-- ゲームヘッダー -->
-    <header class="relative z-10 bg-white/95 backdrop-blur-sm shadow-2xl">
+    <!-- 宇宙ゲームヘッダー -->
+    <header class="relative z-10 bg-galaxy-void/90 backdrop-blur-md shadow-2xl border-b border-galaxy-primary/20">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
-          <button 
-            @click="handleBack"
-            class="flex items-center gap-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
-          >
-            <ArrowLeft class="w-5 h-5" />
-            戻る
-          </button>
+          <div class="flex items-center gap-2">
+            <button 
+              @click="goToHome"
+              class="galaxy-button galaxy-button-primary flex items-center gap-2 px-4 py-2"
+              title="銀河本部に帰還"
+            >
+              🌌
+            </button>
+            <button 
+              @click="handleBack"
+              class="galaxy-button galaxy-button-secondary flex items-center gap-2 px-4 py-2"
+            >
+              <ArrowLeft class="w-5 h-5" />
+              帰還
+            </button>
+          </div>
           
           <div class="text-center">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent">
-              ⚡ ワード・ラッシュ・アリーナ
+            <h1 class="text-3xl font-bold galaxy-text-primary cosmic-title">
+              ⚡ ワード・ラッシュ・アリーナ ⚡
             </h1>
-            <p class="text-gray-600">高速語彙習得ゲーム</p>
+            <p class="text-galaxy-moon-silver">高速語彙戦闘ステーション</p>
           </div>
 
           <button 
             @click="showSettings = true"
-            class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
+            class="galaxy-button galaxy-button-accent px-4 py-2"
           >
             <Settings class="w-5 h-5" />
           </button>
         </div>
 
-        <!-- ゲーム中のステータス -->
-        <div v-if="gameState === 'playing'" class="flex items-center justify-center gap-8 mt-4">
-          <div class="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-full shadow-lg">
-            <Clock class="w-5 h-5" />
-            <span class="font-bold text-lg">{{ timeLeft }}s</span>
+        <!-- 宇宙戦闘ステータス -->
+        <div v-if="gameState === 'playing'" class="flex items-center justify-center gap-4 mt-4 flex-wrap">
+          <div class="galaxy-stats-card cosmic-glow">
+            <Clock class="w-5 h-5 text-galaxy-primary" />
+            <span class="font-bold text-lg text-galaxy-star">{{ timeLeft }}s</span>
           </div>
           
-          <div class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full shadow-lg">
-            <Flame class="w-5 h-5" />
-            <span class="font-bold text-lg">{{ streak }}連続</span>
+          <div class="galaxy-stats-card cosmic-glow">
+            <Flame class="w-5 h-5 text-galaxy-accent" />
+            <span class="font-bold text-lg text-galaxy-star">{{ streak }}連鎖</span>
           </div>
           
-          <div class="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full shadow-lg">
-            <Star class="w-5 h-5" />
-            <span class="font-bold text-lg">{{ score.toLocaleString() }}</span>
+          <div class="galaxy-stats-card cosmic-glow">
+            <Star class="w-5 h-5 text-yellow-400" />
+            <span class="font-bold text-lg text-galaxy-star">{{ score.toLocaleString() }}</span>
           </div>
           
-          <div class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full shadow-lg">
-            <Target class="w-5 h-5" />
-            <span class="font-bold text-lg">{{ currentQuestion + 1 }}/{{ QUESTIONS_PER_ROUND }}</span>
+          <div class="galaxy-stats-card cosmic-glow">
+            <Target class="w-5 h-5 text-galaxy-secondary" />
+            <span class="font-bold text-lg text-galaxy-star">{{ currentQuestion + 1 }}/{{ QUESTIONS_PER_ROUND }}</span>
           </div>
         </div>
       </div>
@@ -71,168 +87,190 @@
 
     <!-- メインゲームエリア -->
     <main class="relative z-10 container mx-auto px-4 py-8">
-      <!-- 開始画面 -->
+      <!-- 戦闘準備画面 -->
       <div v-if="gameState === 'start'" class="max-w-2xl mx-auto">
-        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl text-center">
-          <div class="text-6xl mb-6">⚡</div>
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">ワード・ラッシュに挑戦！</h2>
-          <p class="text-gray-600 mb-6 leading-relaxed">
-            60秒間で10問の語彙問題に挑戦します。画像、音声、定義から正しい英単語を選んでください。
-            連続正解でコンボボーナス獲得！
+        <div class="galaxy-card galaxy-card-primary p-8 text-center cosmic-glow">
+          <div class="text-6xl mb-6 cosmic-pulse">⚡</div>
+          <h2 class="text-3xl font-bold galaxy-text-primary mb-4 cosmic-title">語彙戦闘アリーナに突入！</h2>
+          <p class="text-galaxy-moon-silver mb-6 leading-relaxed">
+            60秒間で10問の語彙戦闘に挑戦します。宇宙画像、音声信号、データベース定義から正しい英単語を選択せよ。
+            連続正解で宇宙エネルギー連鎖ボーナス獲得！
           </p>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-2xl">
+            <div class="galaxy-card galaxy-card-secondary p-4 cosmic-glow">
               <div class="text-3xl mb-2">🖼️</div>
-              <div class="font-bold text-gray-800">画像問題</div>
-              <div class="text-sm text-gray-600">画像を見て英単語を選択</div>
+              <div class="font-bold galaxy-text-primary">画像スキャン</div>
+              <div class="text-sm text-galaxy-moon-silver">宇宙画像を解析して単語を選択</div>
             </div>
-            <div class="bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-2xl">
+            <div class="galaxy-card galaxy-card-accent p-4 cosmic-glow">
               <div class="text-3xl mb-2">🔊</div>
-              <div class="font-bold text-gray-800">音声問題</div>
-              <div class="text-sm text-gray-600">音声を聞いて英単語を選択</div>
+              <div class="font-bold galaxy-text-primary">音声解読</div>
+              <div class="text-sm text-galaxy-moon-silver">宇宙信号を聞いて単語を特定</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-4 rounded-2xl">
+            <div class="galaxy-card galaxy-card-warning p-4 cosmic-glow">
               <div class="text-3xl mb-2">📝</div>
-              <div class="font-bold text-gray-800">定義問題</div>
-              <div class="text-sm text-gray-600">日本語定義から英単語を選択</div>
+              <div class="font-bold galaxy-text-primary">データ解析</div>
+              <div class="text-sm text-galaxy-moon-silver">銀河データベース定義から単語を特定</div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-              <span class="text-gray-700">難易度レベル:</span>
+            <div class="galaxy-card galaxy-card-secondary p-4 flex items-center justify-between">
+              <span class="text-galaxy-star">戦闘難易度:</span>
               <select 
                 v-model="difficultyLevel" 
-                class="bg-white border border-gray-300 rounded-lg px-3 py-1 font-bold"
+                class="galaxy-select px-3 py-1 font-bold"
               >
-                <option value="beginner">初級 (200語)</option>
-                <option value="intermediate">中級 (300語)</option>
-                <option value="advanced">上級 (200語)</option>
+                <option value="beginner">初級パイロット (200語)</option>
+                <option value="intermediate">中級戦士 (300語)</option>
+                <option value="advanced">上級司令官 (200語)</option>
               </select>
             </div>
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-              <span class="text-gray-700">カテゴリ:</span>
-              <select v-model="selectedCategory" class="bg-white border border-gray-300 rounded-lg px-3 py-1 font-bold">
-                <option value="" disabled>カテゴリを選択</option>
+            <div class="galaxy-card galaxy-card-secondary p-4 flex items-center justify-between">
+              <span class="text-galaxy-star">戦闘領域:</span>
+              <select v-model="selectedCategory" class="galaxy-select px-3 py-1 font-bold">
+                <option value="" disabled>戦闘領域を選択</option>
                 <option v-for="cat in categories" :key="cat.key" :value="cat.key">{{ cat.name }}</option>
               </select>
             </div>
-            <div v-if="subLevels.length > 0" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-              <span class="text-gray-700">レベル/級:</span>
-              <select v-model="selectedSubLevel" class="bg-white border border-gray-300 rounded-lg px-3 py-1 font-bold">
-                <option value="" disabled>レベル/級を選択</option>
+            <div v-if="subLevels.length > 0" class="galaxy-card galaxy-card-secondary p-4 flex items-center justify-between">
+              <span class="text-galaxy-star">戦闘レベル:</span>
+              <select v-model="selectedSubLevel" class="galaxy-select px-3 py-1 font-bold">
+                <option value="" disabled>戦闘レベルを選択</option>
                 <option v-for="sub in subLevels" :key="sub" :value="sub">{{ subLevelLabels[sub] || sub }}</option>
               </select>
             </div>
             <button 
-              @click="wrapClickHandler(startGame)"
-              class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl font-bold text-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-              :disabled="!selectedCategory || (subLevels.length > 0 && !selectedSubLevel) || isInteractionDisabled"
+              @click="handleStartGame"
+              class="w-full galaxy-button galaxy-button-primary py-4 px-8 font-bold text-xl cosmic-glow"
+              :disabled="buttonDisabled"
             >
               <div class="flex items-center justify-center gap-3">
                 <Play class="w-6 h-6" />
-                ゲーム開始
+                戦闘開始
               </div>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ゲーム画面 -->
+      <!-- 戦闘画面 -->
       <div v-if="gameState === 'playing'" class="max-w-4xl mx-auto">
-        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-          <!-- 問題エリア -->
+        <div class="galaxy-card galaxy-card-primary p-8 cosmic-glow">
+          <!-- 戦闘問題エリア -->
           <div class="text-center mb-8">
-            <!-- 画像問題 -->
+            <!-- 画像スキャン問題 -->
             <div v-if="currentQuestionData.type === 'image_to_word'" class="space-y-6">
-              <div class="text-xl font-bold text-gray-800 mb-4">この画像の英単語は？</div>
+              <div class="text-xl font-bold text-blue-300 mb-4 cosmic-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🔍 宇宙画像スキャン中...</div>
               <div class="flex justify-center">
-                <div class="relative w-64 h-64">
+                <div class="w-80 h-80 relative">
+                  <!-- 実際の画像 -->
                   <img 
-                    :src="loadImage(currentQuestionData.image)" 
-                    :alt="currentQuestionData.english"
-                    class="w-full h-full object-cover rounded-2xl shadow-lg transition-opacity duration-300"
-                    :class="{ 'opacity-0': !imageCache.has(currentQuestionData.image) }"
+                    :src="loadImage(currentQuestionData.image)"
+                    :alt="currentQuestionData.japanese || 'vocabulary'"
+                    class="w-full h-full object-cover rounded-2xl cosmic-glow galaxy-border absolute inset-0"
                     @error="handleImageError"
-                    loading="lazy"
+                    @load="onImageLoad"
+                    :style="{ 
+                      zIndex: imageLoadSuccess ? '2' : '0', 
+                      opacity: imageLoadSuccess ? '1' : '0',
+                      transition: 'opacity 0.3s ease-in-out'
+                    }"
                   />
+                  
+                  <!-- 画像読み込み中のプレースホルダー -->
+                  <div 
+                    v-if="!imageLoadError && !imageLoadSuccess" 
+                    class="absolute inset-0 flex items-center justify-center bg-galaxy-void/80 rounded-2xl galaxy-border"
+                    style="z-index: 1;"
+                  >
+                    <div class="text-4xl cosmic-pulse">🔍</div>
+                  </div>
+                  
+                  <!-- 画像読み込みエラー時のフォールバック -->
                   <div 
                     v-if="imageLoadError" 
-                    class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center text-8xl shadow-lg"
+                    class="absolute inset-0 flex flex-col items-center justify-center bg-galaxy-void/90 rounded-2xl galaxy-border text-center p-6"
+                    style="z-index: 2;"
                   >
-                    {{ getFallbackEmoji(currentQuestionData.english) }}
+                    <div class="text-6xl mb-4 cosmic-pulse">{{ getFallbackEmoji(currentQuestionData.english) }}</div>
+                    <div class="text-lg text-white font-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">{{ currentQuestionData.japanese }}</div>
+                    <div class="text-sm text-gray-300 mt-2" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">画像を読み込み中...</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- 音声問題 -->
+            <!-- 音声信号問題 -->
             <div v-if="currentQuestionData.type === 'audio_to_word'" class="space-y-6">
-              <div class="text-xl font-bold text-gray-800 mb-4">音声を聞いて英単語を選んでください</div>
+              <div class="text-xl font-bold text-green-300 mb-4 cosmic-title" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">📡 宇宙信号を受信中...</div>
               <div class="flex justify-center">
                 <button 
                   @click="playAudio"
-                  class="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-full flex items-center justify-center text-4xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
-                  :class="{ 'animate-pulse': isPlaying }"
+                  class="w-32 h-32 galaxy-button galaxy-button-accent rounded-full flex items-center justify-center text-4xl cosmic-glow transition-all duration-300 transform hover:scale-110"
+                  :class="{ 'cosmic-pulse': isPlaying }"
                 >
                   <Volume2 class="w-12 h-12" />
                 </button>
               </div>
-              <div class="text-gray-600">
+              <div class="text-galaxy-moon-silver">
                 <button 
                   @click="playAudio"
-                  class="text-blue-500 hover:text-blue-700 font-bold"
+                  class="galaxy-button galaxy-button-secondary px-4 py-2 cosmic-glow"
                 >
-                  🔊 もう一度聞く
+                  🔊 信号再受信
                 </button>
               </div>
             </div>
 
-            <!-- 定義問題 -->
+            <!-- データベース解析問題 -->
             <div v-if="currentQuestionData.type === 'definition_to_word'" class="space-y-6">
-              <div class="text-xl font-bold text-gray-800 mb-4">この意味の英単語は？</div>
-              <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-2xl">
-                <div class="text-2xl font-bold text-gray-800">{{ currentQuestionData.definition }}</div>
+              <div class="text-xl font-bold text-cyan-300 mb-4 cosmic-title">💾 銀河データベース解析中...</div>
+              <div class="bg-slate-800/90 border-2 border-cyan-400/50 p-8 rounded-2xl shadow-2xl backdrop-blur-md">
+                <div class="text-3xl font-bold text-white text-center" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                  {{ currentQuestionData.definition }}
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 選択肢 -->
+          <!-- 選択肢 - 可読性改善版 -->
           <div class="grid grid-cols-2 gap-4">
             <button
               v-for="(option, index) in currentQuestionData.options"
               :key="index"
-              @click="wrapClickHandler(() => selectAnswer(option, index))"
+              @click="selectAnswer(option, index)"
               :disabled="answerSelected || isInteractionDisabled"
               :class="[
-                'p-6 rounded-2xl font-bold text-xl transition-all duration-300 transform',
+                'p-6 rounded-2xl font-bold text-xl transition-all duration-300 transform border-2',
                 answerSelected
                   ? option === currentQuestionData.correct
-                    ? 'galaxy-button galaxy-button-primary text-white shadow-2xl scale-105 cosmic-glow'
+                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-400 shadow-2xl scale-105 animate-pulse'
                     : selectedAnswerIndex === index
-                    ? 'galaxy-card border-red-400 text-white shadow-2xl bg-red-500/50'
-                    : 'galaxy-card opacity-50 text-galaxy-moon-silver'
-                  : 'galaxy-card text-white hover:galaxy-button-primary hover:shadow-xl hover:scale-105 shadow-lg'
+                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-400 shadow-2xl scale-105'
+                    : 'bg-gray-700 text-gray-300 border-gray-600 opacity-50'
+                  : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-600 hover:border-blue-400 hover:shadow-xl hover:scale-105 shadow-lg'
               ]"
+              style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8); backdrop-filter: blur(10px);"
             >
               {{ option }}
             </button>
           </div>
 
-          <!-- フィードバック -->
+          <!-- フィードバック - 可読性改善版 -->
           <div v-if="showFeedback" class="mt-6 text-center">
-            <div v-if="isCorrect" class="space-y-2">
-              <div class="text-3xl">🎉</div>
-              <div class="text-xl font-bold text-green-600">正解！</div>
-              <div v-if="streak >= 3" class="text-lg font-bold text-orange-500">
-                コンボボーナス: +{{ getComboBonus() }}点
+            <div v-if="isCorrect" class="space-y-2 bg-green-900/50 p-4 rounded-2xl border-2 border-green-400">
+              <div class="text-4xl">🎉</div>
+              <div class="text-2xl font-bold text-green-200" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">正解！</div>
+              <div v-if="streak >= 3" class="text-lg font-bold text-yellow-300" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                🔥 コンボボーナス: +{{ getComboBonus() }}点
               </div>
             </div>
-            <div v-else class="space-y-2">
-              <div class="text-3xl">😅</div>
-              <div class="text-xl font-bold text-red-600">不正解</div>
-              <div class="text-gray-600">正解: {{ currentQuestionData.correct }}</div>
+            <div v-else class="space-y-2 bg-red-900/50 p-4 rounded-2xl border-2 border-red-400">
+              <div class="text-4xl">😅</div>
+              <div class="text-2xl font-bold text-red-200" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">不正解</div>
+              <div class="text-xl text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">正解: <span class="font-bold text-yellow-300">{{ currentQuestionData.correct }}</span></div>
             </div>
           </div>
         </div>
@@ -271,14 +309,55 @@
               <div class="text-lg font-bold text-pink-700">{{ getPerformanceRating() }}</div>
               <div class="text-sm text-gray-600">{{ getPerformanceMessage() }}</div>
             </div>
+
+            <!-- VR準備度表示 -->
+            <div class="bg-gradient-to-br from-indigo-100 to-purple-100 p-4 rounded-2xl">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-lg font-bold text-indigo-700">VR準備度</div>
+                <div class="text-2xl font-bold text-indigo-700">{{ overallVRScore }}%</div>
+              </div>
+              <div class="text-sm text-gray-600 mb-3">{{ recommendedVRLevel.description }}</div>
+              
+              <!-- VRモードインジケーター -->
+              <div v-if="isVRMode" class="flex items-center gap-2 text-sm text-green-600 font-medium">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                VRモードでプレイ中
+              </div>
+              <div v-else class="flex items-center gap-2 text-sm text-gray-500">
+                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                通常モードでプレイ
+              </div>
+              
+              <!-- VR学習推奨 -->
+              <div v-if="overallVRScore >= 40 && !isVRMode" class="mt-2 text-xs text-indigo-600 bg-indigo-50 p-2 rounded-lg">
+                💡 VR学習体験をお試しください！
+              </div>
+            </div>
+            
+            <!-- プレイヤーレベル情報 -->
+            <div class="bg-gradient-to-br from-amber-100 to-yellow-100 p-4 rounded-2xl">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-lg font-bold text-amber-700">
+                    {{ playerProfileStore.profile.title }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    レベル {{ playerProfileStore.profile.level }} 
+                    ({{ playerProfileStore.totalCrystals }}クリスタル獲得済み)
+                  </div>
+                </div>
+                <div class="text-3xl">{{ playerProfileStore.profile.avatar }}</div>
+              </div>
+            </div>
           </div>
 
           <div class="space-y-4">
             <button 
-              @click="restartGame"
-              class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
+              @click="wrapClickHandler(restartGame)"
+              class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-2xl font-bold hover:shadow-lg transition-all duration-200 shadow-2xl"
+              :disabled="isInteractionDisabled"
             >
-              もう一度プレイ
+              🔄 もう一度プレイ
             </button>
             <button 
               @click="handleBack"
@@ -330,13 +409,36 @@
         </button>
       </div>
     </div>
+
+    <!-- VR Academy Integration: Unified Result Screen -->
+    <UnifiedResultScreen
+      v-if="showUnifiedResult"
+      :game-result="vrGameResult"
+      :game-name="'ワード・ラッシュ・アリーナ'"
+      @explore-vr="handleExploreVR"
+      @back-to-menu="handleBackToMenu"
+    />
+
+    <!-- VR Academy Integration: VR Scenario Suggestion -->
+    <VRScenarioSuggestion
+      v-if="showVRSuggestion"
+      :player-skills="vrGameResult?.phonemeSkills || []"
+      :game-result="vrGameResult"
+      @back-to-result="showVRSuggestion = false; showUnifiedResult = true"
+      @back-to-menu="handleBackToMenu"
+    />
   </div>
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import vocabularyData from '@/data/vocabulary.json'
+import { usePlayerProfileStore } from '@/stores/playerProfile'
+import { usePlayerProgress } from '@/composables/usePlayerProgress'
+import { useProgressStore } from '@/stores/progress'
 import { 
   ArrowLeft, Settings, Clock, Flame, Star, Target, 
   Play, Volume2, ChevronRight
@@ -348,6 +450,12 @@ import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database'
 
 // === 観戦モード統合 ===
 import { useSpectatorMode } from '@/composables/useSpectatorMode'
+
+// VR Academy Integration
+import { useGameStore } from '@/stores/gameStore'
+import { useVRDataSync, VRGameResultBuilder } from '@/api/vrDataSync'
+import UnifiedResultScreen from '@/components/game/UnifiedResultScreen.vue'
+import VRScenarioSuggestion from '@/components/vr/VRScenarioSuggestion.vue'
 
 const router = useRouter()
 
@@ -370,6 +478,35 @@ const {
   initializeAudio: initNativeAudio
 } = useGameAudio()
 
+// VR対応プレイヤープロフィール
+const playerProfileStore = usePlayerProfileStore()
+const { trackGameResult, overallVRScore, recommendedVRLevel } = usePlayerProgress()
+
+// Store integrations
+const gameStore = useGameStore()
+const vrDataSync = useVRDataSync()
+
+// 統合プログレッションシステム
+const progressStore = useProgressStore()
+
+// VRモード検出とゲーム追跡
+const isVRMode = ref(false)
+const gameStartTime = ref(Date.now())
+
+// VR Academy Integration State
+const showUnifiedResult = ref(false)
+const showVRSuggestion = ref(false)
+const gameEndTime = ref(null)
+const vocabularySkillsData = ref([])
+const mistakesData = ref([])
+const vrGameResult = ref(null)
+const wordRecognitionData = ref({
+  visualRecognition: 0,
+  audioProcessing: 0,
+  definitionMatching: 0,
+  speedAccuracy: 0
+})
+
 // ゲーム定数
 const GAME_DURATION = 60 // 秒
 const QUESTIONS_PER_ROUND = 10
@@ -390,6 +527,7 @@ const isCorrect = ref(false)
 const showSettings = ref(false)
 const isPlaying = ref(false)
 const imageLoadError = ref(false)
+const imageLoadSuccess = ref(false)
 const currentQuestionData = ref({})
 const backgroundParticles = ref(Array.from({ length: 20 }, (_, i) => ({
   id: i,
@@ -406,11 +544,38 @@ const audioVolume = ref(0.7)
 const selectedCategory = ref('')
 const selectedSubLevel = ref('')
 
+// 初期化時にデフォルトカテゴリを設定
+onMounted(() => {
+  logger.log('🔧 WordRushGame マウント処理開始')
+  logger.log('📊 vocabularyData.categories:', Object.keys(vocabularyData.categories || {}))
+  
+  // デフォルトカテゴリを設定
+  if (!selectedCategory.value && vocabularyData.categories) {
+    const firstCategory = Object.keys(vocabularyData.categories)[0]
+    if (firstCategory) {
+      selectedCategory.value = firstCategory
+      logger.log('✅ デフォルトカテゴリ設定:', firstCategory)
+      
+      // デフォルトサブレベルを設定
+      const levels = vocabularyData.categories[firstCategory]?.levels || {}
+      const firstLevel = Object.keys(levels)[0]
+      if (firstLevel) {
+        selectedSubLevel.value = firstLevel
+        logger.log('✅ デフォルトサブレベル設定:', firstLevel)
+      }
+    }
+  }
+})
+
 // カテゴリ一覧
 const categories = computed(() => {
+  if (!vocabularyData || !vocabularyData.categories) {
+    logger.warn('⚠️ vocabularyData.categories が見つかりません')
+    return []
+  }
   return Object.entries(vocabularyData.categories).map(([key, cat]) => ({
     key,
-    name: cat.name
+    name: cat.name || key
   }))
 })
 
@@ -426,6 +591,21 @@ const subLevelLabels = {
   grade5: '5級', grade4: '4級', grade3: '3級', pre2: '準2級', grade2: '2級', pre1: '準1級', grade1: '1級',
   beginner: '初級', intermediate: '中級', advanced: '上級'
 }
+
+// ボタン無効化条件をデバッグ
+const buttonDisabled = computed(() => {
+  const interactionDisabled = isInteractionDisabled?.value || false
+  
+  logger.log('🔍 ボタン状態チェック:', {
+    interactionDisabled,
+    selectedCategory: selectedCategory.value,
+    selectedSubLevel: selectedSubLevel.value,
+    subLevelsLength: subLevels.value.length
+  })
+  
+  // 簡略化: 観戦モードでなければボタンは有効
+  return interactionDisabled
+})
 
 // 難易度→レベルキーのマッピング
 const levelKeyMap = {
@@ -508,13 +688,9 @@ const imageCache = new Map()
 
 // 画像のプリロード
 const preloadImage = (imagePath) => {
-  if (preloadedImages.has(imagePath)) return
-  const img = new Image()
-  img.src = imagePath
-  img.onload = () => {
-    preloadedImages.add(imagePath)
-    imageCache.set(imagePath, img)
-  }
+  // プリロード機能を一時的に無効化
+  logger.log('📋 プリロード処理スキップ:', imagePath)
+  return
 }
 
 // 次の問題の画像をプリロード
@@ -540,44 +716,81 @@ onMounted(async () => {
   // ネイティブ発音システムの初期化
   try {
     await initNativeAudio()
-    console.log('WordRushGame: ネイティブ発音システム初期化完了')
+    logger.log('WordRushGame: ネイティブ発音システム初期化完了')
   } catch (error) {
-    console.log('WordRushGame: ネイティブ発音システム初期化エラー:', error)
+    logger.log('WordRushGame: ネイティブ発音システム初期化エラー:', error)
   }
 })
 
-// 画像の遅延読み込み
+// 画像の遅延読み込み - 修正版
 const loadImage = (imagePath) => {
-  if (imageCache.has(imagePath)) {
-    return imageCache.get(imagePath).src
+  logger.log('🖼️ loadImage called with:', imagePath)
+  
+  // undefinedやnullの場合はデフォルト画像を返す
+  if (!imagePath) {
+    logger.log('⚠️ 画像パスがundefined/null - デフォルト画像を使用')
+    return '/images/vocabulary/book.jpg'
   }
-  return imagePath
+  
+  // 文字列に変換して安全に処理
+  const pathStr = String(imagePath)
+  
+  // /src/assets/images/vocabulary/ から /images/vocabulary/ への変換
+  if (pathStr.includes('/src/assets/images/vocabulary/')) {
+    const newPath = pathStr.replace('/src/assets/images/vocabulary/', '/images/vocabulary/')
+    logger.log('🔄 Path converted:', pathStr, '→', newPath)
+    return newPath
+  }
+  
+  // 既に正しいパスの場合はそのまま返す
+  if (pathStr.startsWith('/images/vocabulary/')) {
+    logger.log('✅ Path already correct:', pathStr)
+    return pathStr
+  }
+  
+  // ファイル名のみの場合は完全なパスを構築
+  if (!pathStr.includes('/')) {
+    const newPath = `/images/vocabulary/${pathStr}`
+    logger.log('🔧 Building full path:', pathStr, '→', newPath)
+    return newPath
+  }
+  
+  logger.log('➡️ Using original path:', pathStr)
+  return pathStr
 }
 
-// 問題生成
+// ランダム問題生成 - 大幅改良版
 const generateQuestion = () => {
   imageLoadError.value = false
+  imageLoadSuccess.value = false
+  
   let vocabulary = []
+  
+  // 語彙データの取得ロジック
   if (selectedCategory.value && vocabularyData.categories[selectedCategory.value]) {
     const levels = vocabularyData.categories[selectedCategory.value].levels
     let levelKey = ''
-    // サブレベルが選択されていればそれを使う
+    
     if (selectedSubLevel.value && levels[selectedSubLevel.value]) {
       levelKey = selectedSubLevel.value
     } else {
-      // 旧ロジック: 難易度→レベルキーのマッピング
       levelKey = (levelKeyMap[selectedCategory.value] && levelKeyMap[selectedCategory.value][difficultyLevel.value]) || difficultyLevel.value
     }
+    
     vocabulary = levels[levelKey] || []
+    logger.log(`📚 選択された語彙: ${selectedCategory.value}/${levelKey} - ${vocabulary.length}語`)
   } else {
     vocabulary = vocabularyDatabase[difficultyLevel.value] || []
+    logger.log(`📚 旧語彙データベース使用: ${difficultyLevel.value} - ${vocabulary.length}語`)
   }
+  
   if (!vocabulary.length) {
+    logger.error('❌ 語彙データが見つかりません')
     currentQuestionData.value = {}
     return
   }
-  const randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)]
-  // 問題タイプをランダムに選択（重み付きランダム）
+  
+  // 問題タイプをランダム選択（重み付き）
   const rand = Math.random()
   let questionType
   if (rand < questionTypeWeights.image_to_word) {
@@ -587,23 +800,85 @@ const generateQuestion = () => {
   } else {
     questionType = 'definition_to_word'
   }
-  // 選択肢を生成
-  const options = [randomWord.english, ...randomWord.distractors]
+  
+  let randomWord
+  
+  // 問題タイプ別の単語選択
+  if (questionType === 'image_to_word') {
+    // 画像のある単語のみ
+    const wordsWithImages = vocabulary.filter(word => word.image)
+    if (wordsWithImages.length === 0) {
+      logger.log('⚠️ 画像のある単語がありません - definition問題に変更')
+      questionType = 'definition_to_word'
+      randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)]
+    } else {
+      randomWord = wordsWithImages[Math.floor(Math.random() * wordsWithImages.length)]
+      logger.log('🖼️ 画像問題選択:', randomWord.english)
+    }
+  } else {
+    // 音声・定義問題は全ての単語から選択
+    randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)]
+  }
+  
+  // 選択肢生成の改良
+  let options = [randomWord.english]
+  
+  if (randomWord.distractors && randomWord.distractors.length > 0) {
+    // 既存の distractors を使用
+    options.push(...randomWord.distractors.slice(0, 3))
+  } else {
+    // distractors がない場合は同一カテゴリから生成
+    const sameCategory = vocabulary.filter(word => 
+      word.english !== randomWord.english && 
+      (word.category === randomWord.category || !randomWord.category)
+    )
+    
+    // ランダムに3つ選択
+    while (options.length < 4 && sameCategory.length > 0) {
+      const randomIndex = Math.floor(Math.random() * sameCategory.length)
+      const candidate = sameCategory[randomIndex].english
+      if (!options.includes(candidate)) {
+        options.push(candidate)
+      }
+      sameCategory.splice(randomIndex, 1) // 選択済みを除去
+    }
+    
+    // それでも足りない場合は全体から
+    if (options.length < 4) {
+      const remaining = vocabulary.filter(word => !options.includes(word.english))
+      while (options.length < 4 && remaining.length > 0) {
+        const randomIndex = Math.floor(Math.random() * remaining.length)
+        options.push(remaining[randomIndex].english)
+        remaining.splice(randomIndex, 1)
+      }
+    }
+  }
+  
+  // 選択肢をシャッフル
   shuffleArray(options)
+  
+  // 問題データを設定
   currentQuestionData.value = {
     type: questionType,
     correct: randomWord.english,
     japanese: randomWord.japanese,
     image: randomWord.image,
     definition: randomWord.japanese,
-    options: options,
+    options: options.slice(0, 4), // 最大4つの選択肢
     word: randomWord
   }
+  
+  // UI状態リセット
   answerSelected.value = false
   showFeedback.value = false
   selectedAnswerIndex.value = -1
-  // 次の問題の画像をプリロード
-  preloadNextImages()
+  
+  logger.log('✅ 問題生成完了:', {
+    type: questionType,
+    word: randomWord.english,
+    options: options,
+    hasImage: !!randomWord.image
+  })
 }
 
 // 配列シャッフル
@@ -616,7 +891,19 @@ const shuffleArray = (array) => {
 
 // 回答選択
 const selectAnswer = (answer, index) => {
-  if (answerSelected.value) return
+  logger.log('🎯 解答ボタンがクリックされました:', answer, index)
+  logger.log('📊 answerSelected:', answerSelected.value)
+  logger.log('📊 isInteractionDisabled:', isInteractionDisabled.value)
+  
+  if (answerSelected.value) {
+    logger.log('⚠️ 既に解答済みのためスキップ')
+    return
+  }
+  
+  if (isInteractionDisabled.value) {
+    logger.log('⚠️ 観戦モードのため解答をブロック')
+    return
+  }
   answerSelected.value = true
   selectedAnswerIndex.value = index
   const correct = answer === currentQuestionData.value.correct
@@ -635,6 +922,11 @@ const selectAnswer = (answer, index) => {
     correctAnswers.value++
     streak.value++
     maxStreak.value = Math.max(maxStreak.value, streak.value)
+    
+    // VR Academy Integration: スキルデータ記録
+    recordVocabularySkill(currentQuestionData.value.correct, true, Date.now() - gameStartTime.value)
+    updateWordRecognitionData(currentQuestionData.value.type, true)
+    
     // スコア計算
     const basePoints = 100
     const timeBonus = Math.max(0, (timeLeft.value - 50)) * 10
@@ -664,6 +956,11 @@ const selectAnswer = (answer, index) => {
     isCorrect.value = false
     streak.value = 0
     score.value = Math.max(0, score.value - 50) // ペナルティ
+    
+    // VR Academy Integration: ミス記録
+    recordMistake(answer, currentQuestionData.value.correct, Date.now() - gameStartTime.value)
+    recordVocabularySkill(currentQuestionData.value.correct, false, Date.now() - gameStartTime.value)
+    updateWordRecognitionData(currentQuestionData.value.type, false)
     
     // 間違えた場合は正解をネイティブ発音で再生
     setTimeout(() => {
@@ -702,23 +999,128 @@ const nextQuestion = () => {
 }
 
 // ゲーム終了
-const endGame = () => {
+const endGame = async () => {
   gameState.value = 'result'
+  gameEndTime.value = Date.now()
   finalScore.value = score.value
+
   // パーフェクトラウンドボーナス
-  if (correctAnswers.value === QUESTIONS_PER_ROUND) {
+  const isPerfectScore = correctAnswers.value === QUESTIONS_PER_ROUND
+  if (isPerfectScore) {
     finalScore.value *= 2
   }
   clearInterval(gameTimer)
+
+  // VR対応プレイヤー進捗追跡
+  const timeSpent = Math.round((gameEndTime.value - gameStartTime.value) / 1000)
+  const accuracy = (correctAnswers.value / QUESTIONS_PER_ROUND) * 100
+
+  // ゲーム結果を統一プレイヤープロフィールに記録
+  trackGameResult({
+    gameType: 'wordRush',
+    score: finalScore.value,
+    accuracy: accuracy,
+    timeSpent: timeSpent,
+    isVRSession: isVRMode.value,
+    perfectScore: isPerfectScore
+  })
+
+  // 統合プログレッションシステムに記録
+  const gameData = {
+    gameType: 'word-rush',
+    score: finalScore.value,
+    accuracy: accuracy,
+    timeSpent: timeSpent,
+    correctAnswers: correctAnswers.value,
+    totalQuestions: QUESTIONS_PER_ROUND,
+    correctStreak: maxStreak.value,
+    difficulty: difficultyLevel.value,
+    levelCompleted: accuracy >= 80
+  }
+
+  progressStore.recordGameScore(gameData)
+
+  logger.log('✅ 統合プログレッション記録完了:', {
+    score: finalScore.value,
+    accuracy: accuracy,
+    skillExp: progressStore.calculateExpFromScore(gameData),
+    nextRecommendation: progressStore.getRecommendedPath
+  })
+
+  // VR Academy Integration: ゲーム完了処理
+  await handleGameCompletion(isPerfectScore)
+
+  // VRアカデミー同期（VRモードの場合）
+  if (isVRMode.value && playerProfileStore.academyConnectionStatus === 'connected') {
+    syncVRSessionData()
+  }
 }
 
 // ゲーム開始
+// デバッグ用のハンドラー関数
+const handleStartGame = () => {
+  logger.log('🚀 戦闘開始ボタンがクリックされました')
+  logger.log('📊 selectedCategory:', selectedCategory.value)
+  logger.log('📊 selectedSubLevel:', selectedSubLevel.value)
+  logger.log('📊 subLevels:', subLevels.value)
+  logger.log('📊 isInteractionDisabled:', isInteractionDisabled.value)
+  
+  // 観戦モードでなければ直接ゲーム開始
+  if (isInteractionDisabled.value) {
+    logger.log('⚠️ 観戦モードのためゲーム開始をブロック')
+    return
+  }
+  
+  logger.log('🔄 直接startGame実行')
+  startGame()
+}
+
 const startGame = () => {
-  if (!selectedCategory.value || (subLevels.value.length > 0 && !selectedSubLevel.value)) return
+  logger.log('🎮 startGame関数が実行されました')
+  
+  // カテゴリとサブレベルの自動設定
+  if (!selectedCategory.value) {
+    logger.log('🔄 カテゴリ未選択 - デフォルトカテゴリを設定')
+    const firstCategory = Object.keys(vocabularyData.categories || {})[0]
+    if (firstCategory) {
+      selectedCategory.value = firstCategory
+      logger.log('✅ デフォルトカテゴリ設定:', firstCategory)
+    }
+  }
+  
+  // サブレベルが必要な場合の自動設定
+  if (subLevels.value.length > 0 && !selectedSubLevel.value) {
+    const firstSubLevel = subLevels.value[0]
+    selectedSubLevel.value = firstSubLevel
+    logger.log('✅ デフォルトサブレベル自動設定:', firstSubLevel)
+  }
+  
+  logger.log('✅ 条件チェック成功 - ゲーム開始処理継続')
+  
+  // VRモード検出
+  detectVRMode()
+  
   gameState.value = 'playing'
+  gameStartTime.value = Date.now()
+  
+  // VR Academy Integration: ゲーム開始追跡
+  vocabularySkillsData.value = []
+  mistakesData.value = []
+  wordRecognitionData.value = {
+    visualRecognition: 0,
+    audioProcessing: 0,
+    definitionMatching: 0,
+    speedAccuracy: 0
+  }
+  
   resetGameState()
   generateQuestion()
   startTimer()
+  
+  // ゲーム開始をプレイヤープロフィールに記録
+  playerProfileStore.updateLoginStreak()
+  
+  logger.log('🎯 ゲーム開始処理完了 - gameState:', gameState.value)
 }
 
 // ゲーム状態リセット
@@ -744,9 +1146,37 @@ const startTimer = () => {
   }, 1000)
 }
 
-// ゲーム再開
+// ゲーム再開 - 完全修正版
 const restartGame = () => {
-  gameState.value = 'start'
+  logger.log('🔄 restartGame called - current gameState:', gameState.value)
+  
+  // タイマーをクリア
+  if (gameTimer) {
+    clearInterval(gameTimer)
+    gameTimer = null
+    logger.log('⏰ Timer cleared')
+  }
+  
+  // すべての結果画面を閉じる
+  showUnifiedResult.value = false
+  showVRSuggestion.value = false
+  showSettings.value = false
+  
+  // ゲーム状態を完全リセット
+  resetGameState()
+  
+  // 追加の状態リセット
+  imageLoadError.value = false
+  imageLoadSuccess.value = false
+  currentQuestionData.value = {}
+  vrGameResult.value = null
+  gameEndTime.value = null
+  
+  // スタート画面に戻る（強制的に）
+  setTimeout(() => {
+    gameState.value = 'start'
+    logger.log('✅ Game state reset to start:', gameState.value)
+  }, 100)
 }
 
 // 戻るボタン
@@ -761,6 +1191,17 @@ const handleBack = () => {
   }
 }
 
+const goToHome = () => {
+  if (gameState.value === 'playing') {
+    if (confirm('ゲームを中断してホーム画面に戻りますか？進捗は失われます。')) {
+      clearInterval(gameTimer)
+      router.push('/')
+    }
+  } else {
+    router.push('/')
+  }
+}
+
 // パフォーマンス評価
 const getPerformanceRating = () => {
   const accuracy = (correctAnswers.value / QUESTIONS_PER_ROUND) * 100
@@ -769,6 +1210,65 @@ const getPerformanceRating = () => {
   if (accuracy >= 70) return '🎯 良い調子！'
   if (accuracy >= 60) return '📈 まずまず'
   return '💪 次回頑張ろう！'
+}
+
+// VRモード検出
+const detectVRMode = () => {
+  // WebXR APIでVRディスプレイを検出
+  if (navigator.xr) {
+    navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+      isVRMode.value = supported
+    }).catch(() => {
+      isVRMode.value = false
+    })
+  } else {
+    // User Agentベースの検出（フォールバック）
+    const vrUserAgents = ['Oculus', 'Quest', 'Vive', 'Daydream', 'Cardboard']
+    isVRMode.value = vrUserAgents.some(agent => navigator.userAgent.includes(agent))
+  }
+  
+  // URL パラメータでのVRモード強制設定
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.get('vr') === 'true') {
+    isVRMode.value = true
+  }
+}
+
+// VRセッションデータ同期
+const syncVRSessionData = async () => {
+  if (!isVRMode.value) return
+  
+  try {
+    const { uploadVRSession } = await import('@/api/vrAcademySync')
+    
+    const sessionData = {
+      sessionId: `wordRush_${Date.now()}`,
+      startTime: new Date(gameStartTime.value).toISOString(),
+      endTime: new Date().toISOString(),
+      duration: Math.round((Date.now() - gameStartTime.value) / 1000),
+      gameType: 'wordRush',
+      score: finalScore.value,
+      accuracy: (correctAnswers.value / QUESTIONS_PER_ROUND) * 100,
+      interactionEvents: [
+        {
+          type: 'game_completed',
+          timestamp: new Date().toISOString(),
+          data: {
+            questionsAnswered: QUESTIONS_PER_ROUND,
+            correctAnswers: correctAnswers.value,
+            maxStreak: maxStreak.value,
+            category: selectedCategory.value,
+            difficulty: difficultyLevel.value
+          }
+        }
+      ]
+    }
+    
+    await uploadVRSession(sessionData)
+    logger.log('VR session data synced successfully')
+  } catch (error) {
+    logger.error('Failed to sync VR session data:', error)
+  }
 }
 const getPerformanceMessage = () => {
   const accuracy = (correctAnswers.value / QUESTIONS_PER_ROUND) * 100
@@ -779,24 +1279,50 @@ const getPerformanceMessage = () => {
   return '基礎から復習しましょう！'
 }
 
-// 画像エラーハンドリング
-const handleImageError = () => {
-  imageLoadError.value = true
-  console.warn(`画像の読み込みに失敗しました: ${currentQuestionData.value.image}`)
+// 画像読み込み成功
+const onImageLoad = (event) => {
+  logger.log('✅ 画像読み込み成功:', {
+    originalPath: currentQuestionData.value.image,
+    actualSrc: event.target?.src,
+    naturalWidth: event.target?.naturalWidth,
+    naturalHeight: event.target?.naturalHeight
+  })
+  imageLoadError.value = false
+  imageLoadSuccess.value = true
 }
 
-// フォールバック絵文字の取得
+// 画像エラーハンドリング
+const handleImageError = (event) => {
+  imageLoadError.value = true
+  logger.error('❌ 画像読み込みエラー:', {
+    originalPath: currentQuestionData.value.image,
+    actualSrc: event.target.src,
+    loadImageResult: loadImage(currentQuestionData.value.image)
+  })
+}
+
+// フォールバック絵文字の取得 - 拡張版
 const getFallbackEmoji = (word) => {
   const emojiMap = {
-    'apple': '🍎',
-    'book': '📚',
-    'cat': '🐱',
-    'computer': '💻',
-    'garden': '🌺',
-    'architecture': '🏛️',
-    'philosophy': '🤔'
+    'apple': '🍎', 'orange': '🍊', 'banana': '🍌', 'grape': '🍇',
+    'book': '📚', 'pen': '🖊️', 'pencil': '✏️', 'notebook': '📓',
+    'cat': '🐱', 'dog': '🐶', 'bird': '🐦', 'fish': '🐟',
+    'car': '🚗', 'bus': '🚌', 'bike': '🚲', 'train': '🚆',
+    'house': '🏠', 'school': '🏫', 'store': '🏪', 'park': '🏞️',
+    'computer': '💻', 'phone': '📱', 'tablet': '💻', 'camera': '📷',
+    'garden': '🌺', 'forest': '🌲', 'beach': '🏖️',
+    'architecture': '🏛️', 'design': '🎨', 'sculpture': '🗿', 'painting': '🖼️',
+    'philosophy': '🤔', 'psychology': '🧠', 'sociology': '👥', 'anthropology': '🏺',
+    'ball': '⚽', 'bread': '🍞', 'chair': '🪑', 'cold': '🧊', 'drink': '🥤',
+    'eat': '🍽️', 'egg': '🥚', 'eye': '👁️', 'father': '👨', 'flower': '🌸',
+    'foot': '🦶', 'green': '🟢', 'hand': '✋', 'happy': '😊', 'head': '👤',
+    'hot': '🔥', 'jump': '🤸', 'milk': '🥛', 'mother': '👩', 'play': '🎮',
+    'run': '🏃', 'sad': '😢', 'sleep': '😴', 'small': '🤏', 'sun': '☀️',
+    'tree': '🌳', 'walk': '🚶', 'water': '💧', 'yellow': '🟡'
   }
-  return emojiMap[word?.toLowerCase?.()] || '❓'
+  
+  if (!word) return '❓'
+  return emojiMap[word.toLowerCase()] || '❓'
 }
 
 // 音声再生 - ネイティブ発音システム統合
@@ -814,7 +1340,7 @@ const playAudio = async () => {
       volume: audioVolume.value
     })
   } catch (nativeError) {
-    console.log('ネイティブ発音システムエラー、フォールバック使用:', nativeError)
+    logger.log('ネイティブ発音システムエラー、フォールバック使用:', nativeError)
     
     // フォールバック: 従来のSpeech Synthesis API
     if ('speechSynthesis' in window) {
@@ -859,6 +1385,193 @@ onMounted(() => {
     description: '高速語彙習得ゲーム'
   })
 })
+
+// VR Academy Integration Functions
+const recordVocabularySkill = (word, isSuccess, responseTime) => {
+  const existingSkill = vocabularySkillsData.value.find(skill => skill.word === word)
+  
+  if (existingSkill) {
+    existingSkill.attempts++
+    if (isSuccess) {
+      existingSkill.successes++
+    }
+    existingSkill.accuracy = (existingSkill.successes / existingSkill.attempts) * 100
+    existingSkill.responseTime = (existingSkill.responseTime + responseTime) / 2
+  } else {
+    vocabularySkillsData.value.push({
+      word,
+      accuracy: isSuccess ? 100 : 0,
+      responseTime,
+      attempts: 1,
+      successes: isSuccess ? 1 : 0,
+      difficulty: getDifficultyLevel(),
+      category: selectedCategory.value
+    })
+  }
+}
+
+const recordMistake = (actualAnswer, expectedAnswer, timestamp) => {
+  mistakesData.value.push({
+    word: actualAnswer,
+    expectedResponse: expectedAnswer,
+    actualResponse: actualAnswer,
+    timestamp,
+    context: `${selectedCategory.value} - Word Rush Challenge`,
+    questionType: currentQuestionData.value?.type || 'unknown'
+  })
+}
+
+const updateWordRecognitionData = (questionType, isSuccess) => {
+  const improvement = isSuccess ? 2 : -1
+  
+  switch (questionType) {
+    case 'image':
+      wordRecognitionData.value.visualRecognition = Math.max(0, 
+        Math.min(100, wordRecognitionData.value.visualRecognition + improvement))
+      break
+    case 'audio':
+      wordRecognitionData.value.audioProcessing = Math.max(0, 
+        Math.min(100, wordRecognitionData.value.audioProcessing + improvement))
+      break
+    case 'definition':
+      wordRecognitionData.value.definitionMatching = Math.max(0, 
+        Math.min(100, wordRecognitionData.value.definitionMatching + improvement))
+      break
+  }
+  
+  // Update overall speed accuracy
+  const averageImprovement = isSuccess ? 1.5 : -0.5
+  wordRecognitionData.value.speedAccuracy = Math.max(0, 
+    Math.min(100, wordRecognitionData.value.speedAccuracy + averageImprovement))
+}
+
+const getDifficultyLevel = () => {
+  if (!selectedSubLevel.value) return 'beginner'
+  
+  if (selectedSubLevel.value.includes('pre') || selectedSubLevel.value.includes('beginner')) {
+    return 'beginner'
+  }
+  if (selectedSubLevel.value.includes('intermediate')) {
+    return 'intermediate'
+  }
+  return 'advanced'
+}
+
+const handleGameCompletion = async (isPerfectScore) => {
+  const gameDuration = gameEndTime.value - gameStartTime.value
+  const accuracy = (correctAnswers.value / QUESTIONS_PER_ROUND) * 100
+  const vrReadinessGain = calculateVRReadinessGain(isPerfectScore, accuracy)
+  const crystalReward = calculateCrystalReward(isPerfectScore, accuracy)
+  
+  // Build VR game result
+  const resultBuilder = new VRGameResultBuilder('wordRushGame', 'ワード・ラッシュ・アリーナ')
+    .setBasicStats(finalScore.value, accuracy, gameDuration)
+    .setVRReadinessGain(vrReadinessGain)
+    .setCrystalReward(crystalReward)
+  
+  // Add vocabulary skills data
+  vocabularySkillsData.value.forEach(skill => {
+    resultBuilder.addPhonemeSkill(
+      skill.word,
+      skill.accuracy,
+      skill.responseTime,
+      skill.attempts,
+      skill.successes,
+      skill.difficulty
+    )
+  })
+  
+  // Add mistakes data
+  mistakesData.value.forEach(mistake => {
+    resultBuilder.addMistake(
+      mistake.word,
+      mistake.expectedResponse,
+      mistake.actualResponse,
+      mistake.timestamp,
+      mistake.context
+    )
+  })
+  
+  vrGameResult.value = resultBuilder.build()
+  
+  // Update word recognition data in the result
+  vrGameResult.value.sessionData.spatialAudio = {
+    spatialAccuracy: wordRecognitionData.value.speedAccuracy,
+    depthPerception: wordRecognitionData.value.visualRecognition,
+    multiSourceTracking: wordRecognitionData.value.audioProcessing,
+    environmentalAdaptation: wordRecognitionData.value.definitionMatching
+  }
+  
+  // Sync with VR Academy
+  try {
+    await vrDataSync.syncGameResult(vrGameResult.value)
+    
+    // Update local stores
+    playerProfileStore.addCrystals(crystalReward)
+    playerProfileStore.updateVRReadiness(vrReadinessGain)
+    gameStore.recordGameSession('wordRushGame', {
+      score: finalScore.value,
+      accuracy: accuracy,
+      duration: gameDuration,
+      perfectScore: isPerfectScore,
+      category: selectedCategory.value
+    })
+    
+    logger.log('✅ WordRushGame VR Academy sync successful')
+  } catch (error) {
+    logger.error('❌ WordRushGame VR Academy sync failed:', error)
+  }
+  
+  // Show unified result after a short delay
+  setTimeout(() => {
+    showUnifiedResult.value = true
+  }, 2000)
+}
+
+const calculateVRReadinessGain = (isPerfectScore, accuracy) => {
+  let baseGain = isPerfectScore ? 20 : 12
+  
+  // Bonus for high accuracy
+  if (accuracy > 80) baseGain += 5
+  if (accuracy > 90) baseGain += 3
+  
+  // Bonus for high streak
+  if (maxStreak.value > 5) baseGain += 3
+  if (maxStreak.value > 8) baseGain += 2
+  
+  // Category-specific multipliers
+  const categoryMultipliers = {
+    'kids': 1.0,
+    'animals': 1.1,
+    'food': 1.2,
+    'travel': 1.3,
+    'business': 1.4
+  }
+  
+  const multiplier = categoryMultipliers[selectedCategory.value] || 1.0
+  return Math.round(baseGain * multiplier)
+}
+
+const calculateCrystalReward = (isPerfectScore, accuracy) => {
+  let baseCrystals = Math.floor(finalScore.value / 200)
+  
+  if (isPerfectScore) baseCrystals += 100
+  if (accuracy > 85) baseCrystals += 50
+  if (maxStreak.value > 5) baseCrystals += 25
+  
+  return baseCrystals
+}
+
+const handleExploreVR = () => {
+  showUnifiedResult.value = false
+  showVRSuggestion.value = true
+}
+
+const handleBackToMenu = () => {
+  showUnifiedResult.value = false
+  showVRSuggestion.value = false
+  gameState.value = 'start'
+}
 </script>
 
 <style scoped>
@@ -1001,6 +1714,135 @@ onMounted(() => {
   background: linear-gradient(135deg, 
     rgba(79, 172, 254, 0.2) 0%, 
     rgba(0, 242, 254, 0.2) 100%);
+}
+
+/* 追加の宇宙テーマスタイル */
+.cosmic-float {
+  animation: cosmic-float 6s ease-in-out infinite;
+}
+
+@keyframes cosmic-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+.cosmic-pulse {
+  animation: cosmic-pulse 2s ease-in-out infinite;
+}
+
+@keyframes cosmic-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.cosmic-title {
+  animation: cosmic-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes cosmic-shimmer {
+  0%, 100% {
+    filter: hue-rotate(0deg);
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+  }
+  50% {
+    filter: hue-rotate(90deg);
+    text-shadow: 0 0 20px rgba(167, 139, 250, 0.7);
+  }
+}
+
+.galaxy-select {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 8px;
+  color: #94A3B8;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.galaxy-select:focus {
+  outline: none;
+  border-color: rgba(79, 172, 254, 0.8);
+  box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+}
+
+.galaxy-select option {
+  background: rgba(15, 23, 42, 0.95);
+  color: #94A3B8;
+}
+
+.galaxy-border {
+  border-radius: 16px;
+  border: 2px solid rgba(79, 172, 254, 0.6);
+  box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
+}
+
+.galaxy-card-primary {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid rgba(79, 172, 254, 0.6);
+}
+
+.galaxy-card-secondary {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.8) 0%, 
+    rgba(30, 41, 59, 0.7) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.galaxy-card-accent {
+  background: linear-gradient(135deg, 
+    rgba(79, 172, 254, 0.2) 0%, 
+    rgba(167, 139, 250, 0.2) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+}
+
+.galaxy-card-warning {
+  background: linear-gradient(135deg, 
+    rgba(251, 191, 36, 0.2) 0%, 
+    rgba(245, 158, 11, 0.2) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.text-galaxy-star {
+  color: #F1F5F9;
+}
+
+.text-galaxy-primary {
+  color: #60A5FA;
+}
+
+.text-galaxy-secondary {
+  color: #A78BFA;
+}
+
+.text-galaxy-accent {
+  color: #F472B6;
+}
+
+.bg-galaxy-star {
+  background-color: #F1F5F9;
+}
+
+.galaxy-button-accent {
+  background: linear-gradient(135deg, 
+    rgba(244, 114, 182, 0.3) 0%, 
+    rgba(251, 191, 36, 0.3) 100%);
+  border: 2px solid rgba(244, 114, 182, 0.8);
 }
 
 .cosmic-glow {

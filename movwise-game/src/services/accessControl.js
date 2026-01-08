@@ -1,4 +1,5 @@
 import { USER_ROLES } from '../firebase/auth'
+import logger from '@/utils/logger'
 
 // Permission definitions
 export const PERMISSIONS = {
@@ -200,7 +201,7 @@ export class AccessControlService {
 
     const validator = validations[action]
     if (!validator) {
-      console.warn(`Unknown action for validation: ${action}`)
+      logger.warn(`Unknown action for validation: ${action}`)
       return false
     }
 

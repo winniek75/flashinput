@@ -1,0 +1,367 @@
+{
+  "id": "summer_vacation_template",
+  "title": "夏休み特別冒険",
+  "subtitle": "太陽と海の大冒険",
+  "description": "暑い夏を涼しく過ごす特別な学習冒険。海辺や山での探検を通じて、楽しみながら語学力を向上させましょう。夏の思い出を作りながら成長する物語。",
+  "type": "seasonal",
+  "seasonalPeriod": "summer",
+  "priority": 85,
+  "duration": 21,
+  "requirements": [
+    {
+      "type": "level",
+      "value": 15,
+      "description": "基本的な学習レベル15以上",
+      "optional": false
+    }
+  ],
+  "rewards": [
+    {
+      "id": "summer_beach_memories",
+      "type": "memory_fragment",
+      "name": "夏の海辺の思い出",
+      "description": "キャラクターたちとの楽しい夏の思い出コレクション",
+      "rarity": "epic",
+      "permanent": true,
+      "tradeable": false,
+      "previewImage": "/images/rewards/summer_beach_memories.jpg"
+    },
+    {
+      "id": "adventure_explorer_badge",
+      "type": "special_item",
+      "name": "冒険探検家バッジ",
+      "description": "夏の大冒険を完遂した証のバッジ",
+      "rarity": "rare",
+      "permanent": true,
+      "tradeable": false
+    },
+    {
+      "id": "summer_friendship_boost",
+      "type": "relationship_boost",
+      "name": "夏の友情パワーアップ",
+      "description": "全キャラクターとの関係値が永続的に向上",
+      "rarity": "legendary",
+      "permanent": true,
+      "tradeable": false
+    }
+  ],
+  "scenes": [
+    {
+      "id": "vacation_planning",
+      "title": "夏休み計画会議",
+      "description": "みんなで夏休みの冒険計画を立てる",
+      "background": "/images/events/summer/planning_room.jpg",
+      "bgm": "/audio/events/summer/planning_excitement.mp3",
+      "duration": 22000,
+      "characters": ["captain_nova", "aura", "speed_racer"],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "今年の夏は特別な冒険を計画しているんだ！みんなで一緒に行こう！",
+          "emotion": "excited_leadership",
+          "timing": 2000
+        },
+        {
+          "speaker": "aura",
+          "text": "分析結果：夏季学習効率は冒険的アプローチで34%向上します",
+          "emotion": "analytical_optimism",
+          "timing": 6000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "海でのスピード競争、山での探検...どれも楽しそうだ！",
+          "emotion": "adventurous_anticipation",
+          "timing": 10000
+        }
+      ],
+      "choices": [
+        {
+          "id": "beach_adventure",
+          "text": "海辺の冒険を選ぶ",
+          "consequence": "海をテーマにした夏体験",
+          "rewardModifier": 15,
+          "characterImpact": {
+            "speed_racer": 20,
+            "lexia": 15
+          }
+        },
+        {
+          "id": "mountain_exploration",
+          "text": "山の探検を選ぶ",
+          "consequence": "山をテーマにした夏体験",
+          "rewardModifier": 15,
+          "characterImpact": {
+            "grammar_guardian": 20,
+            "unity": 15
+          }
+        },
+        {
+          "id": "both_adventures",
+          "text": "両方の冒険をする",
+          "consequence": "完全な夏冒険体験",
+          "rewardModifier": 30,
+          "characterImpact": {
+            "captain_nova": 25,
+            "aura": 15,
+            "speed_racer": 15
+          }
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "environmental",
+          "description": "夏の暖かい陽射しが差し込む",
+          "parameters": {
+            "lighting": "warm_summer",
+            "temperature": "comfortable",
+            "atmosphere": "planning_excitement"
+          }
+        }
+      ]
+    },
+    {
+      "id": "beach_discovery",
+      "title": "海辺の大発見",
+      "description": "海辺で言葉の宝物や秘密を発見する",
+      "background": "/images/events/summer/crystal_beach.jpg",
+      "bgm": "/audio/events/summer/ocean_waves.mp3",
+      "duration": 28000,
+      "characters": ["lexia", "unity", "professor_phonix"],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "見て！波の中に輝く言葉たちが泳いでる！「ocean」「wave」「treasure」!",
+          "emotion": "discovery_wonder",
+          "timing": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "海の調和...波の音に隠された古い言葉の秘密があります",
+          "emotion": "mystical_insight",
+          "timing": 8000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "海の音響学は素晴らしいのう。言葉の響きを深く理解できるじゃろう",
+          "emotion": "scholarly_excitement",
+          "timing": 12000
+        }
+      ],
+      "choices": [
+        {
+          "id": "collect_word_treasures",
+          "text": "言葉の宝物を集める",
+          "consequence": "語彙力重視の海体験",
+          "rewardModifier": 20,
+          "characterImpact": {
+            "lexia": 25,
+            "professor_phonix": 15
+          }
+        },
+        {
+          "id": "study_wave_sounds",
+          "text": "波の音を研究する",
+          "consequence": "音響学習重視の海体験",
+          "rewardModifier": 25,
+          "characterImpact": {
+            "professor_phonix": 25,
+            "unity": 20
+          }
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "seasonal_atmosphere",
+          "description": "きらめく海面と舞い上がる水しぶき",
+          "parameters": {
+            "waterEffects": true,
+            "sunlight": "sparkling",
+            "oceanSounds": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "mountain_challenge",
+      "title": "山頂への挑戦",
+      "description": "困難を乗り越えて山頂を目指す冒険",
+      "background": "/images/events/summer/mountain_path.jpg",
+      "bgm": "/audio/events/summer/adventure_climb.mp3",
+      "duration": 32000,
+      "characters": ["grammar_guardian", "speed_racer", "captain_nova"],
+      "dialogue": [
+        {
+          "speaker": "grammar_guardian",
+          "text": "山の文法構造は...段階的で論理的です。一歩ずつ登りましょう",
+          "emotion": "methodical_determination",
+          "timing": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "頂上まで一気に駆け上がろう！でも...チームワークも大切だね",
+          "emotion": "energetic_teamwork",
+          "timing": 8000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんなで支え合えば、どんな高い山も登れる！",
+          "emotion": "inspirational_leadership",
+          "timing": 13000
+        }
+      ],
+      "choices": [
+        {
+          "id": "steady_climb",
+          "text": "着実に一歩ずつ登る",
+          "consequence": "戦略的な山登り体験",
+          "rewardModifier": 20,
+          "characterImpact": {
+            "grammar_guardian": 25,
+            "captain_nova": 15
+          }
+        },
+        {
+          "id": "team_support_climb",
+          "text": "チーム一丸となって登る",
+          "consequence": "協力重視の山登り体験",
+          "rewardModifier": 30,
+          "characterImpact": {
+            "captain_nova": 25,
+            "grammar_guardian": 20,
+            "speed_racer": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "summer_festival",
+      "title": "夏祭りの夜",
+      "description": "夏の終わりを祝う特別な祭り",
+      "background": "/images/events/summer/night_festival.jpg",
+      "bgm": "/audio/events/summer/festival_fireworks.mp3",
+      "duration": 25000,
+      "characters": ["all_main_characters"],
+      "dialogue": [
+        {
+          "speaker": "unity",
+          "text": "花火の光の中で、みんなの心が一つになっています",
+          "emotion": "harmonious_celebration",
+          "timing": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "この夏で学んだ言葉たちが、花火みたいに心の中で輝いてる！",
+          "emotion": "joyful_reflection",
+          "timing": 8000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "最高の夏だった！みんなと過ごした時間は一生の宝物だ",
+          "emotion": "grateful_leadership",
+          "timing": 13000
+        }
+      ],
+      "specialEffects": [
+        {
+          "type": "seasonal_atmosphere",
+          "description": "夏祭りの花火と提灯の暖かい光",
+          "parameters": {
+            "fireworks": true,
+            "lanterns": true,
+            "festiveAtmosphere": true,
+            "summerNight": true
+          }
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "speed_racer",
+      "role": "main",
+      "costume": "summer_racing_gear",
+      "specialDialogue": true,
+      "relationshipBonus": 30,
+      "exclusiveScenes": ["beach_race", "mountain_sprint"]
+    },
+    {
+      "id": "lexia",
+      "role": "main",
+      "costume": "summer_beach_outfit",
+      "specialDialogue": true,
+      "relationshipBonus": 25,
+      "exclusiveScenes": ["word_treasure_hunt", "ocean_poetry"]
+    },
+    {
+      "id": "captain_nova",
+      "role": "main",
+      "costume": "adventure_summer_gear",
+      "specialDialogue": true,
+      "relationshipBonus": 30,
+      "exclusiveScenes": ["leadership_moments", "team_building"]
+    }
+  ],
+  "specialMechanics": [
+    {
+      "name": "summer_adventure_points",
+      "description": "冒険活動でポイントを獲得",
+      "type": "collection",
+      "parameters": {
+        "activities": ["swimming", "climbing", "exploring", "camping"],
+        "pointsPerActivity": 100,
+        "bonusMultiplier": 1.5
+      },
+      "rewards": ["adventure_explorer_badge"]
+    },
+    {
+      "name": "vacation_memory_album",
+      "description": "夏の思い出を写真アルバムに収集",
+      "type": "collection",
+      "parameters": {
+        "memoryTypes": ["friendship", "adventure", "discovery", "celebration"],
+        "requiredMemories": 8,
+        "qualityBonus": true
+      },
+      "rewards": ["summer_beach_memories"]
+    },
+    {
+      "name": "team_adventure_challenge",
+      "description": "チーム一丸となって困難を乗り越える",
+      "type": "collaboration",
+      "parameters": {
+        "teamworkRequired": true,
+        "difficultyLevels": ["easy", "medium", "hard"],
+        "leadershipBonus": true
+      },
+      "rewards": ["summer_friendship_boost"]
+    }
+  ],
+  "progressTracking": {
+    "participationRate": 0,
+    "scenesCompleted": [],
+    "rewardsEarned": [],
+    "choicesMade": {},
+    "specialAchievements": [],
+    "totalScore": 0
+  },
+  "bannerConfig": {
+    "bannerImage": "/images/events/summer/summer_vacation_banner.jpg",
+    "accentColor": "#87CEEB",
+    "fontStyle": "adventurous",
+    "animationType": "seasonal",
+    "countdownStyle": "sun_waves",
+    "layout": "full_width"
+  },
+  "storyData": {
+    "mainStoryline": "summer_adventure_and_growth",
+    "characterArcs": {
+      "speed_racer": "summer_adventure_leader",
+      "lexia": "ocean_word_explorer",
+      "captain_nova": "team_adventure_captain"
+    },
+    "worldBuilding": "summer_vacation_destinations",
+    "thematicElements": ["adventure", "friendship", "discovery", "teamwork", "memories"],
+    "emotionalTones": ["exciting", "adventurous", "warm", "nostalgic", "triumphant"],
+    "learningObjectives": ["adventure_vocabulary", "teamwork_skills", "problem_solving", "memory_creation"]
+  }
+}

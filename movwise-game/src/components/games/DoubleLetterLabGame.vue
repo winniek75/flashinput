@@ -266,6 +266,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 export default {
   name: 'DoubleLetterLabGame',
   emits: ['back', 'complete'],
@@ -376,7 +378,7 @@ export default {
     }
   },
   mounted() {
-    console.log('Double Letter Lab Game が開始されました')
+    logger.log('Double Letter Lab Game が開始されました')
   },
   methods: {
     async playQuestionAudio() {
@@ -400,7 +402,7 @@ export default {
         
         speechSynthesis.speak(utterance)
       } catch (error) {
-        console.error('音声再生エラー:', error)
+        logger.error('音声再生エラー:', error)
         this.isPlayingAudio = false
         this.isReacting = false
       }
@@ -417,7 +419,7 @@ export default {
         
         speechSynthesis.speak(utterance)
       } catch (error) {
-        console.error('単語音声再生エラー:', error)
+        logger.error('単語音声再生エラー:', error)
       }
     },
 
@@ -497,7 +499,7 @@ export default {
     },
 
     toggleSettings() {
-      console.log('設定メニューを開く')
+      logger.log('設定メニューを開く')
       // 設定メニューの実装
     }
   }

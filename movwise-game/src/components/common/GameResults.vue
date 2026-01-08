@@ -205,6 +205,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { defineComponent, computed, onMounted } from 'vue'
 import { useGameStore } from '../stores/gameStore.js'
 import { useGameAudio } from '../composables/useGameAudio.js'
@@ -341,7 +343,7 @@ export default defineComponent({
             url: window.location.href
           })
         } catch (error) {
-          console.log('シェアがキャンセルされました')
+          logger.log('シェアがキャンセルされました')
         }
       } else {
         // フォールバック: クリップボードにコピー
@@ -350,7 +352,7 @@ export default defineComponent({
           alert('結果をクリップボードにコピーしました！')
           playEffectSound('button')
         } catch (error) {
-          console.error('クリップボードへのコピーに失敗:', error)
+          logger.error('クリップボードへのコピーに失敗:', error)
         }
       }
     }

@@ -337,6 +337,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted } from 'vue'
 
 export default {
@@ -478,7 +480,7 @@ export default {
         setTimeout(() => {
           currentBeatIndex.value = index
           // サウンド効果をシミュレート（実際のプロジェクトでは音声ファイルを再生）
-          console.log(`Beat ${index + 1}: ${beat}`)
+          logger.log(`Beat ${index + 1}: ${beat}`)
         }, index * beatDuration)
       })
       

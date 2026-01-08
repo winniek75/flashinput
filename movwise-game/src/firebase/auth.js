@@ -9,6 +9,7 @@ import {
 import { auth } from './config'
 import { ref, set } from 'firebase/database'
 import { database } from './config'
+import logger from '@/utils/logger'
 
 // User roles for cooperative learning
 export const USER_ROLES = {
@@ -39,7 +40,7 @@ export class AuthService {
           const idTokenResult = await getIdTokenResult(user)
           this.userClaims = idTokenResult.claims
         } catch (error) {
-          console.error('Failed to get user claims:', error)
+          logger.error('Failed to get user claims:', error)
           this.userClaims = null
         }
       } else {

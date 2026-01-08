@@ -18,13 +18,21 @@
         📝 ワード・ディクテーション・チャレンジ
       </h1>
 
+      <!-- Streak Display -->
+      <div class="mb-6">
+        <StreakDisplay @quick-play="restartGame" @reward-claimed="onRewardClaimed" />
+      </div>
+
       <!-- Game Status Bar -->
       <div class="galaxy-card rounded-3xl p-6 shadow-2xl mb-6">
         <div class="flex justify-between items-center">
           <div class="flex gap-6">
             <div class="text-center">
-              <div class="text-2xl font-bold text-yellow-400">⭐ {{ score }}</div>
+              <div class="text-2xl font-bold text-yellow-400">⭐ {{ finalScore }}</div>
               <div class="text-galaxy-moon-silver">スコア</div>
+              <div v-if="streakBonus > 1" class="text-xs text-orange-400">
+                🔥×{{ streakBonus.toFixed(1) }}
+              </div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-blue-400">{{ currentQuestionIndex + 1 }}/{{ totalQuestions }}</div>
@@ -33,6 +41,10 @@
             <div class="text-center">
               <div class="text-2xl font-bold text-green-400">{{ correctAnswers }}</div>
               <div class="text-galaxy-moon-silver">正解</div>
+            </div>
+            <div v-if="streakInfo.current > 0" class="text-center">
+              <div class="text-2xl font-bold text-orange-400">🔥 {{ streakInfo.current }}</div>
+              <div class="text-galaxy-moon-silver">連続</div>
             </div>
           </div>
           <div class="text-right">
@@ -327,15 +339,44 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameAudio } from '@/composables/useGameAudio'
+import { useStreakIntegration } from '@/composables/useStreakIntegration'
+import StreakDisplay from '@/components/streak/StreakDisplay.vue'
 
 export default {
   name: 'WordDictationChallenge',
+  components: {
+    StreakDisplay
+  },
   setup() {
     const router = useRouter()
     const { playSound, speakText, isPlaying } = useGameAudio()
+
+    // ストリーク機能の統合
+    const {
+      streakInfo,
+      gameProgress,
+      startGame: startStreakGame,
+      endGame: endStreakGame,
+      updateScore,
+      applyStreakBonus,
+      getStreakBonus,
+      showCelebration,
+      celebrationData,
+      dismissCelebration
+    } = useStreakIntegration('word-dictation-challenge', {
+      minimumPlayTime: 30, // 最低30秒
+      minimumScore: 10,    // 最低スコア
+      trackProgress: true
+    })
+
+    // ストリーク関連の計算プロパティ
+    const streakBonus = computed(() => getStreakBonus())
+    const finalScore = computed(() => applyStreakBonus(score.value))
 
     // Game state management
     const gameState = ref('instructions') // 'instructions', 'playing', 'result', 'finished'
@@ -582,39 +623,39 @@ export default {
         { sentence: 'I have a cat.', hints: ['ペットについて', '「私は」で始まる', '猫を飼っています'] },
         { sentence: 'The dog runs.', hints: ['動物の動作', '犬が主語', '走る動作です'] },
         { sentence: 'I see the sun.', hints: ['自然を見る', '太陽が見える', '私は見ています'] },
-        { sentence: 'Put on your hat.', hints: ['命令文です', '帽子をかぶる', 'つけてください'] },
+        { sentence: 'I wear a hat.', hints: ['服装について', '私は身につける', '帽子を'] },
         { sentence: 'This is my pen.', hints: ['所有を表す', 'これは私の', 'ペンです'] },
-        { sentence: 'Fill the cup.', hints: ['命令文です', '容器に入れる', '満たしてください'] },
+        { sentence: 'I use the cup.', hints: ['物の使用', '私は使う', 'カップを'] },
         { sentence: 'Open the box.', hints: ['命令文です', '箱を', '開けてください'] },
-        { sentence: 'I drive a car.', hints: ['乗り物について', '私は運転する', '車です'] },
-        { sentence: 'Go to bed.', hints: ['命令文です', 'ベッドへ', '行ってください'] },
-        { sentence: 'Look at the map.', hints: ['命令文です', '地図を', '見てください'] },
+        { sentence: 'I have a car.', hints: ['所有について', '私は持っている', '車を'] },
+        { sentence: 'I go to bed.', hints: ['日常行動', '私は行く', 'ベッドへ'] },
+        { sentence: 'I look at the map.', hints: ['観察行動', '私は見る', '地図を'] },
         { sentence: 'I have a bag.', hints: ['所有について', '私は持っている', 'かばんです'] },
-        { sentence: 'The bat can fly.', hints: ['動物の能力', 'こうもりは', '飛べます'] },
-        { sentence: 'Take the bus.', hints: ['命令文です', 'バスに', '乗ってください'] },
+        { sentence: 'The cat is big.', hints: ['描写文', '猫は', '大きいです'] },
+        { sentence: 'I take the bus.', hints: ['交通手段', '私は乗る', 'バスに'] },
         { sentence: 'I eat an egg.', hints: ['食事について', '私は食べる', '卵です'] },
-        { sentence: 'Turn on the fan.', hints: ['命令文です', '扇風機を', 'つけてください'] },
-        { sentence: 'I saw a fox.', hints: ['過去の出来事', '私は見た', 'きつねです'] },
+        { sentence: 'I like the fan.', hints: ['好みについて', '私は好きです', '扇風機が'] },
+        { sentence: 'I see a fox.', hints: ['現在の観察', '私は見る', 'きつねを'] },
         { sentence: 'I like jam.', hints: ['好みについて', '私は好きです', 'ジャムが'] },
-        { sentence: 'Find the key.', hints: ['命令文です', '鍵を', '見つけてください'] },
-        { sentence: 'Hurt my leg.', hints: ['けがについて', '足を', '痛めました'] },
-        { sentence: 'Use the net.', hints: ['命令文です', '網を', '使ってください'] },
+        { sentence: 'I find the key.', hints: ['発見について', '私は見つける', '鍵を'] },
+        { sentence: 'My leg is hurt.', hints: ['状態について', '私の足は', '痛いです'] },
+        { sentence: 'I have a net.', hints: ['所有について', '私は持っている', '網を'] },
         { sentence: 'I see a pig.', hints: ['動物を見る', '私は見る', 'ぶたです'] },
-        { sentence: 'Stir the pot.', hints: ['命令文です', '鍋を', 'かき混ぜてください'] },
-        { sentence: 'I saw a rat.', hints: ['過去の出来事', '私は見た', 'ねずみです'] },
+        { sentence: 'I see the pot.', hints: ['台所用品', '私は見る', '鍋を'] },
+        { sentence: 'I see a rat.', hints: ['動物を見る', '私は見る', 'ねずみです'] },
         { sentence: 'The car is red.', hints: ['色について', '車は', '赤いです'] },
         { sentence: 'I feel sad.', hints: ['感情について', '私は感じる', '悲しいです'] },
-        { sentence: 'Please sit down.', hints: ['丁寧な命令', 'どうぞ', '座ってください'] },
+        { sentence: 'I sit down.', hints: ['動作について', '私は座る', '下に'] },
         { sentence: 'I drink tea.', hints: ['飲み物について', '私は飲む', 'お茶です'] },
-        { sentence: 'Go to the top.', hints: ['命令文です', '頂上へ', '行ってください'] },
+        { sentence: 'I go to the top.', hints: ['移動について', '私は行く', '上の方へ'] },
         { sentence: 'I have a toy.', hints: ['所有について', '私は持っている', 'おもちゃです'] },
-        { sentence: 'Drive the van.', hints: ['命令文です', 'バンを', '運転してください'] },
+        { sentence: 'I see the van.', hints: ['車を見る', '私は見る', 'バンを'] },
         { sentence: 'I see a web.', hints: ['観察について', '私は見る', 'くもの巣です'] },
-        { sentence: 'I will win.', hints: ['未来について', '私は', '勝つでしょう'] },
-        { sentence: 'Say yes to me.', hints: ['命令文です', 'はいと', '言ってください'] },
-        { sentence: 'Go to the zoo.', hints: ['命令文です', '動物園へ', '行ってください'] },
+        { sentence: 'I can win.', hints: ['能力について', '私はできる', '勝つことが'] },
+        { sentence: 'I say yes.', hints: ['返事について', '私は言う', 'はいと'] },
+        { sentence: 'I go to the zoo.', hints: ['お出かけ', '私は行く', '動物園へ'] },
         { sentence: 'I see an ant.', hints: ['昆虫を見る', '私は見る', 'ありです'] },
-        { sentence: 'Move your arm.', hints: ['命令文です', '腕を', '動かしてください'] },
+        { sentence: 'I move my arm.', hints: ['身体の動き', '私は動かす', '腕を'] },
         { sentence: 'It is big.', hints: ['大きさについて', 'それは', '大きいです'] },
         { sentence: 'I am a boy.', hints: ['自己紹介', '私は', '男の子です'] },
         { sentence: 'Say good bye.', hints: ['挨拶について', '言ってください', 'さようなら'] },
@@ -790,16 +831,25 @@ export default {
 
     // Game methods
     const startGame = () => {
+      // ストリークゲーム開始
+      const streakGameInfo = startStreakGame({
+        level: currentLevel.value,
+        mode: gameMode.value,
+        questionCount: totalQuestions.value
+      })
+
       gameState.value = 'playing'
       currentQuestionIndex.value = 0
       score.value = 0
       correctAnswers.value = 0
-      
+
       // Shuffle questions and take the required number
       const allQuestions = questions.value
       shuffledQuestions.value = shuffleArray(allQuestions).slice(0, totalQuestions.value)
-      
+
       loadNextQuestion()
+
+      logger.log('Game started with streak info:', streakGameInfo)
     }
 
     const loadNextQuestion = () => {
@@ -840,7 +890,7 @@ export default {
             }
           }, 500)
         } catch (error) {
-          console.error('Audio playback failed:', error)
+          logger.error('Audio playback failed:', error)
           currentWord.value.audioPlayed = true // Allow manual input even if audio fails
         }
       }
@@ -947,6 +997,22 @@ export default {
     const nextQuestion = () => {
       currentQuestionIndex.value++
       if (currentQuestionIndex.value >= shuffledQuestions.value.length) {
+        // ゲーム終了処理
+        const accuracy = (correctAnswers.value / totalQuestions.value) * 100
+        const completed = true
+
+        const gameResult = endStreakGame({
+          score: finalScore.value,
+          accuracy,
+          completed,
+          correctAnswers: correctAnswers.value,
+          totalQuestions: totalQuestions.value,
+          level: currentLevel.value,
+          mode: gameMode.value
+        })
+
+        logger.log('Game completed with result:', gameResult)
+
         gameState.value = 'finished'
       } else {
         gameState.value = 'playing'
@@ -991,7 +1057,24 @@ export default {
     }
 
     const handleBack = () => {
+      // 進行中のゲームがあればストリーク記録
+      if (gameState.value === 'playing' && currentQuestionIndex.value > 0) {
+        const accuracy = correctAnswers.value > 0 ? (correctAnswers.value / currentQuestionIndex.value) * 100 : 0
+        endStreakGame({
+          score: finalScore.value,
+          accuracy,
+          completed: false,
+          reason: 'user_exit'
+        })
+      }
+
       router.back()
+    }
+
+    // ストリーク報酬受け取り
+    const onRewardClaimed = (reward) => {
+      logger.log('Reward claimed in game:', reward)
+      // 報酬に応じた演出やサウンドを追加可能
     }
 
     // Click outside handler for dropdown
@@ -1048,6 +1131,14 @@ export default {
       isPlaying,
       showLevelDropdown,
 
+      // Streak related
+      streakInfo,
+      streakBonus,
+      finalScore,
+      showCelebration,
+      celebrationData,
+      gameProgress,
+
       // Methods
       startGame,
       playCurrentWord,
@@ -1061,7 +1152,9 @@ export default {
       restartGame,
       changeDifficulty,
       toggleGameMode,
-      handleBack
+      handleBack,
+      onRewardClaimed,
+      dismissCelebration
     }
   }
 }

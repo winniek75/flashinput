@@ -1,41 +1,120 @@
 <template>
   <div class="min-h-screen galaxy-background">
-    <!-- Setup Screen -->
-    <main class="fixed inset-0 flex items-center justify-center z-10" v-if="gameState === 'setup'">
-      <div class="galaxy-card p-8 max-w-2xl w-full mx-4">
-        <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-yellow-400 cosmic-title mb-2">
-            🚀 Progressive Dodge
-          </h1>
+    <!-- Enhanced Setup Screen -->
+    <main class="relative z-10 min-h-screen" v-if="gameState === 'setup'">
+      <!-- Animated Space Background for Setup -->
+      <div class="setup-space-background">
+        <div class="setup-stars-field"></div>
+        <div class="setup-nebula-clouds"></div>
+        <div class="setup-energy-streams">
+          <div v-for="i in 6" :key="i" class="energy-stream" :style="getEnergyStreamStyle(i)"></div>
         </div>
-        
-        <!-- Simple Difficulty Selection -->
-        <div class="mb-6">
-          <h3 class="text-lg font-bold text-cyan-400 mb-3 text-center">難易度選択</h3>
-          <div class="grid grid-cols-3 gap-3">
+        <div class="setup-floating-particles">
+          <div v-for="i in 15" :key="i" class="floating-particle" :style="getParticleStyle(i)"></div>
+        </div>
+      </div>
+      
+      <!-- Central Command Interface -->
+      <div class="flex flex-col items-center justify-start relative z-20 py-8 px-4">
+        <div class="command-center-interface">
+          <!-- Header Section -->
+          <div class="command-header">
+            <div class="mission-emblem">
+              <div class="emblem-ring"></div>
+              <div class="emblem-core">🚀</div>
+              <div class="emblem-glow"></div>
+            </div>
+            <h1 class="mission-title">
+              <span class="title-main">PROGRESSIVE TENSE</span>
+              <span class="title-sub">MASTER</span>
+            </h1>
+            <p class="mission-description">
+              進行形マスターミッション - 時間の流れを操り、進行形を習得せよ！
+            </p>
+          </div>
+
+          <!-- Mission Briefing Panel -->
+          <div class="mission-briefing">
+            <div class="briefing-header">
+              <span class="briefing-icon">🎯</span>
+              <span class="briefing-title">MISSION PARAMETERS</span>
+            </div>
+            <div class="briefing-content">
+              <div class="objective-item">
+                <span class="objective-icon">⚔️</span>
+                <span>時間の障害物を避けながら正しい進行形を選択</span>
+              </div>
+              <div class="objective-item">
+                <span class="objective-icon">⚡</span>
+                <span>正解でスピードブースト、不正解でライフ減少</span>
+              </div>
+              <div class="objective-item">
+                <span class="objective-icon">🏆</span>
+                <span>2選の選択肢から瞬時に判断してレーン移動</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Difficulty Selection Interface -->
+          <div class="difficulty-selection-panel">
+            <div class="panel-header">
+              <span class="panel-icon">🎮</span>
+              <span class="panel-title">DIFFICULTY MATRIX</span>
+            </div>
+            <div class="difficulty-grid">
+              <div 
+                v-for="level in difficultyLevels" 
+                :key="level.id"
+                @click="selectedDifficulty = level.id"
+                class="difficulty-option"
+                :class="{ 'selected': selectedDifficulty === level.id }"
+              >
+                <div class="difficulty-indicator" :class="level.id">
+                  <div class="indicator-ring"></div>
+                  <div class="indicator-core">{{ level.icon }}</div>
+                </div>
+                <div class="difficulty-info">
+                  <div class="difficulty-name">{{ level.name }}</div>
+                  <div class="difficulty-desc">{{ level.description }}</div>
+                  <div class="difficulty-stats">
+                    <span class="stat-item">
+                      <span class="stat-icon">⏱️</span>
+                      <span>{{ getDifficultyTime(level.id) }}s</span>
+                    </span>
+                    <span class="stat-item">
+                      <span class="stat-icon">🎯</span>
+                      <span>{{ level.id === 'beginner' ? '2' : level.id === 'intermediate' ? '3' : '4' }}選</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="selection-indicator" v-if="selectedDifficulty === level.id">
+                  <span class="indicator-check">✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Launch Controls -->
+          <div class="launch-controls">
             <button 
-              v-for="level in difficultyLevels" 
-              :key="level.id"
-              @click="selectedDifficulty = level.id"
-              class="compact-difficulty-card"
-              :class="{ 'selected': selectedDifficulty === level.id }"
+              @click="startGame"
+              class="launch-button"
+              :class="{ 'ready': selectedDifficulty, 'disabled': !selectedDifficulty }"
+              :disabled="!selectedDifficulty"
             >
-              <div class="text-3xl mb-2">{{ level.icon }}</div>
-              <div class="text-base font-bold mb-1">{{ level.name }}</div>
-              <div class="text-xs text-slate-400">{{ level.description }}</div>
+              <div class="launch-button-content">
+                <div class="launch-icon">🚀</div>
+                <div class="launch-text">
+                  <span class="launch-main">INITIATE MISSION</span>
+                  <span class="launch-sub">Progressive Tense Master</span>
+                </div>
+                <div class="launch-arrow">➤</div>
+              </div>
+              <div class="launch-energy-bar" v-if="selectedDifficulty">
+                <div class="energy-fill"></div>
+              </div>
             </button>
           </div>
-        </div>
-
-        <div class="text-center">
-          <button 
-            @click="startGame"
-            class="galaxy-button galaxy-button-large"
-            :disabled="!selectedDifficulty"
-          >
-            <span class="text-2xl mr-3">🚀</span>
-            <span>ドッジ開始！</span>
-          </button>
         </div>
       </div>
     </main>
@@ -100,7 +179,6 @@
           <div class="lane-guidelines" v-if="isAnswering">
             <div class="lane-guide lane-guide-0" :class="{ 'correct-guide': isLaneCorrect(0), 'player-guide': playerLane === 0 }"></div>
             <div class="lane-guide lane-guide-1" :class="{ 'correct-guide': isLaneCorrect(1), 'player-guide': playerLane === 1 }"></div>
-            <div class="lane-guide lane-guide-2" :class="{ 'correct-guide': isLaneCorrect(2), 'player-guide': playerLane === 2 }"></div>
           </div>
         </div>
 
@@ -108,6 +186,16 @@
         <div class="racing-interface">
           <!-- Speed and Distance Display -->
           <div class="speed-display">
+            <!-- Back Button -->
+            <button
+              @click="goBack"
+              class="back-button-game"
+              title="ゲームを終了して戻る"
+            >
+              <span class="back-icon">←</span>
+              <span class="back-text">戻る</span>
+            </button>
+
             <div class="speed-meter" :class="{ 'boost': currentSpeed > baseSpeed + 20 }">
               <span class="speed-value">{{ Math.round(currentSpeed) }}</span>
               <span class="speed-unit">km/h</span>
@@ -181,7 +269,7 @@
         <!-- Results Header -->
         <div class="galaxy-card rounded-3xl p-8 shadow-2xl mb-8">
           <div class="text-center">
-            <h2 class="text-4xl font-bold text-white mb-6 text-shadow-lg">🏆 Progressive Tense 結果</h2>
+            <h2 class="text-4xl font-bold text-white mb-6 text-shadow-lg">🏆 Progressive Tense Master 結果</h2>
             
             <!-- Performance Rating -->
             <div class="mb-8">
@@ -258,6 +346,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { beginnerQuestions } from '@/data/progressiveTenseBeginnerQuestions.js'
@@ -265,7 +355,7 @@ import { intermediateQuestions } from '@/data/progressiveTenseIntermediateQuesti
 import { advancedQuestions } from '@/data/progressiveTenseAdvancedQuestions.js'
 
 export default {
-  name: 'ProgressiveTenseGame',
+  name: 'ProgressiveTenseMaster',
   setup() {
     const router = useRouter()
 
@@ -293,7 +383,7 @@ export default {
     
     // Player state  
     const playerPosition = ref({ x: 400, y: window.innerHeight * 0.8 }) // Fixed at 80% of screen height
-    const playerLane = ref(1) // 0=left, 1=center, 2=right
+    const playerLane = ref(0) // 0=left, 1=right
     const targetX = ref(400) // Target position for smooth movement
     const currentSpeed = ref(30) // Base auto-forward speed (much slower)
     const autoSpeed = ref(1.5) // Constant forward movement speed (much slower)
@@ -306,7 +396,7 @@ export default {
     const lastScoreGain = ref(0)
     const maxSpeed = ref(80) // Reduced max speed
     const baseSpeed = ref(30) // Much lower base speed
-    const lanes = [250, 400, 550] // X positions for left, center, right lanes
+    const lanes = [300, 500] // X positions for left and right lanes
     const approachingObstacle = ref(null) // Currently approaching obstacle
     const isAnswering = ref(false) // Whether player is currently answering
     
@@ -460,16 +550,16 @@ export default {
 
     // Challenge generation
     const generateChallenge = () => {
-      console.log('Generating challenge...')
+      logger.log('Generating challenge...')
       const difficultyLevel = selectedDifficulty.value
-      console.log('Difficulty level:', difficultyLevel)
+      logger.log('Difficulty level:', difficultyLevel)
       
       // Get challenges for current difficulty level
       const availableChallenges = getCurrentChallenges()
-      console.log('Available challenges:', availableChallenges.length)
+      logger.log('Available challenges:', availableChallenges.length)
       
       if (availableChallenges.length === 0) {
-        console.error('No challenges available for level:', difficultyLevel)
+        logger.error('No challenges available for level:', difficultyLevel)
         return
       }
       
@@ -490,14 +580,14 @@ export default {
       selectionTimeLeft.value = selectionTimeMax.value
       
       // Console log for debugging
-      console.log(`Question ${currentRound.value}/${totalRounds.value}: ${randomChallenge.tenseType} - ${randomChallenge.prompt}`)
-      console.log('currentChallenge set:', currentChallenge.value)
-      console.log('showResult:', showResult.value)
+      logger.log(`Question ${currentRound.value}/${totalRounds.value}: ${randomChallenge.tenseType} - ${randomChallenge.prompt}`)
+      logger.log('currentChallenge set:', currentChallenge.value)
+      logger.log('showResult:', showResult.value)
     }
 
     // Game control functions
     const startGame = () => {
-      console.log('Starting game with difficulty:', selectedDifficulty.value)
+      logger.log('Starting game with difficulty:', selectedDifficulty.value)
       gameState.value = 'playing'
       
       // Apply difficulty settings
@@ -538,8 +628,8 @@ export default {
         timeRemaining.value--
         if (timeRemaining.value <= 0) {
           // Time's up - end game
-          console.log('Game ended due to time limit')
-          console.log('Final stats:', {
+          logger.log('Game ended due to time limit')
+          logger.log('Final stats:', {
             totalScore: totalScore.value,
             correctAnswers: correctAnswers.value,
             totalAttempts: totalAttempts.value,
@@ -639,8 +729,8 @@ export default {
     // Game end condition check (called from update loop)
     const checkGameEnd = () => {
       if (lives.value <= 0) {
-        console.log('Game ended due to no lives remaining')
-        console.log('Final stats:', {
+        logger.log('Game ended due to no lives remaining')
+        logger.log('Final stats:', {
           totalScore: totalScore.value,
           correctAnswers: correctAnswers.value,
           totalAttempts: totalAttempts.value,
@@ -679,7 +769,7 @@ export default {
       
       // Update all obstacles (they appear to move toward player)
       obstacles.value.forEach(obstacle => {
-        obstacle.y += obstacleSpeed.value // Move obstacles down toward player
+        obstacle.y += obstacleSpeed.value * (1 + forwardProgress.value / 10000) // Gradually increase speed
         obstacle.rotation += obstacle.rotationSpeed || 3
         
         // Simple downward movement - no lateral movement
@@ -847,12 +937,8 @@ export default {
         isActive: false
       }
       
-      // Shuffle options to randomize lane positions
-      const shuffledOptions = [...randomChallenge.options]
-      while (shuffledOptions.length < 3) {
-        // If less than 3 options, duplicate some
-        shuffledOptions.push(shuffledOptions[Math.floor(Math.random() * shuffledOptions.length)])
-      }
+      // Take only 2 options for 2 lanes
+      const shuffledOptions = [...randomChallenge.options].slice(0, 2)
       
       // Create obstacle for each lane - simple fixed positions
       lanes.forEach((laneX, laneIndex) => {
@@ -923,7 +1009,7 @@ export default {
     }
 
     const moveRight = () => {
-      if (playerLane.value < 2) {
+      if (playerLane.value < 1) {
         playerLane.value++
         targetX.value = lanes[playerLane.value]
       }
@@ -964,8 +1050,8 @@ export default {
     const restartGame = () => {
       gameState.value = 'setup'
       currentRound.value = 1
-      playerLane.value = 1
-      targetX.value = lanes[1]
+      playerLane.value = 0
+      targetX.value = lanes[0]
       forwardProgress.value = 0
       playerPosition.value = { x: 400, y: window.innerHeight * 0.8 }
       lives.value = 3
@@ -1038,6 +1124,44 @@ export default {
       timeRemaining.value = 120
     }
 
+    // Helper functions for enhanced setup screen
+    const getEnergyStreamStyle = (index) => {
+      return {
+        left: (index * 15 + Math.random() * 10) + '%',
+        animationDelay: (index * 0.3) + 's',
+        animationDuration: (2 + Math.random() * 2) + 's'
+      }
+    }
+
+    const getParticleStyle = (index) => {
+      return {
+        left: Math.random() * 100 + '%',
+        top: Math.random() * 100 + '%',
+        animationDelay: Math.random() * 3 + 's',
+        animationDuration: (3 + Math.random() * 2) + 's'
+      }
+    }
+
+    const getDifficultyTime = (difficulty) => {
+      const settings = difficultySettings[difficulty]
+      return settings ? settings.selectionTime : 30
+    }
+
+    // 戻るボタンのハンドラー
+    const goBack = () => {
+      // ゲームをクリーンアップ
+      if (animationFrameId.value) {
+        cancelAnimationFrame(animationFrameId.value)
+        animationFrameId.value = null
+      }
+      if (selectionTimer.value) {
+        clearInterval(selectionTimer.value)
+        selectionTimer.value = null
+      }
+      // Grammar Galaxyプラットフォームに戻る
+      router.push('/platforms/grammar-galaxy')
+    }
+
     return {
       // State
       gameState,
@@ -1100,6 +1224,7 @@ export default {
       
       // Methods
       startGame,
+      goBack,
       getPerformanceRating,
       changeDifficultyAndRestart,
       selectOption,
@@ -1113,7 +1238,12 @@ export default {
       spawnObstacleWithProblem,
       isLaneCorrect,
       getLaneAnswer,
-      selectAnswerAndMove
+      selectAnswerAndMove,
+      
+      // Setup screen helpers
+      getEnergyStreamStyle,
+      getParticleStyle,
+      getDifficultyTime
     }
   }
 }
@@ -1610,9 +1740,8 @@ export default {
 }
 
 .lane-line-1 { left: 200px; }
-.lane-line-2 { left: 350px; }
-.lane-line-3 { left: 450px; }
-.lane-line-4 { left: 600px; }
+.lane-line-2 { left: 400px; }
+.lane-line-3 { left: 600px; }
 
 @keyframes lane-move {
   from { transform: translateY(-80px); }
@@ -1731,9 +1860,8 @@ export default {
   transition: all 0.3s ease;
 }
 
-.lane-guide-0 { left: 220px; }
-.lane-guide-1 { left: 370px; }
-.lane-guide-2 { left: 520px; }
+.lane-guide-0 { left: 270px; width: 100px; }
+.lane-guide-1 { left: 470px; width: 100px; }
 
 .lane-guide.correct-guide {
   background: rgba(34, 197, 94, 0.3);
@@ -1896,25 +2024,13 @@ export default {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Fixed Answer Panel */
-.fixed-answer-panel {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 90;
-  width: 90%;
-  max-width: 800px;
-  background: rgba(0, 0, 0, 0.95);
-  border: 3px solid rgba(251, 191, 36, 1);
-  border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
+/* Fixed Answer Panel - Removed duplicate definition */
 
 .answer-panel-header {
   margin-bottom: 15px;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
 }
 
 .question-display {
@@ -1936,24 +2052,14 @@ export default {
 }
 
 .answer-options {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-}
-
-.answer-option-button {
-  flex: 1;
-  background: rgba(30, 41, 59, 0.9);
-  border: 3px solid rgba(71, 85, 105, 0.8);
-  border-radius: 15px;
-  padding: 15px;
-  color: #ffffff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px;
 }
 
 .answer-option-button:hover {
@@ -2272,5 +2378,735 @@ export default {
 
 .right-button .button-arrow {
   color: #10b981;
+}
+
+/* Enhanced Game Elements */
+.fixed-answer-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+  border-top: 3px solid rgba(99, 102, 241, 0.8);
+  padding: 20px 20px 30px 20px;
+  z-index: 60;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100vw;
+}
+
+.answer-option-button {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.8) 100%);
+  border: 3px solid rgba(71, 85, 105, 0.6);
+  border-radius: 20px;
+  padding: 25px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.answer-option-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.8);
+}
+
+.answer-option-button.correct-option {
+  border-color: rgba(34, 197, 94, 0.6);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+}
+
+.answer-option-button.wrong-option {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+}
+
+.option-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.option-hint {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* Enhanced Speed Display */
+.speed-display {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 20px;
+  z-index: 50;
+}
+
+/* Back Button Style */
+.back-button-game {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(96, 165, 250, 0.5);
+  color: #60a5fa;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 100;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.back-button-game:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(96, 165, 250, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(96, 165, 250, 0.2);
+}
+
+.back-button-game:active {
+  transform: translateY(0);
+}
+
+.back-icon {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.back-text {
+  font-size: 14px;
+}
+
+.speed-meter, .distance-meter, .lives-display, .time-display {
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  border-radius: 15px;
+  padding: 15px 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.speed-meter.boost {
+  border-color: rgba(34, 197, 94, 0.8);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.obstacle-body.danger-zone {
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.9), inset 0 0 30px rgba(239, 68, 68, 0.5);
+  transform: scale(1.2);
+}
+
+@keyframes pulse-warning {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Enhanced Setup Screen Styling */
+.setup-space-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #1e293b 0%, #0f172a 60%, #000000 100%);
+  z-index: 0;
+  min-height: 100vh;
+}
+
+.setup-stars-field {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+    radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+    radial-gradient(2px 2px at 160px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 200px 20px, #06b6d4, transparent),
+    radial-gradient(1px 1px at 250px 90px, #8b5cf6, transparent);
+  background-repeat: repeat;
+  background-size: 300px 200px;
+  animation: setup-stars-twinkle 8s linear infinite;
+  opacity: 0.8;
+}
+
+.setup-nebula-clouds {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+  animation: setup-nebula-drift 20s ease-in-out infinite alternate;
+}
+
+.setup-energy-streams {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.energy-stream {
+  position: absolute;
+  width: 2px;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, #06b6d4, transparent);
+  animation: energy-flow 3s linear infinite;
+  opacity: 0.6;
+}
+
+.setup-floating-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.floating-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #fbbf24, transparent);
+  border-radius: 50%;
+  animation: particle-float 5s ease-in-out infinite;
+}
+
+@keyframes setup-stars-twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes setup-nebula-drift {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.1) rotate(3deg); }
+}
+
+@keyframes energy-flow {
+  0% { transform: translateY(-100px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+}
+
+/* Command Center Interface */
+.command-center-interface {
+  max-width: 900px;
+  width: 90%;
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.9) 50%,
+    rgba(15, 23, 42, 0.95) 100%);
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  border-radius: 30px;
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    inset 0 1px 20px rgba(99, 102, 241, 0.1);
+  overflow: visible;
+  position: relative;
+  margin: 2rem 0;
+}
+
+.command-center-interface::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(99, 102, 241, 0.8), 
+    rgba(168, 85, 247, 0.8),
+    rgba(99, 102, 241, 0.8),
+    transparent);
+  animation: data-scan 3s linear infinite;
+}
+
+.command-header {
+  text-align: center;
+  padding: 40px 20px 30px;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.mission-emblem {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.emblem-ring {
+  width: 80px;
+  height: 80px;
+  border: 3px solid rgba(99, 102, 241, 0.6);
+  border-radius: 50%;
+  position: relative;
+  animation: emblem-rotate 10s linear infinite;
+}
+
+.emblem-ring::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 50%;
+  animation: emblem-rotate 15s linear infinite reverse;
+}
+
+.emblem-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.8));
+  animation: emblem-pulse 2s ease-in-out infinite;
+}
+
+.emblem-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: emblem-pulse 2s ease-in-out infinite;
+}
+
+.mission-title {
+  margin-bottom: 15px;
+}
+
+.title-main {
+  display: block;
+  font-size: 36px;
+  font-weight: 900;
+  background: linear-gradient(45deg, #06b6d4, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
+
+.title-sub {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-top: 5px;
+  letter-spacing: 2px;
+}
+
+.mission-description {
+  color: #94a3b8;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Mission Briefing Panel */
+.mission-briefing {
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.briefing-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #06b6d4;
+}
+
+.briefing-icon {
+  font-size: 24px;
+}
+
+.briefing-content {
+  display: grid;
+  gap: 15px;
+}
+
+.objective-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 10px;
+  color: #e2e8f0;
+}
+
+.objective-icon {
+  font-size: 20px;
+  min-width: 20px;
+}
+
+/* Difficulty Selection Panel */
+.difficulty-selection-panel {
+  padding: 30px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #06b6d4;
+  justify-content: center;
+}
+
+.panel-icon {
+  font-size: 24px;
+}
+
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.difficulty-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 2px solid rgba(71, 85, 105, 0.4);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.difficulty-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.difficulty-option:hover::before {
+  left: 100%;
+}
+
+.difficulty-option:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(30, 41, 59, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.difficulty-option.selected {
+  border-color: rgba(34, 197, 94, 0.8);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+}
+
+.difficulty-indicator {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.indicator-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid;
+  border-radius: 50%;
+  animation: indicator-pulse 2s ease-in-out infinite;
+}
+
+.indicator-core {
+  font-size: 28px;
+  z-index: 1;
+}
+
+.difficulty-indicator.beginner .indicator-ring {
+  border-color: #22c55e;
+}
+
+.difficulty-indicator.intermediate .indicator-ring {
+  border-color: #f59e0b;
+}
+
+.difficulty-indicator.advanced .indicator-ring {
+  border-color: #ef4444;
+}
+
+.difficulty-info {
+  flex: 1;
+}
+
+.difficulty-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e2e8f0;
+  margin-bottom: 5px;
+}
+
+.difficulty-desc {
+  color: #94a3b8;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.difficulty-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #06b6d4;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-icon {
+  font-size: 16px;
+}
+
+.selection-indicator {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: selection-pop 0.3s ease-out;
+}
+
+.indicator-check {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Launch Controls */
+.launch-controls {
+  padding: 30px;
+  text-align: center;
+}
+
+.launch-button {
+  width: 100%;
+  max-width: 400px;
+  padding: 25px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border: 3px solid rgba(71, 85, 105, 0.5);
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.launch-button.ready {
+  background: linear-gradient(135deg, #0369a1, #0284c7, #0ea5e9);
+  border-color: rgba(6, 182, 212, 0.8);
+  box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3);
+}
+
+.launch-button.ready:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 50px rgba(6, 182, 212, 0.4);
+}
+
+.launch-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.launch-button-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.launch-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.launch-text {
+  text-align: center;
+  flex: 1;
+}
+
+.launch-main {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.launch-sub {
+  display: block;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.launch-arrow {
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.launch-button.ready:hover .launch-arrow {
+  transform: translateX(5px);
+}
+
+.launch-energy-bar {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899);
+  animation: energy-charge 2s ease-in-out infinite;
+}
+
+@keyframes data-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes emblem-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes emblem-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes indicator-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes selection-pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes energy-charge {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .command-center-interface {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .command-header {
+    padding: 30px 15px 20px;
+  }
+  
+  .title-main {
+    font-size: 28px;
+  }
+  
+  .title-sub {
+    font-size: 20px;
+  }
+  
+  .mission-briefing,
+  .difficulty-selection-panel,
+  .launch-controls {
+    padding: 20px;
+  }
+  
+  .difficulty-option {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .difficulty-stats {
+    justify-content: center;
+  }
+  
+  .answer-options {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 100%;
+    padding: 0 20px;
+  }
+  
+  .fixed-answer-panel {
+    padding: 15px 15px 25px 15px;
+  }
+  
+  .question-display {
+    font-size: 18px;
+  }
+  
+  .option-text {
+    font-size: 20px;
+  }
 }
 </style>

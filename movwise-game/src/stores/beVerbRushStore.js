@@ -1,5 +1,6 @@
 // beVerbRushStore.js - 完全修正版（エラー対策）
 import { defineStore } from 'pinia'
+import logger from '@/utils/logger'
 
 export const useBeVerbRushStore = defineStore('beVerbRush', {
   state: () => ({
@@ -57,7 +58,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
       try {
         return Math.max(0, Math.ceil(state.timeRemaining / 1000))
       } catch (error) {
-        console.warn('Time remaining calculation error:', error)
+        logger.warn('Time remaining calculation error:', error)
         return 0
       }
     },
@@ -66,7 +67,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
       try {
         return Math.min(100, ((state.gameDuration - state.timeRemaining) / state.gameDuration) * 100)
       } catch (error) {
-        console.warn('Game progress calculation error:', error)
+        logger.warn('Game progress calculation error:', error)
         return 0
       }
     },
@@ -76,7 +77,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         if (state.sessionStats.totalAttempts === 0) return 100
         return Math.round((state.sessionStats.correctAnswers / state.sessionStats.totalAttempts) * 100)
       } catch (error) {
-        console.warn('Accuracy calculation error:', error)
+        logger.warn('Accuracy calculation error:', error)
         return 0
       }
     },
@@ -86,7 +87,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         if (state.persistentData.totalQuestions === 0) return 0
         return Math.round((state.persistentData.totalCorrectAnswers / state.persistentData.totalQuestions) * 100)
       } catch (error) {
-        console.warn('Overall accuracy calculation error:', error)
+        logger.warn('Overall accuracy calculation error:', error)
         return 0
       }
     },
@@ -95,7 +96,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
       try {
         return Math.max(1, Math.floor(state.currentCombo / 5) + 1)
       } catch (error) {
-        console.warn('Score multiplier calculation error:', error)
+        logger.warn('Score multiplier calculation error:', error)
         return 1
       }
     },
@@ -104,7 +105,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
       try {
         return state.currentLives > 0 && state.timeRemaining > 0 && state.gameState === 'playing'
       } catch (error) {
-        console.warn('Can continue calculation error:', error)
+        logger.warn('Can continue calculation error:', error)
         return false
       }
     }
@@ -113,7 +114,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
   actions: {
     // エラーハンドリング
     handleError(error, context = 'unknown') {
-      console.error(`BeVerbRush error (${context}):`, error)
+      logger.error(`BeVerbRush error (${context}):`, error)
       this.gameError = {
         message: error.message || 'Unknown error',
         context,
@@ -161,7 +162,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
           timeoutMisses: 0
         }
 
-        console.log('✅ Game session reset')
+        logger.log('✅ Game session reset')
       } catch (error) {
         this.handleError(error, 'resetGameSession')
       }
@@ -171,14 +172,14 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
     startGame() {
       try {
         if (this.gameState !== 'waiting') {
-          console.warn('Game already in progress')
+          logger.warn('Game already in progress')
           return
         }
 
         this.resetGameSession()
         this.gameState = 'countdown'
 
-        console.log('🎮 Game starting...')
+        logger.log('🎮 Game starting...')
       } catch (error) {
         this.handleError(error, 'startGame')
         this.gameState = 'waiting'
@@ -211,7 +212,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         }
 
         this.saveProgress()
-        console.log('🏁 Game ended - Score:', this.currentScore)
+        logger.log('🏁 Game ended - Score:', this.currentScore)
       } catch (error) {
         this.handleError(error, 'endGame')
       }
@@ -279,7 +280,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
 
         this.currentScore += Math.max(0, totalScore)
 
-        console.log(`✅ Correct! Score: +${totalScore}`)
+        logger.log(`✅ Correct! Score: +${totalScore}`)
       } catch (error) {
         this.handleError(error, 'handleCorrectAnswer')
       }
@@ -291,7 +292,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         this.currentCombo = 0
         this.currentLives = Math.max(0, this.currentLives - 1)
 
-        console.log(`❌ Incorrect! Lives: ${this.currentLives}`)
+        logger.log(`❌ Incorrect! Lives: ${this.currentLives}`)
 
         if (this.currentLives <= 0) {
           this.endGame()
@@ -396,11 +397,11 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
           version: '1.0.2'
         }
         localStorage.setItem('beVerbRushProgress', JSON.stringify(saveData))
-        console.log('💾 Be Verb Rush progress saved')
+        logger.log('💾 Be Verb Rush progress saved')
         return true
       } catch (error) {
         this.handleError(error, 'saveProgress')
-        console.error('❌ Failed to save Be Verb Rush progress:', error)
+        logger.error('❌ Failed to save Be Verb Rush progress:', error)
         return false
       }
     },
@@ -428,12 +429,12 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
               }
             }
           }
-          console.log('📖 Be Verb Rush progress loaded')
+          logger.log('📖 Be Verb Rush progress loaded')
           return true
         }
       } catch (error) {
         this.handleError(error, 'loadProgress')
-        console.error('❌ Failed to load Be Verb Rush progress:', error)
+        logger.error('❌ Failed to load Be Verb Rush progress:', error)
       }
       return false
     },
@@ -457,7 +458,7 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         }
         this.resetGameSession()
         this.saveProgress()
-        console.log('🔄 Be Verb Rush progress reset')
+        logger.log('🔄 Be Verb Rush progress reset')
         return true
       } catch (error) {
         this.handleError(error, 'resetProgress')
@@ -497,9 +498,9 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
         this.gameState = 'waiting'
         this.currentSubject = null
         this.gameError = null
-        console.log('🛑 Game force stopped')
+        logger.log('🛑 Game force stopped')
       } catch (error) {
-        console.error('Force stop error:', error)
+        logger.error('Force stop error:', error)
       }
     }
   },
@@ -510,10 +511,10 @@ export const useBeVerbRushStore = defineStore('beVerbRush', {
     storage: localStorage,
     paths: ['persistentData'],
     beforeRestore: (context) => {
-      console.log('🔄 Restoring BeVerbRush store...')
+      logger.log('🔄 Restoring BeVerbRush store...')
     },
     afterRestore: (context) => {
-      console.log('✅ BeVerbRush store restored')
+      logger.log('✅ BeVerbRush store restored')
       // 非永続化データの初期化
       context.store.gameState = 'waiting'
       context.store.currentScore = 0

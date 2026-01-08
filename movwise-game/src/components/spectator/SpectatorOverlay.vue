@@ -64,6 +64,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { computed, watch } from 'vue';
 import { useSpectatorStore } from '@/stores/spectatorStore';
 import { spectatorService } from '@/services/spectatorService';
@@ -88,7 +90,7 @@ function copyRoomCode() {
   navigator.clipboard.writeText(roomCode.value).then(() => {
     alert('ルームコードをコピーしました');
   }).catch(err => {
-    console.error('コピーに失敗しました:', err);
+    logger.error('コピーに失敗しました:', err);
   });
 }
 
@@ -112,7 +114,7 @@ if (isTeacher.value) {
   window.addEventListener('spectator:action', (event) => {
     const { studentId, action } = event.detail;
     // アクションのビジュアル表示などを実装可能
-    console.log(`Student ${studentId} performed action:`, action);
+    logger.log(`Student ${studentId} performed action:`, action);
   });
 }
 </script>

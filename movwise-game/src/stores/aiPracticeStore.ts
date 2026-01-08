@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import logger from '@/utils/logger'
 import type {
   PracticeSession,
   VRScenario,
@@ -155,7 +156,7 @@ export const useAIPracticeStore = defineStore('aiPractice', () => {
       
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to start practice session'
-      console.error('Error starting practice session:', e)
+      logger.error('Error starting practice session:', e)
     } finally {
       isLoading.value = false
     }
@@ -193,7 +194,7 @@ export const useAIPracticeStore = defineStore('aiPractice', () => {
       
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to send message'
-      console.error('Error sending message:', e)
+      logger.error('Error sending message:', e)
     } finally {
       isLoading.value = false
     }
@@ -213,7 +214,7 @@ export const useAIPracticeStore = defineStore('aiPractice', () => {
       
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to end session'
-      console.error('Error ending session:', e)
+      logger.error('Error ending session:', e)
     } finally {
       isLoading.value = false
     }

@@ -165,6 +165,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed } from 'vue'
 
 // Props
@@ -269,7 +271,7 @@ const sendEmergencyCall = async () => {
     closeModal()
 
   } catch (error) {
-    console.error('Failed to send emergency call:', error)
+    logger.error('Failed to send emergency call:', error)
   } finally {
     isSending.value = false
   }

@@ -1,6 +1,7 @@
 // src/components/games/grammar-galaxy/shared/problemGenerator.js
 
 import { grammarContentManager } from '@/data/grammarContentManager.js'
+import logger from '@/utils/logger'
 
 /**
  * 動的問題生成システム
@@ -13,7 +14,7 @@ export class ProblemGenerator {
     this.visualElements = []
     this.usedProblemIds = new Set()
     this.recentProblemIds = [] // 🔧 最近使用した問題IDを追跡（重複防止）
-    this.maxRecentProblems = 2 // 最近の2問は除外（多様性を確保）
+    this.maxRecentProblems = 10 // 最近の10問は除外（多様性を確保）
     this.difficultySettings = this.createDifficultySettings()
     this.isInitialized = false
   }
@@ -23,13 +24,13 @@ export class ProblemGenerator {
    * @returns {Promise<boolean>} 初期化成功フラグ
    */
   async initialize(content, problems, visuals) {
-    console.log('🏁 ProblemGenerator 初期化開始')
+    logger.log('🏁 ProblemGenerator 初期化開始')
     this.contentData = Array.isArray(content) ? content : []
     this.problemSets = Array.isArray(problems) ? problems : []
     this.visualElements = Array.isArray(visuals) ? visuals : []
     this.isInitialized = true
     
-    console.log('✅ ProblemGenerator 初期化完了:', {
+    logger.log('✅ ProblemGenerator 初期化完了:', {
       contentData: this.contentData.length,
       problemSets: this.problemSets.length,
       visualElements: this.visualElements.length,
@@ -38,7 +39,7 @@ export class ProblemGenerator {
     
     // 問題セットの最初の数個をサンプル表示
     if (this.problemSets.length > 0) {
-      console.log('📋 問題セットサンプル:', this.problemSets.slice(0, 3).map(ps => ({
+      logger.log('📋 問題セットサンプル:', this.problemSets.slice(0, 3).map(ps => ({
         set_id: ps.set_id,
         level: ps.level,
         category: ps.category,
@@ -68,8 +69,8 @@ export class ProblemGenerator {
       targetSentenceCount = 1
     } = options
 
-    console.log('🎯 問題生成開始:', options)
-    console.log('📊 利用可能データ:', {
+    logger.log('🎯 問題生成開始:', options)
+    logger.log('📊 利用可能データ:', {
       problemSets: this.problemSets?.length || 0,
       contentData: this.contentData?.length || 0,
       visualElements: this.visualElements?.length || 0,
@@ -85,22 +86,22 @@ export class ProblemGenerator {
         excludeUsed
       })
 
-      console.log('🔍 問題セット選択結果:', problemSet)
+      logger.log('🔍 問題セット選択結果:', problemSet)
       if (!problemSet) {
-        console.error('❌ 問題セットが見つかりません。利用可能な問題セット:')
-        console.log('問題セット数:', this.problemSets?.length || 0)
+        logger.error('❌ 問題セットが見つかりません。利用可能な問題セット:')
+        logger.log('問題セット数:', this.problemSets?.length || 0)
         if (this.problemSets?.length > 0) {
-          console.log('最初の問題セット:', this.problemSets[0])
-          console.log('全問題セットのレベル:', [...new Set(this.problemSets.map(ps => ps.level))])
-          console.log('全問題セットのカテゴリ:', [...new Set(this.problemSets.map(ps => ps.category))])
+          logger.log('最初の問題セット:', this.problemSets[0])
+          logger.log('全問題セットのレベル:', [...new Set(this.problemSets.map(ps => ps.level))])
+          logger.log('全問題セットのカテゴリ:', [...new Set(this.problemSets.map(ps => ps.category))])
         }
         throw new Error('適切な問題セットが見つかりません')
       }
 
       // 2. 問題セットから要素を生成
-      console.log('🔧 要素生成開始:', problemSet.set_id, problemSet.target_sentence)
+      logger.log('🔧 要素生成開始:', problemSet.set_id, problemSet.target_sentence)
       const elements = await this.generateElementsFromProblemSet(problemSet, difficulty)
-      console.log('🔧 要素生成完了:', elements.length, '個')
+      logger.log('🔧 要素生成完了:', elements.length, '個')
 
       // 3. 視覚的テーマを適用
       const visualTheme = this.getVisualTheme(problemSet.visual_theme)
@@ -134,10 +135,10 @@ export class ProblemGenerator {
       }
 
       // デバッグ用：生成された要素の検証
-      console.log('🎲 Generated problem validation:')
-      console.log('- Target sentence:', problem.targetSentence)
-      console.log('- Elements count:', problem.elements.length)
-      console.log('- Position distribution:',
+      logger.log('🎲 Generated problem validation:')
+      logger.log('- Target sentence:', problem.targetSentence)
+      logger.log('- Elements count:', problem.elements.length)
+      logger.log('- Position distribution:',
         problem.elements.reduce((acc, el) => {
           acc[el.position] = (acc[el.position] || 0) + 1
           return acc
@@ -147,9 +148,9 @@ export class ProblemGenerator {
       return problem
 
     } catch (error) {
-      console.error('❌ 問題生成エラー:', error)
-      console.error('❌ エラースタック:', error.stack)
-      console.error('❌ エラー発生時の状態:', {
+      logger.error('❌ 問題生成エラー:', error)
+      logger.error('❌ エラースタック:', error.stack)
+      logger.error('❌ エラー発生時の状態:', {
         isInitialized: this.isInitialized,
         problemSetsCount: this.problemSets?.length || 0,
         contentDataCount: this.contentData?.length || 0,
@@ -158,6 +159,58 @@ export class ProblemGenerator {
 
       // フォールバック問題を生成
       return this.generateFallbackProblem(options)
+    }
+  }
+
+  /**
+   * ゲームで使用するメイン関数：問題を一括生成
+   * @param {string} difficulty - 難易度（英検レベル）
+   * @param {number} count - 生成する問題数
+   * @returns {Promise<Array>} 生成された問題配列
+   */
+  async generateProblems(difficulty, count) {
+    logger.log(`🎮 [generateProblems] 開始: difficulty=${difficulty}, count=${count}`)
+
+    // データ確認とフォールバック判定
+    if (!this.isInitialized || !this.problemSets || this.problemSets.length === 0) {
+      logger.warn('⚠️ [generateProblems] 問題セットが空、フォールバック問題を生成')
+      return this.generateFallbackProblems(count)
+    }
+
+    try {
+      // 難易度から適切なオプションを作成
+      const options = {
+        level: 'beginner', // デフォルトレベル
+        eiken_level: difficulty,
+        difficulty: 'normal',
+        excludeUsed: true
+      }
+
+      logger.log(`🎯 [generateProblems] オプション設定:`, options)
+      logger.log(`📊 [generateProblems] 利用可能データ:`, {
+        problemSets: this.problemSets.length,
+        contentData: this.contentData.length,
+        eiken_level_matches: this.problemSets.filter(p => p.eiken_level === difficulty).length
+      })
+
+      // 複数問題を生成
+      const problems = await this.generateMultipleProblems(count, options)
+
+      logger.log(`✅ [generateProblems] 生成完了: ${problems.length}/${count}問`)
+
+      if (problems.length === 0) {
+        logger.warn('⚠️ [generateProblems] 問題が生成されなかったため、フォールバック使用')
+        return this.generateFallbackProblems(count)
+      }
+
+      return problems
+
+    } catch (error) {
+      logger.error('❌ [generateProblems] エラー:', error)
+      logger.error('❌ [generateProblems] フォールバック問題を返します')
+
+      // エラー時はフォールバック問題を複数生成
+      return this.generateFallbackProblems(count)
     }
   }
 
@@ -171,6 +224,7 @@ export class ProblemGenerator {
     const problems = []
     const usedCategories = new Set()
     const usedPatterns = new Set()
+    const sessionUsedIds = new Set() // このセッションで使用した問題IDを追跡
 
     for (let i = 0; i < count; i++) {
       try {
@@ -188,17 +242,33 @@ export class ProblemGenerator {
         const sentencePattern = this.selectDiversePattern(usedPatterns, options.eiken_level)
         categoryOptions.preferredPattern = sentencePattern
 
-        const problem = await this.generateProblem({
-          ...categoryOptions,
-          excludeUsed: true
-        })
+        // 同じ問題を選択しないように複数回試行
+        let problem = null
+        let attempts = 0
+        const maxAttempts = 10
+        
+        do {
+          problem = await this.generateProblem({
+            ...categoryOptions,
+            excludeUsed: true
+          })
+          attempts++
+          
+          // 既にこのセッションで使用した問題なら再試行
+          if (problem && sessionUsedIds.has(problem.set_id)) {
+            logger.log(`🔄 問題 ${problem.set_id} は既に使用済み、再選択中...`)
+            problem = null
+          }
+        } while (!problem || (sessionUsedIds.has(problem.set_id) && attempts < maxAttempts))
 
-        // パターンに基づいて問題を強化
-        const enhancedProblem = this.enhanceProblemWithPattern(problem, sentencePattern)
-
-        problems.push(enhancedProblem)
-        usedCategories.add(problem.category)
-        usedPatterns.add(sentencePattern)
+        if (problem && !sessionUsedIds.has(problem.set_id)) {
+          // パターンに基づいて問題を強化
+          const enhancedProblem = this.enhanceProblemWithPattern(problem, sentencePattern)
+          problems.push(enhancedProblem)
+          sessionUsedIds.add(problem.set_id) // セッション使用済みに追加
+          usedCategories.add(problem.category)
+          usedPatterns.add(sentencePattern)
+        }
 
         // カテゴリリセット（全て使用した場合）
         if (usedCategories.size >= this.getAvailableCategories(options.level).length) {
@@ -211,11 +281,11 @@ export class ProblemGenerator {
         }
 
       } catch (error) {
-        console.warn(`⚠️ 問題 ${i + 1} の生成に失敗:`, error)
+        logger.warn(`⚠️ 問題 ${i + 1} の生成に失敗:`, error)
       }
     }
 
-    console.log(`🎲 ${count}問中${problems.length}問生成完了`)
+    logger.log(`🎲 ${count}問中${problems.length}問生成完了`)
     return problems
   }
 
@@ -398,11 +468,11 @@ export class ProblemGenerator {
    * @returns {Object|null} 選択された問題セット
    */
   selectProblemSet(criteria) {
-    console.log('🔍 問題セット選択開始:', criteria)
-    console.log('💾 全問題セット数:', this.problemSets?.length || 0)
+    logger.log('🔍 問題セット選択開始:', criteria)
+    logger.log('💾 全問題セット数:', this.problemSets?.length || 0)
     
     if (!this.problemSets || this.problemSets.length === 0) {
-      console.error('❌ 問題セットが初期化されていません')
+      logger.error('❌ 問題セットが初期化されていません')
       return null
     }
     
@@ -412,21 +482,21 @@ export class ProblemGenerator {
       stats[level] = (stats[level] || 0) + 1
       return stats
     }, {})
-    console.log('📊 英検レベル別問題数:', eikenStats)
-    console.log('🔍 使用済み問題数:', this.usedProblemIds.size)
+    logger.log('📊 英検レベル別問題数:', eikenStats)
+    logger.log('🔍 使用済み問題数:', this.usedProblemIds.size)
 
     let candidates = [...this.problemSets]
-    console.log('📋 初期候補数:', candidates.length)
+    logger.log('📋 初期候補数:', candidates.length)
 
     // レベルフィルタ
     if (criteria.level) {
       const beforeFilter = candidates.length
       candidates = candidates.filter(ps => ps.level === criteria.level)
-      console.log(`🎯 レベルフィルタ後 (${criteria.level}): ${beforeFilter} → ${candidates.length}個`)
+      logger.log(`🎯 レベルフィルタ後 (${criteria.level}): ${beforeFilter} → ${candidates.length}個`)
       
       // レベル一致がない場合は、レベルを無視して検索
       if (candidates.length === 0) {
-        console.log(`⚠️ レベル「${criteria.level}」の問題セットが見つからないため、レベルを無視して検索`)
+        logger.log(`⚠️ レベル「${criteria.level}」の問題セットが見つからないため、レベルを無視して検索`)
         candidates = [...this.problemSets]
       }
     }
@@ -437,7 +507,7 @@ export class ProblemGenerator {
       
       // デバッグ: 使用可能な英検レベルを表示
       const availableEikenLevels = [...new Set(this.problemSets.map(ps => ps.eiken_level).filter(Boolean))]
-      console.log(`📚 利用可能な英検レベル: [${availableEikenLevels.join(', ')}]`)
+      logger.log(`📚 利用可能な英検レベル: [${availableEikenLevels.join(', ')}]`)
       
       // eiken_levelの文字列マッチングを改善
       candidates = candidates.filter(ps => {
@@ -447,37 +517,37 @@ export class ProblemGenerator {
                psLevel.includes(criteria.eiken_level)
         
         if (criteria.eiken_level === '4' && matches) {
-          console.log(`🎯 4級問題見つかった: ${ps.target_sentence} (eiken_level: ${ps.eiken_level})`)
+          logger.log(`🎯 4級問題見つかった: ${ps.target_sentence} (eiken_level: ${ps.eiken_level})`)
         }
         
         return matches
       })
-      console.log(`📚 英検レベルフィルタ後 (${criteria.eiken_level}): ${beforeFilter} → ${candidates.length}個`)
+      logger.log(`📚 英検レベルフィルタ後 (${criteria.eiken_level}): ${beforeFilter} → ${candidates.length}個`)
       
       // 4級の場合、具体的な問題例を表示
       if (criteria.eiken_level === '4' && candidates.length > 0) {
-        console.log(`📝 4級問題サンプル (最初の10個):`)
+        logger.log(`📝 4級問題サンプル (最初の10個):`)
         candidates.slice(0, 10).forEach((ps, i) => {
-          console.log(`  ${i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
+          logger.log(`  ${i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
         })
-        console.log(`📝 4級問題サンプル (最後の5個):`)
+        logger.log(`📝 4級問題サンプル (最後の5個):`)
         candidates.slice(-5).forEach((ps, i) => {
-          console.log(`  ${candidates.length - 5 + i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
+          logger.log(`  ${candidates.length - 5 + i + 1}. "${ps.target_sentence}" (set_id: ${ps.set_id}, level: ${ps.level})`)
         })
       }
       
       // 英検レベル一致がない場合のフォールバック
       if (candidates.length === 0) {
-        console.log(`⚠️ 英検「${criteria.eiken_level}」の問題セットが見つからないため、フォールバック検索`)
+        logger.log(`⚠️ 英検「${criteria.eiken_level}」の問題セットが見つからないため、フォールバック検索`)
         
         // フォールバック1: レベルフィルタに戻す
         candidates = this.problemSets.filter(ps => ps.level === criteria.level)
-        console.log(`🔄 レベルフィルタフォールバック: ${candidates.length}個`)
+        logger.log(`🔄 レベルフィルタフォールバック: ${candidates.length}個`)
         
         // フォールバック2: 全ての問題セットを使用
         if (candidates.length === 0) {
           candidates = [...this.problemSets]
-          console.log(`🔄 全問題セットフォールバック: ${candidates.length}個`)
+          logger.log(`🔄 全問題セットフォールバック: ${candidates.length}個`)
         }
       }
     }
@@ -485,41 +555,41 @@ export class ProblemGenerator {
     // カテゴリフィルタ  
     if (criteria.category) {
       candidates = candidates.filter(ps => ps.category === criteria.category)
-      console.log(`🏷️ カテゴリフィルタ後 (${criteria.category}):`, candidates.length, '個')
+      logger.log(`🏷️ カテゴリフィルタ後 (${criteria.category}):`, candidates.length, '個')
     }
 
     // 使用済み除外
     if (criteria.excludeUsed) {
       const beforeFilter = candidates.length
-      console.log(`🔍 使用済み問題リスト (${this.usedProblemIds.size}個):`, [...this.usedProblemIds])
+      logger.log(`🔍 使用済み問題リスト (${this.usedProblemIds.size}個):`, [...this.usedProblemIds])
       
       candidates = candidates.filter(ps => !this.usedProblemIds.has(ps.set_id))
-      console.log(`🚫 使用済み除外後: ${beforeFilter} → ${candidates.length}個`)
+      logger.log(`🚫 使用済み除外後: ${beforeFilter} → ${candidates.length}個`)
     }
     
     // 🔧 最近使用した問題を除外（重複防止）
     const beforeRecentFilter = candidates.length
-    console.log(`🔍 最近使用した問題 (${this.recentProblemIds.length}個):`, this.recentProblemIds)
+    logger.log(`🔍 最近使用した問題 (${this.recentProblemIds.length}個):`, this.recentProblemIds)
     
     candidates = candidates.filter(ps => !this.recentProblemIds.includes(ps.set_id))
-    console.log(`🚫 最近使用問題除外後: ${beforeRecentFilter} → ${candidates.length}個`)
+    logger.log(`🚫 最近使用問題除外後: ${beforeRecentFilter} → ${candidates.length}個`)
     
     // 4級でフィルタリング後の候補を詳しく表示
     if (criteria.eiken_level === '4' && candidates.length > 0) {
-      console.log(`📝 4級候補問題 (${candidates.length}個):`)
+      logger.log(`📝 4級候補問題 (${candidates.length}個):`)
       candidates.slice(0, 10).forEach((ps, i) => {
-        console.log(`  ${i + 1}. "${ps.target_sentence}" (ID: ${ps.set_id})`)
+        logger.log(`  ${i + 1}. "${ps.target_sentence}" (ID: ${ps.set_id})`)
       })
       if (candidates.length > 10) {
-        console.log(`  ... and ${candidates.length - 10} more`)
+        logger.log(`  ... and ${candidates.length - 10} more`)
       }
     }
 
     // 候補がない場合は使用済みリセット（但し警告を表示）
     if (candidates.length === 0 && criteria.excludeUsed) {
-      console.warn('⚠️ 使用済み問題をリセット - 全ての問題を一度プレイしました')
-      console.log(`📊 リセット前の使用済み問題数: ${this.usedProblemIds.size}`)
-      console.log(`📊 リセット前の最近使用問題数: ${this.recentProblemIds.length}`)
+      logger.warn('⚠️ 使用済み問題をリセット - 全ての問題を一度プレイしました')
+      logger.log(`📊 リセット前の使用済み問題数: ${this.usedProblemIds.size}`)
+      logger.log(`📊 リセット前の最近使用問題数: ${this.recentProblemIds.length}`)
       
       // 🔧 使用済みリストと最近使用リストの両方をクリア
       this.usedProblemIds.clear()
@@ -530,39 +600,25 @@ export class ProblemGenerator {
 
     // ランダム選択（難易度を考慮した重み付き）
     if (candidates.length === 0) {
-      console.warn('⚠️ 条件に合う問題セットが見つかりません')
+      logger.warn('⚠️ 条件に合う問題セットが見つかりません')
       return null
     }
 
-    // 🔧 4級問題の多様性を向上させるため、90%の確率で純粋にランダム選択
-    const useRandomSelection = Math.random() < 0.9
+    // 純粋にランダム選択（重複を防ぐ）
+    let selected = candidates[Math.floor(Math.random() * candidates.length)]
+    logger.log('🎲 純粋ランダム選択使用')
     
-    let selected
-    if (useRandomSelection && criteria.eiken_level === '4') {
-      // 純粋にランダム選択
-      selected = candidates[Math.floor(Math.random() * candidates.length)]
-      console.log('🎲 純粋ランダム選択使用')
-    } else {
-      // 従来の重み付き選択
-      const weightedCandidates = candidates.map(ps => ({
-        ...ps,
-        weight: this.calculateSelectionWeight(ps)
-      }))
-      selected = this.selectWeightedRandom(weightedCandidates)
-      console.log('⚖️ 重み付き選択使用')
-    }
-    
-    console.log('✅ 選択された問題セット:', selected?.set_id, selected?.target_sentence)
+    logger.log('✅ 選択された問題セット:', selected?.set_id, selected?.target_sentence)
     
     // 🔧 デバッグ情報を詳細に表示（常に表示）
     if (selected) {
-      console.log('📊 4級問題選択詳細:')
-      console.log(`  - 全4級問題数: ${this.problemSets.filter(ps => ps.eiken_level === '4').length}`)
-      console.log(`  - 使用済み問題数: ${this.usedProblemIds.size}`)
-      console.log(`  - 最近使用問題数: ${this.recentProblemIds.length}`)
-      console.log(`  - 候補問題数: ${candidates.length}`)
-      console.log(`  - 選択方法: ${useRandomSelection ? '純粋ランダム' : '重み付き'}`)
-      console.log(`  - 選択された問題: "${selected.target_sentence}" (ID: ${selected.set_id})`)
+      logger.log('📊 4級問題選択詳細:')
+      logger.log(`  - 全4級問題数: ${this.problemSets.filter(ps => ps.eiken_level === '4').length}`)
+      logger.log(`  - 使用済み問題数: ${this.usedProblemIds.size}`)
+      logger.log(`  - 最近使用問題数: ${this.recentProblemIds.length}`)
+      logger.log(`  - 候補問題数: ${candidates.length}`)
+      logger.log(`  - 選択方法: 純粋ランダム`)
+      logger.log(`  - 選択された問題: "${selected.target_sentence}" (ID: ${selected.set_id})`)
       
       // 🎯 最近選ばれた問題の履歴を表示
       if (this.recentProblemIds.length > 0) {
@@ -570,7 +626,7 @@ export class ProblemGenerator {
           const problem = this.problemSets.find(ps => ps.set_id === id)
           return problem ? `"${problem.target_sentence}" (${id})` : `Unknown (${id})`
         })
-        console.log(`  - 最近の問題履歴: [${recentProblems.join(', ')}]`)
+        logger.log(`  - 最近の問題履歴: [${recentProblems.join(', ')}]`)
       }
     }
     
@@ -599,7 +655,7 @@ export class ProblemGenerator {
 
     // シャッフル前にpositionを検証
     const allElements = [...correctElements, ...distractorElements]
-    console.log('🔧 All elements before shuffle:', allElements.map(el => ({
+    logger.log('🔧 All elements before shuffle:', allElements.map(el => ({
       word: el.word,
       position: el.position,
       isCorrect: el.isCorrect
@@ -624,7 +680,7 @@ export class ProblemGenerator {
     
     // words_poolから直接正解要素を作成
     if (problemSet.words_pool && Array.isArray(problemSet.words_pool)) {
-      console.log('🎯 Creating elements from words_pool:', problemSet.words_pool)
+      logger.log('🎯 Creating elements from words_pool:', problemSet.words_pool)
       
       for (const wordData of problemSet.words_pool) {
         const { word, position } = wordData
@@ -633,7 +689,7 @@ export class ProblemGenerator {
         const contentItem = this.findContentItem(word, problemSet.level, problemSet.category)
         
         if (contentItem) {
-          console.log(`[createCorrectElements] Creating element: word="${word}", poolPosition="${position}", contentPosition="${contentItem.position}"`)
+          logger.log(`[createCorrectElements] Creating element: word="${word}", poolPosition="${position}", contentPosition="${contentItem.position}"`)
           
           elements.push({
             word: word, // words_poolから取った元の単語（大文字小文字保持）
@@ -652,7 +708,7 @@ export class ProblemGenerator {
             poolPosition: position
           })
           
-          console.log(`[createCorrectElements] ✓ Element created with position="${position}" (from words_pool)`)
+          logger.log(`[createCorrectElements] ✓ Element created with position="${position}" (from words_pool)`)
         } else {
           // フォールバック要素を作成
           const fallback = this.createFallbackElement(word, problemSet, position)
@@ -666,13 +722,13 @@ export class ProblemGenerator {
         ['auxiliary', 'subject', 'verb', 'object'] : 
         ['subject', 'verb', 'object']
       
-      console.log('🎯 Creating correct elements for words:', targetWords)
-      console.log('🎯 Using positions:', positions)
+      logger.log('🎯 Creating correct elements for words:', targetWords)
+      logger.log('🎯 Using positions:', positions)
       
       for (let i = 0; i < Math.min(targetWords.length, positions.length); i++) {
         const word = targetWords[i]
         const position = positions[i]
-        console.log(`📍 Processing word ${i}: "${word}" → position: "${position}"`)
+        logger.log(`📍 Processing word ${i}: "${word}" → position: "${position}"`)
         
         const contentItem = this.findContentItem(word, problemSet.level, problemSet.category)
         if (contentItem) {
@@ -693,7 +749,7 @@ export class ProblemGenerator {
       }
     }
     
-    console.log('[problemGenerator] createCorrectElements result:', elements.map(e => ({ word: e.word, position: e.position, type: e.type })))
+    logger.log('[problemGenerator] createCorrectElements result:', elements.map(e => ({ word: e.word, position: e.position, type: e.type })))
     return elements
   }
 
@@ -708,7 +764,7 @@ export class ProblemGenerator {
     const distractors = []
     const usedWords = new Set(correctElements.map(e => e.word.toLowerCase()))
     
-    console.log('🔧 [createDistractorElements] 開始', {
+    logger.log('🔧 [createDistractorElements] 開始', {
       correctElementsCount: correctElements.length,
       targetCount: count,
       usedWords: [...usedWords]
@@ -721,10 +777,10 @@ export class ProblemGenerator {
       item.position // positionが設定されているもののみ
     )
     
-    console.log('🔧 [createDistractorElements] 候補数:', allCandidates.length)
+    logger.log('🔧 [createDistractorElements] 候補数:', allCandidates.length)
     
     if (allCandidates.length === 0) {
-      console.warn('⚠️ [createDistractorElements] 候補がないため、基本的なダミー要素を生成')
+      logger.warn('⚠️ [createDistractorElements] 候補がないため、基本的なダミー要素を生成')
       // フォールバック: 基本的なダミー要素を生成
       const fallbackDistractors = [
         { word: "cat", type: "noun", color: "blue", position: "object", japanese: "猫", isCorrect: false, sourceType: 'fallback' },
@@ -746,8 +802,8 @@ export class ProblemGenerator {
         sourceType: 'content_distractor'
       }))
     
-    console.log('🔧 [createDistractorElements] 生成完了:', selectedDistractors.length, '個')
-    console.log('🔧 [createDistractorElements] 生成された要素:', selectedDistractors.map(d => ({ word: d.word, position: d.position })))
+    logger.log('🔧 [createDistractorElements] 生成完了:', selectedDistractors.length, '個')
+    logger.log('🔧 [createDistractorElements] 生成された要素:', selectedDistractors.map(d => ({ word: d.word, position: d.position })))
     
     return selectedDistractors
   }
@@ -763,10 +819,10 @@ export class ProblemGenerator {
       .replace(/[.,!?]/g, '')
       .split(' ')
       .filter(word => word.length > 0)
-    console.log('📝 Parsed target sentence:', sentence, '→', words)
+    logger.log('📝 Parsed target sentence:', sentence, '→', words)
     // 3つの単語が確実にあることを確認
     if (words.length < 3) {
-      console.warn('⚠️ Target sentence has less than 3 words:', words)
+      logger.warn('⚠️ Target sentence has less than 3 words:', words)
       // 必要に応じてパディングやエラー処理をここで追加可能
     }
     return words
@@ -780,7 +836,7 @@ export class ProblemGenerator {
    * @returns {Object|null} 見つかったアイテム
    */
   findContentItem(word, level, category) {
-    console.log(`[findContentItem] Searching for: word="${word}", level="${level}", category="${category}"`)
+    logger.log(`[findContentItem] Searching for: word="${word}", level="${level}", category="${category}"`)
     
     // 完全一致検索
     let found = this.contentData.find(item =>
@@ -790,7 +846,7 @@ export class ProblemGenerator {
     )
 
     if (found) {
-      console.log(`[findContentItem] ✓ Perfect match found:`, found)
+      logger.log(`[findContentItem] ✓ Perfect match found:`, found)
       return found
     }
 
@@ -801,7 +857,7 @@ export class ProblemGenerator {
     )
 
     if (found) {
-      console.log(`[findContentItem] ✓ Category match found (ignoring level):`, found)
+      logger.log(`[findContentItem] ✓ Category match found (ignoring level):`, found)
       return found
     }
 
@@ -812,7 +868,7 @@ export class ProblemGenerator {
     )
 
     if (found) {
-      console.log(`[findContentItem] ✓ Level match found (ignoring category):`, found)
+      logger.log(`[findContentItem] ✓ Level match found (ignoring category):`, found)
       return found
     }
 
@@ -822,11 +878,11 @@ export class ProblemGenerator {
     )
 
     if (found) {
-      console.log(`[findContentItem] ✓ Word-only match found:`, found)
+      logger.log(`[findContentItem] ✓ Word-only match found:`, found)
       return found
     }
 
-    console.log(`[findContentItem] ✗ No match found for "${word}"`)
+    logger.log(`[findContentItem] ✗ No match found for "${word}"`)
     return null
   }
 
@@ -866,7 +922,7 @@ export class ProblemGenerator {
       sourceType: 'fallback'
     }
     // デバッグ用: フォールバック要素のpositionを出力
-    console.log('[problemGenerator] createFallbackElement:', fallback)
+    logger.log('[problemGenerator] createFallbackElement:', fallback)
     return fallback
   }
 
@@ -976,12 +1032,96 @@ export class ProblemGenerator {
   }
 
   /**
+   * 複数のフォールバック問題を生成
+   * @param {number} count - 生成する問題数
+   * @returns {Array} フォールバック問題配列
+   */
+  generateFallbackProblems(count) {
+    logger.log(`🔄 [generateFallbackProblems] ${count}個のフォールバック問題を生成`)
+
+    const fallbackTemplates = [
+      {
+        targetSentence: 'I am happy',
+        hintJapanese: '私は幸せです',
+        words_pool: [
+          { word: 'I', position: 'zone-0' },
+          { word: 'am', position: 'zone-1' },
+          { word: 'happy', position: 'zone-2' }
+        ]
+      },
+      {
+        targetSentence: 'You are nice',
+        hintJapanese: 'あなたは素敵です',
+        words_pool: [
+          { word: 'You', position: 'zone-0' },
+          { word: 'are', position: 'zone-1' },
+          { word: 'nice', position: 'zone-2' }
+        ]
+      },
+      {
+        targetSentence: 'She likes cats',
+        hintJapanese: '彼女は猫が好きです',
+        words_pool: [
+          { word: 'She', position: 'zone-0' },
+          { word: 'likes', position: 'zone-1' },
+          { word: 'cats', position: 'zone-2' }
+        ]
+      },
+      {
+        targetSentence: 'We play soccer',
+        hintJapanese: '私たちはサッカーをします',
+        words_pool: [
+          { word: 'We', position: 'zone-0' },
+          { word: 'play', position: 'zone-1' },
+          { word: 'soccer', position: 'zone-2' }
+        ]
+      },
+      {
+        targetSentence: 'They eat lunch',
+        hintJapanese: '彼らは昼食を食べます',
+        words_pool: [
+          { word: 'They', position: 'zone-0' },
+          { word: 'eat', position: 'zone-1' },
+          { word: 'lunch', position: 'zone-2' }
+        ]
+      }
+    ]
+
+    const problems = []
+    for (let i = 0; i < count; i++) {
+      const template = fallbackTemplates[i % fallbackTemplates.length]
+      const problem = {
+        id: `fallback_${i + 1}`,
+        japanese: template.hintJapanese,
+        hint_ja: template.hintJapanese,
+        targetSentence: template.targetSentence,
+        target_sentence: template.targetSentence,
+        sentence: template.targetSentence,
+        words_pool: template.words_pool,
+        elements: template.words_pool.map((wordData, index) => ({
+          id: `fb_${i}_${index}`,
+          word: wordData.word,
+          type: 'general',
+          japanese: `[${wordData.word}]`,
+          position: wordData.position,
+          isUsed: false,
+          isSelected: false
+        }))
+      }
+      problems.push(problem)
+    }
+
+    logger.log(`✅ [generateFallbackProblems] ${problems.length}個のフォールバック問題を生成完了`)
+    return problems
+  }
+
+  /**
    * フォールバック問題を生成
    * @param {Object} options - オプション
    * @returns {Object} フォールバック問題
    */
   generateFallbackProblem(options) {
-    console.log('🔄 フォールバック問題を生成')
+    logger.log('🔄 フォールバック問題を生成')
 
     const fallbackProblems = [
       {
@@ -1046,7 +1186,7 @@ export class ProblemGenerator {
   resetUsedProblems() {
     this.usedProblemIds.clear()
     this.recentProblemIds = []
-    console.log('🔄 使用済み問題をリセットしました（最近使用履歴もクリア）')
+    logger.log('🔄 使用済み問題をリセットしました（最近使用履歴もクリア）')
   }
 
   /**
@@ -1098,21 +1238,21 @@ if (import.meta.env.DEV) {
 
 // デバッグ用：問題生成テスト
 async function testProblemGeneration() {
-  console.log('🧪 Testing problem generation...')
+  logger.log('🧪 Testing problem generation...')
   try {
     const problem = await problemGenerator.generateProblem({
       level: 'beginner',
       difficulty: 'normal'
     })
-    console.log('✅ Test results:')
-    console.log('- Problem generated successfully')
-    console.log('- Elements:', problem.elements.length)
+    logger.log('✅ Test results:')
+    logger.log('- Problem generated successfully')
+    logger.log('- Elements:', problem.elements.length)
     const correctElements = problem.elements.filter(el => el.isCorrect)
-    console.log('- Correct elements:', correctElements.length)
-    console.log('- Positions:', correctElements.map(el => `${el.word}(${el.position})`))
+    logger.log('- Correct elements:', correctElements.length)
+    logger.log('- Positions:', correctElements.map(el => `${el.word}(${el.position})`))
     return true
   } catch (error) {
-    console.error('❌ Test failed:', error)
+    logger.error('❌ Test failed:', error)
     return false
   }
 }

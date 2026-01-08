@@ -1,0 +1,691 @@
+<template>
+  <div class="meaning-duel-game relative min-h-screen bg-gradient-to-b from-red-950 via-purple-950 to-black overflow-hidden">
+    <!-- Cosmic Battle Background -->
+    <div class="absolute inset-0">
+      <!-- Energy Lightning -->
+      <div v-for="n in 15" :key="'lightning-' + n"
+           class="absolute bg-yellow-300 opacity-40"
+           :style="{
+             left: Math.random() * 100 + '%',
+             top: Math.random() * 100 + '%',
+             width: Math.random() * 3 + 1 + 'px',
+             height: Math.random() * 120 + 60 + 'px',
+             transform: 'rotate(' + Math.random() * 360 + 'deg)',
+             animation: `lightning ${Math.random() * 2 + 1}s infinite`
+           }">
+      </div>
+
+      <!-- Battle Sparks -->
+      <div v-for="n in 30" :key="'spark-' + n"
+           class="absolute bg-red-400 rounded-full opacity-50"
+           :style="{
+             left: Math.random() * 100 + '%',
+             top: Math.random() * 100 + '%',
+             width: Math.random() * 4 + 2 + 'px',
+             height: Math.random() * 4 + 2 + 'px',
+             animation: `spark ${Math.random() * 3 + 2}s infinite`,
+             animationDelay: Math.random() * 2 + 's'
+           }">
+      </div>
+
+      <!-- Energy Waves -->
+      <div v-for="n in 8" :key="'wave-' + n"
+           class="absolute bg-purple-500 opacity-20 rounded-full"
+           :style="{
+             left: Math.random() * 100 + '%',
+             top: Math.random() * 100 + '%',
+             width: Math.random() * 40 + 20 + 'px',
+             height: Math.random() * 40 + 20 + 'px',
+             animation: `energyWave ${Math.random() * 4 + 3}s infinite ease-in-out`,
+             animationDelay: Math.random() * 3 + 's'
+           }">
+      </div>
+    </div>
+
+    <!-- Game Header -->
+    <div class="relative z-10 p-6">
+      <div class="flex justify-between items-center mb-6">
+        <button @click="goBack"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+          ← Back to Hub
+        </button>
+
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-white mb-2">Meaning Duel</h1>
+          <p class="text-red-200">Master the subtle differences!</p>
+        </div>
+
+        <div class="text-right text-white">
+          <div class="text-lg font-bold">Score: {{ score }}</div>
+          <div class="text-sm">Health: {{ playerHealth }}/3</div>
+        </div>
+      </div>
+
+      <!-- Duel Progress -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="text-center">
+          <div class="text-2xl mb-2">🤖</div>
+          <div class="bg-red-600 rounded-full h-3 w-32">
+            <div class="bg-red-400 h-3 rounded-full transition-all duration-300"
+                 :style="{ width: (enemyHealth / 3) * 100 + '%' }">
+            </div>
+          </div>
+          <div class="text-red-200 text-sm mt-1">Enemy: {{ enemyHealth }}/3</div>
+        </div>
+
+        <div class="text-4xl text-yellow-400 animate-pulse">⚔️</div>
+
+        <div class="text-center">
+          <div class="text-2xl mb-2">👤</div>
+          <div class="bg-green-600 rounded-full h-3 w-32">
+            <div class="bg-green-400 h-3 rounded-full transition-all duration-300"
+                 :style="{ width: (playerHealth / 3) * 100 + '%' }">
+            </div>
+          </div>
+          <div class="text-green-200 text-sm mt-1">You: {{ playerHealth }}/3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="relative z-10 px-6">
+      <!-- Current Duel Challenge -->
+      <div v-if="currentDuel && gameStarted" class="text-center mb-8">
+        <div class="relative bg-gradient-to-r from-purple-600/80 to-red-600/80 backdrop-blur-md rounded-2xl p-6 max-w-3xl mx-auto mb-6 border border-red-300/30 shadow-2xl overflow-hidden">
+          <!-- Battle Energy Border -->
+          <div class="absolute inset-0 rounded-2xl">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-red-400/30 to-transparent animate-pulse"></div>
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-yellow-400 to-red-500 animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-red-400 to-purple-500 animate-pulse"></div>
+          </div>
+          <div class="relative z-10">
+          <h2 class="text-2xl font-bold text-white mb-4">Choose the Correct Meaning</h2>
+
+          <!-- Verb Display -->
+          <div class="relative bg-black/50 backdrop-blur-sm rounded-lg p-4 mb-6 border border-yellow-400/40 shadow-lg overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 via-red-500/10 to-yellow-500/10 animate-pulse"></div>
+            <div class="relative z-10">
+              <h3 class="text-3xl font-bold text-yellow-300 mb-2 animate-pulse">{{ currentDuel.verb }}</h3>
+              <p class="text-purple-200">{{ currentDuel.context }}</p>
+            </div>
+          </div>
+
+          <!-- Example Sentences -->
+          <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="relative bg-blue-800/60 backdrop-blur-sm rounded-lg p-4 border border-blue-400/30 shadow-lg overflow-hidden group">
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div class="relative z-10">
+                <h4 class="text-blue-300 font-bold mb-2">Pattern A: {{ currentDuel.verb }} + -ing</h4>
+                <p class="text-white italic">"{{ currentDuel.examples.ing }}"</p>
+              </div>
+            </div>
+            <div class="relative bg-green-800/60 backdrop-blur-sm rounded-lg p-4 border border-green-400/30 shadow-lg overflow-hidden group">
+              <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div class="relative z-10">
+                <h4 class="text-green-300 font-bold mb-2">Pattern B: {{ currentDuel.verb }} + to</h4>
+                <p class="text-white italic">"{{ currentDuel.examples.to }}"</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question -->
+          <div class="relative bg-yellow-800/60 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/40 shadow-lg overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-amber-500/20 to-yellow-500/20 animate-pulse"></div>
+            <div class="relative z-10">
+              <p class="text-yellow-100 text-lg font-semibold">{{ currentDuel.question }}</p>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Answer Options -->
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
+          <button v-for="(option, index) in currentDuel.options" :key="index"
+                  @click="selectAnswer(option)"
+                  :disabled="answerSelected"
+                  class="relative bg-gradient-to-b from-purple-500/80 to-purple-700/80 backdrop-blur-sm hover:from-purple-400 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-800 text-white p-6 rounded-xl transition-all transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed border shadow-2xl overflow-hidden group"
+                  :class="{
+                    'ring-4 ring-green-400 border-green-400/50 bg-gradient-to-b from-green-500/80 to-green-700/80': answerSelected && option.correct,
+                    'ring-4 ring-red-400 border-red-400/50 bg-gradient-to-b from-red-500/80 to-red-700/80': answerSelected && selectedOption === option && !option.correct,
+                    'border-purple-400/30': !answerSelected
+                  }">
+            <!-- Shimmer Effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+            <div class="relative z-10">
+              <div class="text-xl font-bold mb-2">{{ option.pattern }}</div>
+              <div class="text-purple-200">{{ option.meaning }}</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Feedback -->
+        <div v-if="feedbackMessage" class="text-center mb-6">
+          <div class="inline-block px-6 py-4 rounded-xl text-white font-bold max-w-lg border shadow-2xl backdrop-blur-md animate-pulse"
+               :class="{
+                 'bg-emerald-600/80 border-emerald-300/50': feedbackMessage.type === 'correct',
+                 'bg-red-600/80 border-red-300/50': feedbackMessage.type === 'incorrect'
+               }">
+            <div class="text-lg mb-2">{{ feedbackMessage.title }}</div>
+            <div class="text-sm opacity-90">{{ feedbackMessage.text }}</div>
+          </div>
+        </div>
+
+        <!-- Next Duel Button -->
+        <div v-if="roundComplete" class="text-center">
+          <button @click="nextDuel"
+                  class="bg-gradient-to-r from-red-500 to-purple-600 hover:from-red-400 hover:to-purple-500 text-white text-xl font-bold px-8 py-4 rounded-full transform hover:scale-105 transition-all">
+            {{ gameOver ? 'View Results' : 'Next Duel' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Start Game Button -->
+      <div v-if="!gameStarted" class="text-center">
+        <div class="max-w-2xl mx-auto mb-8">
+          <div class="relative bg-gradient-to-r from-red-600/80 to-purple-600/80 backdrop-blur-md rounded-2xl p-8 text-white border border-red-300/30 shadow-2xl overflow-hidden">
+            <!-- Battle Arena Glow -->
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500/20 via-purple-500/20 to-red-500/20 animate-pulse"></div>
+            <div class="relative z-10">
+            <h2 class="text-2xl font-bold mb-4">⚔️ Meaning Duel Challenge</h2>
+            <p class="text-lg mb-4">Face off against the Grammar Guardian in the ultimate test of verb pattern mastery!</p>
+            <div class="text-sm text-red-200 space-y-2">
+              <p>• Choose the correct meaning for complex verb patterns</p>
+              <p>• Each wrong answer costs you health</p>
+              <p>• Defeat the enemy by answering correctly 5 times</p>
+              <p>• Master verbs like: remember, forget, stop, try</p>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <button @click="startGame"
+                class="bg-gradient-to-r from-red-500 to-purple-600 hover:from-red-400 hover:to-purple-500 text-white text-xl font-bold px-8 py-4 rounded-full transform hover:scale-105 transition-all">
+          ⚔️ Enter the Duel Arena
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div v-if="gameOver"
+         class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div class="relative bg-gradient-to-b from-purple-600/90 to-purple-800/90 backdrop-blur-md rounded-2xl p-8 max-w-md mx-4 border border-purple-300/30 shadow-2xl overflow-hidden">
+        <!-- Victory/Defeat Aura -->
+        <div class="absolute inset-0 rounded-2xl"
+             :class="playerWon ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20' : 'bg-gradient-to-r from-red-500/20 to-red-700/20'"
+             style="animation: battleAura 2s infinite;"></div>
+        <div class="relative z-10">
+        <div class="text-center">
+          <div class="text-6xl mb-4">{{ playerWon ? '🏆' : '💀' }}</div>
+          <h2 class="text-3xl font-bold text-white mb-4">
+            {{ playerWon ? 'Victory!' : 'Defeat!' }}
+          </h2>
+          <div class="text-purple-100 mb-6">
+            <p class="text-lg mb-2">Final Score: {{ score }}</p>
+            <p>Duels Won: {{ duelsWon }}</p>
+            <p>Accuracy: {{ Math.round(accuracy) }}%</p>
+          </div>
+          <div class="space-y-3">
+            <button @click="playAgain"
+                    class="relative w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white py-3 rounded-lg transition-all transform hover:scale-105 border border-red-300/30 shadow-lg overflow-hidden group">
+              <div class="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="relative z-10">🔄 Duel Again</span>
+            </button>
+            <button @click="completeStage"
+                    v-if="playerWon"
+                    class="relative w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white py-3 rounded-lg transition-all transform hover:scale-105 border border-emerald-300/30 shadow-lg overflow-hidden group">
+              <div class="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="relative z-10">🎉 Complete Stage</span>
+            </button>
+          </div>
+        </div>
+        </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useVerbPatternStore } from '@/stores/verbPatternStore'
+
+const router = useRouter()
+const store = useVerbPatternStore()
+
+// Game State
+const gameStarted = ref(false)
+const gameOver = ref(false)
+const currentDuel = ref(null)
+const answerSelected = ref(false)
+const selectedOption = ref(null)
+const roundComplete = ref(false)
+
+// Battle Stats
+const playerHealth = ref(3)
+const enemyHealth = ref(3)
+const playerWon = ref(false)
+
+// Game Statistics
+const score = ref(0)
+const duelsWon = ref(0)
+const totalAnswers = ref(0)
+const correctAnswers = ref(0)
+
+// Feedback
+const feedbackMessage = ref(null)
+
+// Duel Challenges Data
+const duelChallenges = ref([
+  {
+    verb: 'remember',
+    context: 'A verb with two different meanings depending on the pattern',
+    examples: {
+      ing: 'I remember meeting you before.',
+      to: 'Remember to call me tonight.'
+    },
+    question: 'Which pattern means "to recall a past event"?',
+    options: [
+      { pattern: 'remember + -ing', meaning: 'Recalls something that happened in the past', correct: true },
+      { pattern: 'remember + to', meaning: 'Not to forget to do something in the future', correct: false }
+    ]
+  },
+  {
+    verb: 'forget',
+    context: 'Another verb that changes meaning with different patterns',
+    examples: {
+      ing: 'I forgot meeting him yesterday.',
+      to: 'I forgot to bring my keys.'
+    },
+    question: 'Which pattern means "failed to do something"?',
+    options: [
+      { pattern: 'forget + -ing', meaning: 'Cannot remember something that happened', correct: false },
+      { pattern: 'forget + to', meaning: 'Failed to do something you intended to do', correct: true }
+    ]
+  },
+  {
+    verb: 'stop',
+    context: 'This verb can mean two completely different actions',
+    examples: {
+      ing: 'I stopped smoking last year.',
+      to: 'I stopped to buy some coffee.'
+    },
+    question: 'Which pattern means "to pause in order to do something"?',
+    options: [
+      { pattern: 'stop + -ing', meaning: 'To quit or cease an activity', correct: false },
+      { pattern: 'stop + to', meaning: 'To pause movement in order to do something', correct: true }
+    ]
+  },
+  {
+    verb: 'try',
+    context: 'The pattern changes the type of attempt being made',
+    examples: {
+      ing: 'Try eating this delicious cake!',
+      to: 'I\'m trying to learn Japanese.'
+    },
+    question: 'Which pattern suggests experimentation or testing?',
+    options: [
+      { pattern: 'try + -ing', meaning: 'To test or experiment with something', correct: true },
+      { pattern: 'try + to', meaning: 'To make an effort to achieve something', correct: false }
+    ]
+  },
+  {
+    verb: 'remember',
+    context: 'Testing the other meaning of remember',
+    examples: {
+      ing: 'Do you remember playing this game?',
+      to: 'Please remember to lock the door.'
+    },
+    question: 'Which pattern is used for reminders about future actions?',
+    options: [
+      { pattern: 'remember + -ing', meaning: 'To recall past experiences', correct: false },
+      { pattern: 'remember + to', meaning: 'To not forget future tasks', correct: true }
+    ]
+  },
+  {
+    verb: 'stop',
+    context: 'Another stop challenge with different context',
+    examples: {
+      ing: 'She stopped talking when I entered.',
+      to: 'We stopped to take photos of the sunset.'
+    },
+    question: 'Which pattern means "to cease an ongoing activity"?',
+    options: [
+      { pattern: 'stop + -ing', meaning: 'To end something you were doing', correct: true },
+      { pattern: 'stop + to', meaning: 'To interrupt your journey for a purpose', correct: false }
+    ]
+  },
+  {
+    verb: 'regret',
+    context: 'This verb has very different meanings',
+    examples: {
+      ing: 'I regret not studying harder.',
+      to: 'I regret to inform you that the meeting is cancelled.'
+    },
+    question: 'Which pattern expresses sorrow about a past action?',
+    options: [
+      { pattern: 'regret + -ing', meaning: 'Feel sorry about something you did in the past', correct: true },
+      { pattern: 'regret + to', meaning: 'Politely express bad news', correct: false }
+    ]
+  },
+  {
+    verb: 'begin',
+    context: 'Both patterns mean starting, but with subtle differences',
+    examples: {
+      ing: 'It began raining suddenly.',
+      to: 'She began to understand the problem.'
+    },
+    question: 'Which pattern is used for gradual mental changes?',
+    options: [
+      { pattern: 'begin + -ing', meaning: 'Start a physical activity or process', correct: false },
+      { pattern: 'begin + to', meaning: 'Start a mental or gradual change', correct: true }
+    ]
+  },
+  {
+    verb: 'continue',
+    context: 'Both mean ongoing action but in different contexts',
+    examples: {
+      ing: 'He continued talking despite interruptions.',
+      to: 'After the break, we continued to work.'
+    },
+    question: 'Which pattern emphasizes uninterrupted action?',
+    options: [
+      { pattern: 'continue + -ing', meaning: 'Keep doing without stopping', correct: true },
+      { pattern: 'continue + to', meaning: 'Resume after a pause', correct: false }
+    ]
+  },
+  {
+    verb: 'start',
+    context: 'Similar to begin but more common in everyday speech',
+    examples: {
+      ing: 'The baby started crying.',
+      to: 'I started to feel sick.'
+    },
+    question: 'Which pattern is used for sudden physical actions?',
+    options: [
+      { pattern: 'start + -ing', meaning: 'Begin a sudden physical action', correct: true },
+      { pattern: 'start + to', meaning: 'Begin a gradual feeling or state', correct: false }
+    ]
+  },
+  {
+    verb: 'love',
+    context: 'Expressing strong preferences',
+    examples: {
+      ing: 'I love swimming in the ocean.',
+      to: 'I would love to visit Paris.'
+    },
+    question: 'Which pattern expresses a hypothetical desire?',
+    options: [
+      { pattern: 'love + -ing', meaning: 'Enjoy an activity you do regularly', correct: false },
+      { pattern: 'love + to', meaning: 'Express a wish or hypothetical desire', correct: true }
+    ]
+  },
+  {
+    verb: 'hate',
+    context: 'Expressing strong dislike',
+    examples: {
+      ing: 'She hates waiting in long lines.',
+      to: 'I hate to interrupt, but we need to leave.'
+    },
+    question: 'Which pattern is used for polite reluctance?',
+    options: [
+      { pattern: 'hate + -ing', meaning: 'Strongly dislike an activity', correct: false },
+      { pattern: 'hate + to', meaning: 'Reluctantly do something (polite)', correct: true }
+    ]
+  },
+  {
+    verb: 'like',
+    context: 'Expressing preferences',
+    examples: {
+      ing: 'Children like playing games.',
+      to: 'I like to arrive early for meetings.'
+    },
+    question: 'Which pattern describes a general enjoyment of activities?',
+    options: [
+      { pattern: 'like + -ing', meaning: 'Generally enjoy an activity', correct: true },
+      { pattern: 'like + to', meaning: 'Prefer specific habits or choices', correct: false }
+    ]
+  },
+  {
+    verb: 'prefer',
+    context: 'Showing preferences between options',
+    examples: {
+      ing: 'I prefer walking to driving.',
+      to: 'She prefers to work from home.'
+    },
+    question: 'Which pattern is used for comparing activities?',
+    options: [
+      { pattern: 'prefer + -ing', meaning: 'Compare two activities (A to B)', correct: true },
+      { pattern: 'prefer + to', meaning: 'State a single preference', correct: false }
+    ]
+  },
+  {
+    verb: 'forget',
+    context: 'Different types of forgetting',
+    examples: {
+      ing: 'Have you forgotten meeting her?',
+      to: 'Don\'t forget to lock the door!'
+    },
+    question: 'Which pattern means failing to do a planned action?',
+    options: [
+      { pattern: 'forget + -ing', meaning: 'Not remember a past event', correct: false },
+      { pattern: 'forget + to', meaning: 'Fail to do something you should do', correct: true }
+    ]
+  },
+  {
+    verb: 'try',
+    context: 'Different types of attempts',
+    examples: {
+      ing: 'Try turning it off and on again.',
+      to: 'She\'s trying to lose weight.'
+    },
+    question: 'Which pattern suggests a simple experiment or test?',
+    options: [
+      { pattern: 'try + -ing', meaning: 'Test something as an experiment', correct: true },
+      { pattern: 'try + to', meaning: 'Make an effort to achieve a goal', correct: false }
+    ]
+  },
+  {
+    verb: 'remember',
+    context: 'Memory and reminders',
+    examples: {
+      ing: 'I don\'t remember seeing that movie.',
+      to: 'Did you remember to feed the cat?'
+    },
+    question: 'Which pattern is used for checking if someone did a task?',
+    options: [
+      { pattern: 'remember + -ing', meaning: 'Recall a past experience', correct: false },
+      { pattern: 'remember + to', meaning: 'Not forget to do a task', correct: true }
+    ]
+  },
+  {
+    verb: 'stop',
+    context: 'Different reasons for stopping',
+    examples: {
+      ing: 'Please stop making noise.',
+      to: 'He stopped to tie his shoelaces.'
+    },
+    question: 'Which pattern indicates the purpose of stopping?',
+    options: [
+      { pattern: 'stop + -ing', meaning: 'Quit doing something', correct: false },
+      { pattern: 'stop + to', meaning: 'Pause in order to do something', correct: true }
+    ]
+  },
+  {
+    verb: 'regret',
+    context: 'Professional vs personal regret',
+    examples: {
+      ing: 'He regrets leaving his hometown.',
+      to: 'We regret to announce the cancellation.'
+    },
+    question: 'Which pattern is used in formal announcements?',
+    options: [
+      { pattern: 'regret + -ing', meaning: 'Personal sorrow about past actions', correct: false },
+      { pattern: 'regret + to', meaning: 'Formal expression of bad news', correct: true }
+    ]
+  }
+])
+
+// Computed Properties
+const accuracy = computed(() => totalAnswers.value > 0 ? (correctAnswers.value / totalAnswers.value) * 100 : 0)
+
+// Game Methods
+function startGame() {
+  gameStarted.value = true
+  gameOver.value = false
+  playerHealth.value = 3
+  enemyHealth.value = 3
+  score.value = 0
+  duelsWon.value = 0
+  totalAnswers.value = 0
+  correctAnswers.value = 0
+  playerWon.value = false
+
+  nextDuel()
+}
+
+function nextDuel() {
+  if (playerHealth.value <= 0 || enemyHealth.value <= 0) {
+    endGame()
+    return
+  }
+
+  answerSelected.value = false
+  selectedOption.value = null
+  roundComplete.value = false
+  feedbackMessage.value = null
+
+  // Select a random duel challenge
+  const availableDuels = duelChallenges.value.filter(duel => {
+    const verb = store.getVerbById(duel.verb)
+    return verb && store.unlockedVerbs.some(v => v.id === duel.verb)
+  })
+
+  if (availableDuels.length === 0) {
+    currentDuel.value = duelChallenges.value[0] // Fallback
+  } else {
+    currentDuel.value = availableDuels[Math.floor(Math.random() * availableDuels.length)]
+  }
+
+  // Shuffle options
+  currentDuel.value.options = [...currentDuel.value.options].sort(() => Math.random() - 0.5)
+}
+
+function selectAnswer(option) {
+  if (answerSelected.value) return
+
+  answerSelected.value = true
+  selectedOption.value = option
+  totalAnswers.value++
+
+  if (option.correct) {
+    correctAnswers.value++
+    duelsWon.value++
+    enemyHealth.value--
+
+    const points = 300 + (duelsWon.value * 50) // Bonus for consecutive wins
+    score.value += points
+
+    store.updateAccuracy(currentDuel.value.verb, true)
+
+    feedbackMessage.value = {
+      type: 'correct',
+      title: '⚔️ Critical Hit!',
+      text: `Correct! You dealt damage to the enemy. +${points} points`
+    }
+
+  } else {
+    playerHealth.value--
+    store.updateAccuracy(currentDuel.value.verb, false)
+
+    feedbackMessage.value = {
+      type: 'incorrect',
+      title: '🛡️ Enemy Strike!',
+      text: `Incorrect! You took damage. The correct answer is: ${currentDuel.value.options.find(o => o.correct).pattern}`
+    }
+  }
+
+  setTimeout(() => {
+    roundComplete.value = true
+  }, 3000)
+}
+
+function endGame() {
+  gameOver.value = true
+  playerWon.value = enemyHealth.value <= 0
+
+  store.addScore(score.value)
+
+  // Complete stage if player won
+  if (playerWon.value) {
+    store.completeStage(3)
+  }
+}
+
+function playAgain() {
+  gameOver.value = false
+  startGame()
+}
+
+function completeStage() {
+  // Navigate back to hub with celebration
+  router.push({ name: 'verb-pattern-galaxy-hub' })
+}
+
+function goBack() {
+  router.push({ name: 'verb-pattern-galaxy-hub' })
+}
+</script>
+
+<style scoped>
+@keyframes lightning {
+  0%, 90%, 100% {
+    opacity: 0;
+  }
+  5%, 85% {
+    opacity: 0.4;
+  }
+  10%, 80% {
+    opacity: 1;
+  }
+}
+
+@keyframes spark {
+  0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.5) rotate(180deg); }
+}
+
+@keyframes energyWave {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.2; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 0.5; }
+}
+
+@keyframes battleAura {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.meaning-duel-game {
+  min-height: 100vh;
+}
+
+@keyframes battle-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+  }
+}
+
+@keyframes duel-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.4), inset 0 0 20px rgba(147, 51, 234, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.7), inset 0 0 30px rgba(147, 51, 234, 0.2);
+  }
+}
+
+.bg-gradient-to-b.from-purple-500.to-purple-700:hover {
+  animation: duel-pulse 1.5s infinite;
+}
+</style>

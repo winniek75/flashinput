@@ -108,7 +108,7 @@ export const useCharacterStore = defineStore('character', () => {
     }
   })
 
-  // 音素妖精コレクション（44音素）
+  // 音素妖精コレクション（42音素）
   const phonemeSprites = ref({
     // 母音
     'iː': { name: 'イー', type: 'vowel', color: '#FF6B6B', unlocked: false },

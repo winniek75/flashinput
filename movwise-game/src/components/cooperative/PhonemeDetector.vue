@@ -248,6 +248,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 // Props
@@ -318,9 +320,9 @@ const initializeAudio = async () => {
     // Start audio visualization
     startAudioVisualization()
     
-    console.log('Audio initialized successfully')
+    logger.log('Audio initialized successfully')
   } catch (error) {
-    console.error('Failed to initialize audio:', error)
+    logger.error('Failed to initialize audio:', error)
   }
 }
 
@@ -405,9 +407,9 @@ const startRecording = () => {
   try {
     mediaRecorder.value.start()
     isRecording.value = true
-    console.log('Recording started')
+    logger.log('Recording started')
   } catch (error) {
-    console.error('Failed to start recording:', error)
+    logger.error('Failed to start recording:', error)
   }
 }
 
@@ -417,9 +419,9 @@ const stopRecording = () => {
   try {
     mediaRecorder.value.stop()
     isRecording.value = false
-    console.log('Recording stopped')
+    logger.log('Recording stopped')
   } catch (error) {
-    console.error('Failed to stop recording:', error)
+    logger.error('Failed to stop recording:', error)
   }
 }
 
@@ -455,7 +457,7 @@ const analyzeRecording = async (recordingBlob) => {
     })
     
   } catch (error) {
-    console.error('Failed to analyze recording:', error)
+    logger.error('Failed to analyze recording:', error)
   }
 }
 

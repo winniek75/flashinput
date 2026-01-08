@@ -3,10 +3,11 @@
 
 import { ref, computed, watch } from 'vue'
 import { NATIVE_PHONEME_PROGRESSION as PHONEME_PROGRESSION, MASTERY_CRITERIA, STAGE_DEPENDENCIES } from '@/data/native-phoneme-database.js'
+import logger from '@/utils/logger'
 
 export function usePhonemeProgress() {
   // 状態管理
-  const currentStage = ref('stage1A')
+  const currentStage = ref('group1')
   const attempts = ref([])
   const masteredPhonemes = ref(new Set())
   const learnerProfile = ref({
@@ -44,21 +45,16 @@ export function usePhonemeProgress() {
   })
 
   const availableStages = computed(() => {
-    const stages = []
-    const stageOrder = ['stage1A', 'stage1B', 'stage1C', 'stage2A', 'stage2B', 'stage2C']
+    logger.log('🔍 Computing available stages...')
+    logger.log('STAGE_DEPENDENCIES:', STAGE_DEPENDENCIES)
     
-    for (const stage of stageOrder) {
-      const dependencies = STAGE_DEPENDENCIES[stage] || []
-      const canAccess = dependencies.every(dep => isStageCompleted(dep))
-      
-      if (canAccess) {
-        stages.push(stage)
-      } else {
-        break // 依存関係が満たされていない場合は停止
-      }
-    }
+    // 学習目的で全てのジョリーフォニックスグループを選択可能にする
+    const allStages = [
+      'group1', 'group2', 'group3', 'group4', 'group5', 'group6', 'group7'
+    ]
     
-    return stages
+    logger.log('✅ Available stages (all groups for learning):', allStages)
+    return allStages
   })
 
   // メソッド
@@ -129,7 +125,7 @@ export function usePhonemeProgress() {
   }
 
   const analyzeErrorPattern = (attempt) => {
-    // TODO: 選択された間違いの選択肢も記録する必要
+    // Tracking of incorrect choices will be added for detailed analytics
     const pattern = `${attempt.phoneme}_error`
     
     if (!learnerProfile.value.confusionPatterns[pattern]) {
@@ -164,7 +160,7 @@ export function usePhonemeProgress() {
   }
 
   const advanceToNextStage = () => {
-    const stageOrder = ['stage1A', 'stage1B', 'stage1C', 'stage2A', 'stage2B', 'stage2C']
+    const stageOrder = ['group1', 'group2', 'group3', 'group4', 'group5', 'group6', 'group7']
     const currentIndex = stageOrder.indexOf(currentStage.value)
     
     if (currentIndex < stageOrder.length - 1 && canAdvanceStage.value) {
@@ -327,18 +323,18 @@ export function usePhonemeProgress() {
       const saved = localStorage.getItem('movwise_phoneme_progress')
       if (saved) {
         const data = JSON.parse(saved)
-        currentStage.value = data.currentStage || 'stage1A'
+        currentStage.value = data.currentStage || 'group1'
         attempts.value = data.attempts || []
         masteredPhonemes.value = new Set(data.masteredPhonemes || [])
         learnerProfile.value = { ...learnerProfile.value, ...data.learnerProfile }
       }
     } catch (error) {
-      console.error('Failed to load progress:', error)
+      logger.error('Failed to load progress:', error)
     }
   }
 
   const resetProgress = () => {
-    currentStage.value = 'stage1A'
+    currentStage.value = 'group1'
     attempts.value = []
     masteredPhonemes.value = new Set()
     learnerProfile.value = {

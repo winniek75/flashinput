@@ -1,7 +1,7 @@
 <template>
   <footer class="common-footer">
     <button 
-      v-for="nav in navigation" 
+      v-for="nav in displayNavigation" 
       :key="nav.name"
       @click="$emit('navigate', nav.name)" 
       class="footer-nav-item" 
@@ -15,45 +15,80 @@
 </template>
 
 <script setup>
-import { Music, Globe, Building2, UserIcon, Compass, BrainCircuit, Users2, MonitorPlay } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Music, Globe, Building2, UserIcon, Compass, BrainCircuit, Users2, MonitorPlay, User, Zap } from 'lucide-vue-next'
 
-defineProps({
+const props = defineProps({
   active: String
 })
 
+// 講師モードかどうかを判定
+const isTeacherMode = computed(() => {
+  return localStorage.getItem('isTeacherMode') === 'true'
+})
+
 // 宇宙統合テーマのナビゲーション配列
-const navigation = [
-  { 
-    name: 'sound', 
-    label: '🎵 サウンド星雲', 
-    icon: Music, 
-    description: '音韻宇宙探索' 
+const baseNavigation = [
+  {
+    name: 'sound',
+    label: '🎵 サウンド・ネビュラ',
+    icon: Music,
+    description: '音韻宇宙探索'
   },
-  { 
-    name: 'grammar', 
-    label: '🌌 文法銀河', 
-    icon: Globe, 
-    description: '言語構造征服' 
+  {
+    name: 'grammar',
+    label: '🌌 グラマー・ギャラクシー',
+    icon: Globe,
+    description: '言語構造征服'
   },
-  { 
-    name: 'multi-layer', 
-    label: '🧠 AI学習', 
-    icon: BrainCircuit, 
-    description: 'Multi-Layer Engine' 
+  {
+    name: 'arena',
+    label: '⚔️ アリーナ',
+    icon: Zap,
+    description: '学習バトル場'
   },
-  { 
-    name: 'co-pilot', 
-    label: '👥 協力学習', 
-    icon: Users2, 
-    description: 'Co-Pilot Dock' 
+  {
+    name: 'multi-layer',
+    label: '🧠 AI学習',
+    icon: BrainCircuit,
+    description: 'Multi-Layer Engine'
   },
-  { 
-    name: 'vr-academy', 
-    label: '🥽 VR Academy', 
-    icon: MonitorPlay, 
-    description: 'AI/VR実践学習' 
+  {
+    name: 'vr-academy',
+    label: '🥽 VR Academy',
+    icon: MonitorPlay,
+    description: 'AI/VR実践学習'
   }
 ]
+
+// 講師専用ナビゲーション
+const teacherNavigation = { 
+  name: 'co-pilot', 
+  label: '👥 協力学習', 
+  icon: Users2, 
+  description: 'Co-Pilot Dock' 
+}
+
+// 生徒専用ナビゲーション
+const studentNavigation = { 
+  name: 'profile', 
+  label: '👤 プロフィール', 
+  icon: User, 
+  description: 'プレイヤープロフィール' 
+}
+
+// 表示するナビゲーションを動的に決定
+const displayNavigation = computed(() => {
+  const nav = [...baseNavigation]
+  
+  if (isTeacherMode.value) {
+    nav.push(teacherNavigation)
+  } else {
+    nav.push(studentNavigation)
+  }
+  
+  return nav
+})
 </script>
 
 <style scoped>

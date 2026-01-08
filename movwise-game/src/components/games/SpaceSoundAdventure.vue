@@ -213,6 +213,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, Settings, Trophy } from 'lucide-vue-next'
@@ -330,7 +332,7 @@ export default {
           isPlaying.value = false
         }
       } catch (error) {
-        console.error('Failed to play sound:', error)
+        logger.error('Failed to play sound:', error)
         isPlaying.value = false
       }
     }

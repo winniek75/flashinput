@@ -473,6 +473,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { multiLayerEngine } from '@/services/multiLayerEngine'
 import { useGrammarMasteryStore } from '@/stores/grammarMasteryStore'
@@ -644,7 +646,7 @@ export default {
         loadCurrentModule()
         
       } catch (error) {
-        console.error('Failed to start Construction Zone session:', error)
+        logger.error('Failed to start Construction Zone session:', error)
       }
     }
     
@@ -924,13 +926,13 @@ export default {
     const returnToHub = () => {
       resetSession()
       // Navigate to grammar hub
-      console.log('Navigate to grammar hub')
+      logger.log('Navigate to grammar hub')
     }
     
     const tryBattleZone = () => {
       resetSession()
       // Navigate to battle zone
-      console.log('Navigate to battle zone')
+      logger.log('Navigate to battle zone')
     }
     
     const resetSession = () => {
@@ -949,7 +951,7 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      console.log('Construction Zone Game mounted')
+      logger.log('Construction Zone Game mounted')
     })
     
     onUnmounted(() => {

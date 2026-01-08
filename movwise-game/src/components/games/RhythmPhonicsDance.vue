@@ -14,13 +14,21 @@
       <!-- Header -->
       <div class="galaxy-card rounded-3xl p-6 mb-6 shadow-2xl">
         <div class="flex items-center justify-between mb-6">
-          <button 
-            @click="handleBack"
-            class="galaxy-button galaxy-button-secondary text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
-          >
-            <ArrowLeft class="w-5 h-5 cosmic-glow" />
-            戻る
-          </button>
+          <div class="flex gap-2">
+            <button 
+              @click="handleBack"
+              class="galaxy-button galaxy-button-secondary text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
+            >
+              <ArrowLeft class="w-5 h-5 cosmic-glow" />
+              戻る
+            </button>
+            <button 
+              @click="goToHome"
+              class="galaxy-button galaxy-button-secondary text-white px-4 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200"
+            >
+              <Home class="w-5 h-5 cosmic-glow" />
+            </button>
+          </div>
           
           <div class="text-center">
             <h1 class="text-4xl font-bold galaxy-text-primary cosmic-title mb-2">
@@ -259,23 +267,57 @@
         </div>
       </div>
     </div>
+
+    <!-- VR Academy Integration: Unified Result Screen -->
+    <UnifiedResultScreen
+      v-if="showUnifiedResult"
+      :game-result="vrGameResult"
+      :game-name="'リズム・フォニックス・ダンス'"
+      @explore-vr="handleExploreVR"
+      @back-to-menu="handleBackToMenu"
+    />
+
+    <!-- VR Academy Integration: VR Scenario Suggestion -->
+    <VRScenarioSuggestion
+      v-if="showVRSuggestion"
+      :player-skills="vrGameResult?.phonemeSkills || []"
+      :game-result="vrGameResult"
+      @back-to-result="showVRSuggestion = false; showUnifiedResult = true"
+      @back-to-menu="handleBackToMenu"
+    />
   </div>
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, Settings, Music } from 'lucide-vue-next'
+import { ArrowLeft, Settings, Music, Home } from 'lucide-vue-next'
+
+// VR Academy Integration
+import { useGameStore } from '@/stores/gameStore'
+import { usePlayerProfileStore } from '@/stores/playerProfile'
+import { useVRDataSync, VRGameResultBuilder } from '@/api/vrDataSync'
+import UnifiedResultScreen from '@/components/game/UnifiedResultScreen.vue'
+import VRScenarioSuggestion from '@/components/vr/VRScenarioSuggestion.vue'
 
 export default {
   name: 'RhythmPhonicsDance',
   components: {
     ArrowLeft,
     Settings,
-    Music
+    Music,
+    UnifiedResultScreen,
+    VRScenarioSuggestion
   },
   setup() {
     const router = useRouter()
+    
+    // Store integrations
+    const gameStore = useGameStore()
+    const playerStore = usePlayerProfileStore()
+    const vrDataSync = useVRDataSync()
     
     const gameState = ref('menu') // menu, dancing, complete
     const showSettings = ref(false)
@@ -288,6 +330,21 @@ export default {
     const showChoices = ref(false)
     const selectedMove = ref('')
     const timeRemaining = ref(0)
+    
+    // VR Academy Integration State
+    const showUnifiedResult = ref(false)
+    const showVRSuggestion = ref(false)
+    const gameStartTime = ref(null)
+    const gameEndTime = ref(null)
+    const phonemeSkillsData = ref([])
+    const mistakesData = ref([])
+    const vrGameResult = ref(null)
+    const rhythmAccuracyData = ref({
+      beatAccuracy: 0,
+      timingPrecision: 0,
+      rhythmConsistency: 0,
+      musicalTiming: 0
+    })
     
     let beatTimer = null
     let songTimer = null
@@ -384,6 +441,18 @@ export default {
     const startDancing = () => {
       gameState.value = 'dancing'
       beatCount.value = 0
+      
+      // VR Academy Integration: Track game start
+      gameStartTime.value = Date.now()
+      phonemeSkillsData.value = []
+      mistakesData.value = []
+      rhythmAccuracyData.value = {
+        beatAccuracy: 0,
+        timingPrecision: 0,
+        rhythmConsistency: 0,
+        musicalTiming: 0
+      }
+      
       loadNextChallenge()
       startBeatTimer()
       startSongTimer()
@@ -472,7 +541,7 @@ export default {
           isPlaying.value = false
         }
       } catch (error) {
-        console.error('Failed to play sound:', error)
+        logger.error('Failed to play sound:', error)
         isPlaying.value = false
       }
     }
@@ -484,10 +553,17 @@ export default {
     const checkDanceMove = () => {
       const isCorrect = selectedMove.value === currentChallenge.value.phoneme
       const timing = beatCount.value === 4 ? 'perfect' : 'good'
+      const responseTime = Date.now() - gameStartTime.value
       
       if (isCorrect) {
+        // VR Academy Integration: Record phoneme skill data
+        recordPhonemeSkill(selectedMove.value, true, responseTime)
+        updateRhythmAccuracy(timing)
         processDanceResult(timing)
       } else {
+        // VR Academy Integration: Record mistake
+        recordMistake(selectedMove.value, currentChallenge.value.phoneme, responseTime)
+        recordPhonemeSkill(selectedMove.value, false, responseTime)
         processDanceResult('miss')
       }
     }
@@ -517,13 +593,18 @@ export default {
       }, 800)
     }
     
-    const completeSong = () => {
+    const completeSong = async () => {
       clearInterval(beatTimer)
       clearInterval(songTimer)
+      
+      gameEndTime.value = Date.now()
       
       performanceData.finalScore = danceData.score
       performanceData.maxCombo = Math.max(performanceData.maxCombo, danceData.combo)
       performanceData.accuracy = Math.round((danceData.streak / (currentSong.value.totalBeats / 4)) * 100)
+      
+      // VR Academy Integration: Process game completion
+      await handleGameCompletion()
       
       gameState.value = 'complete'
     }
@@ -543,6 +624,179 @@ export default {
     
     const handleBack = () => {
       router.back()
+    }
+    
+    const goToHome = () => {
+      router.push('/')
+    }
+    
+    // VR Academy Integration Functions
+    const recordPhonemeSkill = (phoneme, isSuccess, responseTime) => {
+      const existingSkill = phonemeSkillsData.value.find(skill => skill.phoneme === phoneme)
+      
+      if (existingSkill) {
+        existingSkill.attempts++
+        if (isSuccess) {
+          existingSkill.successes++
+        }
+        existingSkill.accuracy = (existingSkill.successes / existingSkill.attempts) * 100
+        existingSkill.responseTime = (existingSkill.responseTime + responseTime) / 2
+      } else {
+        phonemeSkillsData.value.push({
+          phoneme,
+          accuracy: isSuccess ? 100 : 0,
+          responseTime,
+          attempts: 1,
+          successes: isSuccess ? 1 : 0,
+          difficulty: getDifficultyLevel()
+        })
+      }
+    }
+    
+    const recordMistake = (actualPhoneme, expectedPhoneme, timestamp) => {
+      mistakesData.value.push({
+        phoneme: actualPhoneme,
+        expectedResponse: expectedPhoneme,
+        actualResponse: actualPhoneme,
+        timestamp,
+        context: `BPM ${currentBPM.value} - Rhythm Dance`
+      })
+    }
+    
+    const updateRhythmAccuracy = (timing) => {
+      // Update rhythm-based VR skills
+      const timingBonus = timing === 'perfect' ? 5 : timing === 'good' ? 3 : 0
+      
+      rhythmAccuracyData.value.beatAccuracy += timingBonus
+      rhythmAccuracyData.value.timingPrecision += timingBonus * 0.8
+      rhythmAccuracyData.value.rhythmConsistency += timingBonus * 0.6
+      rhythmAccuracyData.value.musicalTiming += timingBonus * 0.4
+      
+      // Cap values at 100
+      Object.keys(rhythmAccuracyData.value).forEach(key => {
+        rhythmAccuracyData.value[key] = Math.min(100, rhythmAccuracyData.value[key])
+      })
+    }
+    
+    const getDifficultyLevel = () => {
+      if (!currentSong.value) return 'beginner'
+      
+      if (currentSong.value.difficulty <= 2) return 'beginner'
+      if (currentSong.value.difficulty <= 4) return 'intermediate'
+      return 'advanced'
+    }
+    
+    const handleGameCompletion = async () => {
+      const gameDuration = gameEndTime.value - gameStartTime.value
+      const vrReadinessGain = calculateVRReadinessGain()
+      const crystalReward = calculateCrystalReward()
+      
+      // Build VR game result
+      const resultBuilder = new VRGameResultBuilder('rhythmPhonicsDance', 'リズム・フォニックス・ダンス')
+        .setBasicStats(performanceData.finalScore, performanceData.accuracy, gameDuration)
+        .setVRReadinessGain(vrReadinessGain)
+        .setCrystalReward(crystalReward)
+      
+      // Add phoneme skills data
+      phonemeSkillsData.value.forEach(skill => {
+        resultBuilder.addPhonemeSkill(
+          skill.phoneme,
+          skill.accuracy,
+          skill.responseTime,
+          skill.attempts,
+          skill.successes,
+          skill.difficulty
+        )
+      })
+      
+      // Add mistakes data
+      mistakesData.value.forEach(mistake => {
+        resultBuilder.addMistake(
+          mistake.phoneme,
+          mistake.expectedResponse,
+          mistake.actualResponse,
+          mistake.timestamp,
+          mistake.context
+        )
+      })
+      
+      vrGameResult.value = resultBuilder.build()
+      
+      // Update rhythm-specific spatial audio data
+      vrGameResult.value.sessionData.spatialAudio = {
+        spatialAccuracy: rhythmAccuracyData.value.beatAccuracy,
+        depthPerception: rhythmAccuracyData.value.timingPrecision,
+        multiSourceTracking: rhythmAccuracyData.value.rhythmConsistency,
+        environmentalAdaptation: rhythmAccuracyData.value.musicalTiming
+      }
+      
+      // Sync with VR Academy
+      try {
+        await vrDataSync.syncGameResult(vrGameResult.value)
+        
+        // Update local stores
+        playerStore.addCrystals(crystalReward)
+        playerStore.updateVRReadiness(vrReadinessGain)
+        gameStore.recordGameSession('rhythmPhonicsDance', {
+          score: performanceData.finalScore,
+          accuracy: performanceData.accuracy,
+          duration: gameDuration,
+          maxCombo: performanceData.maxCombo
+        })
+        
+        logger.log('✅ RhythmPhonicsDance VR Academy sync successful')
+      } catch (error) {
+        logger.error('❌ RhythmPhonicsDance VR Academy sync failed:', error)
+      }
+      
+      // Show unified result after a short delay
+      setTimeout(() => {
+        showUnifiedResult.value = true
+      }, 2000)
+    }
+    
+    const calculateVRReadinessGain = () => {
+      let baseGain = 12
+      
+      // Bonus for high accuracy
+      if (performanceData.accuracy > 80) baseGain += 4
+      if (performanceData.accuracy > 90) baseGain += 3
+      
+      // Bonus for high combo
+      if (performanceData.maxCombo > 15) baseGain += 3
+      if (performanceData.maxCombo > 25) baseGain += 2
+      
+      // Difficulty multiplier
+      const difficultyMultipliers = {
+        1: 1.0,
+        2: 1.1,
+        3: 1.2,
+        4: 1.3,
+        5: 1.4
+      }
+      
+      const multiplier = difficultyMultipliers[currentSong.value?.difficulty] || 1.0
+      return Math.round(baseGain * multiplier)
+    }
+    
+    const calculateCrystalReward = () => {
+      let baseCrystals = Math.floor(performanceData.finalScore / 150)
+      
+      if (performanceData.accuracy > 80) baseCrystals += 25
+      if (performanceData.maxCombo > 20) baseCrystals += 15
+      
+      return baseCrystals
+    }
+    
+    const handleExploreVR = () => {
+      showUnifiedResult.value = false
+      showVRSuggestion.value = true
+    }
+    
+    const handleBackToMenu = () => {
+      showUnifiedResult.value = false
+      showVRSuggestion.value = false
+      gameState.value = 'menu'
     }
     
     onUnmounted(() => {
@@ -572,12 +826,19 @@ export default {
       danceFeedbackMessages,
       songProgress,
       performanceRank,
+      // VR Academy Integration
+      showUnifiedResult,
+      showVRSuggestion,
+      vrGameResult,
       selectSong,
       playDanceSound,
       danceMove,
       returnToMenu,
+      handleExploreVR,
+      handleBackToMenu,
       playAgain,
-      handleBack
+      handleBack,
+      goToHome
     }
   }
 }

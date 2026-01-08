@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import logger from '@/utils/logger'
 
 export const useDockStore = defineStore('dock', () => {
   // === Core Settings ===
@@ -37,8 +38,8 @@ export const useDockStore = defineStore('dock', () => {
       { icon: '🎯', title: '目標達成率95%超', year: 2024 }
     ],
     currentMissions: [
-      { type: 'sound', title: 'サウンド星雲探索', progress: 75 },
-      { type: 'grammar', title: '文法銀河征服', progress: 60 },
+      { type: 'sound', title: 'サウンド・ネビュラ探索', progress: 75 },
+      { type: 'grammar', title: 'グラマー・ギャラクシー征服', progress: 60 },
       { type: 'conversation', title: '実戦対話訓練', progress: 85 }
     ]
   })
@@ -145,7 +146,7 @@ export const useDockStore = defineStore('dock', () => {
   const setDockMode = (mode) => {
     const validModes = ['individual', 'multi', 'expanding']
     if (!validModes.includes(mode)) {
-      console.warn(`Invalid dock mode: ${mode}`)
+      logger.warn(`Invalid dock mode: ${mode}`)
       return
     }
 
@@ -167,7 +168,7 @@ export const useDockStore = defineStore('dock', () => {
         break
     }
 
-    console.log(`🚀 Dock mode changed to: ${mode}`)
+    logger.log(`🚀 Dock mode changed to: ${mode}`)
   }
 
   /**
@@ -179,7 +180,7 @@ export const useDockStore = defineStore('dock', () => {
         ...expansionPlans.value[phase],
         ...updates
       }
-      console.log(`📋 Expansion plan ${phase} updated`)
+      logger.log(`📋 Expansion plan ${phase} updated`)
     }
   }
 
@@ -201,7 +202,7 @@ export const useDockStore = defineStore('dock', () => {
       setDockMode('multi')
     }
     
-    console.log(`👨‍🚀 New captain added: ${newCaptain.name}`)
+    logger.log(`👨‍🚀 New captain added: ${newCaptain.name}`)
   }
 
   /**
@@ -239,7 +240,7 @@ export const useDockStore = defineStore('dock', () => {
       setDockMode('expanding')
       updateExpansionPlan('phase1', { status: 'recruiting' })
       
-      console.log('🚀 Dock expansion process initiated!')
+      logger.log('🚀 Dock expansion process initiated!')
       return {
         success: true,
         message: 'ドック拡張プロセスが開始されました！副船長の募集を開始します。',
@@ -275,7 +276,7 @@ export const useDockStore = defineStore('dock', () => {
       }
     })
     
-    console.log('🔄 Dock reset to demo configuration')
+    logger.log('🔄 Dock reset to demo configuration')
   }
 
   // === Initialization ===
@@ -287,13 +288,13 @@ export const useDockStore = defineStore('dock', () => {
         const parsed = JSON.parse(savedSettings)
         Object.assign(dockSettings.value, parsed)
       } catch (error) {
-        console.warn('Failed to load dock settings:', error)
+        logger.warn('Failed to load dock settings:', error)
       }
     }
 
-    console.log('🚀 CoPilot Training Dock initialized')
-    console.log(`Mode: ${dockSettings.value.mode}`)
-    console.log(`Available Captains: ${availableCaptains.value.length}`)
+    logger.log('🚀 CoPilot Training Dock initialized')
+    logger.log(`Mode: ${dockSettings.value.mode}`)
+    logger.log(`Available Captains: ${availableCaptains.value.length}`)
   }
 
   // === Watchers for Persistence ===

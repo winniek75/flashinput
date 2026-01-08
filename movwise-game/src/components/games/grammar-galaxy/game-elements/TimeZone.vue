@@ -6,10 +6,12 @@
     @dragleave="handleDragLeave"
     @drop="handleDrop"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
     <!-- Zone Header -->
     <div class="zone-header">
-      <div class="zone-icon">
+      <div class="zone-icon" :class="{ 'icon-pulse': isActive }">
         <Icon :name="zoneIcon" class="w-6 h-6" />
       </div>
       <h3 class="zone-title">{{ zoneConfig.title }}</h3>
@@ -26,6 +28,7 @@
           v-for="indicator in zoneConfig.indicators"
           :key="indicator"
           class="time-indicator"
+          :class="{ 'indicator-highlight': isActive }"
         >
           {{ indicator }}
         </span>
@@ -37,11 +40,13 @@
           v-for="(example, index) in zoneConfig.examples"
           :key="index"
           class="grammar-example"
+          :class="{ 'example-highlight': isActive }"
         >
           <span class="example-text">{{ example.text }}</span>
           <span 
             v-if="example.highlight"
             class="example-highlight"
+            :class="{ 'highlight-glow': isActive }"
           >
             {{ example.highlight }}
           </span>
@@ -60,7 +65,7 @@
       v-if="isDragOver"
       class="drop-overlay"
     >
-      <Icon name="arrow-down" class="w-8 h-8" />
+      <Icon name="arrow-down" class="w-8 h-8 animate-bounce" />
       <span>Drop here!</span>
     </div>
 
@@ -86,18 +91,41 @@
       >
         <Icon 
           :name="feedbackType === 'correct' ? 'check-circle' : 'x-circle'" 
-          class="w-12 h-12"
+          class="w-12 h-12 animate-pulse"
         />
         <span class="feedback-text">
           {{ feedbackType === 'correct' ? 'Correct!' : 'Try Again!' }}
         </span>
+        <div class="feedback-particles">
+          <div v-for="i in 6" :key="i" class="feedback-particle"></div>
+        </div>
       </div>
     </Transition>
+
+    <!-- Hover Effects -->
+    <div class="hover-effects">
+      <div class="hover-ring"></div>
+      <div class="hover-glow"></div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" v-if="showProgress">
+      <div class="progress-bar">
+        <div class="progress-fill" :style="{ width: `${progressPercentage}%` }"></div>
+      </div>
+      <span class="progress-text">{{ progressPercentage }}%</span>
+    </div>
+
+    <!-- Achievement Badge -->
+    <div v-if="showAchievement" class="achievement-badge">
+      <div class="badge-icon">🏆</div>
+      <div class="badge-text">Mastered!</div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import Icon from '@/components/shared/Icon.vue'
 
 // Props
@@ -126,17 +154,30 @@ const props = defineProps({
   showAdvanced: {
     type: Boolean,
     default: false
+  },
+  progress: {
+    type: Number,
+    default: 0
+  },
+  masteryLevel: {
+    type: Number,
+    default: 0
   }
 })
 
 // Emits
-const emit = defineEmits(['drop', 'click', 'hover'])
+const emit = defineEmits(['drop', 'click', 'hover', 'mastery-achieved'])
 
 // State
 const showFeedback = ref(false)
 const feedbackType = ref('')
 const particleCount = ref(8)
 const borderAnimationClass = ref('')
+const isHovered = ref(false)
+const showProgress = ref(false)
+const progressPercentage = ref(0)
+const showAchievement = ref(false)
+const masteryThreshold = 80
 
 // Zone Configurations
 const zoneConfigs = {
@@ -151,7 +192,8 @@ const zoneConfigs = {
     ],
     pattern: 'Subject + Past Verb',
     theme: 'red',
-    gradient: 'from-red-900 to-red-700'
+    gradient: 'from-red-900 to-red-700',
+    color: '#EF4444'
   },
   present: {
     title: 'Present',
@@ -164,7 +206,8 @@ const zoneConfigs = {
     ],
     pattern: 'Subject + Present Verb',
     theme: 'green',
-    gradient: 'from-green-900 to-green-700'
+    gradient: 'from-green-900 to-green-700',
+    color: '#10B981'
   },
   future: {
     title: 'Future',
@@ -177,7 +220,8 @@ const zoneConfigs = {
     ],
     pattern: 'Subject + will + Verb',
     theme: 'blue',
-    gradient: 'from-blue-900 to-blue-700'
+    gradient: 'from-blue-900 to-blue-700',
+    color: '#3B82F6'
   },
   perfect: {
     title: 'Perfect',
@@ -190,7 +234,8 @@ const zoneConfigs = {
     ],
     pattern: 'Subject + have/has + Past Participle',
     theme: 'purple',
-    gradient: 'from-purple-900 to-purple-700'
+    gradient: 'from-purple-900 to-purple-700',
+    color: '#8B5CF6'
   }
 }
 
@@ -207,7 +252,9 @@ const zoneClasses = computed(() => [
     'zone-correct': props.isCorrect === true,
     'zone-incorrect': props.isCorrect === false,
     'zone-active': props.isActive,
-    'zone-advanced': props.showAdvanced
+    'zone-advanced': props.showAdvanced,
+    'zone-hovered': isHovered.value,
+    'zone-mastered': props.masteryLevel >= masteryThreshold
   }
 ])
 
@@ -242,6 +289,16 @@ const handleDrop = (event) => {
 
 const handleClick = () => {
   emit('click', props.zoneType)
+  triggerClickEffect()
+}
+
+const handleMouseEnter = () => {
+  isHovered.value = true
+  triggerHoverEffect()
+}
+
+const handleMouseLeave = () => {
+  isHovered.value = false
 }
 
 const getParticleStyle = (index) => {
@@ -272,6 +329,11 @@ const showFeedbackEffect = (type) => {
   // Add border animation
   borderAnimationClass.value = type === 'correct' ? 'border-success' : 'border-error'
   
+  // Trigger particle effects
+  if (type === 'correct') {
+    triggerSuccessParticles()
+  }
+  
   setTimeout(() => {
     showFeedback.value = false
     borderAnimationClass.value = ''
@@ -285,6 +347,48 @@ const triggerHoverEffect = () => {
   }, 300)
 }
 
+const triggerClickEffect = () => {
+  // Add click ripple effect
+  const ripple = document.createElement('div')
+  ripple.className = 'click-ripple'
+  ripple.style.left = '50%'
+  ripple.style.top = '50%'
+  
+  const zone = document.querySelector('.time-zone')
+  if (zone) {
+    zone.appendChild(ripple)
+    setTimeout(() => {
+      ripple.remove()
+    }, 600)
+  }
+}
+
+const triggerSuccessParticles = () => {
+  // Trigger success particle animation
+  const particles = document.querySelectorAll('.feedback-particle')
+  particles.forEach((particle, index) => {
+    setTimeout(() => {
+      particle.classList.add('particle-burst')
+    }, index * 100)
+  })
+}
+
+const updateProgress = (newProgress) => {
+  progressPercentage.value = newProgress
+  showProgress.value = true
+  
+  // Check for mastery achievement
+  if (newProgress >= masteryThreshold && !showAchievement.value) {
+    showAchievement.value = true
+    emit('mastery-achieved', props.zoneType)
+    
+    // Hide achievement after 3 seconds
+    setTimeout(() => {
+      showAchievement.value = false
+    }, 3000)
+  }
+}
+
 // Watch for feedback changes
 watch(() => props.isCorrect, (newValue) => {
   if (newValue === true) {
@@ -294,10 +398,30 @@ watch(() => props.isCorrect, (newValue) => {
   }
 })
 
+// Watch for progress changes
+watch(() => props.progress, (newProgress) => {
+  if (newProgress !== undefined) {
+    updateProgress(newProgress)
+  }
+})
+
+// Watch for mastery level changes
+watch(() => props.masteryLevel, (newLevel) => {
+  if (newLevel >= masteryThreshold && !showAchievement.value) {
+    showAchievement.value = true
+    emit('mastery-achieved', props.zoneType)
+    
+    setTimeout(() => {
+      showAchievement.value = false
+    }, 3000)
+  }
+})
+
 // Expose methods for parent component
 defineExpose({
   showFeedbackEffect,
-  triggerHoverEffect
+  triggerHoverEffect,
+  updateProgress
 })
 </script>
 
@@ -306,6 +430,7 @@ defineExpose({
   @apply relative rounded-xl border-2 transition-all duration-300 cursor-pointer;
   @apply min-h-[200px] p-6 overflow-hidden;
   backdrop-filter: blur(10px);
+  transform-style: preserve-3d;
 }
 
 /* Zone Theme Colors */
@@ -332,11 +457,13 @@ defineExpose({
 /* Zone States */
 .time-zone:hover {
   @apply scale-105 shadow-lg;
+  transform: scale(1.05) translateZ(10px);
 }
 
 .time-zone.drag-over {
   @apply scale-105 border-opacity-100 shadow-xl;
   box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2);
+  transform: scale(1.05) translateZ(20px);
 }
 
 .time-zone.zone-correct {
@@ -356,6 +483,17 @@ defineExpose({
   animation: gentle-glow 2s ease-in-out infinite;
 }
 
+.time-zone.zone-hovered {
+  transform: scale(1.02) translateZ(5px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+}
+
+.time-zone.zone-mastered {
+  border-color: #FCD34D;
+  box-shadow: 0 0 40px rgba(252, 211, 77, 0.6);
+  animation: mastery-glow 3s ease-in-out infinite;
+}
+
 /* Zone Header */
 .zone-header {
   @apply flex items-center justify-between mb-4;
@@ -364,10 +502,16 @@ defineExpose({
 .zone-icon {
   @apply flex items-center justify-center w-8 h-8 rounded-full;
   @apply bg-white bg-opacity-20;
+  transition: all 0.3s ease;
+}
+
+.zone-icon.icon-pulse {
+  animation: icon-pulse 2s ease-in-out infinite;
 }
 
 .zone-title {
   @apply text-xl font-bold flex-1 text-center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .zone-indicator {
@@ -411,12 +555,24 @@ defineExpose({
   @apply bg-opacity-30 scale-105;
 }
 
+.time-indicator.indicator-highlight {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
 .grammar-examples {
   @apply space-y-2 text-sm;
 }
 
 .grammar-example {
   @apply flex items-center gap-1 opacity-80;
+  transition: all 0.3s ease;
+}
+
+.grammar-example.example-highlight {
+  opacity: 1;
+  transform: scale(1.02);
 }
 
 .example-text {
@@ -426,6 +582,12 @@ defineExpose({
 .example-highlight {
   @apply font-bold text-yellow-300 px-1 rounded;
   @apply bg-yellow-300 bg-opacity-20;
+  transition: all 0.3s ease;
+}
+
+.example-highlight.highlight-glow {
+  box-shadow: 0 0 10px rgba(252, 211, 77, 0.5);
+  animation: highlight-pulse 2s ease-in-out infinite;
 }
 
 .zone-pattern {
@@ -494,6 +656,7 @@ defineExpose({
   @apply absolute inset-0 flex flex-col items-center justify-center;
   @apply text-white font-bold text-xl;
   @apply backdrop-blur-sm rounded-xl;
+  z-index: 10;
 }
 
 .feedback-overlay.correct {
@@ -506,6 +669,85 @@ defineExpose({
 
 .feedback-text {
   @apply mt-2;
+}
+
+.feedback-particles {
+  @apply absolute inset-0 pointer-events-none;
+}
+
+.feedback-particle {
+  @apply absolute w-2 h-2 bg-yellow-300 rounded-full;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.feedback-particle.particle-burst {
+  animation: particle-burst 0.6s ease-out forwards;
+}
+
+/* Hover Effects */
+.hover-effects {
+  @apply absolute inset-0 pointer-events-none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.time-zone:hover .hover-effects {
+  opacity: 1;
+}
+
+.hover-ring {
+  @apply absolute inset-0 rounded-xl border-2 border-white border-opacity-20;
+  animation: hover-ring-pulse 2s ease-in-out infinite;
+}
+
+.hover-glow {
+  @apply absolute inset-0 rounded-xl;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: hover-glow-pulse 2s ease-in-out infinite;
+}
+
+/* Progress Indicator */
+.progress-indicator {
+  @apply absolute top-4 right-4 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-2;
+  z-index: 5;
+}
+
+.progress-bar {
+  @apply w-16 h-2 bg-white bg-opacity-20 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  @apply text-xs text-white text-center block mt-1;
+}
+
+/* Achievement Badge */
+.achievement-badge {
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+  @apply bg-gradient-to-r from-yellow-400 to-orange-500 text-white;
+  @apply rounded-full px-4 py-2 text-center shadow-2xl;
+  z-index: 15;
+  animation: achievement-bounce 0.6s ease-out;
+}
+
+.badge-icon {
+  @apply text-2xl mb-1;
+}
+
+.badge-text {
+  @apply text-sm font-bold;
+}
+
+/* Click Ripple Effect */
+.click-ripple {
+  @apply absolute w-0 h-0 bg-white bg-opacity-30 rounded-full;
+  transform: translate(-50%, -50%);
+  animation: ripple-expand 0.6s ease-out;
 }
 
 /* Animations */
@@ -555,6 +797,65 @@ defineExpose({
 @keyframes hover-border {
   0% { opacity: 0; }
   100% { opacity: 1; }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes highlight-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(252, 211, 77, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(252, 211, 77, 0.8); }
+}
+
+@keyframes particle-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0) translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) translate(var(--x, 0), var(--y, 0));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translate(calc(var(--x, 0) * 2), calc(var(--y, 0) * 2));
+  }
+}
+
+@keyframes hover-ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.05); opacity: 0.4; }
+}
+
+@keyframes hover-glow-pulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes mastery-glow {
+  0%, 100% { box-shadow: 0 0 40px rgba(252, 211, 77, 0.6); }
+  50% { box-shadow: 0 0 60px rgba(252, 211, 77, 0.8); }
+}
+
+@keyframes achievement-bounce {
+  0% { transform: translate(-50%, -50%) scale(0); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes ripple-expand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
 }
 
 /* Feedback Transition */
@@ -616,6 +917,14 @@ defineExpose({
   .grammar-examples {
     @apply text-xs space-y-1;
   }
+  
+  .progress-indicator {
+    @apply top-2 right-2;
+  }
+  
+  .progress-bar {
+    @apply w-12;
+  }
 }
 
 @media (max-width: 480px) {
@@ -634,4 +943,17 @@ defineExpose({
   .time-indicators {
     @apply flex flex-wrap gap-1;
   }
-}</style>
+  
+  .achievement-badge {
+    @apply px-3 py-1;
+  }
+  
+  .badge-icon {
+    @apply text-xl;
+  }
+  
+  .badge-text {
+    @apply text-xs;
+  }
+}
+</style>

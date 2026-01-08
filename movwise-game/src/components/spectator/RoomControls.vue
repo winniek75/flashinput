@@ -121,6 +121,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, nextTick } from 'vue';
 import { useSpectatorStore } from '@/stores/spectatorStore';
 import { spectatorService } from '@/services/spectatorService';
@@ -199,7 +201,7 @@ async function createRoom() {
       teacherName: teacherName.value
     });
   } catch (err) {
-    console.error('Room creation error:', err);
+    logger.error('Room creation error:', err);
     error.value = err.message || 'ルームの作成に失敗しました';
   } finally {
     isLoading.value = false;
@@ -221,15 +223,15 @@ async function joinRoom() {
   error.value = '';
 
   try {
-    console.log('Attempting to join room with code:', inputRoomCode.value.toUpperCase());
+    logger.log('Attempting to join room with code:', inputRoomCode.value.toUpperCase());
     
     // Socket.ioサーバーに接続
     await spectatorService.connect();
-    console.log('Connected to Socket.io server');
+    logger.log('Connected to Socket.io server');
     
     // ルームに参加
     const studentId = `student-${Date.now()}`;
-    console.log('Joining room as student:', studentId);
+    logger.log('Joining room as student:', studentId);
     
     await spectatorService.joinRoom(
       inputRoomCode.value.toUpperCase(),
@@ -237,7 +239,7 @@ async function joinRoom() {
       studentName.value
     );
     
-    console.log('Successfully joined room');
+    logger.log('Successfully joined room');
     
     emit('room-joined', {
       roomCode: inputRoomCode.value,
@@ -247,8 +249,8 @@ async function joinRoom() {
     // ゲーム画面へ遷移
     // router.push('/');
   } catch (err) {
-    console.error('Room join error:', err);
-    console.error('Error stack:', err.stack);
+    logger.error('Room join error:', err);
+    logger.error('Error stack:', err.stack);
     error.value = err.message || 'ルームへの参加に失敗しました';
   } finally {
     isLoading.value = false;
@@ -270,7 +272,7 @@ function copyCode() {
       copyBtn.textContent = originalText;
     }, 1000);
   }).catch(err => {
-    console.error('Copy failed:', err);
+    logger.error('Copy failed:', err);
     error.value = 'コピーに失敗しました';
   });
 }

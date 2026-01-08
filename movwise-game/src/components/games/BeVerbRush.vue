@@ -318,11 +318,14 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSounds } from '@/composables/useGameSounds' // 完全自動生成音響システム
 import { useGameAudio } from '@/composables/useGameAudio' // ネイティブ発音システム
 import { NATIVE_PHONEME_PROGRESSION } from '@/data/native-phoneme-database'
+import { initializeUnifiedGame, completeUnifiedGame } from '@/utils/gameIntegration'
 import {
   ArrowLeftIcon,
   PlayIcon,
@@ -432,9 +435,9 @@ const gameModes = [
 
 // === Be動詞学習データ（全モード対応） ===
 const verbQuestions = {
-  // ミックスモード用 - 全パターンを含む
+  // ミックスモード用 - 全パターンを含む (50問)
   mixed: [
-    // Be動詞基本形
+    // Be動詞基本形 - 初級 (15問)
     { id: 1, text: "I ___ happy", options: ["am", "is", "are"], correct: 0, type: "be_verb", difficulty: 1 },
     { id: 2, text: "She ___ a teacher", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
     { id: 3, text: "They ___ students", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
@@ -442,43 +445,60 @@ const verbQuestions = {
     { id: 5, text: "We ___ at home", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
     { id: 6, text: "You ___ very kind", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
     { id: 7, text: "It ___ a cat", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
-    { id: 8, text: "The book ___ on the desk", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
-    { id: 9, text: "My parents ___ doctors", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
-    { id: 10, text: "This ___ my pen", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
+    { id: 8, text: "This ___ my pen", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
+    { id: 9, text: "I ___ tired", options: ["am", "is", "are"], correct: 0, type: "be_verb", difficulty: 1 },
+    { id: 10, text: "You ___ smart", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
+    { id: 11, text: "He ___ tall", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
+    { id: 12, text: "She ___ pretty", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
+    { id: 13, text: "They ___ funny", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
+    { id: 14, text: "We ___ young", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 1 },
+    { id: 15, text: "It ___ big", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 1 },
     
-    // Be動詞疑問文
-    { id: 11, text: "___ you a student?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
-    { id: 12, text: "___ she your sister?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
-    { id: 13, text: "___ they at school?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
-    { id: 14, text: "___ I right?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 2 },
-    { id: 15, text: "___ it a dog?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    // Be動詞基本形 - 中級 (15問)
+    { id: 16, text: "The book ___ on the desk", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 17, text: "My parents ___ doctors", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 18, text: "The cat ___ hungry", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 19, text: "My sister and I ___ busy", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 20, text: "The weather ___ nice today", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 21, text: "These books ___ interesting", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 22, text: "My dog ___ very friendly", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 23, text: "The children ___ excited", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 24, text: "Your answer ___ correct", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 25, text: "Tom and Mary ___ friends", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 26, text: "The movie ___ boring", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 27, text: "My shoes ___ new", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 28, text: "This room ___ clean", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
+    { id: 29, text: "The students ___ ready", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 2 },
+    { id: 30, text: "Her voice ___ beautiful", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 2 },
     
-    // Be動詞否定文
-    { id: 16, text: "I ___ not tired", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 2 },
-    { id: 17, text: "She ___ not here", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
-    { id: 18, text: "We ___ not late", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
-    { id: 19, text: "It ___ not my bag", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
-    { id: 20, text: "They ___ not busy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    // Be動詞疑問文 - 初級〜中級 (10問)
+    { id: 31, text: "___ you a student?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 32, text: "___ she your sister?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 33, text: "___ they at school?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 34, text: "___ I right?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 2 },
+    { id: 35, text: "___ it a dog?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 36, text: "___ we late?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 37, text: "___ he your teacher?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 38, text: "___ you tired?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 39, text: "___ this your book?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 40, text: "___ the cats sleeping?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
     
-    // 上級レベル用（複雑な主語）
-    { id: 21, text: "My little sister and I ___ very excited", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 3 },
-    { id: 22, text: "Everyone in the class ___ ready", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 3 },
-    { id: 23, text: "The children in the playground ___ happy", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 3 },
-    { id: 24, text: "My best friend from America ___ here", options: ["am", "is", "are"], correct: 1, type: "be_verb", difficulty: 3 },
-    { id: 25, text: "The books on the shelf ___ old", options: ["am", "is", "are"], correct: 2, type: "be_verb", difficulty: 3 },
-    
-    // 上級レベル用（複雑な疑問文）
-    { id: 26, text: "___ the students in your class friendly?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
-    { id: 27, text: "___ your mother's cooking delicious?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
-    { id: 28, text: "___ you and your friends coming tonight?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
-    
-    // 上級レベル用（複雑な否定文）
-    { id: 29, text: "The weather today ___ not sunny", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 3 },
-    { id: 30, text: "My homework assignments ___ not difficult", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 3 }
+    // Be動詞否定文 - 初級〜中級 (10問)
+    { id: 41, text: "I ___ not tired", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 2 },
+    { id: 42, text: "She ___ not here", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 43, text: "We ___ not late", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 44, text: "It ___ not my bag", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 45, text: "They ___ not busy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 46, text: "You ___ not wrong", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 47, text: "He ___ not angry", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 48, text: "The door ___ not open", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 49, text: "These flowers ___ not beautiful", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 50, text: "My coffee ___ not hot", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 }
   ],
   
-  // 基本形モード用
+  // 基本形モード用 (50問)
   basic: [
+    // 初級レベル (25問)
     { id: 101, text: "I ___ a student", options: ["am", "is", "are"], correct: 0, type: "basic", difficulty: 1 },
     { id: 102, text: "You ___ my friend", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
     { id: 103, text: "He ___ tall", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
@@ -486,37 +506,167 @@ const verbQuestions = {
     { id: 105, text: "It ___ small", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
     { id: 106, text: "We ___ happy", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
     { id: 107, text: "They ___ smart", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
-    { id: 108, text: "The cat ___ black", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
-    { id: 109, text: "My books ___ new", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
-    { id: 110, text: "The weather ___ nice", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 }
+    { id: 108, text: "I ___ hungry", options: ["am", "is", "are"], correct: 0, type: "basic", difficulty: 1 },
+    { id: 109, text: "You ___ kind", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 110, text: "He ___ funny", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 111, text: "She ___ nice", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 112, text: "It ___ hot", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 113, text: "We ___ tired", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 114, text: "They ___ young", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 115, text: "I ___ ready", options: ["am", "is", "are"], correct: 0, type: "basic", difficulty: 1 },
+    { id: 116, text: "You ___ busy", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 117, text: "He ___ cool", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 118, text: "She ___ sad", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 119, text: "It ___ cold", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 120, text: "We ___ late", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 121, text: "They ___ early", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 122, text: "I ___ sick", options: ["am", "is", "are"], correct: 0, type: "basic", difficulty: 1 },
+    { id: 123, text: "You ___ fine", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 1 },
+    { id: 124, text: "He ___ strong", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    { id: 125, text: "She ___ weak", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 1 },
+    
+    // 中級レベル (25問)
+    { id: 126, text: "The cat ___ black", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 127, text: "My books ___ new", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 128, text: "The weather ___ nice", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 129, text: "These flowers ___ pretty", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 130, text: "My dog ___ friendly", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 131, text: "The children ___ noisy", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 132, text: "This pen ___ expensive", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 133, text: "Those cars ___ fast", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 134, text: "The teacher ___ strict", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 135, text: "My parents ___ proud", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 136, text: "The movie ___ interesting", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 137, text: "These games ___ fun", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 138, text: "The food ___ delicious", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 139, text: "My friends ___ loyal", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 140, text: "The room ___ clean", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 141, text: "These shoes ___ comfortable", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 142, text: "The music ___ loud", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 143, text: "Our neighbors ___ quiet", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 144, text: "The test ___ difficult", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 145, text: "These problems ___ easy", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 146, text: "The coffee ___ hot", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 147, text: "My glasses ___ broken", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 148, text: "The door ___ open", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 },
+    { id: 149, text: "These windows ___ closed", options: ["am", "is", "are"], correct: 2, type: "basic", difficulty: 2 },
+    { id: 150, text: "The story ___ exciting", options: ["am", "is", "are"], correct: 1, type: "basic", difficulty: 2 }
   ],
   
-  // 疑問文モード用
+  // 疑問文モード用 (50問)
   question: [
+    // 初級レベル (20問)
     { id: 201, text: "___ you okay?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
     { id: 202, text: "___ she a nurse?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
     { id: 203, text: "___ they at home?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
-    { id: 204, text: "___ he your brother?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
-    { id: 205, text: "___ we ready?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
-    { id: 206, text: "___ it hot today?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
-    { id: 207, text: "___ I wrong?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 1 },
-    { id: 208, text: "___ the door open?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
-    { id: 209, text: "___ the children sleepy?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
-    { id: 210, text: "___ this your pen?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 }
+    { id: 204, text: "___ I wrong?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 1 },
+    { id: 205, text: "___ he tall?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 206, text: "___ we late?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 207, text: "___ you happy?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 208, text: "___ it big?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 209, text: "___ I right?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 1 },
+    { id: 210, text: "___ they friends?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 211, text: "___ she tired?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 212, text: "___ you busy?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 213, text: "___ he smart?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 214, text: "___ we ready?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 215, text: "___ I late?", options: ["Am", "Is", "Are"], correct: 0, type: "question", difficulty: 1 },
+    { id: 216, text: "___ it cold?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 217, text: "___ they young?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 218, text: "___ you kind?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 1 },
+    { id: 219, text: "___ she nice?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    { id: 220, text: "___ he strong?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 1 },
+    
+    // 中級レベル (20問)
+    { id: 221, text: "___ he your brother?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 222, text: "___ it hot today?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 223, text: "___ the children sleepy?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 224, text: "___ this your pen?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 225, text: "___ the weather nice?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 226, text: "___ your parents doctors?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 227, text: "___ the book interesting?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 228, text: "___ these flowers pretty?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 229, text: "___ the movie boring?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 230, text: "___ the students quiet?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 231, text: "___ the door open?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 232, text: "___ the windows closed?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 233, text: "___ the coffee hot?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 234, text: "___ the cars expensive?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 235, text: "___ the test difficult?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 236, text: "___ the games fun?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 237, text: "___ the room clean?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 238, text: "___ the shoes comfortable?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    { id: 239, text: "___ the music loud?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 2 },
+    { id: 240, text: "___ the neighbors friendly?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 2 },
+    
+    // 上級レベル (10問)
+    { id: 241, text: "___ you and your sister coming?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
+    { id: 242, text: "___ the teacher in the classroom ready?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
+    { id: 243, text: "___ all the students in your class smart?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
+    { id: 244, text: "___ everyone in the meeting room quiet?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
+    { id: 245, text: "___ the children in the playground happy?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
+    { id: 246, text: "___ your best friend from school here?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
+    { id: 247, text: "___ the books on the shelf new?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
+    { id: 248, text: "___ the weather in your city nice?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 },
+    { id: 249, text: "___ the computers in the lab working?", options: ["Am", "Is", "Are"], correct: 2, type: "question", difficulty: 3 },
+    { id: 250, text: "___ the food in this restaurant delicious?", options: ["Am", "Is", "Are"], correct: 1, type: "question", difficulty: 3 }
   ],
   
-  // 否定文モード用
+  // 否定文モード用 (50問)
   negative: [
+    // 初級レベル (25問)
     { id: 301, text: "I ___ not busy", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 1 },
     { id: 302, text: "She ___ not here", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
     { id: 303, text: "They ___ not happy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
-    { id: 304, text: "He ___ not angry", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
-    { id: 305, text: "We ___ not late", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
-    { id: 306, text: "It ___ not cold", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
-    { id: 307, text: "You ___ not tired", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
-    { id: 308, text: "The book ___ not mine", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 3 },
-    { id: 309, text: "The flowers ___ not red", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
-    { id: 310, text: "My room ___ not clean", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 }
+    { id: 304, text: "You ___ not tired", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 305, text: "He ___ not tall", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 306, text: "We ___ not ready", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 307, text: "It ___ not big", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 308, text: "I ___ not late", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 1 },
+    { id: 309, text: "She ___ not young", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 310, text: "They ___ not smart", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 311, text: "You ___ not wrong", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 312, text: "He ___ not sad", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 313, text: "We ___ not early", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 314, text: "It ___ not hot", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 315, text: "I ___ not sick", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 1 },
+    { id: 316, text: "She ___ not kind", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 317, text: "They ___ not old", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 318, text: "You ___ not busy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 319, text: "He ___ not strong", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 320, text: "We ___ not hungry", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 321, text: "It ___ not small", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 322, text: "I ___ not happy", options: ["am", "is", "are"], correct: 0, type: "negative", difficulty: 1 },
+    { id: 323, text: "She ___ not funny", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 1 },
+    { id: 324, text: "They ___ not nice", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    { id: 325, text: "You ___ not cold", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 1 },
+    
+    // 中級レベル (25問)
+    { id: 326, text: "He ___ not angry", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 327, text: "We ___ not late", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 328, text: "It ___ not cold", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 329, text: "The book ___ not mine", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 330, text: "The flowers ___ not red", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 331, text: "My room ___ not clean", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 332, text: "The weather ___ not nice", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 333, text: "These books ___ not new", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 334, text: "The movie ___ not interesting", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 335, text: "The students ___ not quiet", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 336, text: "The door ___ not open", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 337, text: "The windows ___ not closed", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 338, text: "The coffee ___ not hot", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 339, text: "The children ___ not sleepy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 340, text: "The test ___ not easy", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 341, text: "The cars ___ not expensive", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 342, text: "The music ___ not loud", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 343, text: "The shoes ___ not comfortable", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 344, text: "The food ___ not delicious", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 345, text: "The games ___ not boring", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 346, text: "The teacher ___ not strict", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 347, text: "The neighbors ___ not noisy", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 348, text: "The story ___ not exciting", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 },
+    { id: 349, text: "The problems ___ not difficult", options: ["am", "is", "are"], correct: 2, type: "negative", difficulty: 2 },
+    { id: 350, text: "The answer ___ not correct", options: ["am", "is", "are"], correct: 1, type: "negative", difficulty: 2 }
   ]
 }
 
@@ -585,7 +735,7 @@ const initializeModeQuestions = () => {
   currentModeQuestions.value = [...filteredQuestions].sort(() => Math.random() - 0.5)
   questionIndex.value = 0
   
-  console.log(`🎯 Mode initialized: ${mode}, Level: ${selectedLevel.value}, Questions: ${currentModeQuestions.value.length}`)
+  logger.log(`🎯 Mode initialized: ${mode}, Level: ${selectedLevel.value}, Questions: ${currentModeQuestions.value.length}`)
 }
 
 // === テンプレート参照 ===
@@ -648,24 +798,27 @@ const resetGameSession = () => {
       reactionTimes: []
     })
     
-    console.log('✅ Game session reset')
+    logger.log('✅ Game session reset')
   } catch (error) {
-    console.error('Reset game session error:', error)
+    logger.error('Reset game session error:', error)
   }
 }
 
 const startNewGame = async () => {
   try {
-    console.log('🎮 Starting new game...')
-    
+    logger.log('🎮 Starting new game...')
+
+    // 統合プログレッション初期化
+    initializeUnifiedGame('be-verb-rush')
+
     resetGameSession()
     initializeModeQuestions() // モード別問題の初期化
     gameState.value = 'countdown'
     
-    // BGM開始
-    if (soundEnabled.value) {
-      await playBGM()
-    }
+    // BGM開始（無効化）
+    // if (soundEnabled.value) {
+    //   await playBGM()
+    // }
     
     // カウントダウン実行
     countdownNumber.value = 3
@@ -689,12 +842,12 @@ const startNewGame = async () => {
         }
         startGameTimer()
         spawnNextQuestion() // メソッド名変更
-        console.log('🎯 Game started!')
+        logger.log('🎯 Game started!')
       }
     }, 1000)
     
   } catch (error) {
-    console.error('Start new game error:', error)
+    logger.error('Start new game error:', error)
     gameState.value = 'waiting'
   }
 }
@@ -715,7 +868,7 @@ const clearTimers = () => {
       currentQuestion.value.timeoutId = null
     }
   } catch (error) {
-    console.warn('Clear timers error:', error)
+    logger.warn('Clear timers error:', error)
   }
 }
 
@@ -733,7 +886,7 @@ const startGameTimer = () => {
       }
     }, 100)
   } catch (error) {
-    console.error('Start game timer error:', error)
+    logger.error('Start game timer error:', error)
   }
 }
 
@@ -761,7 +914,7 @@ const spawnNextQuestion = () => {
     // レベル別設定を取得
     const currentLevelSettings = LEVEL_SETTINGS[selectedLevel.value]
     
-    console.log('📝 New question spawned:', currentQuestion.value.text, `(type: ${currentQuestion.value.type}, level: ${selectedLevel.value})`)
+    logger.log('📝 New question spawned:', currentQuestion.value.text, `(type: ${currentQuestion.value.type}, level: ${selectedLevel.value})`)
     
     // "ヒュー"音を再生（難易度によって音を変える）
     if (soundEnabled.value) {
@@ -785,7 +938,7 @@ const spawnNextQuestion = () => {
     const questionId = currentQuestion.value.id
     const timeoutId = setTimeout(() => {
       if (currentQuestion.value && currentQuestion.value.id === questionId) {
-        console.log('⏰ Question timeout for ID:', questionId)
+        logger.log('⏰ Question timeout for ID:', questionId)
         handleQuestionTimeout()
       }
     }, currentLevelSettings.questionLifetime)
@@ -804,14 +957,14 @@ const spawnNextQuestion = () => {
     }, currentLevelSettings.spawnInterval)
     
   } catch (error) {
-    console.error('Spawn next question error:', error)
+    logger.error('Spawn next question error:', error)
   }
 }
 
 const handleAnswer = (selectedIndex) => {
   try {
     if (!currentQuestion.value || gameState.value !== 'playing') {
-      console.warn('Cannot handle answer - invalid state')
+      logger.warn('Cannot handle answer - invalid state')
       return
     }
     
@@ -879,7 +1032,7 @@ const handleAnswer = (selectedIndex) => {
     // 現在の問題をクリア
     currentQuestion.value = null
     
-    console.log(`📊 Answer: ${selectedAnswer} - ${isCorrect ? 'Correct' : 'Incorrect'}`)
+    logger.log(`📊 Answer: ${selectedAnswer} - ${isCorrect ? 'Correct' : 'Incorrect'}`)
     
     // 次の問題を即座に生成（遅延を入れて視覚的フィードバックの後に）
     setTimeout(() => {
@@ -889,7 +1042,7 @@ const handleAnswer = (selectedIndex) => {
     }, 800) // フィードバック表示時間の後に次の問題を生成
     
   } catch (error) {
-    console.error('Handle answer error:', error)
+    logger.error('Handle answer error:', error)
   }
 }
 
@@ -910,7 +1063,7 @@ const handleCorrectAnswer = (reactionTime) => {
     currentScore.value += totalScore
     
   } catch (error) {
-    console.error('Handle correct answer error:', error)
+    logger.error('Handle correct answer error:', error)
   }
 }
 
@@ -926,7 +1079,7 @@ const playPronunciation = async (word) => {
       })
     }
   } catch (error) {
-    console.error('Pronunciation error:', error)
+    logger.error('Pronunciation error:', error)
   }
 }
 
@@ -960,14 +1113,14 @@ const handleIncorrectAnswer = () => {
     }
     
   } catch (error) {
-    console.error('Handle incorrect answer error:', error)
+    logger.error('Handle incorrect answer error:', error)
   }
 }
 
 const handleQuestionTimeout = () => {
   try {
     if (currentQuestion.value) {
-      console.log('⏰ Question timeout')
+      logger.log('⏰ Question timeout')
       handleIncorrectAnswer()
       currentQuestion.value = null
       
@@ -981,7 +1134,7 @@ const handleQuestionTimeout = () => {
       }
     }
   } catch (error) {
-    console.error('Handle question timeout error:', error)
+    logger.error('Handle question timeout error:', error)
   }
 }
 
@@ -1001,21 +1154,35 @@ const showFeedback = (isCorrect, selected, correct) => {
     }, 1500)
     
   } catch (error) {
-    console.error('Show feedback error:', error)
+    logger.error('Show feedback error:', error)
   }
 }
 
 const endGame = () => {
   try {
-    console.log('🏁 Game ended')
-    
+    logger.log('🏁 Game ended')
+
     gameState.value = 'finished'
     clearTimers()
+
+    // 統合プログレッションシステムに結果記録
+    const gameResult = completeUnifiedGame({
+      gameType: 'be-verb-rush',
+      score: score.value,
+      accuracy: totalQuestions.value > 0 ? Math.round((correctCount.value / totalQuestions.value) * 100) : 0,
+      timeSpent: Math.round((Date.now() - gameStartTime.value) / 1000),
+      correctAnswers: correctCount.value,
+      totalQuestions: totalQuestions.value || 1,
+      correctStreak: bestStreak.value,
+      difficulty: selectedMode.value === 'mixed' ? 'hard' : 'normal'
+    }, { showContinuePrompt: true })
+
+    logger.log('🎯 BeVerbRush 統合プログレッション記録完了:', gameResult)
     
-    // BGM停止
-    if (soundEnabled.value) {
-      stopBGM()
-    }
+    // BGM停止（無効化）
+    // if (soundEnabled.value) {
+    //   stopBGM()
+    // }
     
     // 新記録チェック
     if (currentScore.value > persistentData.bestScore) {
@@ -1048,7 +1215,7 @@ const endGame = () => {
     saveProgress()
     
   } catch (error) {
-    console.error('End game error:', error)
+    logger.error('End game error:', error)
   }
 }
 
@@ -1057,22 +1224,24 @@ const togglePause = () => {
     if (gameState.value === 'playing') {
       gameState.value = 'paused'
       clearTimers()
-      if (soundEnabled.value) {
-        pauseBGM()
-      }
+      // BGM一時停止（無効化）
+      // if (soundEnabled.value) {
+      //   pauseBGM()
+      // }
     } else if (gameState.value === 'paused') {
       gameState.value = 'playing'
       startGameTimer()
-      if (soundEnabled.value) {
-        playBGM()
-      }
+      // BGM再開（無効化）
+      // if (soundEnabled.value) {
+      //   playBGM()
+      // }
       
       if (!currentQuestion.value) {
         spawnNextQuestion()
       }
     }
   } catch (error) {
-    console.error('Toggle pause error:', error)
+    logger.error('Toggle pause error:', error)
   }
 }
 
@@ -1085,7 +1254,7 @@ const getQuestionClasses = () => {
       [`type-${currentQuestion.value?.type || 'mixed'}`]: true
     }
   } catch (error) {
-    console.warn('Get question classes error:', error)
+    logger.warn('Get question classes error:', error)
     return { 'flying-in': true, 'difficulty-1': true, 'type-mixed': true }
   }
 }
@@ -1099,58 +1268,59 @@ const getButtonClasses = (option, index) => {
       'disabled': !currentQuestion.value || gameState.value === 'paused'
     }
   } catch (error) {
-    console.warn('Get button classes error:', error)
+    logger.warn('Get button classes error:', error)
     return { 'answer-button': true }
   }
 }
 
 const handleBackButton = () => {
   try {
-    console.log('Back button clicked, gameState:', gameState.value)
+    logger.log('Back button clicked, gameState:', gameState.value)
     
     if (gameState.value === 'playing') {
       if (confirm('ゲームを中断して戻りますか？')) {
         clearTimers()
-        if (soundEnabled.value) {
-          stopBGM()
-        }
+        // BGM停止（無効化）
+        // if (soundEnabled.value) {
+        //   stopBGM()
+        // }
         navigateToHub()
       }
     } else {
       navigateToHub()
     }
   } catch (error) {
-    console.error('Back button error:', error)
+    logger.error('Back button error:', error)
     navigateToHub()
   }
 }
 
 const navigateToHub = () => {
   try {
-    console.log('Navigating to grammar galaxy hub...')
+    logger.log('Navigating to grammar galaxy hub...')
     
     // 第一選択肢: nameでナビゲーション
     router.push({ name: 'grammar-galaxy-hub' })
       .then(() => {
-        console.log('Navigation successful')
+        logger.log('Navigation successful')
       })
       .catch((err) => {
-        console.warn('Navigation by name failed:', err)
+        logger.warn('Navigation by name failed:', err)
         
         // 第二選択肢: pathでナビゲーション
         router.push('/grammar-galaxy')
           .then(() => {
-            console.log('Navigation by path successful')
+            logger.log('Navigation by path successful')
           })
           .catch((err2) => {
-            console.error('Navigation by path also failed:', err2)
+            logger.error('Navigation by path also failed:', err2)
             
             // 第三選択肢: 直接 URL 変更
             window.location.href = '/grammar-galaxy'
           })
       })
   } catch (error) {
-    console.error('Navigate to hub error:', error)
+    logger.error('Navigate to hub error:', error)
     // フォールバック: 直接 URL 変更
     window.location.href = '/grammar-galaxy'
   }
@@ -1201,7 +1371,7 @@ const checkAchievements = () => {
     
     return achievements
   } catch (error) {
-    console.error('Check achievements error:', error)
+    logger.error('Check achievements error:', error)
     return []
   }
 }
@@ -1219,7 +1389,7 @@ const getAchievementName = (achievement) => {
     }
     return names[achievement] || achievement
   } catch (error) {
-    console.warn('Achievement name error:', error)
+    logger.warn('Achievement name error:', error)
     return achievement || 'Unknown Achievement'
   }
 }
@@ -1232,9 +1402,9 @@ const saveProgress = () => {
       lastSaved: new Date().toISOString()
     }
     localStorage.setItem('beVerbRushProgress', JSON.stringify(saveData))
-    console.log('💾 Progress saved')
+    logger.log('💾 Progress saved')
   } catch (error) {
-    console.error('Save progress error:', error)
+    logger.error('Save progress error:', error)
   }
 }
 
@@ -1245,11 +1415,11 @@ const loadProgress = () => {
       const data = JSON.parse(savedData)
       if (data.persistentData) {
         Object.assign(persistentData, data.persistentData)
-        console.log('📖 Progress loaded')
+        logger.log('📖 Progress loaded')
       }
     }
   } catch (error) {
-    console.error('Load progress error:', error)
+    logger.error('Load progress error:', error)
   }
 }
 
@@ -1275,14 +1445,14 @@ const handleKeyPress = (event) => {
       togglePause()
     }
   } catch (error) {
-    console.warn('Key press error:', error)
+    logger.warn('Key press error:', error)
   }
 }
 
 // === ライフサイクル ===
 onMounted(() => {
   try {
-    console.log('🔧 Component mounted')
+    logger.log('🔧 Component mounted')
     
     loadProgress()
     document.addEventListener('keydown', handleKeyPress)
@@ -1293,7 +1463,7 @@ onMounted(() => {
     }
     
   } catch (error) {
-    console.error('Component mount error:', error)
+    logger.error('Component mount error:', error)
   }
 })
 
@@ -1306,14 +1476,14 @@ onUnmounted(() => {
       clearTimeout(feedbackTimeout.value)
     }
     
-    // 音響システムのクリーンアップ
-    if (soundEnabled.value) {
-      stopBGM()
-    }
+    // 音響システムのクリーンアップ（BGM無効化）
+    // if (soundEnabled.value) {
+    //   stopBGM()
+    // }
     
-    console.log('🧹 Component unmounted')
+    logger.log('🧹 Component unmounted')
   } catch (error) {
-    console.error('Component unmount error:', error)
+    logger.error('Component unmount error:', error)
   }
 })
 
@@ -1324,7 +1494,7 @@ watch(() => currentQuestion.value, (newQuestion) => {
       subjectStartTime.value = Date.now()
     }
   } catch (error) {
-    console.warn('Current question watch error:', error)
+    logger.warn('Current question watch error:', error)
   }
 })
 
@@ -1339,7 +1509,7 @@ watch(() => gameState.value, async (newState) => {
       }
     }
   } catch (error) {
-    console.error('Game state change error:', error)
+    logger.error('Game state change error:', error)
   }
 })
 </script>

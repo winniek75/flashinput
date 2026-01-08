@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="grammar-element"
     :class="[
       getElementClass(),
@@ -12,9 +12,10 @@
       }
     ]"
     :draggable="isDraggable && !element.isUsed"
+    @click.stop="handleClick"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
-    @click="handleClick"
+    style="cursor: pointer; user-select: none;"
   >
     <!-- Element Content -->
     <div class="element-content">
@@ -222,9 +223,20 @@ const handleRemove = () => {
 }
 
 const handleClick = () => {
-  // For kids mode or touch devices
-  if (props.kidsMode || !props.isDraggable) {
+  console.log('🔘 GrammarElement clicked:', props.element.word)
+  console.log('🔍 Element props:', {
+    word: props.element.word,
+    isUsed: props.element.isUsed,
+    kidsMode: props.kidsMode,
+    isDraggable: props.isDraggable
+  })
+
+  // Enable click for all modes - more user-friendly
+  if (!props.element.isUsed) {
+    console.log('✅ Emitting click event for:', props.element.word)
     emit('click', props.element)
+  } else {
+    console.log('❌ Element is used, not emitting click')
   }
 }
 
@@ -285,12 +297,35 @@ defineExpose({
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-.element-card.draggable:hover {
+/* Clickable element hover effects */
+.grammar-element:not(.used):hover {
   transform: translateY(-6px) scale(1.05);
-  box-shadow: 
+  box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.element-card.draggable:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Pulse animation for clickable elements */
+.grammar-element:not(.used) {
+  animation: gentle-pulse 2s infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  50% {
+    box-shadow: 0 6px 10px -1px rgba(59, 130, 246, 0.3), 0 4px 8px -1px rgba(59, 130, 246, 0.15);
+  }
 }
 
 /* Label Style (dropped elements) */
@@ -417,7 +452,6 @@ defineExpose({
   opacity: 0.6;
   filter: grayscale(0.8) brightness(0.7);
   cursor: not-allowed;
-  pointer-events: none;
   transition: all 0.3s ease-out;
 }
 

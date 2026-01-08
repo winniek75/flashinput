@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>講師ダッシュボードテスト</title>
+</head>
+<body>
+    <h1>講師ダッシュボードテストページ</h1>
+    <p>以下のリンクから講師ダッシュボードにアクセスできます：</p>
+    <ul>
+        <li><a href="http://localhost:3003/teacher-dashboard" target="_blank">Enhanced Teacher Dashboard (/teacher-dashboard)</a></li>
+        <li><a href="http://localhost:3003/teacher" target="_blank">Basic Teacher Dashboard (/teacher)</a></li>
+    </ul>
+    <h2>修正内容：</h2>
+    <ol>
+        <li>CollaborativeSession の WebSocket 接続エラーを回避するように修正</li>
+        <li>開発環境では全機能にアクセスできるよう subscriptionStore を修正</li>
+        <li>クイックアクセスパネルから講師ダッシュボードにアクセス可能に</li>
+    </ol>
+    <h2>確認方法：</h2>
+    <ol>
+        <li>上記のリンクをクリックして講師ダッシュボードが表示されることを確認</li>
+        <li>ホーム画面の右側にあるクイックアクセスパネルを開く</li>
+        <li>「講師ダッシュボード」ボタンが有効になっていることを確認</li>
+        <li>ボタンをクリックして講師ダッシュボードに遷移できることを確認</li>
+    </ol>
+</body>
+</html>

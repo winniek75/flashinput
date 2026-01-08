@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { parse } from 'csv-parse/sync'
+import logger from '@/utils/logger'
 
 function fixSoundHunter() {
   const file = 'src/data/csv/sound_hunter.csv'
@@ -41,4 +42,4 @@ function fixRhymingWords() {
 
 fixSoundHunter()
 fixRhymingWords()
-console.log('修正完了') 
+logger.log('修正完了') 

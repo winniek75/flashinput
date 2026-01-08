@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useGrammarGalaxyStore } from './grammarGalaxyStore'
+import logger from '@/utils/logger'
 
 export const useGrammarProgressStore = defineStore('grammarProgress', () => {
   // === 学習データ管理 ===
@@ -98,10 +99,10 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
       rarity: 'rare'
     },
     {
-      id: 'grammar_architect',
-      name: '文法建築家',
-      description: 'Grammar Constructorで50個の文を完成',
-      icon: '🏗️',
+      id: 'station_architect',
+      name: 'ステーション建築家',
+      description: 'Galaxy Grammar Stationで50個の文を完成',
+      icon: '🛸',
       category: 'game_specific',
       unlocked: false,
       unlockedAt: null,
@@ -283,7 +284,7 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
     // データを保存
     saveProgressData()
     
-    console.log(`📊 Game session recorded: ${gameId} - ${accuracy}% accuracy`)
+    logger.log(`📊 Game session recorded: ${gameId} - ${accuracy}% accuracy`)
   }
   
   /**
@@ -352,7 +353,7 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
     const newLevel = calculateSkillLevel(skill.experience)
     if (newLevel > skill.level) {
       skill.level = newLevel
-      console.log(`🎉 Skill level up! ${skill.name} is now level ${newLevel}`)
+      logger.log(`🎉 Skill level up! ${skill.name} is now level ${newLevel}`)
     }
     
     // 弱点と強みを分析
@@ -457,7 +458,7 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
       achievement.unlocked = true
       achievement.unlockedAt = new Date().toISOString()
       
-      console.log(`🏆 Achievement unlocked: ${achievement.name}`)
+      logger.log(`🏆 Achievement unlocked: ${achievement.name}`)
       
       // アチーブメント通知を表示（実装は別途必要）
       // showAchievementNotification(achievement)
@@ -502,9 +503,9 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
       }
       
       localStorage.setItem('grammarProgressData', JSON.stringify(saveData))
-      console.log('✅ Grammar progress data saved successfully')
+      logger.log('✅ Grammar progress data saved successfully')
     } catch (error) {
-      console.error('❌ Failed to save grammar progress data:', error)
+      logger.error('❌ Failed to save grammar progress data:', error)
     }
   }
   
@@ -543,11 +544,11 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
           Object.assign(learningPatterns.value, data.learningPatterns)
         }
         
-        console.log('✅ Grammar progress data loaded successfully')
+        logger.log('✅ Grammar progress data loaded successfully')
         return true
       }
     } catch (error) {
-      console.error('❌ Failed to load grammar progress data:', error)
+      logger.error('❌ Failed to load grammar progress data:', error)
     }
     return false
   }
@@ -606,7 +607,7 @@ export const useGrammarProgressStore = defineStore('grammarProgress', () => {
     })
     
     saveProgressData()
-    console.log('✅ Grammar progress data reset successfully')
+    logger.log('✅ Grammar progress data reset successfully')
   }
   
   // === ヘルパー関数 ===

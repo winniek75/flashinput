@@ -1,4 +1,5 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, type Ref, type ComputedRef, type UnwrapRef } from 'vue'
+import logger from '@/utils/logger'
 import type { 
   ECHOCharacter, 
   ECHOEmotion, 
@@ -13,7 +14,7 @@ import type {
 export function useECHOAnimation(character: Ref<ECHOCharacter | undefined>) {
   // 早期ガード: characterが存在しない場合の処理
   if (!character) {
-    console.warn('useECHOAnimation: character ref is required')
+    logger.warn('useECHOAnimation: character ref is required')
     // 最小限の戻り値を返す
     return {
       isAnimating: ref(false),
@@ -106,7 +107,7 @@ export function useECHOAnimation(character: Ref<ECHOCharacter | undefined>) {
     }
     
     currentError.value = fullError
-    console.error('ECHOAnimation Error:', fullError)
+    logger.error('ECHOAnimation Error:', fullError)
     
     // 自動回復処理
     if (fullError.recoverable) {
@@ -134,7 +135,7 @@ export function useECHOAnimation(character: Ref<ECHOCharacter | undefined>) {
     try {
       // character.valueが存在しない場合は早期リターン
       if (!character.value) {
-        console.warn('ECHOAnimation: Character not provided, skipping initialization')
+        logger.warn('ECHOAnimation: Character not provided, skipping initialization')
         return
       }
 
@@ -434,7 +435,7 @@ export function useECHOAnimation(character: Ref<ECHOCharacter | undefined>) {
           
           // パフォーマンス劣化検出
           if (performanceStats.value.animationFrameRate < 30) {
-            console.warn('ECHOAnimation: パフォーマンス劣化を検出', {
+            logger.warn('ECHOAnimation: パフォーマンス劣化を検出', {
               fps: performanceStats.value.animationFrameRate.toFixed(1),
               renderTime: performanceStats.value.renderTime.toFixed(2)
             })

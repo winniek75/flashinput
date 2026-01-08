@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import { useSpectatorStore } from '@/stores/spectatorStore';
+import logger from '@/utils/logger'
 
 class SpectatorService {
   constructor() {
@@ -12,13 +13,13 @@ class SpectatorService {
   // 接続を初期化
   connect(serverUrl = 'http://localhost:3002') {
     if (this.socket && this.socket.connected) {
-      console.log('Already connected to spectator server');
+      logger.log('Already connected to spectator server');
       return Promise.resolve();
     }
 
     const spectatorStore = useSpectatorStore();
 
-    console.log('Attempting to connect to:', serverUrl);
+    logger.log('Attempting to connect to:', serverUrl);
     
     this.socket = io(serverUrl, {
       transports: ['websocket', 'polling'],
@@ -33,7 +34,7 @@ class SpectatorService {
     
     return new Promise((resolve, reject) => {
       this.socket.on('connect', () => {
-        console.log('Connected to spectator server');
+        logger.log('Connected to spectator server');
         spectatorStore.setConnectionStatus(true);
         spectatorStore.clearError();
         this.reconnectAttempts = 0;
@@ -41,9 +42,9 @@ class SpectatorService {
       });
 
       this.socket.on('connect_error', (error) => {
-        console.error('Connection error:', error.message);
-        console.error('Error type:', error.type);
-        console.error('Error details:', error);
+        logger.error('Connection error:', error.message);
+        logger.error('Error type:', error.type);
+        logger.error('Error details:', error);
         spectatorStore.setConnectionStatus(false);
         
         let errorMessage = 'サーバーへの接続に失敗しました';
@@ -63,42 +64,42 @@ class SpectatorService {
 
     // 接続・切断イベント
     this.socket.on('disconnect', () => {
-      console.log('Disconnected from spectator server');
+      logger.log('Disconnected from spectator server');
       spectatorStore.setConnectionStatus(false);
       spectatorStore.setError('サーバーとの接続が切断されました');
     });
 
     this.socket.on('reconnect', (attemptNumber) => {
-      console.log(`Reconnected after ${attemptNumber} attempts`);
+      logger.log(`Reconnected after ${attemptNumber} attempts`);
       spectatorStore.setConnectionStatus(true);
       spectatorStore.clearError();
     });
 
     this.socket.on('reconnect_attempt', (attemptNumber) => {
-      console.log(`Reconnection attempt ${attemptNumber}`);
+      logger.log(`Reconnection attempt ${attemptNumber}`);
       this.reconnectAttempts = attemptNumber;
     });
 
     this.socket.on('reconnect_failed', () => {
-      console.error('Failed to reconnect');
+      logger.error('Failed to reconnect');
       spectatorStore.setError('再接続に失敗しました');
     });
 
     // ルーム作成・参加イベント
     this.socket.on('spectator:room-created', (data) => {
-      console.log('Room created:', data);
+      logger.log('Room created:', data);
       spectatorStore.setRoomInfo(data.roomCode, data.roomCode);
       spectatorStore.updateParticipants(data.participants);
     });
 
     this.socket.on('spectator:room-exists', (data) => {
-      console.log('Room already exists:', data);
+      logger.log('Room already exists:', data);
       spectatorStore.setRoomInfo(data.roomCode, data.roomCode);
       spectatorStore.updateParticipants(data.participants);
     });
 
     this.socket.on('spectator:joined-room', (data) => {
-      console.log('Joined room:', data);
+      logger.log('Joined room:', data);
       spectatorStore.setRoomInfo(data.roomCode, data.roomCode);
       spectatorStore.setMyInfo({ id: data.studentId });
       spectatorStore.updateParticipants(data.participants);
@@ -106,40 +107,40 @@ class SpectatorService {
 
     // 参加者の更新
     this.socket.on('spectator:student-joined', (data) => {
-      console.log('Student joined:', data);
+      logger.log('Student joined:', data);
       spectatorStore.addStudent(data.student);
     });
 
     this.socket.on('spectator:student-left', (data) => {
-      console.log('Student left:', data);
+      logger.log('Student left:', data);
       spectatorStore.removeStudent(data.studentId);
     });
 
     this.socket.on('spectator:student-disconnected', (data) => {
-      console.log('Student disconnected:', data);
+      logger.log('Student disconnected:', data);
       spectatorStore.updateStudentConnection(data.studentId, false);
     });
 
     this.socket.on('spectator:teacher-disconnected', (data) => {
-      console.log('Teacher disconnected:', data);
+      logger.log('Teacher disconnected:', data);
       spectatorStore.setError(data.message);
     });
 
     // ゲーム状態の更新
     this.socket.on('spectator:game-state-updated', (data) => {
-      console.log('Game state updated for student:', data.studentId);
+      logger.log('Game state updated for student:', data.studentId);
       spectatorStore.updateGameState(data.studentId, data.gameState);
     });
 
     this.socket.on('spectator:student-action', (data) => {
-      console.log('Student action:', data);
+      logger.log('Student action:', data);
       // UIでアクションを表示するための処理
       this.handleStudentAction(data);
     });
 
     // 生徒選択の応答
     this.socket.on('spectator:student-selected', (data) => {
-      console.log('Student selected:', data);
+      logger.log('Student selected:', data);
       if (data.gameState) {
         spectatorStore.updateGameState(data.studentId, data.gameState);
       }
@@ -147,14 +148,14 @@ class SpectatorService {
 
     // ルーム終了
     this.socket.on('spectator:room-closed', (data) => {
-      console.log('Room closed:', data);
+      logger.log('Room closed:', data);
       spectatorStore.setError(data.message);
       spectatorStore.reset();
     });
 
     // エラーハンドリング
     this.socket.on('spectator:error', (data) => {
-      console.error('Spectator error:', data);
+      logger.error('Spectator error:', data);
       spectatorStore.setError(data.message);
     });
   }
@@ -192,7 +193,7 @@ class SpectatorService {
   }
 
   // 生徒としてルームに参加
-  joinRoom(roomCode, studentId, studentName) {
+  joinRoom(roomCode, userInfo) {
     return new Promise((resolve, reject) => {
       if (!this.socket || !this.socket.connected) {
         reject(new Error('サーバーに接続されていません'));
@@ -200,10 +201,16 @@ class SpectatorService {
       }
 
       const spectatorStore = useSpectatorStore();
-      spectatorStore.setRole('student');
-      spectatorStore.setMyInfo({ id: studentId, name: studentName });
+      const role = userInfo.role || 'student';
+      spectatorStore.setRole(role);
+      spectatorStore.setMyInfo({ id: userInfo.id || Date.now().toString(), name: userInfo.name });
 
-      this.socket.emit('spectator:join-room', { roomCode, studentId, studentName });
+      this.socket.emit('spectator:join-room', {
+        roomCode,
+        studentId: userInfo.id || Date.now().toString(),
+        studentName: userInfo.name,
+        role: role
+      });
 
       // タイムアウト設定
       const timeout = setTimeout(() => {
@@ -225,9 +232,18 @@ class SpectatorService {
   }
 
   // ゲーム状態を同期
-  syncGameState(roomCode, studentId, gameState) {
+  syncGameState(gameState) {
     if (!this.socket || !this.socket.connected) {
-      console.error('Not connected to server');
+      logger.error('Not connected to server');
+      return;
+    }
+
+    const spectatorStore = useSpectatorStore();
+    const roomCode = spectatorStore.roomCode;
+    const studentId = spectatorStore.myInfo?.id;
+
+    if (!roomCode || !studentId) {
+      logger.error('Room code or student ID not found');
       return;
     }
 
@@ -242,9 +258,39 @@ class SpectatorService {
   }
 
   // ゲームアクションを送信
-  sendGameAction(roomCode, studentId, action) {
+  sendGameAction(action) {
     if (!this.socket || !this.socket.connected) {
-      console.error('Not connected to server');
+      logger.error('Not connected to server');
+      return;
+    }
+
+    const spectatorStore = useSpectatorStore();
+    const roomCode = spectatorStore.roomCode;
+    const studentId = spectatorStore.myInfo?.id;
+
+    if (!roomCode || !studentId) {
+      logger.error('Room code or student ID not found');
+      return;
+    }
+
+    // デバウンス処理（過度な送信を防ぐ）
+    if (this.actionDebounceTimer) {
+      clearTimeout(this.actionDebounceTimer);
+    }
+
+    this.actionDebounceTimer = setTimeout(() => {
+      this.socket.emit('spectator:game-action', {
+        roomCode,
+        studentId,
+        action
+      });
+    }, 50); // 50msのデバウンス
+  }
+
+  // 旧バージョン互換性のため残す
+  sendGameActionLegacy(roomCode, studentId, action) {
+    if (!this.socket || !this.socket.connected) {
+      logger.error('Not connected to server');
       return;
     }
 
@@ -263,13 +309,15 @@ class SpectatorService {
   }
 
   // 生徒を選択（講師用）
-  selectStudent(roomCode, studentId) {
+  selectStudent(studentId) {
     if (!this.socket || !this.socket.connected) {
-      console.error('Not connected to server');
+      logger.error('Not connected to server');
       return;
     }
 
     const spectatorStore = useSpectatorStore();
+    const roomCode = spectatorStore.roomCode;
+
     spectatorStore.selectStudent(studentId);
 
     this.socket.emit('spectator:select-student', {
@@ -278,10 +326,17 @@ class SpectatorService {
     });
   }
 
+  // 生徒のキャンバス更新を監視（講師用）
+  onStudentCanvasUpdate(callback) {
+    if (!this.socket) return;
+
+    this.socket.on('spectator:canvas-update', callback);
+  }
+
   // ルームから退出
   leaveRoom() {
     if (!this.socket || !this.socket.connected) {
-      console.error('Not connected to server');
+      logger.error('Not connected to server');
       return;
     }
 
@@ -369,4 +424,7 @@ class SpectatorService {
 }
 
 // シングルトンインスタンスをエクスポート
-export const spectatorService = new SpectatorService();
+const spectatorServiceInstance = new SpectatorService();
+
+export { spectatorServiceInstance as spectatorService };
+export default spectatorServiceInstance;

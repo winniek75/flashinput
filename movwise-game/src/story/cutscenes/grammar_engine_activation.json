@@ -1,0 +1,323 @@
+{
+  "id": "grammar_engine_activation",
+  "title": "文法エンジン起動",
+  "duration": 35000,
+  "music": "/audio/music/mechanical_awakening_theme.mp3",
+  "scenes": [
+    {
+      "id": "engine_chamber_entry",
+      "duration": 8000,
+      "background": "/images/backgrounds/grammar_engine_dormant.jpg",
+      "characters": [
+        {
+          "id": "grammar_guardian",
+          "position": "center",
+          "emotion": "serious",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "grammar_guardian",
+          "text": "ここが文法エンジンの心臓部だ。",
+          "startTime": 1500,
+          "duration": 3000,
+          "emotion": "reverent"
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "長い間、沈黙を続けていた...",
+          "startTime": 5000,
+          "duration": 2500,
+          "emotion": "melancholy"
+        }
+      ],
+      "camera": [
+        {
+          "type": "pan",
+          "startTime": 0,
+          "duration": 8000,
+          "parameters": {
+            "x": 0,
+            "y": -30
+          }
+        },
+        {
+          "type": "zoom",
+          "startTime": 4000,
+          "duration": 4000,
+          "parameters": {
+            "scale": 1.1
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 2000,
+          "duration": 6000,
+          "parameters": {
+            "count": 15,
+            "symbols": ["⚙️", "🔧", "📐"],
+            "colors": ["#6B7280", "#4B5563", "#374151"],
+            "size": 0.7
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "startTime": 0,
+          "file": "/audio/music/mechanical_ambience.mp3",
+          "volume": 0.2,
+          "fadeIn": true
+        },
+        {
+          "type": "sfx",
+          "startTime": 3000,
+          "file": "/audio/sfx/machinery_echo.mp3",
+          "volume": 0.3
+        }
+      ]
+    },
+    {
+      "id": "power_up_sequence",
+      "duration": 12000,
+      "background": "/images/backgrounds/grammar_engine_powering.jpg",
+      "characters": [
+        {
+          "id": "grammar_guardian",
+          "position": "left",
+          "emotion": "focused",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "amazed",
+          "size": "medium",
+          "enterTime": 2000
+        },
+        {
+          "id": "aura",
+          "position": "center",
+          "emotion": "analytical",
+          "size": "medium",
+          "enterTime": 4000
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "grammar_guardian",
+          "text": "エンジン起動シーケンス開始！",
+          "startTime": 1000,
+          "duration": 2500,
+          "emotion": "determined"
+        },
+        {
+          "speaker": "aura",
+          "text": "エネルギー出力が上昇しています！",
+          "startTime": 5000,
+          "duration": 2500,
+          "emotion": "excited"
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "すごい...機械全体が生きているみたいだ！",
+          "startTime": 8500,
+          "duration": 3000,
+          "emotion": "wonderstruck"
+        }
+      ],
+      "camera": [
+        {
+          "type": "shake",
+          "startTime": 1000,
+          "duration": 11000,
+          "parameters": {
+            "intensity": 5
+          }
+        },
+        {
+          "type": "zoom",
+          "startTime": 6000,
+          "duration": 6000,
+          "parameters": {
+            "scale": 1.3
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 1000,
+          "duration": 11000,
+          "parameters": {
+            "count": 50,
+            "symbols": ["⚡", "🔋", "💡"],
+            "colors": ["#3B82F6", "#1D4ED8", "#06B6D4"],
+            "size": 1.0
+          }
+        },
+        {
+          "type": "flash",
+          "startTime": 3000,
+          "duration": 200,
+          "parameters": {
+            "intensity": 0.6
+          }
+        },
+        {
+          "type": "flash",
+          "startTime": 7000,
+          "duration": 200,
+          "parameters": {
+            "intensity": 0.6
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "startTime": 1000,
+          "file": "/audio/sfx/engine_startup.mp3",
+          "volume": 0.7
+        },
+        {
+          "type": "sfx",
+          "startTime": 3000,
+          "file": "/audio/sfx/electrical_surge.mp3",
+          "volume": 0.5
+        },
+        {
+          "type": "sfx",
+          "startTime": 7000,
+          "file": "/audio/sfx/machinery_hum.mp3",
+          "volume": 0.6
+        }
+      ]
+    },
+    {
+      "id": "full_activation",
+      "duration": 15000,
+      "background": "/images/backgrounds/grammar_engine_active.jpg",
+      "characters": [
+        {
+          "id": "grammar_guardian",
+          "position": "left",
+          "emotion": "triumphant",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "excited",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "happy",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "far-right",
+          "emotion": "grateful",
+          "size": "medium",
+          "enterTime": 8000
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "grammar_guardian",
+          "text": "完全起動成功！Grammar Coreが復活した！",
+          "startTime": 2000,
+          "duration": 3500,
+          "emotion": "triumphant"
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "信じられない...この美しい光は何だ？",
+          "startTime": 6000,
+          "duration": 3000,
+          "emotion": "amazed"
+        },
+        {
+          "speaker": "the_translator",
+          "text": "これが...調和された文法の力だ。",
+          "startTime": 10000,
+          "duration": 3000,
+          "emotion": "peaceful"
+        },
+        {
+          "speaker": "aura",
+          "text": "全システム正常！言語構造が安定化しました！",
+          "startTime": 13500,
+          "duration": 3500,
+          "emotion": "elated"
+        }
+      ],
+      "camera": [
+        {
+          "type": "pan",
+          "startTime": 0,
+          "duration": 8000,
+          "parameters": {
+            "x": -50,
+            "y": 0
+          }
+        },
+        {
+          "type": "zoom",
+          "startTime": 8000,
+          "duration": 7000,
+          "parameters": {
+            "scale": 1.2
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 0,
+          "duration": 15000,
+          "parameters": {
+            "count": 100,
+            "symbols": ["✨", "🌟", "💫", "🎊"],
+            "colors": ["#FFD700", "#87CEEB", "#F472B6", "#10B981"],
+            "size": 1.2
+          }
+        },
+        {
+          "type": "flash",
+          "startTime": 2000,
+          "duration": 500,
+          "parameters": {
+            "intensity": 0.9
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "startTime": 2000,
+          "file": "/audio/sfx/triumphant_fanfare.mp3",
+          "volume": 0.8
+        },
+        {
+          "type": "sfx",
+          "startTime": 6000,
+          "file": "/audio/sfx/harmonic_resonance.mp3",
+          "volume": 0.6
+        },
+        {
+          "type": "sfx",
+          "startTime": 10000,
+          "file": "/audio/sfx/peaceful_chime.mp3",
+          "volume": 0.5
+        }
+      ]
+    }
+  ]
+}

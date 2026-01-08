@@ -1,0 +1,257 @@
+{
+  "id": "word_bridge_collapse",
+  "title": "単語の橋崩壊",
+  "duration": 25000,
+  "music": "/audio/music/dramatic_collapse_theme.mp3",
+  "scenes": [
+    {
+      "id": "peaceful_bridge",
+      "duration": 6000,
+      "background": "/images/backgrounds/word_bridge_intact.jpg",
+      "characters": [
+        {
+          "id": "lexia",
+          "position": "center",
+          "emotion": "happy",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "この橋はね、みんなの言葉で作られてるの！",
+          "startTime": 1000,
+          "duration": 3000,
+          "emotion": "excited"
+        },
+        {
+          "speaker": "lexia",
+          "text": "「愛」「希望」「友情」...美しい言葉がいっぱい！",
+          "startTime": 4500,
+          "duration": 3500,
+          "emotion": "joyful"
+        }
+      ],
+      "camera": [
+        {
+          "type": "pan",
+          "startTime": 0,
+          "duration": 6000,
+          "parameters": {
+            "x": -40,
+            "y": 0
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 1000,
+          "duration": 5000,
+          "parameters": {
+            "count": 25,
+            "symbols": ["💕", "✨", "🌈"],
+            "colors": ["#F472B6", "#10B981", "#3B82F6"],
+            "size": 0.9
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "startTime": 0,
+          "file": "/audio/music/peaceful_melody.mp3",
+          "volume": 0.3,
+          "fadeIn": true
+        }
+      ]
+    },
+    {
+      "id": "shadow_appears",
+      "duration": 8000,
+      "background": "/images/backgrounds/word_bridge_intact.jpg",
+      "characters": [
+        {
+          "id": "lexia",
+          "position": "left",
+          "emotion": "worried",
+          "size": "medium"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "alert",
+          "size": "medium",
+          "enterTime": 2000
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "あ、あれ？何かがおかしい...影が...",
+          "startTime": 1500,
+          "duration": 3000,
+          "emotion": "confused"
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "Lexia、危険だ！橋から離れろ！",
+          "startTime": 5000,
+          "duration": 2500,
+          "emotion": "alarmed"
+        }
+      ],
+      "camera": [
+        {
+          "type": "zoom",
+          "startTime": 3000,
+          "duration": 5000,
+          "parameters": {
+            "scale": 1.2
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "fade",
+          "startTime": 1500,
+          "duration": 2000,
+          "parameters": {
+            "opacity": 0.7
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "startTime": 1500,
+          "file": "/audio/sfx/ominous_wind.mp3",
+          "volume": 0.4
+        },
+        {
+          "type": "sfx",
+          "startTime": 4500,
+          "file": "/audio/sfx/warning_bell.mp3",
+          "volume": 0.5
+        }
+      ]
+    },
+    {
+      "id": "collapse_begins",
+      "duration": 11000,
+      "background": "/images/backgrounds/word_bridge_collapsing.jpg",
+      "characters": [
+        {
+          "id": "lexia",
+          "position": "left",
+          "emotion": "scared",
+          "size": "medium"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "determined",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "center",
+          "emotion": "analytical",
+          "size": "small",
+          "enterTime": 3000
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "だめ！言葉たちが消えていく！",
+          "startTime": 1000,
+          "duration": 2500,
+          "emotion": "panicked"
+        },
+        {
+          "speaker": "aura",
+          "text": "単語の結合構造が破綻しています！",
+          "startTime": 4000,
+          "duration": 2500,
+          "emotion": "urgent"
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんな、一緒に橋を支えよう！",
+          "startTime": 7500,
+          "duration": 2500,
+          "emotion": "heroic"
+        }
+      ],
+      "camera": [
+        {
+          "type": "shake",
+          "startTime": 0,
+          "duration": 11000,
+          "parameters": {
+            "intensity": 12
+          }
+        },
+        {
+          "type": "pan",
+          "startTime": 5000,
+          "duration": 6000,
+          "parameters": {
+            "x": 60,
+            "y": -20
+          }
+        }
+      ],
+      "effects": [
+        {
+          "type": "particles",
+          "startTime": 0,
+          "duration": 11000,
+          "parameters": {
+            "count": 80,
+            "symbols": ["💥", "📝", "🔤"],
+            "colors": ["#EF4444", "#F59E0B", "#6B7280"],
+            "size": 1.1
+          }
+        },
+        {
+          "type": "flash",
+          "startTime": 2000,
+          "duration": 300,
+          "parameters": {
+            "intensity": 0.8
+          }
+        },
+        {
+          "type": "flash",
+          "startTime": 6000,
+          "duration": 300,
+          "parameters": {
+            "intensity": 0.8
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "startTime": 0,
+          "file": "/audio/sfx/bridge_cracking.mp3",
+          "volume": 0.7
+        },
+        {
+          "type": "sfx",
+          "startTime": 2000,
+          "file": "/audio/sfx/word_scatter.mp3",
+          "volume": 0.6
+        },
+        {
+          "type": "sfx",
+          "startTime": 7500,
+          "file": "/audio/sfx/heroic_chord.mp3",
+          "volume": 0.8
+        }
+      ]
+    }
+  ]
+}

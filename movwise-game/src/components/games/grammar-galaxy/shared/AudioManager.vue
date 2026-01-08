@@ -30,6 +30,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 
 // Props
@@ -181,7 +183,7 @@ const onSoundLoaded = (key) => {
 }
 
 const onSoundError = (key) => {
-  console.warn(`Failed to load sound: ${key}`)
+  logger.warn(`Failed to load sound: ${key}`)
   emit('sound-error', key)
 }
 
@@ -192,7 +194,7 @@ const onBgmLoaded = () => {
 }
 
 const onBgmError = () => {
-  console.warn('Failed to load background music')
+  logger.warn('Failed to load background music')
 }
 
 const checkIfReady = () => {
@@ -371,7 +373,7 @@ const unlockAudio = () => {
     try {
       audioContext.value = new (window.AudioContext || window.webkitAudioContext)()
     } catch (error) {
-      console.warn('AudioContext not supported')
+      logger.warn('AudioContext not supported')
     }
   }
   

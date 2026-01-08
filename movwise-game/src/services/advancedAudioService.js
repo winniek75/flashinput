@@ -1,3 +1,5 @@
+import logger from '@/utils/logger'
+
 // src/services/advancedAudioService.js - 高度な音声実装
 
 // オプション1: プリレコーディング音声ファイル使用
@@ -96,7 +98,7 @@ class PreRecordedAudioService {
     const loaded = results.filter(r => r.status === 'fulfilled').length
     const failed = results.filter(r => r.status === 'rejected').length
     
-    console.log(`Audio preload complete: ${loaded} loaded, ${failed} failed`)
+    logger.log(`Audio preload complete: ${loaded} loaded, ${failed} failed`)
     return { loaded, failed, total: phonemes.length }
   }
   
@@ -161,7 +163,7 @@ class PreRecordedAudioService {
         
         return audio
       } catch (error) {
-        console.warn(`Failed to load ${format} format for ${phoneme}:`, error)
+        logger.warn(`Failed to load ${format} format for ${phoneme}:`, error)
         continue
       }
     }
@@ -297,7 +299,7 @@ class WebAudioSynthesisService {
       this.masterGain.gain.value = 0.3
       
     } catch (error) {
-      console.error('Web Audio API initialization failed:', error)
+      logger.error('Web Audio API initialization failed:', error)
     }
   }
   
@@ -662,17 +664,17 @@ class IntegratedAudioService {
     )
     
     if (this.fallbackOrder.length === 0) {
-      console.warn('No audio services available!')
+      logger.warn('No audio services available!')
       return
     }
     
     // 優先サービスが使用できない場合は最初の利用可能サービスを使用
     if (!this.fallbackOrder.includes(this.preferredService)) {
       this.preferredService = this.fallbackOrder[0]
-      console.log(`Fallback to ${this.preferredService} service`)
+      logger.log(`Fallback to ${this.preferredService} service`)
     }
     
-    console.log('Audio services initialized:', {
+    logger.log('Audio services initialized:', {
       preferred: this.preferredService,
       available: this.fallbackOrder,
       status: availability
@@ -692,7 +694,7 @@ class IntegratedAudioService {
         const service = this.services[serviceName]
         if (!service) continue
         
-        console.log(`Attempting to play ${phoneme} with ${serviceName} service`)
+        logger.log(`Attempting to play ${phoneme} with ${serviceName} service`)
         
         // サービス固有のオプション調整
         const serviceOptions = this.adjustOptionsForService(serviceName, options)
@@ -708,7 +710,7 @@ class IntegratedAudioService {
         return { service: serviceName, success: true }
         
       } catch (error) {
-        console.warn(`${serviceName} service failed for ${phoneme}:`, error.message)
+        logger.warn(`${serviceName} service failed for ${phoneme}:`, error.message)
         
         this.serviceStatus[serviceName] = { 
           status: 'error', 
@@ -803,10 +805,10 @@ class IntegratedAudioService {
     if (service && service.preloadCategory) {
       try {
         const result = await service.preloadCategory(category, options.quality)
-        console.log(`Preloaded ${category} category:`, result)
+        logger.log(`Preloaded ${category} category:`, result)
         return result
       } catch (error) {
-        console.warn(`Failed to preload ${category}:`, error)
+        logger.warn(`Failed to preload ${category}:`, error)
         return { loaded: 0, failed: categoryPhonemes.length, total: categoryPhonemes.length }
       }
     }
@@ -1013,7 +1015,7 @@ export default AdvancedAudioPlugin
              rate: 0.9
            })
          } catch (error) {
-           console.error('Audio playback failed:', error)
+           logger.error('Audio playback failed:', error)
          }
        }
        

@@ -1,0 +1,358 @@
+{
+  "characterId": "captain_nova",
+  "birthDate": { "month": 4, "day": 15 },
+  "birthdayStory": {
+    "id": "captain_nova_birthday_story",
+    "title": "Captain Novaの特別な日",
+    "subtitle": "勇敢な船長の誕生日をみんなでお祝い",
+    "description": "Language Galaxyの勇敢な船長Captain Novaの誕生日。仲間たちが準備した特別なサプライズと心温まる冒険が待っています。",
+    "scenes": [
+      {
+        "id": "morning_surprise",
+        "title": "朝のサプライズ",
+        "description": "Captain Novaが目覚めると、仲間たちが特別な朝の準備をしている",
+        "background": "/images/events/birthdays/nova_birthday_morning.jpg",
+        "bgm": "/audio/events/birthdays/birthday_morning.mp3",
+        "duration": 20000,
+        "characters": ["aura", "lexia", "unity"],
+        "dialogue": [
+          {
+            "speaker": "aura",
+            "text": "Good morning, Captain! データ分析によると、今日は特別な日ですね",
+            "emotion": "cheerful_analysis",
+            "timing": 2000
+          },
+          {
+            "speaker": "lexia",
+            "text": "Happy Birthday, Captain Nova! 「celebration」「joy」「friendship」みんなの気持ちだよ！",
+            "emotion": "excited_celebration",
+            "timing": 6000
+          },
+          {
+            "speaker": "unity",
+            "text": "今日は調和の特別な日...あなたの存在が私たちの世界を明るくしています",
+            "emotion": "warm_appreciation",
+            "timing": 10000
+          }
+        ],
+        "choices": [
+          {
+            "id": "grateful_response",
+            "text": "みんな、ありがとう！",
+            "consequence": "感謝重視の誕生日開始",
+            "rewardModifier": 15,
+            "characterImpact": {
+              "all_characters": 10
+            }
+          },
+          {
+            "id": "curious_response",
+            "text": "何を準備してくれたの？",
+            "consequence": "期待重視の誕生日開始",
+            "rewardModifier": 10,
+            "characterImpact": {
+              "lexia": 15,
+              "aura": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "leadership_tribute",
+        "title": "リーダーシップへの敬意",
+        "description": "仲間たちがCaptain Novaのリーダーシップを讃える特別な演出",
+        "background": "/images/events/birthdays/leadership_tribute.jpg",
+        "bgm": "/audio/events/birthdays/heroic_theme.mp3",
+        "duration": 25000,
+        "characters": ["professor_phonix", "grammar_guardian", "speed_racer"],
+        "dialogue": [
+          {
+            "speaker": "professor_phonix",
+            "text": "君のリーダーシップは、まさに音楽の指揮者のようじゃ。みんなを美しく導いておる",
+            "emotion": "respectful_admiration",
+            "timing": 3000
+          },
+          {
+            "speaker": "grammar_guardian",
+            "text": "適切な判断力と構造化された思考...あなたは理想的なリーダーです",
+            "emotion": "analytical_respect",
+            "timing": 8000
+          },
+          {
+            "speaker": "speed_racer",
+            "text": "いつも僕らを信じてくれて、一緒に走ってくれてありがとう、Captain！",
+            "emotion": "energetic_gratitude",
+            "timing": 13000
+          }
+        ],
+        "specialEffects": [
+          {
+            "type": "character_costume",
+            "description": "キャラクターたちが船長への敬意を表す特別な制服を着用",
+            "parameters": {
+              "theme": "nautical_respect",
+              "salute_animation": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "adventure_planning",
+        "title": "誕生日冒険の計画",
+        "description": "Captain Novaと一緒に特別な誕生日冒険を計画する",
+        "background": "/images/events/birthdays/adventure_planning.jpg",
+        "duration": 30000,
+        "characters": ["captain_nova", "aura", "lexia"],
+        "dialogue": [
+          {
+            "speaker": "captain_nova",
+            "text": "今日は特別な日だから、みんなで新しい冒険に出かけよう！",
+            "emotion": "adventurous_excitement",
+            "timing": 2000
+          },
+          {
+            "speaker": "aura",
+            "text": "冒険ルート最適化中...最高の体験を提供できるコースを計算しました",
+            "emotion": "helpful_analysis",
+            "timing": 7000
+          },
+          {
+            "speaker": "lexia",
+            "text": "「adventure」「explore」「discover」！新しい言葉も一緒に見つけよう！",
+            "emotion": "linguistic_adventure",
+            "timing": 12000
+          }
+        ],
+        "choices": [
+          {
+            "id": "space_exploration",
+            "text": "宇宙探検を選ぶ",
+            "consequence": "宇宙テーマの誕生日冒険",
+            "rewardModifier": 20,
+            "characterImpact": {
+              "aura": 20,
+              "captain_nova": 15
+            }
+          },
+          {
+            "id": "word_treasure_hunt",
+            "text": "言葉の宝探しを選ぶ",
+            "consequence": "言語学習重視の誕生日冒険",
+            "rewardModifier": 25,
+            "characterImpact": {
+              "lexia": 25,
+              "professor_phonix": 15
+            }
+          },
+          {
+            "id": "team_building_quest",
+            "text": "チームビルディングクエストを選ぶ",
+            "consequence": "友情重視の誕生日冒険",
+            "rewardModifier": 30,
+            "characterImpact": {
+              "unity": 20,
+              "all_characters": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "gift_exchange",
+        "title": "プレゼント交換",
+        "description": "みんなからCaptain Novaへの心のこもったプレゼント",
+        "background": "/images/events/birthdays/gift_exchange.jpg",
+        "bgm": "/audio/events/birthdays/heartwarming_melody.mp3",
+        "duration": 35000,
+        "characters": ["all_main_characters"],
+        "dialogue": [
+          {
+            "speaker": "professor_phonix",
+            "text": "わしからは特別な音楽を。君のリーダーシップテーマ曲じゃ",
+            "emotion": "musical_gift",
+            "timing": 3000
+          },
+          {
+            "speaker": "lexia",
+            "text": "私からは「courage」「wisdom」「kindness」...君を表す特別な言葉の花束！",
+            "emotion": "creative_gift",
+            "timing": 8000
+          },
+          {
+            "speaker": "aura",
+            "text": "効率化プログラム Ver.2.0をプレゼント。君の冒険をさらにサポートします",
+            "emotion": "technical_gift",
+            "timing": 13000
+          },
+          {
+            "speaker": "unity",
+            "text": "調和の結晶...みんなの心が一つになった証です",
+            "emotion": "spiritual_gift",
+            "timing": 18000
+          },
+          {
+            "speaker": "grammar_guardian",
+            "text": "完璧な構造の冒険日記...あなたの偉業を記録するために",
+            "emotion": "thoughtful_gift",
+            "timing": 23000
+          }
+        ],
+        "specialEffects": [
+          {
+            "type": "special_animation",
+            "description": "プレゼントが光って現れる魔法的な演出",
+            "parameters": {
+              "gift_magic": true,
+              "sparkle_effects": true,
+              "emotional_glow": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "birthday_celebration",
+        "title": "誕生日パーティー",
+        "description": "みんなでCaptain Novaの誕生日を盛大にお祝い",
+        "background": "/images/events/birthdays/grand_celebration.jpg",
+        "bgm": "/audio/events/birthdays/celebration_symphony.mp3",
+        "duration": 28000,
+        "characters": ["all_main_characters"],
+        "dialogue": [
+          {
+            "speaker": "all_characters",
+            "text": "Happy Birthday, Captain Nova! 最高のリーダーに、最高の一日を！",
+            "emotion": "collective_celebration",
+            "timing": 3000
+          },
+          {
+            "speaker": "captain_nova",
+            "text": "みんな、本当にありがとう...君たちがいるから毎日が特別なんだ",
+            "emotion": "moved_gratitude",
+            "timing": 8000
+          },
+          {
+            "speaker": "unity",
+            "text": "今日の調和は完璧です...愛と友情に満ちています",
+            "emotion": "perfect_harmony",
+            "timing": 13000
+          }
+        ],
+        "specialEffects": [
+          {
+            "type": "seasonal_atmosphere",
+            "description": "誕生日パーティーの華やかな装飾と花火",
+            "parameters": {
+              "party_decorations": true,
+              "birthday_fireworks": true,
+              "celebration_lights": true,
+              "joy_atmosphere": "maximum"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "specialRewards": [
+    {
+      "id": "nova_leadership_badge",
+      "type": "special_item",
+      "name": "Captain Nova リーダーシップバッジ",
+      "description": "優れたリーダーシップを証明する特別なバッジ",
+      "rarity": "legendary",
+      "permanent": true,
+      "tradeable": false,
+      "previewImage": "/images/rewards/nova_leadership_badge.jpg",
+      "effects": {
+        "leadership_boost": 25,
+        "team_coordination": 30,
+        "adventure_bonus": 20
+      }
+    },
+    {
+      "id": "nova_birthday_portrait",
+      "type": "character_art",
+      "name": "Captain Nova 誕生日記念肖像",
+      "description": "特別な誕生日を記念した美しい肖像画",
+      "rarity": "epic",
+      "permanent": true,
+      "tradeable": false,
+      "previewImage": "/images/rewards/nova_birthday_portrait.jpg"
+    },
+    {
+      "id": "captain_adventure_compass",
+      "type": "special_item",
+      "name": "船長の冒険コンパス",
+      "description": "新しい冒険への道を示す特別なコンパス",
+      "rarity": "rare",
+      "permanent": true,
+      "tradeable": false,
+      "effects": {
+        "exploration_bonus": 15,
+        "discovery_rate": 20
+      }
+    }
+  ],
+  "partyCharacters": [
+    "aura",
+    "lexia", 
+    "unity",
+    "professor_phonix",
+    "grammar_guardian",
+    "speed_racer"
+  ],
+  "specialMechanics": [
+    {
+      "name": "leadership_tribute_ceremony",
+      "description": "Captain Novaのリーダーシップを讃える特別な儀式",
+      "type": "ceremony",
+      "parameters": {
+        "tribute_speeches": true,
+        "leadership_examples": true,
+        "emotional_impact": "inspiring",
+        "relationship_bonus": 2.0
+      },
+      "rewards": ["nova_leadership_badge"]
+    },
+    {
+      "name": "birthday_adventure_quest",
+      "description": "Captain Novaと一緒に行く特別な誕生日冒険",
+      "type": "adventure",
+      "parameters": {
+        "adventure_types": ["space_exploration", "treasure_hunt", "team_building"],
+        "leadership_moments": true,
+        "team_coordination": true,
+        "discovery_bonus": 1.5
+      },
+      "rewards": ["captain_adventure_compass"]
+    },
+    {
+      "name": "memory_photo_session",
+      "description": "特別な誕生日の思い出を写真に残す",
+      "type": "creative",
+      "parameters": {
+        "photo_poses": ["leadership", "friendship", "adventure", "celebration"],
+        "artistic_bonus": true,
+        "memory_value": "precious"
+      },
+      "rewards": ["nova_birthday_portrait"]
+    }
+  ],
+  "birthdayThemes": [
+    "leadership_celebration",
+    "adventure_spirit", 
+    "team_unity",
+    "courage_and_wisdom"
+  ],
+  "emotionalTones": [
+    "inspiring",
+    "grateful",
+    "adventurous", 
+    "heartwarming",
+    "celebratory"
+  ],
+  "learningObjectives": [
+    "leadership_vocabulary",
+    "team_coordination_phrases",
+    "celebration_expressions",
+    "gratitude_language"
+  ]
+}

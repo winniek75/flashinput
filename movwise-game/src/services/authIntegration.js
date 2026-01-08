@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import { useProgressStore } from '../stores/progress'
 import { authService } from '../firebase/auth'
+import logger from '@/utils/logger'
 
 // Local database schema for user data integration
 class MovWiseLocalDB extends Dexie {
@@ -32,9 +33,9 @@ export class AuthIntegrationService {
     try {
       await localDB.open()
       this.progressStore = useProgressStore()
-      console.log('Auth integration service initialized')
+      logger.log('Auth integration service initialized')
     } catch (error) {
-      console.error('Failed to initialize auth integration:', error)
+      logger.error('Failed to initialize auth integration:', error)
     }
   }
 
@@ -76,7 +77,7 @@ export class AuthIntegrationService {
         return userId
       }
     } catch (error) {
-      console.error('Failed to create local user profile:', error)
+      logger.error('Failed to create local user profile:', error)
       throw error
     }
   }
@@ -92,7 +93,7 @@ export class AuthIntegrationService {
         profile: profile
       }
     } catch (error) {
-      console.error('Failed to get local user profile:', error)
+      logger.error('Failed to get local user profile:', error)
       return null
     }
   }
@@ -100,7 +101,7 @@ export class AuthIntegrationService {
   // Sync local progress with Firebase
   async syncProgressWithFirebase(firebaseUser) {
     if (this.syncInProgress) {
-      console.log('Sync already in progress')
+      logger.log('Sync already in progress')
       return { success: false, message: 'Sync already in progress' }
     }
 
@@ -111,7 +112,7 @@ export class AuthIntegrationService {
       const localUser = await localDB.users.where('email').equals(firebaseUser.email).first()
       
       if (!localUser) {
-        console.log('No local user found for sync')
+        logger.log('No local user found for sync')
         return { success: true, message: 'No local data to sync' }
       }
 
@@ -145,7 +146,7 @@ export class AuthIntegrationService {
       }
 
     } catch (error) {
-      console.error('Failed to sync progress with Firebase:', error)
+      logger.error('Failed to sync progress with Firebase:', error)
       return { 
         success: false, 
         error: error.message 
@@ -184,7 +185,7 @@ export class AuthIntegrationService {
       return { success: true, message: 'Firebase data synced to local' }
 
     } catch (error) {
-      console.error('Failed to sync Firebase data to local:', error)
+      logger.error('Failed to sync Firebase data to local:', error)
       return { success: false, error: error.message }
     }
   }
@@ -199,7 +200,7 @@ export class AuthIntegrationService {
         synced: false
       })
     } catch (error) {
-      console.error('Failed to add to sync queue:', error)
+      logger.error('Failed to add to sync queue:', error)
     }
   }
 
@@ -211,20 +212,20 @@ export class AuthIntegrationService {
       for (const item of queueItems) {
         try {
           // In a real implementation, this would send data to Firebase
-          console.log(`Processing sync item: ${item.action}`, item.data)
+          logger.log(`Processing sync item: ${item.action}`, item.data)
           
           // Mark as synced
           await localDB.syncQueue.update(item.id, { synced: true })
           
         } catch (error) {
-          console.error(`Failed to process sync item ${item.id}:`, error)
+          logger.error(`Failed to process sync item ${item.id}:`, error)
         }
       }
 
       return { success: true, processedItems: queueItems.length }
 
     } catch (error) {
-      console.error('Failed to process sync queue:', error)
+      logger.error('Failed to process sync queue:', error)
       return { success: false, error: error.message }
     }
   }
@@ -251,7 +252,7 @@ export class AuthIntegrationService {
       return { success: true }
 
     } catch (error) {
-      console.error('Failed to record game locally:', error)
+      logger.error('Failed to record game locally:', error)
       return { success: false, error: error.message }
     }
   }
@@ -270,7 +271,7 @@ export class AuthIntegrationService {
       return { success: true, data: history }
 
     } catch (error) {
-      console.error('Failed to get local game history:', error)
+      logger.error('Failed to get local game history:', error)
       return { success: false, error: error.message }
     }
   }
@@ -288,7 +289,7 @@ export class AuthIntegrationService {
       return { success: true }
 
     } catch (error) {
-      console.error('Failed to update preferences locally:', error)
+      logger.error('Failed to update preferences locally:', error)
       return { success: false, error: error.message }
     }
   }
@@ -309,7 +310,7 @@ export class AuthIntegrationService {
       return { success: true, message: `Cleaned up data older than ${daysToKeep} days` }
 
     } catch (error) {
-      console.error('Failed to cleanup old data:', error)
+      logger.error('Failed to cleanup old data:', error)
       return { success: false, error: error.message }
     }
   }
@@ -330,7 +331,7 @@ export class AuthIntegrationService {
       return { success: true, data: exportData }
 
     } catch (error) {
-      console.error('Failed to export local data:', error)
+      logger.error('Failed to export local data:', error)
       return { success: false, error: error.message }
     }
   }
@@ -367,7 +368,7 @@ export class AuthIntegrationService {
       }
 
     } catch (error) {
-      console.error('Failed to import local data:', error)
+      logger.error('Failed to import local data:', error)
       return { success: false, error: error.message }
     }
   }
@@ -386,7 +387,7 @@ export class AuthIntegrationService {
       }
 
     } catch (error) {
-      console.error('Failed to get sync status:', error)
+      logger.error('Failed to get sync status:', error)
       return {
         pendingItems: 0,
         lastSyncAt: null,

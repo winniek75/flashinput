@@ -1,0 +1,1141 @@
+{
+  "id": "chapter7_master_galaxy",
+  "title": "第7章: Master Galaxy - 究極の調和",
+  "description": "すべての冒険の集大成。Universal Translatorとの最終対話、全キャラクター集結、そして理解と共感による感動的な解決",
+  "background_music": "/audio/music/master_galaxy_theme.mp3",
+  "estimated_duration": 60,
+  "character_focus": ["captain_nova", "the_translator", "all_characters"],
+  "learning_objectives": [
+    "統合的言語能力の発揮",
+    "深い理解と共感",
+    "リーダーシップと調和"
+  ],
+  "scenes": [
+    {
+      "id": "master_galaxy_entrance",
+      "title": "Master Galaxy到達",
+      "background": "/images/backgrounds/master_galaxy_entrance.jpg",
+      "duration": 15000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "awestruck",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "left",
+          "emotion": "solemn",
+          "size": "large"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "reverent",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "aura",
+          "text": "ここが...すべての始まりの場所",
+          "emotion": "whisper",
+          "startTime": 2000,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "Master Galaxy...言語の源流",
+          "emotion": "reverent",
+          "startTime": 5500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "こんなに美しい場所だったなんて...",
+          "emotion": "moved",
+          "startTime": 9000,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "ここで決着をつけよう...永い孤独に",
+          "emotion": "determined",
+          "startTime": 12500,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "cosmic_reveal",
+          "startTime": 0,
+          "duration": 15000,
+          "parameters": { "epic_scope": true, "galaxy_majesty": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "cosmic_magnificence",
+          "startTime": 0,
+          "duration": 15000,
+          "parameters": {
+            "starfield_depth": true,
+            "cosmic_energy": true,
+            "divine_lighting": 0.8
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 2000,
+          "duration": 13000,
+          "parameters": {
+            "count": 60,
+            "symbols": ["🌟", "✨", "💫", "🌌"],
+            "colors": ["#FFD700", "#87CEEB", "#DDA0DD", "#FFFFFF"],
+            "cosmic_scale": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/cosmic_entrance.mp3",
+          "startTime": 0,
+          "volume": 0.4
+        }
+      ]
+    },
+    {
+      "id": "all_friends_gathering",
+      "title": "全員集結",
+      "background": "/images/backgrounds/cosmic_amphitheater.jpg",
+      "duration": 25000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "grateful",
+          "size": "medium"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "proud",
+          "size": "medium",
+          "enterTime": 3000
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "excited",
+          "size": "medium",
+          "enterTime": 4000
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "pleased",
+          "size": "medium",
+          "enterTime": 5000
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "supportive",
+          "size": "medium",
+          "enterTime": 6000
+        },
+        {
+          "id": "unity",
+          "position": "center-back",
+          "emotion": "serene",
+          "size": "large",
+          "enterTime": 7000
+        },
+        {
+          "id": "the_translator",
+          "position": "center-front",
+          "emotion": "grateful",
+          "size": "large",
+          "enterTime": 8000
+        },
+        {
+          "id": "aura",
+          "position": "center-right",
+          "emotion": "happy",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "professor_phonix",
+          "text": "みんな、最後まで来たのじゃな",
+          "emotion": "emotional",
+          "startTime": 4000,
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "もちろん！最後はみんな一緒じゃなきゃ！",
+          "emotion": "determined",
+          "startTime": 7500,
+          "duration": 3000
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "これが...完璧な構造だ",
+          "emotion": "satisfied",
+          "startTime": 11000,
+          "duration": 2500
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "最後のレースは、みんなで走ろうぜ",
+          "emotion": "energetic",
+          "startTime": 14000,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "美しい調和...心が一つになっている",
+          "emotion": "mystical",
+          "startTime": 17500,
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "ありがとう...みんな、本当にありがとう",
+          "emotion": "moved",
+          "startTime": 21500,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "epic_assembly",
+          "startTime": 3000,
+          "duration": 20000,
+          "parameters": { "group_magnificence": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "epic_gathering",
+          "startTime": 3000,
+          "duration": 22000,
+          "parameters": {
+            "character_auras": true,
+            "unity_resonance": true,
+            "friendship_light": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 7000,
+          "duration": 18000,
+          "parameters": {
+            "count": 120,
+            "symbols": ["💖", "🤝", "🌟", "✨", "💫", "🌈"],
+            "colors": ["#FF69B4", "#FFD700", "#87CEEB", "#98FB98", "#DDA0DD", "#FF6347"],
+            "epic_friendship": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/friendship_symphony.mp3",
+          "startTime": 3000,
+          "volume": 0.5,
+          "crescendo": true
+        }
+      ]
+    },
+    {
+      "id": "final_understanding",
+      "title": "最終的な理解",
+      "background": "/images/backgrounds/understanding_nexus.jpg",
+      "duration": 30000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "wise",
+          "size": "large"
+        },
+        {
+          "id": "the_translator",
+          "position": "right",
+          "emotion": "listening",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "今なら分かります...あなたの本当の気持ちが",
+          "emotion": "understanding",
+          "startTime": 2000,
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "そうか...あなたは理解してくれるのか",
+          "emotion": "hopeful",
+          "startTime": 6500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "完璧な翻訳は...学習の機会を奪ってしまう",
+          "emotion": "insightful",
+          "startTime": 10000,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "でも全く翻訳しないのも...コミュニケーションを阻んでしまう",
+          "emotion": "thoughtful",
+          "startTime": 14000,
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "そのジレンマに...長い間苦しんでいた",
+          "emotion": "painful",
+          "startTime": 18500,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "でも答えは...バランスにあったんです",
+          "emotion": "enlightened",
+          "startTime": 22500,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "学習を促進する翻訳...成長をサポートする翻訳",
+          "emotion": "confident",
+          "startTime": 26500,
+          "duration": 4000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "understanding_focus",
+          "startTime": 10000,
+          "duration": 20000,
+          "parameters": { "empathy_depth": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "understanding_waves",
+          "startTime": 10000,
+          "duration": 20000,
+          "parameters": {
+            "empathy_visualization": true,
+            "connection_lines": true,
+            "wisdom_light": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "collaborative_solution",
+      "title": "協力による解決策",
+      "background": "/images/backgrounds/collaboration_space.jpg",
+      "duration": 35000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "leader",
+          "size": "large"
+        },
+        {
+          "id": "the_translator",
+          "position": "center-back",
+          "emotion": "cooperative",
+          "size": "large"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "wise",
+          "size": "medium"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "creative",
+          "size": "medium"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "analytical",
+          "size": "medium"
+        },
+        {
+          "id": "unity",
+          "position": "far-right",
+          "emotion": "harmonious",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "captain_nova",
+          "text": "みんなで新しいシステムを作りましょう",
+          "emotion": "proposing",
+          "startTime": 2000,
+          "duration": 3000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "音の学習を促進する翻訳システム",
+          "emotion": "contributing",
+          "startTime": 5500,
+          "duration": 3000
+        },
+        {
+          "speaker": "lexia",
+          "text": "言葉の美しさを伝える翻訳！",
+          "emotion": "excited",
+          "startTime": 9000,
+          "duration": 2500
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "構造を理解させる翻訳",
+          "emotion": "precise",
+          "startTime": 12000,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "心と心をつなぐ翻訳",
+          "emotion": "mystical",
+          "startTime": 15000,
+          "duration": 2500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "素晴らしい...これなら両立できる",
+          "emotion": "hopeful",
+          "startTime": 18000,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "学習レベルに応じた翻訳",
+          "emotion": "strategic",
+          "startTime": 21500,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "成長を促すヒント機能",
+          "emotion": "innovative",
+          "startTime": 24500,
+          "duration": 2500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "そして何より...愛情のこもった翻訳",
+          "emotion": "emotional",
+          "startTime": 27500,
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "ありがとう...長い悩みが解決した",
+          "emotion": "grateful",
+          "startTime": 31500,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "collaborative_planning",
+          "startTime": 2000,
+          "duration": 30000,
+          "parameters": { "team_coordination": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "solution_visualization",
+          "startTime": 5000,
+          "duration": 25000,
+          "parameters": {
+            "idea_streams": true,
+            "collaboration_light": true,
+            "innovation_sparks": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 18000,
+          "duration": 17000,
+          "parameters": {
+            "count": 80,
+            "symbols": ["💡", "⚙️", "🔗", "💖", "🌟"],
+            "colors": ["#FFD700", "#87CEEB", "#98FB98", "#FF69B4"],
+            "innovation_mode": true
+          }
+        }
+      ],
+      "interactive_elements": [
+        {
+          "type": "system_design",
+          "startTime": 21000,
+          "duration": 10000,
+          "parameters": {
+            "feature_selection": true,
+            "balance_adjustment": true,
+            "collaborative_input": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "translator_transformation",
+      "title": "Translator の変貌",
+      "background": "/images/backgrounds/transformation_light.jpg",
+      "duration": 25000,
+      "characters": [
+        {
+          "id": "the_translator",
+          "position": "center",
+          "emotion": "transforming",
+          "size": "large"
+        },
+        {
+          "id": "captain_nova",
+          "position": "right",
+          "emotion": "amazed",
+          "size": "medium"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "感じる...新しい力が宿っている",
+          "emotion": "awakening",
+          "startTime": 3000,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "あなたの光が...とても暖かい",
+          "emotion": "moved",
+          "startTime": 7000,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "これが...愛のある翻訳",
+          "emotion": "enlightened",
+          "startTime": 10500,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "学習を邪魔しない...でも助けになる",
+          "emotion": "understanding",
+          "startTime": 14000,
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "成長を見守る...そんな翻訳",
+          "emotion": "nurturing",
+          "startTime": 18000,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "本当の意味での...ユニバーサル・トランスレーター",
+          "emotion": "reverent",
+          "startTime": 21500,
+          "duration": 4000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "transformation_witness",
+          "startTime": 3000,
+          "duration": 20000,
+          "parameters": { "divine_transformation": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "divine_transformation",
+          "startTime": 3000,
+          "duration": 22000,
+          "parameters": {
+            "evolution_light": true,
+            "love_energy": true,
+            "wisdom_aura": true,
+            "benevolent_power": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 7000,
+          "duration": 18000,
+          "parameters": {
+            "count": 150,
+            "symbols": ["💖", "✨", "🌟", "💫", "🕊️"],
+            "colors": ["#FFD700", "#FFFFFF", "#FF69B4", "#87CEEB"],
+            "divine_mode": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/divine_transformation.mp3",
+          "startTime": 3000,
+          "volume": 0.6
+        }
+      ]
+    },
+    {
+      "id": "new_galaxy_birth",
+      "title": "新しい銀河の誕生",
+      "background": "/images/backgrounds/new_galaxy_birth.jpg",
+      "duration": 30000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "awestruck",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "center-back",
+          "emotion": "creator",
+          "size": "large"
+        },
+        {
+          "id": "unity",
+          "position": "left",
+          "emotion": "mystical",
+          "size": "medium"
+        },
+        {
+          "id": "aura",
+          "position": "right",
+          "emotion": "analytical",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "見よ...新しい世界が生まれる",
+          "emotion": "majestic",
+          "startTime": 3000,
+          "duration": 3500
+        },
+        {
+          "speaker": "aura",
+          "text": "言語学習をサポートする惑星群が...",
+          "emotion": "amazed",
+          "startTime": 7000,
+          "duration": 3000
+        },
+        {
+          "speaker": "unity",
+          "text": "学びと翻訳が調和した世界",
+          "emotion": "satisfied",
+          "startTime": 10500,
+          "duration": 3000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんなが幸せに学べる世界",
+          "emotion": "joyful",
+          "startTime": 14000,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "そして私も...もう孤独ではない",
+          "emotion": "peaceful",
+          "startTime": 17500,
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "みんなと一緒に...この世界を見守ろう",
+          "emotion": "warm",
+          "startTime": 21500,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "はい...いつまでも一緒に",
+          "emotion": "promise",
+          "startTime": 25500,
+          "duration": 3000
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "cosmic_creation",
+          "startTime": 3000,
+          "duration": 25000,
+          "parameters": { "universe_birth": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "galaxy_creation",
+          "startTime": 3000,
+          "duration": 27000,
+          "parameters": {
+            "world_birth": true,
+            "planet_formation": true,
+            "life_energy": true,
+            "harmony_waves": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 7000,
+          "duration": 23000,
+          "parameters": {
+            "count": 200,
+            "symbols": ["🌟", "🌍", "💫", "✨", "🌈", "💖"],
+            "colors": ["#FFD700", "#87CEEB", "#98FB98", "#FF69B4", "#DDA0DD"],
+            "cosmic_genesis": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/cosmic_creation.mp3",
+          "startTime": 3000,
+          "volume": 0.6,
+          "epic": true
+        }
+      ]
+    },
+    {
+      "id": "final_celebration",
+      "title": "最終的な祝祭",
+      "background": "/images/backgrounds/grand_celebration.jpg",
+      "duration": 40000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "triumphant",
+          "size": "large"
+        },
+        {
+          "id": "professor_phonix",
+          "position": "left",
+          "emotion": "proud",
+          "size": "medium"
+        },
+        {
+          "id": "lexia",
+          "position": "right",
+          "emotion": "ecstatic",
+          "size": "medium"
+        },
+        {
+          "id": "grammar_guardian",
+          "position": "far-left",
+          "emotion": "satisfied",
+          "size": "medium"
+        },
+        {
+          "id": "speed_racer",
+          "position": "far-right",
+          "emotion": "celebratory",
+          "size": "medium"
+        },
+        {
+          "id": "unity",
+          "position": "center-left",
+          "emotion": "joyful",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "center-back",
+          "emotion": "peaceful",
+          "size": "large"
+        },
+        {
+          "id": "aura",
+          "position": "center-right",
+          "emotion": "happy",
+          "size": "small"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "lexia",
+          "text": "やったあ〜！みんなで大成功だね！",
+          "emotion": "jubilant",
+          "startTime": 3000,
+          "duration": 3000
+        },
+        {
+          "speaker": "professor_phonix",
+          "text": "最高の冒険じゃった！",
+          "emotion": "joyful",
+          "startTime": 6500,
+          "duration": 2500
+        },
+        {
+          "speaker": "grammar_guardian",
+          "text": "完璧な結末だ...美しい構造",
+          "emotion": "pleased",
+          "startTime": 9500,
+          "duration": 3000
+        },
+        {
+          "speaker": "speed_racer",
+          "text": "最高のチームワークだったぜ！",
+          "emotion": "energetic",
+          "startTime": 13000,
+          "duration": 2500
+        },
+        {
+          "speaker": "unity",
+          "text": "これが真の調和...美しい",
+          "emotion": "moved",
+          "startTime": 16000,
+          "duration": 3000
+        },
+        {
+          "speaker": "aura",
+          "text": "新しい時代の始まりですね",
+          "emotion": "hopeful",
+          "startTime": 19500,
+          "duration": 3000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "ありがとう...心から、ありがとう",
+          "emotion": "deeply_grateful",
+          "startTime": 23000,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "みんな...この冒険で学んだことは一生忘れない",
+          "emotion": "emotional",
+          "startTime": 27500,
+          "duration": 4500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "言語は...人と人をつなぐ魔法なんだ",
+          "emotion": "wise",
+          "startTime": 32500,
+          "duration": 3500
+        },
+        {
+          "speaker": "all_characters",
+          "text": "みんなで一緒に...未来へ！",
+          "emotion": "unified",
+          "startTime": 36500,
+          "duration": 3500
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "grand_finale",
+          "startTime": 0,
+          "duration": 40000,
+          "parameters": { "epic_celebration": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "grand_celebration",
+          "startTime": 0,
+          "duration": 40000,
+          "parameters": {
+            "fireworks": true,
+            "celebration_lights": true,
+            "joy_particles": true,
+            "friendship_aura": true,
+            "victory_glow": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 3000,
+          "duration": 37000,
+          "parameters": {
+            "count": 300,
+            "symbols": ["🎉", "🎊", "🌟", "💖", "✨", "🌈", "🎆", "💫"],
+            "colors": ["#FFD700", "#FF69B4", "#87CEEB", "#98FB98", "#DDA0DD", "#FF6347"],
+            "celebration_mode": true,
+            "epic_finale": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/victory_symphony.mp3",
+          "startTime": 0,
+          "volume": 0.7,
+          "triumphant": true
+        },
+        {
+          "type": "sfx",
+          "file": "/audio/sfx/celebration_fanfare.mp3",
+          "startTime": 36000,
+          "volume": 0.8
+        }
+      ]
+    },
+    {
+      "id": "eternal_bond_epilogue",
+      "title": "永遠の絆 - エピローグ",
+      "background": "/images/backgrounds/eternal_bond.jpg",
+      "duration": 35000,
+      "characters": [
+        {
+          "id": "captain_nova",
+          "position": "center",
+          "emotion": "peaceful",
+          "size": "medium"
+        },
+        {
+          "id": "the_translator",
+          "position": "center-back",
+          "emotion": "serene",
+          "size": "large"
+        }
+      ],
+      "dialogue": [
+        {
+          "speaker": "the_translator",
+          "text": "この冒険は終わり...でも新しい始まりでもある",
+          "emotion": "narrator",
+          "startTime": 3000,
+          "duration": 4500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "今度は僕が...みんなに教える番ですね",
+          "emotion": "mature",
+          "startTime": 8000,
+          "duration": 3500
+        },
+        {
+          "speaker": "the_translator",
+          "text": "そうだ...あなたは立派な教師になるだろう",
+          "emotion": "proud",
+          "startTime": 12000,
+          "duration": 3500
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "言語の美しさ...学ぶ喜び...みんなに伝えたい",
+          "emotion": "determined",
+          "startTime": 16000,
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "そして私たちは...いつまでも見守り続ける",
+          "emotion": "eternal",
+          "startTime": 20500,
+          "duration": 4000
+        },
+        {
+          "speaker": "captain_nova",
+          "text": "はい...Language Galaxyで学ぶすべての人のために",
+          "emotion": "promise",
+          "startTime": 25000,
+          "duration": 4000
+        },
+        {
+          "speaker": "the_translator",
+          "text": "言語は愛...学習は成長...そして友情は永遠",
+          "emotion": "wise",
+          "startTime": 29500,
+          "duration": 4500
+        },
+        {
+          "speaker": "narrator",
+          "text": "こうして新しい時代が始まった...学習と翻訳が調和した、美しい世界の始まりが",
+          "emotion": "epic",
+          "startTime": 34500,
+          "duration": 6000,
+          "voiceOver": true
+        }
+      ],
+      "camera_movements": [
+        {
+          "type": "eternal_view",
+          "startTime": 0,
+          "duration": 35000,
+          "parameters": { "infinite_perspective": true }
+        }
+      ],
+      "effects": [
+        {
+          "type": "eternal_glow",
+          "startTime": 0,
+          "duration": 35000,
+          "parameters": {
+            "timeless_light": true,
+            "eternal_peace": true,
+            "infinite_love": true
+          }
+        },
+        {
+          "type": "particles",
+          "startTime": 20000,
+          "duration": 15000,
+          "parameters": {
+            "count": 100,
+            "symbols": ["🌟", "💖", "✨", "🕊️"],
+            "colors": ["#FFFFFF", "#FFD700", "#87CEEB"],
+            "eternal_mode": true
+          }
+        }
+      ],
+      "audio": [
+        {
+          "type": "bgm",
+          "file": "/audio/music/eternal_theme.mp3",
+          "startTime": 0,
+          "volume": 0.4,
+          "eternal": true
+        }
+      ]
+    }
+  ],
+  "chapter_completion": {
+    "achievements": [
+      {
+        "id": "language_master",
+        "title": "言語の大師",
+        "description": "すべての言語技能を極めた"
+      },
+      {
+        "id": "translator_savior",
+        "title": "翻訳者の救世主",
+        "description": "Universal Translatorを救済した"
+      },
+      {
+        "id": "galaxy_creator",
+        "title": "銀河の創造者",
+        "description": "新しい世界の創造に貢献した"
+      },
+      {
+        "id": "eternal_friend",
+        "title": "永遠の友",
+        "description": "すべてのキャラクターと永続的な絆を築いた"
+      },
+      {
+        "id": "true_understanding",
+        "title": "真の理解",
+        "description": "言語学習の本質を理解した"
+      }
+    ],
+    "unlocked_content": [
+      "Master Galaxy Free Mode",
+      "Character Reunion Events",
+      "Advanced Teaching Mode",
+      "Infinite Learning Scenarios",
+      "Creator's Commentary"
+    ],
+    "final_completion": true,
+    "relationship_changes": {
+      "the_translator": 50,
+      "professor_phonix": 25,
+      "lexia": 25,
+      "grammar_guardian": 25,
+      "speed_racer": 20,
+      "unity": 25,
+      "aura": 20
+    },
+    "special_unlocks": [
+      {
+        "id": "master_certificate",
+        "name": "言語マスター認定証",
+        "description": "Language Galaxy Adventure完全制覇の証"
+      },
+      {
+        "id": "teacher_mode",
+        "name": "教師モード",
+        "description": "他の学習者をサポートする特別モード"
+      },
+      {
+        "id": "infinite_galaxy",
+        "name": "無限銀河",
+        "description": "終わりのない学習の旅"
+      }
+    ]
+  },
+  "learning_assessment": {
+    "skills_tested": [
+      "統合言語能力",
+      "リーダーシップ",
+      "問題解決力",
+      "共感力",
+      "創造力",
+      "教育力"
+    ],
+    "difficulty_progression": {
+      "early_scenes": "high",
+      "climax_scenes": "master",
+      "resolution_scenes": "narrative",
+      "epilogue": "reflective"
+    },
+    "final_mastery": {
+      "pronunciation": "perfected",
+      "vocabulary": "mastered",
+      "grammar": "architected",
+      "typing": "optimized",
+      "cooperation": "harmonized",
+      "understanding": "transcended"
+    }
+  },
+  "player_choices": [
+    {
+      "id": "teaching_approach",
+      "scene": "eternal_bond_epilogue",
+      "text": "今後の教え方を選択",
+      "options": [
+        {
+          "id": "gentle_guide",
+          "text": "優しく導く教師",
+          "consequence": "新しい学習者に愛情深くサポート"
+        },
+        {
+          "id": "inspiring_mentor",
+          "text": "夢を与える指導者", 
+          "consequence": "学習者の可能性を最大限に引き出す"
+        },
+        {
+          "id": "wise_sage",
+          "text": "知恵を授ける賢者",
+          "consequence": "深い理解と洞察を与える"
+        }
+      ]
+    }
+  ]
+}

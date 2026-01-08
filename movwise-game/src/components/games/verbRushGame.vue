@@ -246,8 +246,17 @@
 
           <!-- 問題指示エリア（下部固定） -->
           <div class="instruction-area-bottom" v-if="showInstruction">
+            <div class="challenge-instruction-header">
+              <div class="instruction-title">📝 問題</div>
+            </div>
             <div class="challenge-instruction-fixed">
-              {{ currentChallenge?.challengeText || '準備中...' }}
+              <div class="question-format">
+                <span class="format-label">文を完成させてください：</span>
+                <div class="question-sentence" v-html="getFormattedQuestion()"></div>
+              </div>
+              <div class="instruction-hint">
+                {{ getInstructionHint() }}
+              </div>
             </div>
           </div>
         </div>
@@ -259,7 +268,25 @@
 
         <!-- フィードバック表示 -->
         <div v-if="lastFeedback" class="feedback-display" :class="lastFeedback.type">
-          {{ lastFeedback.message }}
+          <div class="feedback-content">
+            <div class="feedback-icon">{{ lastFeedback.icon }}</div>
+            <div class="feedback-text">
+              <div class="feedback-title">{{ lastFeedback.title }}</div>
+              <div class="feedback-message">{{ lastFeedback.message }}</div>
+              <div v-if="lastFeedback.explanation" class="feedback-explanation">
+                {{ lastFeedback.explanation }}
+              </div>
+            </div>
+          </div>
+          <!-- Next Question Button for Incorrect Answers -->
+          <div v-if="lastFeedback.type === 'incorrect'" class="next-button-container">
+            <button 
+              class="next-question-btn incorrect"
+              @click="proceedToNextChallenge"
+            >
+              理解しました！次の問題へ
+            </button>
+          </div>
         </div>
       </div>
 
@@ -350,6 +377,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSounds } from '@/composables/useGameSounds'
@@ -397,22 +426,22 @@ const MAX_LIVES = 3
 // レベル別ゲーム設定
 const LEVEL_SETTINGS = {
   beginner: {
-    spawnInterval: 8000, // 8秒間隔（初級）
-    challengeLifetime: 10000, // 10秒表示（初級）
+    spawnInterval: 12000, // 12秒間隔（初級） - 延長
+    challengeLifetime: 15000, // 15秒表示（初級） - 延長
     name: '初級',
     icon: '🐣',
-    description: 'ゆっくり学習'
+    description: 'じっくり学習'
   },
   intermediate: {
-    spawnInterval: 4000, // 4秒間隔（中級）
-    challengeLifetime: 5000, // 5秒表示（中級）
+    spawnInterval: 8000, // 8秒間隔（中級） - 延長
+    challengeLifetime: 10000, // 10秒表示（中級） - 延長
     name: '中級',
     icon: '🚀',
     description: 'バランス良く'
   },
   advanced: {
-    spawnInterval: 2800, // 2.8秒間隔（上級）
-    challengeLifetime: 3500, // 3.5秒表示（上級）
+    spawnInterval: 5000, // 5秒間隔（上級） - 延長
+    challengeLifetime: 7000, // 7秒表示（上級） - 延長
     name: '上級',
     icon: '🔥',
     description: '高速チャレンジ'
@@ -456,7 +485,7 @@ const selectedLevel = ref('intermediate') // デフォルトは中級
 
 // === 一般動詞データ（包括的） ===
 const verbsData = [
-  // 基本動詞（頻出・規則変化）
+  // 基本動詞（頻出・規則変化） - 20問
   { id: 1, base: "like", difficulty: 1, irregular: false },
   { id: 2, base: "want", difficulty: 1, irregular: false },
   { id: 3, base: "need", difficulty: 1, irregular: false },
@@ -467,38 +496,50 @@ const verbsData = [
   { id: 8, base: "live", difficulty: 1, irregular: false },
   { id: 9, base: "love", difficulty: 1, irregular: false },
   { id: 10, base: "watch", difficulty: 1, irregular: false },
+  { id: 11, base: "listen", difficulty: 1, irregular: false },
+  { id: 12, base: "talk", difficulty: 1, irregular: false },
+  { id: 13, base: "walk", difficulty: 1, irregular: false },
+  { id: 14, base: "cook", difficulty: 1, irregular: false },
+  { id: 15, base: "clean", difficulty: 1, irregular: false },
+  { id: 16, base: "visit", difficulty: 1, irregular: false },
+  { id: 17, base: "call", difficulty: 1, irregular: false },
+  { id: 18, base: "open", difficulty: 1, irregular: false },
+  { id: 19, base: "close", difficulty: 1, irregular: false },
+  { id: 20, base: "start", difficulty: 1, irregular: false },
   
-  // 中級動詞（やや複雑な変化）
-  { id: 11, base: "try", difficulty: 2, irregular: false },
-  { id: 12, base: "carry", difficulty: 2, irregular: false },
-  { id: 13, base: "worry", difficulty: 2, irregular: false },
-  { id: 14, base: "finish", difficulty: 2, irregular: false },
-  { id: 15, base: "teach", difficulty: 2, irregular: false },
-  { id: 16, base: "wash", difficulty: 2, irregular: false },
-  { id: 17, base: "fix", difficulty: 2, irregular: false },
-  { id: 18, base: "kiss", difficulty: 2, irregular: false },
-  { id: 19, base: "miss", difficulty: 2, irregular: false },
-  { id: 20, base: "pass", difficulty: 2, irregular: false },
+  // 中級動詞（やや複雑な変化） - 15問
+  { id: 21, base: "try", difficulty: 2, irregular: false },
+  { id: 22, base: "carry", difficulty: 2, irregular: false },
+  { id: 23, base: "worry", difficulty: 2, irregular: false },
+  { id: 24, base: "finish", difficulty: 2, irregular: false },
+  { id: 25, base: "teach", difficulty: 2, irregular: false },
+  { id: 26, base: "wash", difficulty: 2, irregular: false },
+  { id: 27, base: "fix", difficulty: 2, irregular: false },
+  { id: 28, base: "kiss", difficulty: 2, irregular: false },
+  { id: 29, base: "miss", difficulty: 2, irregular: false },
+  { id: 30, base: "pass", difficulty: 2, irregular: false },
+  { id: 31, base: "push", difficulty: 2, irregular: false },
+  { id: 32, base: "pull", difficulty: 2, irregular: false },
+  { id: 33, base: "dance", difficulty: 2, irregular: false },
+  { id: 34, base: "smile", difficulty: 2, irregular: false },
+  { id: 35, base: "laugh", difficulty: 2, irregular: false },
   
-  // 不規則動詞（重要）
-  { id: 21, base: "have", difficulty: 3, irregular: true, thirdPerson: "has" },
-  { id: 22, base: "do", difficulty: 3, irregular: true, thirdPerson: "does" },
-  { id: 23, base: "go", difficulty: 3, irregular: true, thirdPerson: "goes" },
-  { id: 24, base: "say", difficulty: 3, irregular: true, thirdPerson: "says" },
-  { id: 25, base: "get", difficulty: 3, irregular: true, thirdPerson: "gets" },
-  { id: 26, base: "make", difficulty: 3, irregular: true, thirdPerson: "makes" },
-  { id: 27, base: "come", difficulty: 3, irregular: true, thirdPerson: "comes" },
-  { id: 28, base: "take", difficulty: 3, irregular: true, thirdPerson: "takes" },
-  
-  // 上級動詞（複雑な変化・高度な語彙）
-  { id: 29, base: "enjoy", difficulty: 3, irregular: false },
-  { id: 30, base: "remember", difficulty: 3, irregular: false },
-  { id: 31, base: "understand", difficulty: 3, irregular: false },
-  { id: 32, base: "recognize", difficulty: 3, irregular: false },
-  { id: 33, base: "appreciate", difficulty: 3, irregular: false },
-  { id: 34, base: "communicate", difficulty: 3, irregular: false },
-  { id: 35, base: "participate", difficulty: 3, irregular: false },
-  { id: 36, base: "concentrate", difficulty: 3, irregular: false }
+  // 不規則動詞（重要） - 15問
+  { id: 36, base: "have", difficulty: 3, irregular: true, thirdPerson: "has" },
+  { id: 37, base: "do", difficulty: 3, irregular: true, thirdPerson: "does" },
+  { id: 38, base: "go", difficulty: 3, irregular: true, thirdPerson: "goes" },
+  { id: 39, base: "say", difficulty: 3, irregular: true, thirdPerson: "says" },
+  { id: 40, base: "get", difficulty: 3, irregular: true, thirdPerson: "gets" },
+  { id: 41, base: "make", difficulty: 3, irregular: true, thirdPerson: "makes" },
+  { id: 42, base: "come", difficulty: 3, irregular: true, thirdPerson: "comes" },
+  { id: 43, base: "take", difficulty: 3, irregular: true, thirdPerson: "takes" },
+  { id: 44, base: "give", difficulty: 3, irregular: true, thirdPerson: "gives" },
+  { id: 45, base: "see", difficulty: 3, irregular: true, thirdPerson: "sees" },
+  { id: 46, base: "know", difficulty: 3, irregular: true, thirdPerson: "knows" },
+  { id: 47, base: "think", difficulty: 3, irregular: true, thirdPerson: "thinks" },
+  { id: 48, base: "feel", difficulty: 3, irregular: true, thirdPerson: "feels" },
+  { id: 49, base: "find", difficulty: 3, irregular: true, thirdPerson: "finds" },
+  { id: 50, base: "put", difficulty: 3, irregular: true, thirdPerson: "puts" }
 ]
 
 // === 主語データ ===
@@ -677,7 +718,7 @@ const getVerbForm = (verb, subject, tense = 'present', isQuestion = false, isNeg
    // その他（原形）
     return verb.base
   } catch (error) {
-    console.error('Verb form generation error:', error)
+    logger.error('Verb form generation error:', error)
     return verb.base
   }
 }
@@ -735,7 +776,7 @@ const generateChallenge = () => {
         return createAffirmativeChallenge(verb, subject)
     }
   } catch (error) {
-    console.error('Challenge generation error:', error)
+    logger.error('Challenge generation error:', error)
     return null
   }
 }
@@ -883,23 +924,23 @@ const resetGameSession = () => {
       }
     })
     
-    console.log('✅ Game session reset')
+    logger.log('✅ Game session reset')
   } catch (error) {
-    console.error('Reset game session error:', error)
+    logger.error('Reset game session error:', error)
   }
 }
 
 const startNewGame = async () => {
   try {
-    console.log('🎮 Starting new game...', 'Mode:', selectedMode.value)
+    logger.log('🎮 Starting new game...', 'Mode:', selectedMode.value)
     
     resetGameSession()
     gameState.value = 'countdown'
     
-    // BGM開始
-    if (soundEnabled.value) {
-      await playBGM()
-    }
+    // BGM開始（無効化）
+    // if (soundEnabled.value) {
+    //   await playBGM()
+    // }
     
     // カウントダウン実行
     countdownNumber.value = 3
@@ -923,12 +964,12 @@ const startNewGame = async () => {
         }
         startGameTimer()
         spawnNextChallenge()
-        console.log('🎯 Game started!')
+        logger.log('🎯 Game started!')
       }
     }, 1000)
     
   } catch (error) {
-    console.error('Start new game error:', error)
+    logger.error('Start new game error:', error)
     gameState.value = 'waiting'
   }
 }
@@ -948,7 +989,7 @@ const clearTimers = () => {
       instructionTimer.value = null
     }
   } catch (error) {
-    console.warn('Clear timers error:', error)
+    logger.warn('Clear timers error:', error)
   }
 }
 
@@ -966,7 +1007,7 @@ const startGameTimer = () => {
       }
     }, 100)
   } catch (error) {
-    console.error('Start game timer error:', error)
+    logger.error('Start game timer error:', error)
   }
 }
 
@@ -976,14 +1017,14 @@ const spawnNextChallenge = () => {
     
     const challenge = generateChallenge()
     if (!challenge) {
-      console.error('Failed to generate challenge')
+      logger.error('Failed to generate challenge')
       return
     }
     
     currentChallenge.value = challenge
     challengeStartTime.value = Date.now()
     
-    console.log('📝 New challenge spawned:', challenge.type, challenge.subject, challenge.baseVerb)
+    logger.log('📝 New challenge spawned:', challenge.type, challenge.subject, challenge.baseVerb)
     
     // 段階的表示をリセット
     showInstruction.value = false
@@ -1018,7 +1059,7 @@ const spawnNextChallenge = () => {
           challengeElement.style.setProperty('--random-y', `${randomY}px`)
         }
       }, 50)
-    }, 1500) // 1.5秒待機
+    }, 500) // 0.5秒待機に短縮
     
     // レベル別設定を取得
     const currentLevelSettings = LEVEL_SETTINGS[selectedLevel.value]
@@ -1026,7 +1067,7 @@ const spawnNextChallenge = () => {
     // チャレンジのタイムアウト処理（レベル別時間）
     const timeoutId = setTimeout(() => {
       if (currentChallenge.value && currentChallenge.value.id === challenge.id) {
-        console.log('⏰ Challenge timeout')
+        logger.log('⏰ Challenge timeout')
         handleChallengeTimeout()
       }
     }, currentLevelSettings.challengeLifetime)
@@ -1035,25 +1076,30 @@ const spawnNextChallenge = () => {
     currentChallenge.value.timeoutId = timeoutId
     
     // 次のチャレンジをスケジュール（レベル別間隔）
-    spawnTimer.value = setTimeout(() => {
-      spawnNextChallenge()
-    }, currentLevelSettings.spawnInterval)
+    // 注意: 間違えた場合は手動で次に進むため、ここでは自動スケジュールしない
+    // 正解時のみ proceedToNextChallenge() から呼ばれる
     
   } catch (error) {
-    console.error('Spawn next challenge error:', error)
+    logger.error('Spawn next challenge error:', error)
   }
 }
 
 const handleAnswer = (selectedAnswer) => {
   try {
     if (!currentChallenge.value || gameState.value !== 'playing') {
-      console.warn('Cannot handle answer - invalid state')
+      logger.warn('Cannot handle answer - invalid state')
       return
     }
     
     // タイムアウトをクリア
     if (currentChallenge.value.timeoutId) {
       clearTimeout(currentChallenge.value.timeoutId)
+    }
+    
+    // 既存の自動スケジュールタイマーをクリア
+    if (spawnTimer.value) {
+      clearTimeout(spawnTimer.value)
+      spawnTimer.value = null
     }
     
     const reactionTime = Date.now() - challengeStartTime.value
@@ -1112,15 +1158,15 @@ const handleAnswer = (selectedAnswer) => {
       }
     }
     
-    showFeedback(isCorrect, selectedAnswer, currentChallenge.value.correctAnswer, currentChallenge.value.type)
+    showFeedback(isCorrect, selectedAnswer, currentChallenge.value.correctAnswer, currentChallenge.value.type, currentChallenge.value)
     
     // 現在のチャレンジをクリア
     currentChallenge.value = null
     
-    console.log(`📊 Answer: ${selectedAnswer} - ${isCorrect ? 'Correct' : 'Incorrect'}`)
+    logger.log(`📊 Answer: ${selectedAnswer} - ${isCorrect ? 'Correct' : 'Incorrect'}`)
     
   } catch (error) {
-    console.error('Handle answer error:', error)
+    logger.error('Handle answer error:', error)
   }
 }
 
@@ -1140,10 +1186,10 @@ const handleCorrectAnswer = (reactionTime) => {
     
     currentScore.value += totalScore
     
-    console.log(`🎯 Correct! +${totalScore} (base:${baseScore}, combo:${comboBonus}, time:${timeBonus}, mode:${modeBonus})`)
+    logger.log(`🎯 Correct! +${totalScore} (base:${baseScore}, combo:${comboBonus}, time:${timeBonus}, mode:${modeBonus})`)
     
   } catch (error) {
-    console.error('Handle correct answer error:', error)
+    logger.error('Handle correct answer error:', error)
   }
 }
 
@@ -1157,74 +1203,120 @@ const handleIncorrectAnswer = () => {
     }
     
   } catch (error) {
-    console.error('Handle incorrect answer error:', error)
+    logger.error('Handle incorrect answer error:', error)
   }
 }
 
 const handleChallengeTimeout = () => {
   try {
     if (currentChallenge.value) {
-      console.log('⏰ Challenge timeout')
+      logger.log('⏰ Challenge timeout')
       handleIncorrectAnswer()
       currentChallenge.value = null
     }
   } catch (error) {
-    console.error('Handle challenge timeout error:', error)
+    logger.error('Handle challenge timeout error:', error)
   }
 }
 
-const showFeedback = (isCorrect, selected, correct, challengeType) => {
+const showFeedback = (isCorrect, selected, correct, challengeType, challenge) => {
   try {
     if (feedbackTimeout.value) {
       clearTimeout(feedbackTimeout.value)
     }
     
-    let message = ''
     if (isCorrect) {
       const encouragements = ['正解！', 'いいね！', '素晴らしい！', '完璧！', 'グッド！']
       const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)]
-      message = `${randomEncouragement} ${selected}`
+      
+      lastFeedback.value = {
+        type: 'correct',
+        icon: '✅',
+        title: randomEncouragement,
+        message: `答え: ${selected}`,
+        explanation: null
+      }
+      
+      // 正解時は短時間で自動的に次へ
+      feedbackTimeout.value = setTimeout(() => {
+        lastFeedback.value = null
+        // 次の問題を即座に開始
+        setTimeout(() => {
+          if (gameState.value === 'playing') {
+            spawnNextChallenge()
+          }
+        }, 800) // 0.8秒後
+      }, 800)
+      
     } else {
       let explanation = ''
+      let detailExplanation = ''
+      
       switch (challengeType) {
         case 'affirmative':
           explanation = '三人称単数には動詞にsを付けます'
+          detailExplanation = challenge?.subject?.includes('He') || challenge?.subject?.includes('She') 
+            ? `「${challenge.subject}」は三人称単数なので、「${challenge.baseVerb}」に「s」を付けて「${correct}」になります。`
+            : `「${challenge.subject}」は三人称単数ではないので、「${challenge.baseVerb}」はそのまま「${correct}」を使います。`
           break
         case 'question':
-          explanation = '三人称単数にはDoes、その他にはDoを使います'
+          explanation = '疑問文では適切な助動詞を使います'
+          detailExplanation = challenge?.subject?.toLowerCase().includes('he') || challenge?.subject?.toLowerCase().includes('she')
+            ? `三人称単数「${challenge.subject}」の疑問文では「Does」を使います。`
+            : `「${challenge.subject}」の疑問文では「Do」を使います。`
           break
         case 'negative':
-          explanation = "三人称単数にはdoesn't、その他にはdon'tを使います"
+          explanation = '否定文では適切な助動詞を使います'
+          detailExplanation = challenge?.subject?.includes('He') || challenge?.subject?.includes('She')
+            ? `三人称単数「${challenge.subject}」の否定文では「doesn't」を使います。`
+            : `「${challenge.subject}」の否定文では「don't」を使います。`
           break
       }
-      message = `不正解！正解は「${correct}」\n${explanation}`
+      
+      lastFeedback.value = {
+        type: 'incorrect',
+        icon: '❌',
+        title: '残念！もう一度挑戦しよう',
+        message: `正解: ${correct}（あなたの答え: ${selected}）`,
+        explanation: detailExplanation || explanation
+      }
+      
+      // 間違えた場合は手動で次へ進む（ボタン表示）
     }
-    
-    lastFeedback.value = {
-      type: isCorrect ? 'correct' : 'incorrect',
-      message
-    }
-    
-    feedbackTimeout.value = setTimeout(() => {
-      lastFeedback.value = null
-    }, 2000)
     
   } catch (error) {
-    console.error('Show feedback error:', error)
+    logger.error('Show feedback error:', error)
+  }
+}
+
+const proceedToNextChallenge = () => {
+  try {
+    // フィードバックをクリア
+    if (feedbackTimeout.value) {
+      clearTimeout(feedbackTimeout.value)
+    }
+    lastFeedback.value = null
+    
+    // 即座に次の問題を生成
+    if (gameState.value === 'playing') {
+      spawnNextChallenge()
+    }
+  } catch (error) {
+    logger.error('Proceed to next challenge error:', error)
   }
 }
 
 const endGame = () => {
   try {
-    console.log('🏁 Game ended')
+    logger.log('🏁 Game ended')
     
     gameState.value = 'finished'
     clearTimers()
     
-    // BGM停止
-    if (soundEnabled.value) {
-      stopBGM()
-    }
+    // BGM停止（無効化）
+    // if (soundEnabled.value) {
+    //   stopBGM()
+    // }
     
     // 新記録チェック
     if (currentScore.value > persistentData.bestScore) {
@@ -1257,7 +1349,7 @@ const endGame = () => {
     saveProgress()
     
   } catch (error) {
-    console.error('End game error:', error)
+    logger.error('End game error:', error)
   }
 }
 
@@ -1266,22 +1358,24 @@ const togglePause = () => {
     if (gameState.value === 'playing') {
       gameState.value = 'paused'
       clearTimers()
-      if (soundEnabled.value) {
-        pauseBGM()
-      }
+      // BGM一時停止（無効化）
+      // if (soundEnabled.value) {
+      //   pauseBGM()
+      // }
     } else if (gameState.value === 'paused') {
       gameState.value = 'playing'
       startGameTimer()
-      if (soundEnabled.value) {
-        playBGM()
-      }
+      // BGM再開（無効化）
+      // if (soundEnabled.value) {
+      //   playBGM()
+      // }
       
       if (!currentChallenge.value) {
         spawnNextChallenge()
       }
     }
   } catch (error) {
-    console.error('Toggle pause error:', error)
+    logger.error('Toggle pause error:', error)
   }
 }
 
@@ -1294,7 +1388,7 @@ const getChallengeClasses = () => {
       [`type-${currentChallenge.value?.type || 'mixed'}`]: true
     }
   } catch (error) {
-    console.warn('Get challenge classes error:', error)
+    logger.warn('Get challenge classes error:', error)
     return { 'flying-in': true, 'difficulty-1': true, 'type-mixed': true }
   }
 }
@@ -1308,58 +1402,59 @@ const getButtonClasses = (option, index) => {
       'disabled': !currentChallenge.value || gameState.value === 'paused'
     }
   } catch (error) {
-    console.warn('Get button classes error:', error)
+    logger.warn('Get button classes error:', error)
     return { 'verb-answer-button-top': true }
   }
 }
 
 const handleBackButton = () => {
   try {
-    console.log('Back button clicked, gameState:', gameState.value)
+    logger.log('Back button clicked, gameState:', gameState.value)
     
     if (gameState.value === 'playing') {
       if (confirm('ゲームを中断して戻りますか？')) {
         clearTimers()
-        if (soundEnabled.value) {
-          stopBGM()
-        }
+        // BGM停止（無効化）
+        // if (soundEnabled.value) {
+        //   stopBGM()
+        // }
         navigateToHub()
       }
     } else {
       navigateToHub()
     }
   } catch (error) {
-    console.error('Back button error:', error)
+    logger.error('Back button error:', error)
     navigateToHub()
   }
 }
 
 const navigateToHub = () => {
   try {
-    console.log('Navigating to grammar galaxy hub...')
+    logger.log('Navigating to grammar galaxy hub...')
     
     // 第一選択肢: nameでナビゲーション
     router.push({ name: 'grammar-galaxy-hub' })
       .then(() => {
-        console.log('Navigation successful')
+        logger.log('Navigation successful')
       })
       .catch((err) => {
-        console.warn('Navigation by name failed:', err)
+        logger.warn('Navigation by name failed:', err)
         
         // 第二選択肢: pathでナビゲーション
         router.push('/grammar-galaxy')
           .then(() => {
-            console.log('Navigation by path successful')
+            logger.log('Navigation by path successful')
           })
           .catch((err2) => {
-            console.error('Navigation by path also failed:', err2)
+            logger.error('Navigation by path also failed:', err2)
             
             // 第三選択肢: 直接 URL 変更
             window.location.href = '/grammar-galaxy'
           })
       })
   } catch (error) {
-    console.error('Navigate to hub error:', error)
+    logger.error('Navigate to hub error:', error)
     // フォールバック: 直接 URL 変更
     window.location.href = '/grammar-galaxy'
   }
@@ -1410,7 +1505,7 @@ const checkAchievements = () => {
     
     return achievements
   } catch (error) {
-    console.error('Check achievements error:', error)
+    logger.error('Check achievements error:', error)
     return []
   }
 }
@@ -1428,7 +1523,7 @@ const getAchievementName = (achievement) => {
     }
     return names[achievement] || achievement
   } catch (error) {
-    console.warn('Achievement name error:', error)
+    logger.warn('Achievement name error:', error)
     return achievement || 'Unknown Achievement'
   }
 }
@@ -1441,9 +1536,9 @@ const saveProgress = () => {
       lastSaved: new Date().toISOString()
     }
     localStorage.setItem('verbRushProgress', JSON.stringify(saveData))
-    console.log('💾 Progress saved')
+    logger.log('💾 Progress saved')
   } catch (error) {
-    console.error('Save progress error:', error)
+    logger.error('Save progress error:', error)
   }
 }
 
@@ -1454,11 +1549,11 @@ const loadProgress = () => {
       const data = JSON.parse(savedData)
       if (data.persistentData) {
         Object.assign(persistentData, data.persistentData)
-        console.log('📖 Progress loaded')
+        logger.log('📖 Progress loaded')
       }
     }
   } catch (error) {
-    console.error('Load progress error:', error)
+    logger.error('Load progress error:', error)
   }
 }
 
@@ -1485,14 +1580,14 @@ const handleKeyPress = (event) => {
       togglePause()
     }
   } catch (error) {
-    console.warn('Key press error:', error)
+    logger.warn('Key press error:', error)
   }
 }
 
 // === ライフサイクル ===
 onMounted(() => {
   try {
-    console.log('🔧 Component mounted')
+    logger.log('🔧 Component mounted')
     
     loadProgress()
     document.addEventListener('keydown', handleKeyPress)
@@ -1503,7 +1598,7 @@ onMounted(() => {
     }
     
   } catch (error) {
-    console.error('Component mount error:', error)
+    logger.error('Component mount error:', error)
   }
 })
 
@@ -1516,14 +1611,14 @@ onUnmounted(() => {
       clearTimeout(feedbackTimeout.value)
     }
     
-    // 音響システムのクリーンアップ
-    if (soundEnabled.value) {
-      stopBGM()
-    }
+    // 音響システムのクリーンアップ（BGM無効化）
+    // if (soundEnabled.value) {
+    //   stopBGM()
+    // }
     
-    console.log('🧹 Component unmounted')
+    logger.log('🧹 Component unmounted')
   } catch (error) {
-    console.error('Component unmount error:', error)
+    logger.error('Component unmount error:', error)
   }
 })
 
@@ -1534,7 +1629,7 @@ watch(() => currentChallenge.value, (newChallenge) => {
       challengeStartTime.value = Date.now()
     }
   } catch (error) {
-    console.warn('Current challenge watch error:', error)
+    logger.warn('Current challenge watch error:', error)
   }
 })
 
@@ -1549,9 +1644,52 @@ watch(() => gameState.value, async (newState) => {
       }
     }
   } catch (error) {
-    console.error('Game state change error:', error)
+    logger.error('Game state change error:', error)
   }
 })
+
+// === 問題表示用メソッド ===
+const getFormattedQuestion = () => {
+  if (!currentChallenge.value) return ''
+  
+  const challenge = currentChallenge.value
+  const placeholder = '<span class="verb-placeholder">[ ? ]</span>'
+  
+  switch (challenge.type) {
+    case 'affirmative':
+      const object = challenge.baseVerb === 'have' ? ' a car' : ' every day'
+      return `<span class="subject-part">${challenge.subject}</span> ${placeholder}<span class="rest-part">${object}.</span>`
+    
+    case 'question':
+      return `${placeholder} <span class="subject-part">${challenge.subject.toLowerCase()}</span> <span class="base-verb">${challenge.baseVerb}</span><span class="rest-part"> every day?</span>`
+    
+    case 'negative':
+      return `<span class="subject-part">${challenge.subject}</span> ${placeholder} <span class="base-verb">${challenge.baseVerb}</span><span class="rest-part"> every day.</span>`
+    
+    default:
+      return `<span class="subject-part">${challenge.subject}</span> ${placeholder}<span class="rest-part"> every day.</span>`
+  }
+}
+
+const getInstructionHint = () => {
+  if (!currentChallenge.value) return ''
+  
+  const challenge = currentChallenge.value
+  
+  switch (challenge.type) {
+    case 'affirmative':
+      return `💡 「${challenge.baseVerb}」を${challenge.subject}に合う正しい形に変化させてください`
+    
+    case 'question':
+      return `💡 疑問文を作るために適切な助動詞を選んでください`
+    
+    case 'negative':
+      return `💡 否定文を作るために適切な助動詞を選んでください`
+    
+    default:
+      return `💡 「${challenge.baseVerb}」を正しい形に変化させてください`
+  }
+}
 </script>
 
 <style scoped>
@@ -2113,13 +2251,130 @@ watch(() => gameState.value, async (newState) => {
   @apply fixed bottom-20 left-0 right-0 z-20 px-6;
 }
 
+.challenge-instruction-header {
+  @apply text-center mb-3;
+}
+
+.instruction-title {
+  @apply text-xl font-bold text-blue-300 bg-black bg-opacity-50 rounded-lg px-4 py-2 inline-block;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
 .challenge-instruction-fixed {
-  @apply text-lg font-bold text-white text-center px-6 py-4 bg-black bg-opacity-60 rounded-2xl backdrop-filter backdrop-blur-md border border-white border-opacity-30 max-w-3xl mx-auto transition-all duration-500;
+  @apply text-lg font-bold text-white text-center px-6 py-4 bg-black bg-opacity-70 rounded-2xl backdrop-filter backdrop-blur-md border border-white border-opacity-30 max-w-4xl mx-auto transition-all duration-500;
   line-height: 1.6;
-  white-space: pre-line;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   animation: instructionFadeIn 0.6s ease-out;
+}
+
+.question-format {
+  @apply mb-4;
+}
+
+.format-label {
+  @apply text-yellow-300 text-base font-semibold block mb-2;
+}
+
+.question-sentence {
+  @apply text-xl font-bold flex items-center justify-center gap-2 mb-2;
+}
+
+.subject-part {
+  @apply text-green-300;
+}
+
+.verb-placeholder {
+  @apply text-red-300 bg-red-900 bg-opacity-50 px-3 py-1 rounded border-2 border-red-400;
+  animation: pulse 2s infinite;
+}
+
+.rest-part {
+  @apply text-blue-300;
+}
+
+.base-verb {
+  @apply text-cyan-300 font-semibold;
+}
+
+.instruction-hint {
+  @apply text-sm text-gray-300 bg-purple-900 bg-opacity-40 rounded-lg px-3 py-2 border border-purple-400;
+}
+
+/* Enhanced Feedback Display */
+.feedback-display.correct {
+  @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50;
+  animation: feedbackFadeIn 0.5s ease-out;
+}
+
+.feedback-display.incorrect {
+  @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50;
+  animation: feedbackFadeIn 0.5s ease-out;
+}
+
+.feedback-content {
+  @apply flex items-start gap-4 p-6 rounded-2xl backdrop-filter backdrop-blur-md border border-white border-opacity-30 max-w-lg mx-auto;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.feedback-display.correct .feedback-content {
+  @apply border-green-400;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 0, 0, 0.85));
+}
+
+.feedback-display.incorrect .feedback-content {
+  @apply border-red-400;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(0, 0, 0, 0.85));
+}
+
+.feedback-icon {
+  @apply text-3xl flex-shrink-0;
+}
+
+.feedback-text {
+  @apply flex-1;
+}
+
+.feedback-title {
+  @apply text-xl font-bold text-white mb-2;
+}
+
+.feedback-message {
+  @apply text-white text-base mb-2;
+}
+
+.feedback-explanation {
+  @apply text-gray-300 text-sm leading-relaxed bg-black bg-opacity-30 rounded-lg p-3;
+}
+
+.next-button-container {
+  @apply mt-4 text-center;
+}
+
+.next-question-btn {
+  @apply px-6 py-3 rounded-lg font-bold text-white transition-all duration-300 transform;
+}
+
+.next-question-btn.incorrect {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.next-question-btn.incorrect:hover {
+  @apply transform -translate-y-1;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+@keyframes feedbackFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 /* 問題指示のフェードインアニメーション */

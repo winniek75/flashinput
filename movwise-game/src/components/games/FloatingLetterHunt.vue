@@ -198,6 +198,8 @@
 </template>
 
 <script setup>
+import logger from '@/utils/logger'
+
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useGameAudio } from '@/composables/useGameAudio'
 import { phonemeAudioService } from '@/services/phonemeAudioService'
@@ -214,7 +216,7 @@ const speak = async (text, options = {}) => {
   try {
     await playPhoneme(text)
   } catch (error) {
-    console.error('❌ Sound playback error:', error)
+    logger.error('❌ Sound playback error:', error)
     playVisualFeedback('button')
   }
 }

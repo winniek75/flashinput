@@ -234,6 +234,8 @@
 </template>
 
 <script>
+import logger from '@/utils/logger'
+
 import { ref, computed, onMounted } from 'vue'
 
 export default {
@@ -327,7 +329,7 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      console.log('📊 BasicAnalytics component mounted')
+      logger.log('📊 BasicAnalytics component mounted')
       updateMetrics()
       
       // Set up periodic updates

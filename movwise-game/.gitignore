@@ -28,3 +28,56 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Environment variables - IMPORTANT: Never commit these!
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.*
+
+# Firebase config
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Stripe config
+stripe.config.js
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# SSL certificates
+*.pem
+*.crt
+*.key
+.cert/
+ssl/
+certificates/
+
+# Production secrets
+secrets/
+config/production.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Build artifacts
+build/
+out/
+
+# PM2
+ecosystem.config.js
+.pm2/
+
+# Docker
+.dockerignore
+docker-compose.override.yml

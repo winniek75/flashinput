@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import logger from '@/utils/logger'
+// Switch to real Firebase auth for production data
 import { authService, USER_ROLES, USER_TYPES } from '../firebase/auth'
 import { useProgressStore } from './progress'
 
@@ -48,6 +50,7 @@ export const useAuthStore = defineStore('auth', {
     currentUser: (state) => {
       if (state.isOnlineMode && state.firebaseUser) {
         return {
+          id: state.firebaseUser.uid, // subscription system needs 'id' field
           uid: state.firebaseUser.uid,
           email: state.firebaseUser.email,
           displayName: state.firebaseUser.displayName,
@@ -57,6 +60,7 @@ export const useAuthStore = defineStore('auth', {
         }
       } else if (state.localUser) {
         return {
+          id: state.localUser.id || 'local_user', // subscription system needs 'id' field
           uid: state.localUser.id || 'local_user',
           email: state.localUser.email || 'local@movwise.app',
           displayName: state.localUser.name || 'ローカルユーザー',
@@ -117,7 +121,7 @@ export const useAuthStore = defineStore('auth', {
         
       } catch (error) {
         this.error = error.message
-        console.error('Auth initialization failed:', error)
+        logger.error('Auth initialization failed:', error)
       } finally {
         this.isLoading = false
       }
@@ -347,7 +351,7 @@ export const useAuthStore = defineStore('auth', {
           }
         }
       } catch (error) {
-        console.error('Failed to load local user:', error)
+        logger.error('Failed to load local user:', error)
       }
     },
 
@@ -360,7 +364,7 @@ export const useAuthStore = defineStore('auth', {
           localStorage.setItem('movwise-local-profile', JSON.stringify(this.localUserProfile))
         }
       } catch (error) {
-        console.error('Failed to save local user:', error)
+        logger.error('Failed to save local user:', error)
       }
     },
 
@@ -376,7 +380,7 @@ export const useAuthStore = defineStore('auth', {
         
         this.lastSyncTime = new Date().toISOString()
       } catch (error) {
-        console.error('Failed to sync with local progress:', error)
+        logger.error('Failed to sync with local progress:', error)
       }
     },
 
@@ -410,6 +414,16 @@ export const useAuthStore = defineStore('auth', {
     // Clear error
     clearError() {
       this.error = null
+    },
+
+    // Simple login for demo/testing purposes
+    async login(email, password) {
+      return await this.signInWithFirebase(email, password)
+    },
+
+    // Simple logout for demo/testing purposes  
+    async logout() {
+      return await this.signOut()
     },
 
     // Update user profile
