@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd movwise-game && npm install && npm run build",
-  "outputDirectory": "movwise-game/dist",
-  "installCommand": "cd movwise-game && npm install",
-  "framework": null
-}
