@@ -1,6 +1,70 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
+// SOUND EFFECTS — Web Audio API
+// ─────────────────────────────────────────────────────────────
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function playCorrectSound() {
+  try {
+    const ctx = getAudioCtx();
+    const freqs = [523.25, 659.25, 783.99]; // C-E-G chime
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.08 + 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.08 + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.08);
+      osc.stop(ctx.currentTime + i * 0.08 + 0.3);
+    });
+  } catch (e) { /* audio not available */ }
+}
+
+function playWrongSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  } catch (e) { /* audio not available */ }
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOCALSTORAGE PERSISTENCE
+// ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = "flashinput_progress";
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { completedUnits: {}, wrongAnswers: {}, stats: { totalSessions: 0, totalWords: 0 } };
+    return JSON.parse(raw);
+  } catch { return { completedUnits: {}, wrongAnswers: {}, stats: { totalSessions: 0, totalWords: 0 } }; }
+}
+
+function saveProgress(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* storage full */ }
+}
+
+// ─────────────────────────────────────────────────────────────
 // VOCABULARY DATABASE (from flashinput_vocabulary_db.xlsx)
 // Images: local paths are tried first; Unsplash fallbacks on error
 // ─────────────────────────────────────────────────────────────
@@ -403,6 +467,20 @@ export default function FlashcardApp() {
   const [speed, setSpeed]           = useState(1);
   const [imgSrcs, setImgSrcs]       = useState({});
 
+  // Recall input state
+  const [recallInput, setRecallInput]     = useState("");
+  const [recallResult, setRecallResult]   = useState(null); // null | "correct" | "wrong"
+  const [recallSubmitted, setRecallSubmitted] = useState(false);
+  const inputRef = useRef(null);
+
+  // Session tracking
+  const [sessionWrong, setSessionWrong]   = useState([]); // words answered wrong in this session
+  const [sessionCorrect, setSessionCorrect] = useState(0);
+  const [sessionTotal, setSessionTotal]     = useState(0);
+
+  // localStorage persistence
+  const [savedProgress, setSavedProgress] = useState(() => loadProgress());
+
   const timerRef     = useRef(null);
   const progressRef  = useRef(null);
   const startTimeRef = useRef(null);
@@ -429,11 +507,55 @@ export default function FlashcardApp() {
     setImgSrcs((prev) => ({ ...prev, [wordKey]: fallback }));
   };
 
+  // ── RECALL SUBMISSION ──────────────────────────────────────
+  const handleRecallSubmit = useCallback((e) => {
+    if (e) e.preventDefault();
+    if (!word || recallSubmitted) return;
+
+    const answer = recallInput.trim().toLowerCase();
+    const correct = answer === word.word.toLowerCase();
+    setRecallResult(correct ? "correct" : "wrong");
+    setRecallSubmitted(true);
+    setSessionTotal((t) => t + 1);
+
+    if (correct) {
+      playCorrectSound();
+      setSessionCorrect((c) => c + 1);
+      speak(word.word, 0.82);
+    } else {
+      playWrongSound();
+      setSessionWrong((prev) => {
+        if (prev.find((w) => w.word === word.word)) return prev;
+        return [...prev, word];
+      });
+      // Save wrong answer to localStorage
+      setSavedProgress((prev) => {
+        const key = `${selectedGrade?.key}_${selectedUnit}`;
+        const wrongAnswers = { ...prev.wrongAnswers };
+        if (!wrongAnswers[key]) wrongAnswers[key] = [];
+        if (!wrongAnswers[key].includes(word.word)) {
+          wrongAnswers[key] = [...wrongAnswers[key], word.word];
+        }
+        const updated = { ...prev, wrongAnswers };
+        saveProgress(updated);
+        return updated;
+      });
+      // Show correct answer after wrong
+      setTimeout(() => {
+        setReveal(true);
+        speak(word.word, 0.82);
+      }, 600);
+    }
+  }, [word, recallInput, recallSubmitted, selectedGrade, selectedUnit]);
+
   // ── ADVANCE (phase/word/round) ──────────────────────────────
   const advance = useCallback(() => {
     setTransitioning(true);
     setTimeout(() => {
       setReveal(false);
+      setRecallInput("");
+      setRecallResult(null);
+      setRecallSubmitted(false);
       setTransitioning(false);
       if (phaseIdx < PHASES.length - 1) {
         setPhaseIdx((p) => p + 1);
@@ -446,11 +568,26 @@ export default function FlashcardApp() {
           setWordIdx(0);
           setPhaseIdx(0);
         } else {
+          // Save completion to localStorage
+          if (selectedGrade && selectedUnit) {
+            setSavedProgress((prev) => {
+              const key = `${selectedGrade.key}_${selectedUnit}`;
+              const completedUnits = { ...prev.completedUnits, [key]: Date.now() };
+              const stats = {
+                ...prev.stats,
+                totalSessions: (prev.stats.totalSessions || 0) + 1,
+                totalWords: (prev.stats.totalWords || 0) + currentWords.length,
+              };
+              const updated = { ...prev, completedUnits, stats };
+              saveProgress(updated);
+              return updated;
+            });
+          }
           setScreen("done");
         }
       }
     }, 250);
-  }, [phaseIdx, wordIdx, round, currentWords]);
+  }, [phaseIdx, wordIdx, round, currentWords, selectedGrade, selectedUnit]);
 
   // ── PLAY TIMER EFFECT ──────────────────────────────────────
   useEffect(() => {
@@ -461,8 +598,19 @@ export default function FlashcardApp() {
 
     if (phase.id === "word")     setTimeout(() => speak(word.word, 0.8), 300);
     if (phase.id === "sentence") setTimeout(() => speak(word.sentence, 0.92), 300);
+
+    // Recall phase: wait for user input, auto-advance after result shown
     if (phase.id === "recall") {
-      setTimeout(() => { setReveal(true); speak(word.word, 0.82); }, dur * 0.55);
+      // Focus input after a short delay
+      setTimeout(() => { if (inputRef.current) inputRef.current.focus(); }, 100);
+      // TTS: speak the japanese hint
+      // If already submitted and result shown, auto-advance after delay
+      if (recallSubmitted) {
+        timerRef.current = setTimeout(advance, recallResult === "correct" ? 1500 : 2500);
+        return () => { clearTimeout(timerRef.current); };
+      }
+      // No auto-timer for recall - wait for user input
+      return;
     }
 
     setProgress(0);
@@ -473,7 +621,7 @@ export default function FlashcardApp() {
     timerRef.current = setTimeout(advance, dur);
 
     return () => { clearTimeout(timerRef.current); clearInterval(progressRef.current); };
-  }, [screen, wordIdx, phaseIdx, paused, speed, round]);
+  }, [screen, wordIdx, phaseIdx, paused, speed, round, recallSubmitted, recallResult]);
 
   const togglePause = () => {
     if (paused) {
@@ -489,6 +637,8 @@ export default function FlashcardApp() {
   const handleStart = () => {
     setWordIdx(0); setPhaseIdx(0); setRound(1);
     setReveal(false); setPaused(false);
+    setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
+    setSessionWrong([]); setSessionCorrect(0); setSessionTotal(0);
     setScreen("play");
   };
 
@@ -625,13 +775,16 @@ export default function FlashcardApp() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 480 }}>
           {unitKeys.map((unitKey, i) => {
             const words = selectedGrade.units[unitKey];
+            const unitStorageKey = `${selectedGrade.key}_${unitKey}`;
+            const isCompleted = !!savedProgress.completedUnits[unitStorageKey];
+            const wrongWords = savedProgress.wrongAnswers[unitStorageKey] || [];
             return (
               <button
                 key={unitKey}
                 onClick={() => selectGradeUnit(selectedGrade, unitKey)}
                 style={{
                   background: "#111",
-                  border: "1px solid #222",
+                  border: isCompleted ? `1px solid ${selectedGrade.color}44` : "1px solid #222",
                   borderRadius: 14,
                   padding: "14px 18px",
                   cursor: "pointer",
@@ -639,27 +792,29 @@ export default function FlashcardApp() {
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = selectedGrade.color; e.currentTarget.style.background = "#161616"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#222"; e.currentTarget.style.background = "#111"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = isCompleted ? `${selectedGrade.color}44` : "#222"; e.currentTarget.style.background = "#111"; }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   {/* Unit number badge */}
                   <div style={{
                     width: 40, height: 40, borderRadius: 10,
-                    background: `${selectedGrade.color}18`,
+                    background: isCompleted ? `${selectedGrade.color}30` : `${selectedGrade.color}18`,
                     border: `1px solid ${selectedGrade.color}44`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 14, fontWeight: 800, color: selectedGrade.color,
+                    fontSize: isCompleted ? 18 : 14, fontWeight: 800, color: selectedGrade.color,
                     fontFamily: "'Space Mono', monospace", flexShrink: 0,
                   }}>
-                    {String(i + 1).padStart(2, "0")}
+                    {isCompleted ? "✓" : String(i + 1).padStart(2, "0")}
                   </div>
                   {/* Info */}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
                       Unit {String(i + 1).padStart(2, "0")}
+                      {isCompleted && <span style={{ fontSize: 10, color: selectedGrade.color, marginLeft: 8 }}>COMPLETED</span>}
                     </div>
                     <div style={{ fontSize: 11, color: "#555", fontFamily: "'Space Mono', monospace", marginTop: 2 }}>
                       {words.length} WORDS · {(words.length * PHASES.length * 2 * 3.36 / 60).toFixed(1)} MIN
+                      {wrongWords.length > 0 && <span style={{ color: "#f87171" }}> · {wrongWords.length} TO REVIEW</span>}
                     </div>
                   </div>
                   {/* Word thumbnails */}
@@ -795,34 +950,86 @@ export default function FlashcardApp() {
   // SCREEN: DONE
   // ══════════════════════════════════════════════════════════
   if (screen === "done") {
+    const accuracy = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
     return (
       <div style={{ ...base, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
         {fontLink}
         <div style={{ textAlign: "center", maxWidth: 480 }}>
           <div style={{ fontSize: 52, marginBottom: 12, color: "#00d4aa" }}>✦</div>
           <h2 style={{ fontSize: 36, fontWeight: 900, margin: "0 0 6px 0" }}>Complete</h2>
-          <p style={{ fontSize: 12, color: "#555", fontFamily: "'Space Mono', monospace", marginBottom: 32 }}>
+          <p style={{ fontSize: 12, color: "#555", fontFamily: "'Space Mono', monospace", marginBottom: 16 }}>
             {currentWords.length} WORDS × 2 ROUNDS — ENCODED
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 36 }}>
-            {currentWords.map((w, i) => (
-              <div key={i} style={{ borderRadius: 12, overflow: "hidden", position: "relative", aspectRatio: "4/3", background: "#1a1a1a" }}>
-                <img
-                  src={w.localImg}
-                  onError={(e) => { e.target.src = w.fallbackImg; }}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  alt=""
-                />
-                <div style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0,
-                  padding: "20px 8px 8px",
-                  background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
-                  fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1,
-                }}>
-                  {w.word}
-                </div>
+
+          {/* Session Stats */}
+          {sessionTotal > 0 && (
+            <div style={{
+              display: "flex", gap: 16, justifyContent: "center", marginBottom: 24,
+              padding: "14px 20px", background: "#111", borderRadius: 12, border: "1px solid #222",
+            }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: "#00d4aa" }}>{accuracy}%</div>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'Space Mono', monospace", letterSpacing: 2 }}>ACCURACY</div>
               </div>
-            ))}
+              <div style={{ width: 1, background: "#222" }} />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>{sessionCorrect}</div>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'Space Mono', monospace", letterSpacing: 2 }}>CORRECT</div>
+              </div>
+              <div style={{ width: 1, background: "#222" }} />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: sessionWrong.length > 0 ? "#f87171" : "#555" }}>{sessionWrong.length}</div>
+                <div style={{ fontSize: 10, color: "#555", fontFamily: "'Space Mono', monospace", letterSpacing: 2 }}>WRONG</div>
+              </div>
+            </div>
+          )}
+
+          {/* Wrong answers review */}
+          {sessionWrong.length > 0 && (
+            <div style={{ marginBottom: 24, padding: "14px 16px", background: "#1a1010", borderRadius: 12, border: "1px solid #f8717133" }}>
+              <div style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#f87171", letterSpacing: 2, marginBottom: 10 }}>
+                WORDS TO REVIEW
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+                {sessionWrong.map((w) => (
+                  <button key={w.word} onClick={() => speak(w.word, 0.82)} style={{
+                    padding: "6px 12px", borderRadius: 8, cursor: "pointer",
+                    background: "#f8717118", border: "1px solid #f8717133",
+                    color: "#f87171", fontSize: 13, fontWeight: 700,
+                  }}>
+                    {w.word} <span style={{ color: "#666", fontSize: 11 }}>({w.japanese})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 36 }}>
+            {currentWords.map((w, i) => {
+              const isWrong = sessionWrong.find((sw) => sw.word === w.word);
+              return (
+                <div key={i} style={{
+                  borderRadius: 12, overflow: "hidden", position: "relative", aspectRatio: "4/3",
+                  background: "#1a1a1a", border: isWrong ? "2px solid #f8717155" : "2px solid transparent",
+                }}>
+                  <img
+                    src={w.localImg}
+                    onError={(e) => { e.target.src = w.fallbackImg; }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    alt=""
+                  />
+                  <div style={{
+                    position: "absolute", bottom: 0, left: 0, right: 0,
+                    padding: "20px 8px 8px",
+                    background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
+                    fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1,
+                    color: isWrong ? "#f87171" : "#fff",
+                  }}>
+                    {w.word}
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <button onClick={handleStart} style={{
@@ -830,7 +1037,7 @@ export default function FlashcardApp() {
               border: "1px solid #333", borderRadius: 10,
               background: "transparent", color: "#fff", cursor: "pointer", letterSpacing: 1,
             }}>
-              ↻ RESTART
+              RESTART
             </button>
             <button onClick={() => setScreen("unitSelect")} style={{
               padding: "12px 32px", fontSize: 14, fontWeight: 700,
@@ -839,6 +1046,11 @@ export default function FlashcardApp() {
             }}>
               NEXT UNIT
             </button>
+          </div>
+
+          {/* Cumulative stats */}
+          <div style={{ marginTop: 24, fontSize: 11, color: "#333", fontFamily: "'Space Mono', monospace" }}>
+            TOTAL SESSIONS: {savedProgress.stats.totalSessions} · TOTAL WORDS: {savedProgress.stats.totalWords}
           </div>
         </div>
       </div>
@@ -993,24 +1205,80 @@ export default function FlashcardApp() {
 
         {/* ── PHASE: RECALL ── */}
         {phase.id === "recall" && (
-          <div style={{ textAlign: "center" }}>
-            {!reveal ? (
+          <div style={{ textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+            {!recallSubmitted ? (
               <>
                 <div style={{ fontSize: "clamp(40px, 10vw, 72px)", fontWeight: 900, color: "#2a2a2a", letterSpacing: 8, marginBottom: 16, fontFamily: "'Space Mono', monospace" }}>
                   {"?".repeat(word.word.length)}
                 </div>
-                <div style={{ fontSize: 22, color: "#666", fontWeight: 600 }}>{word.japanese}</div>
+                <div style={{ fontSize: 22, color: "#666", fontWeight: 600, marginBottom: 20 }}>{word.japanese}</div>
+                <form onSubmit={handleRecallSubmit} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={recallInput}
+                    onChange={(e) => setRecallInput(e.target.value)}
+                    placeholder="Type the English word..."
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                    style={{
+                      width: "min(80vw, 320px)", padding: "12px 18px",
+                      fontSize: 20, fontWeight: 700, textAlign: "center",
+                      background: "#1a1a1a", border: "2px solid #333",
+                      borderRadius: 12, color: "#fff", outline: "none",
+                      fontFamily: "'Inter', sans-serif", letterSpacing: 1,
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = "#00d4aa"; }}
+                    onBlur={(e) => { e.target.style.borderColor = "#333"; }}
+                  />
+                  <button type="submit" style={{
+                    padding: "10px 36px", fontSize: 14, fontWeight: 700,
+                    border: "none", borderRadius: 10,
+                    background: recallInput.trim() ? "linear-gradient(135deg, #00d4aa, #00b894)" : "#222",
+                    color: recallInput.trim() ? "#0a0a0a" : "#555",
+                    cursor: recallInput.trim() ? "pointer" : "default",
+                    letterSpacing: 2, transition: "all 0.2s",
+                  }} disabled={!recallInput.trim()}>
+                    CHECK
+                  </button>
+                </form>
                 <div style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#444", letterSpacing: 4, marginTop: 16 }}>
-                  RECALL THE WORD...
+                  RECALL THE WORD
                 </div>
               </>
-            ) : (
+            ) : recallResult === "correct" ? (
               <>
                 <div style={{ fontSize: "clamp(52px, 14vw, 88px)", fontWeight: 900, color: "#00d4aa", letterSpacing: -2, lineHeight: 1 }}>
                   {word.word}
                 </div>
-                <div style={{ fontSize: 13, fontFamily: "'Space Mono', monospace", color: "#555", letterSpacing: 3, marginTop: 12 }}>
-                  ✓ SAY IT ALOUD
+                <div style={{
+                  fontSize: 14, fontFamily: "'Space Mono', monospace", color: "#00d4aa",
+                  letterSpacing: 3, marginTop: 16,
+                  padding: "6px 16px", borderRadius: 8,
+                  background: "#00d4aa15", border: "1px solid #00d4aa33",
+                  display: "inline-block",
+                }}>
+                  CORRECT
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 16, color: "#f87171", fontWeight: 600, marginBottom: 8, fontFamily: "'Space Mono', monospace", textDecoration: "line-through" }}>
+                  {recallInput}
+                </div>
+                <div style={{ fontSize: "clamp(44px, 12vw, 72px)", fontWeight: 900, color: reveal ? "#f59e0b" : "#f87171", letterSpacing: -2, lineHeight: 1, transition: "color 0.3s" }}>
+                  {word.word}
+                </div>
+                <div style={{ fontSize: 18, color: "#666", fontWeight: 600, marginTop: 8 }}>{word.japanese}</div>
+                <div style={{
+                  fontSize: 14, fontFamily: "'Space Mono', monospace", color: "#f87171",
+                  letterSpacing: 3, marginTop: 16,
+                  padding: "6px 16px", borderRadius: 8,
+                  background: "#f8717115", border: "1px solid #f8717133",
+                  display: "inline-block",
+                }}>
+                  REVIEW THIS WORD
                 </div>
               </>
             )}
