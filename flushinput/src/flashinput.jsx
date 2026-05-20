@@ -478,6 +478,13 @@ export default function FlashcardApp() {
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionTotal, setSessionTotal]     = useState(0);
 
+  // Streak & adaptive timing
+  const [streak, setStreak]                       = useState(0);
+  const [consecutiveWrong, setConsecutiveWrong]   = useState(0);
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
+  const [timingAdjust, setTimingAdjust]           = useState(0); // ms adjustment for "word" phase
+  const [showCelebration, setShowCelebration]     = useState(false);
+
   // localStorage persistence
   const [savedProgress, setSavedProgress] = useState(() => loadProgress());
 
@@ -487,6 +494,11 @@ export default function FlashcardApp() {
 
   const word  = currentWords[wordIdx] || null;
   const phase = PHASES[phaseIdx];
+
+  // WiseXP SDK init
+  useEffect(() => {
+    if (window.WiseXP) window.WiseXP.init('flashinput');
+  }, []);
 
   // Web Speech API — アプリ起動時に最良の英語音声をキャッシュ
   useEffect(() => {
@@ -521,9 +533,28 @@ export default function FlashcardApp() {
     if (correct) {
       playCorrectSound();
       setSessionCorrect((c) => c + 1);
+      setStreak((s) => s + 1);
+      setConsecutiveWrong(0);
+      setConsecutiveCorrect((c) => {
+        const next = c + 1;
+        if (next >= 5) {
+          setTimingAdjust((prev) => Math.max(prev - 300, -2200)); // min 1s (3200 - 2200)
+        }
+        return next;
+      });
       speak(word.word, 0.82);
     } else {
       playWrongSound();
+      setStreak(0);
+      setConsecutiveCorrect(0);
+      setConsecutiveWrong((c) => {
+        const next = c + 1;
+        if (next >= 3) {
+          setTimingAdjust((prev) => prev + 500);
+        }
+        return next;
+      });
+      if (window.WiseXP) window.WiseXP.reportWrong({ question: word.japanese, correct: word.word, playerAnswer: answer });
       setSessionWrong((prev) => {
         if (prev.find((w) => w.word === word.word)) return prev;
         return [...prev, word];
@@ -584,6 +615,9 @@ export default function FlashcardApp() {
             });
           }
           setScreen("done");
+          if (window.WiseXP) {
+            window.WiseXP.reportGame({ score: sessionCorrect, correct: sessionCorrect, total: sessionTotal, maxCombo: 0, grade: selectedGrade?.shortLabel || '' });
+          }
         }
       }
     }, 250);
@@ -593,7 +627,8 @@ export default function FlashcardApp() {
   useEffect(() => {
     if (screen !== "play" || paused || !word) return;
 
-    const dur = phase.duration / speed;
+    const baseDur = phase.id === "word" ? Math.max(1000, phase.duration + timingAdjust) : phase.duration;
+    const dur = baseDur / speed;
     startTimeRef.current = Date.now();
 
     if (phase.id === "word")     setTimeout(() => speak(word.word, 0.8), 300);
@@ -621,7 +656,7 @@ export default function FlashcardApp() {
     timerRef.current = setTimeout(advance, dur);
 
     return () => { clearTimeout(timerRef.current); clearInterval(progressRef.current); };
-  }, [screen, wordIdx, phaseIdx, paused, speed, round, recallSubmitted, recallResult]);
+  }, [screen, wordIdx, phaseIdx, paused, speed, round, recallSubmitted, recallResult, timingAdjust]);
 
   const togglePause = () => {
     if (paused) {
@@ -639,6 +674,7 @@ export default function FlashcardApp() {
     setReveal(false); setPaused(false);
     setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
     setSessionWrong([]); setSessionCorrect(0); setSessionTotal(0);
+    setStreak(0); setConsecutiveWrong(0); setConsecutiveCorrect(0); setTimingAdjust(0); setShowCelebration(false);
     setScreen("play");
   };
 
@@ -1130,6 +1166,33 @@ export default function FlashcardApp() {
           </div>
         ))}
       </div>
+
+      {/* STREAK COUNTER */}
+      {streak >= 3 && (
+        <div style={{
+          position: "relative", zIndex: 10,
+          textAlign: "center", padding: "0 20px 8px",
+        }}>
+          <span style={{
+            display: "inline-block",
+            fontSize: 13, fontWeight: 800, fontFamily: "'Space Mono', monospace",
+            color: streak >= 10 ? "#f59e0b" : "#ff6b6b",
+            letterSpacing: 2,
+            padding: "4px 14px", borderRadius: 8,
+            background: streak >= 10 ? "#f59e0b18" : "#ff6b6b15",
+            border: `1px solid ${streak >= 10 ? "#f59e0b44" : "#ff6b6b33"}`,
+            animation: "streakPulse 1s ease-in-out infinite",
+          }}>
+            {"\uD83D\uDD25"} {streak} streak!
+          </span>
+          <style>{`
+            @keyframes streakPulse {
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.06); }
+            }
+          `}</style>
+        </div>
+      )}
 
       {/* MAIN CONTENT */}
       <div style={{
