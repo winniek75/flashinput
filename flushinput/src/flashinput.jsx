@@ -451,7 +451,8 @@ function usePreloadImages(words) {
 // ─────────────────────────────────────────────────────────────
 export default function FlashcardApp() {
   // Navigation state
-  const [screen, setScreen] = useState("levelSelect"); // levelSelect | unitSelect | start | play | done
+  const [screen, setScreen] = useState("levelSelect"); // levelSelect | unitSelect | start | play | speedQuiz | done
+  const [gameMode, setGameMode] = useState("flash"); // "flash" | "speedQuiz"
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [currentWords, setCurrentWords] = useState([]);
@@ -483,7 +484,6 @@ export default function FlashcardApp() {
   const [consecutiveWrong, setConsecutiveWrong]   = useState(0);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
   const [timingAdjust, setTimingAdjust]           = useState(0); // ms adjustment for "word" phase
-  const [showCelebration, setShowCelebration]     = useState(false);
 
   // localStorage persistence
   const [savedProgress, setSavedProgress] = useState(() => loadProgress());
@@ -674,8 +674,26 @@ export default function FlashcardApp() {
     setReveal(false); setPaused(false);
     setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
     setSessionWrong([]); setSessionCorrect(0); setSessionTotal(0);
-    setStreak(0); setConsecutiveWrong(0); setConsecutiveCorrect(0); setTimingAdjust(0); setShowCelebration(false);
+    setStreak(0); setConsecutiveWrong(0); setConsecutiveCorrect(0); setTimingAdjust(0);
     setScreen("play");
+  };
+
+  const handleStartSpeedQuiz = () => {
+    setWordIdx(0); setRound(1);
+    setReveal(false); setPaused(false);
+    setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
+    setSessionWrong([]); setSessionCorrect(0); setSessionTotal(0);
+    setStreak(0);
+    setGameMode("speedQuiz");
+    setScreen("speedQuiz");
+  };
+
+  const handleExitToMenu = () => {
+    clearTimeout(timerRef.current);
+    clearInterval(progressRef.current);
+    stopSpeech();
+    setPaused(false);
+    setScreen("unitSelect");
   };
 
   const selectGradeUnit = (grade, unitKey) => {
@@ -969,14 +987,214 @@ export default function FlashcardApp() {
             ))}
           </div>
 
-          <button onClick={handleStart} style={{
-            padding: "16px 56px", fontSize: 16, fontWeight: 800,
-            border: "none", borderRadius: 14,
-            background: "linear-gradient(135deg, #00d4aa, #00b894)",
-            color: "#0a0a0a", cursor: "pointer", letterSpacing: 2,
-          }}>
-            START ▶
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={handleStart} style={{
+              padding: "16px 40px", fontSize: 16, fontWeight: 800,
+              border: "none", borderRadius: 14,
+              background: "linear-gradient(135deg, #00d4aa, #00b894)",
+              color: "#0a0a0a", cursor: "pointer", letterSpacing: 2,
+            }}>
+              ⚡ FlashInput
+            </button>
+            <button onClick={handleStartSpeedQuiz} style={{
+              padding: "16px 40px", fontSize: 16, fontWeight: 800,
+              border: "2px solid #f59e0b",borderRadius: 14,
+              background: "transparent",
+              color: "#f59e0b", cursor: "pointer", letterSpacing: 2,
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => { e.target.style.background = "#f59e0b"; e.target.style.color = "#0a0a0a"; }}
+            onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = "#f59e0b"; }}
+            >
+              📸 Speed Quiz
+            </button>
+          </div>
+          <div style={{ fontSize: 11, color: "#444", fontFamily: "'Space Mono', monospace", marginTop: 12, lineHeight: 1.6, textAlign: "center" }}>
+            FlashInput: 5-phase memory encoding (2 rounds)<br/>
+            Speed Quiz: Photo → Type the word (fast practice)
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SCREEN: SPEED QUIZ
+  // ══════════════════════════════════════════════════════════
+  if (screen === "speedQuiz") {
+    const sqWord = currentWords[wordIdx] || null;
+    if (!sqWord) return null;
+    const sqImgSrc = imgSrcs[sqWord.word] || sqWord.localImg;
+    const sqProgress = currentWords.length > 0 ? (wordIdx / currentWords.length) : 0;
+
+    const handleSpeedQuizSubmit = (e) => {
+      if (e) e.preventDefault();
+      if (recallSubmitted || !recallInput.trim()) return;
+      const answer = recallInput.trim().toLowerCase();
+      const correct = answer === sqWord.word.toLowerCase();
+      setRecallResult(correct ? "correct" : "wrong");
+      setRecallSubmitted(true);
+      setSessionTotal((t) => t + 1);
+      if (correct) {
+        playCorrectSound();
+        setSessionCorrect((c) => c + 1);
+        setStreak((s) => s + 1);
+        speak(sqWord.word, 0.82);
+      } else {
+        playWrongSound();
+        setStreak(0);
+        if (window.WiseXP) window.WiseXP.reportWrong({ question: sqWord.japanese, correct: sqWord.word, playerAnswer: answer });
+        setSessionWrong((prev) => prev.find((w) => w.word === sqWord.word) ? prev : [...prev, sqWord]);
+        setTimeout(() => { setReveal(true); speak(sqWord.word, 0.82); }, 500);
+      }
+      // Auto advance
+      setTimeout(() => {
+        setRecallInput(""); setRecallResult(null); setRecallSubmitted(false); setReveal(false);
+        if (wordIdx < currentWords.length - 1) {
+          setWordIdx((w) => w + 1);
+        } else {
+          setScreen("done");
+          if (window.WiseXP) {
+            window.WiseXP.reportGame({ score: sessionCorrect + (correct ? 1 : 0), correct: sessionCorrect + (correct ? 1 : 0), total: sessionTotal + 1, maxCombo: 0, grade: selectedGrade?.shortLabel || '' });
+          }
+        }
+      }, correct ? 1200 : 2200);
+    };
+
+    return (
+      <div style={{
+        minHeight: "100vh", background: "#0a0a0a",
+        fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+        display: "flex", flexDirection: "column",
+        overflow: "hidden", position: "relative",
+        userSelect: "none",
+      }}>
+        {fontLink}
+
+        {/* Top bar */}
+        <div style={{ position: "relative", zIndex: 10, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px" }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleExitToMenu(); }}
+            style={{
+              background: "none", border: "none", color: "#444", cursor: "pointer",
+              fontSize: 11, fontFamily: "'Space Mono', monospace", letterSpacing: 2,
+              padding: "4px 8px",
+            }}
+          >
+            ✕ QUIT
           </button>
+          <span style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#f59e0b", letterSpacing: 3 }}>
+            SPEED QUIZ
+          </span>
+          <span style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#444", letterSpacing: 2 }}>
+            {wordIdx + 1}/{currentWords.length}
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ padding: "0 20px 8px", position: "relative", zIndex: 10 }}>
+          <div style={{ width: "100%", height: 3, background: "#1a1a1a", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${sqProgress * 100}%`, background: "#f59e0b", borderRadius: 3, transition: "width 0.3s ease" }} />
+          </div>
+        </div>
+
+        {/* Streak */}
+        {streak >= 3 && (
+          <div style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "4px 20px" }}>
+            <span style={{
+              fontSize: 12, fontWeight: 800, color: streak >= 10 ? "#f59e0b" : "#ff6b6b",
+              fontFamily: "'Space Mono', monospace", letterSpacing: 2,
+              padding: "3px 12px", borderRadius: 6,
+              background: streak >= 10 ? "#f59e0b18" : "#ff6b6b15",
+            }}>
+              🔥 {streak} streak!
+            </span>
+          </div>
+        )}
+
+        {/* Main content */}
+        <div style={{
+          flex: 1, display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          padding: "0 24px 40px", position: "relative", zIndex: 5,
+        }}>
+          {!recallSubmitted ? (
+            <>
+              {/* Photo */}
+              <div style={{
+                width: "min(85vw, 400px)", aspectRatio: "16/10",
+                borderRadius: 16, overflow: "hidden",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                marginBottom: 20, background: "#1a1a1a",
+              }}>
+                <img src={sqImgSrc} onError={() => handleImgError(sqWord.word, sqWord.fallbackImg)}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+              </div>
+              {/* Japanese hint */}
+              <div style={{ fontSize: 20, color: "#666", fontWeight: 600, marginBottom: 16 }}>{sqWord.japanese}</div>
+              {/* Input */}
+              <form onSubmit={handleSpeedQuizSubmit} onClick={(e) => e.stopPropagation()}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <input
+                  ref={inputRef}
+                  type="text" value={recallInput}
+                  onChange={(e) => setRecallInput(e.target.value)}
+                  placeholder="Type the English word..."
+                  autoComplete="off" autoCapitalize="off" spellCheck="false"
+                  autoFocus
+                  style={{
+                    width: "min(80vw, 320px)", padding: "12px 18px",
+                    fontSize: 20, fontWeight: 700, textAlign: "center",
+                    background: "#1a1a1a", border: "2px solid #333",
+                    borderRadius: 12, color: "#fff", outline: "none",
+                    letterSpacing: 1,
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = "#f59e0b"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "#333"; }}
+                />
+                <button type="submit" disabled={!recallInput.trim()} style={{
+                  padding: "10px 36px", fontSize: 14, fontWeight: 700,
+                  border: "none", borderRadius: 10,
+                  background: recallInput.trim() ? "linear-gradient(135deg, #f59e0b, #d97706)" : "#222",
+                  color: recallInput.trim() ? "#0a0a0a" : "#555",
+                  cursor: recallInput.trim() ? "pointer" : "default",
+                  letterSpacing: 2,
+                }}>
+                  CHECK
+                </button>
+              </form>
+            </>
+          ) : recallResult === "correct" ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "clamp(48px, 12vw, 80px)", fontWeight: 900, color: "#00d4aa", letterSpacing: -2 }}>
+                {sqWord.word}
+              </div>
+              <div style={{
+                fontSize: 14, fontFamily: "'Space Mono', monospace", color: "#00d4aa",
+                letterSpacing: 3, marginTop: 12, padding: "6px 16px", borderRadius: 8,
+                background: "#00d4aa15", border: "1px solid #00d4aa33", display: "inline-block",
+              }}>
+                CORRECT ✓
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 16, color: "#f87171", fontWeight: 600, marginBottom: 8, textDecoration: "line-through" }}>
+                {recallInput}
+              </div>
+              <div style={{ fontSize: "clamp(40px, 10vw, 68px)", fontWeight: 900, color: reveal ? "#f59e0b" : "#f87171", letterSpacing: -2, transition: "color 0.3s" }}>
+                {sqWord.word}
+              </div>
+              <div style={{ fontSize: 18, color: "#666", fontWeight: 600, marginTop: 8 }}>{sqWord.japanese}</div>
+              <div style={{
+                width: "min(70vw, 300px)", aspectRatio: "16/10", borderRadius: 12,
+                overflow: "hidden", marginTop: 16, marginLeft: "auto", marginRight: "auto",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
+              }}>
+                <img src={sqImgSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -987,12 +1205,71 @@ export default function FlashcardApp() {
   // ══════════════════════════════════════════════════════════
   if (screen === "done") {
     const accuracy = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
+    const isPerfect = accuracy === 100 && sessionTotal > 0;
+    const isExcellent = accuracy >= 90 && sessionTotal > 0;
     return (
-      <div style={{ ...base, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ ...base, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative", overflow: "hidden" }}>
         {fontLink}
+
+        {/* Celebration overlay for high accuracy */}
+        {isExcellent && (
+          <>
+            <style>{`
+              @keyframes celebrationScale {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.1); opacity: 1; }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              @keyframes confettiDrift {
+                0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+              }
+              @keyframes celebFadeOut {
+                0% { opacity: 1; }
+                70% { opacity: 1; }
+                100% { opacity: 0; pointer-events: none; }
+              }
+            `}</style>
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+              zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center",
+              background: "rgba(0,0,0,0.75)",
+              animation: "celebFadeOut 3.5s ease forwards",
+              pointerEvents: "none",
+            }}>
+              {/* Confetti particles */}
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} style={{
+                  position: "absolute",
+                  top: `${Math.random() * 20 - 10}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: 8 + Math.random() * 8,
+                  height: 8 + Math.random() * 8,
+                  borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+                  background: ["#00d4aa", "#f59e0b", "#60a5fa", "#e879f9", "#f87171", "#4ade80"][i % 6],
+                  animation: `confettiDrift ${2 + Math.random() * 2}s ease-in ${Math.random() * 0.5}s forwards`,
+                }} />
+              ))}
+              <div style={{
+                textAlign: "center",
+                animation: "celebrationScale 0.6s ease-out forwards",
+              }}>
+                <div style={{ fontSize: 72, marginBottom: 8 }}>{isPerfect ? "\uD83D\uDC8E" : "\uD83C\uDF89"}</div>
+                <div style={{
+                  fontSize: "clamp(28px, 8vw, 48px)", fontWeight: 900,
+                  color: isPerfect ? "#f59e0b" : "#00d4aa",
+                  letterSpacing: 2, textShadow: "0 0 30px rgba(0,212,170,0.5)",
+                }}>
+                  {isPerfect ? "PERFECT RECALL!" : `EXCELLENT! ${accuracy}%`}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         <div style={{ textAlign: "center", maxWidth: 480 }}>
-          <div style={{ fontSize: 52, marginBottom: 12, color: "#00d4aa" }}>✦</div>
-          <h2 style={{ fontSize: 36, fontWeight: 900, margin: "0 0 6px 0" }}>Complete</h2>
+          <div style={{ fontSize: 52, marginBottom: 12, color: isPerfect ? "#f59e0b" : "#00d4aa" }}>{isPerfect ? "\uD83D\uDC8E" : isExcellent ? "\uD83C\uDF89" : "\u2726"}</div>
+          <h2 style={{ fontSize: 36, fontWeight: 900, margin: "0 0 6px 0" }}>{isPerfect ? "Perfect!" : isExcellent ? "Excellent!" : "Complete"}</h2>
           <p style={{ fontSize: 12, color: "#555", fontFamily: "'Space Mono', monospace", marginBottom: 16 }}>
             {currentWords.length} WORDS × 2 ROUNDS — ENCODED
           </p>
@@ -1067,14 +1344,31 @@ export default function FlashcardApp() {
               );
             })}
           </div>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <button onClick={handleStart} style={{
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={gameMode === "speedQuiz" ? handleStartSpeedQuiz : handleStart} style={{
               padding: "12px 32px", fontSize: 14, fontWeight: 700,
               border: "1px solid #333", borderRadius: 10,
               background: "transparent", color: "#fff", cursor: "pointer", letterSpacing: 1,
             }}>
               RESTART
             </button>
+            {gameMode === "speedQuiz" ? (
+              <button onClick={() => { setGameMode("flash"); handleStart(); }} style={{
+                padding: "12px 32px", fontSize: 14, fontWeight: 700,
+                border: "1px solid #00d4aa44", borderRadius: 10,
+                background: "#00d4aa12", color: "#00d4aa", cursor: "pointer", letterSpacing: 1,
+              }}>
+                ⚡ FlashInput
+              </button>
+            ) : (
+              <button onClick={handleStartSpeedQuiz} style={{
+                padding: "12px 32px", fontSize: 14, fontWeight: 700,
+                border: "1px solid #f59e0b44", borderRadius: 10,
+                background: "#f59e0b12", color: "#f59e0b", cursor: "pointer", letterSpacing: 1,
+              }}>
+                📸 Speed Quiz
+              </button>
+            )}
             <button onClick={() => setScreen("unitSelect")} style={{
               padding: "12px 32px", fontSize: 14, fontWeight: 700,
               border: "1px solid #00d4aa44", borderRadius: 10,
@@ -1124,6 +1418,18 @@ export default function FlashcardApp() {
 
       {/* TOP BAR */}
       <div style={{ position: "relative", zIndex: 10, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px" }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); handleExitToMenu(); }}
+          style={{
+            background: "none", border: "none", color: "#444", cursor: "pointer",
+            fontSize: 11, fontFamily: "'Space Mono', monospace", letterSpacing: 2,
+            padding: "4px 8px", transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => e.target.style.color = "#f87171"}
+          onMouseLeave={(e) => e.target.style.color = "#444"}
+        >
+          ✕ QUIT
+        </button>
         <span style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#00d4aa", letterSpacing: 3 }}>
           {round === 1 ? "ROUND 1" : "ROUND 2 — SPEED"}
         </span>
@@ -1363,13 +1669,28 @@ export default function FlashcardApp() {
           position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0,0,0,0.88)",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 50,
-        }}>
+        }} onClick={togglePause}>
           <div style={{ fontSize: 10, fontFamily: "'Space Mono', monospace", color: "#555", letterSpacing: 4, marginBottom: 16 }}>PAUSED</div>
-          <div style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #333", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: "#fff" }}>▶</div>
-          <div style={{ fontSize: 12, color: "#444", marginTop: 16 }}>Tap anywhere to resume</div>
-          <div style={{ fontSize: 11, color: "#333", fontFamily: "'Space Mono', monospace", marginTop: 6 }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #333", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: "#fff", marginBottom: 12 }}>▶</div>
+          <div style={{ fontSize: 12, color: "#444", marginBottom: 24 }}>Tap anywhere to resume</div>
+          <div style={{ fontSize: 11, color: "#333", fontFamily: "'Space Mono', monospace", marginBottom: 32 }}>
             {word.word} — {word.japanese}
           </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleExitToMenu(); }}
+            style={{
+              padding: "12px 32px", fontSize: 13, fontWeight: 700,
+              border: "1px solid #333", borderRadius: 10,
+              background: "transparent", color: "#666",
+              cursor: "pointer", letterSpacing: 2,
+              fontFamily: "'Space Mono', monospace",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => { e.target.style.borderColor = "#f87171"; e.target.style.color = "#f87171"; }}
+            onMouseLeave={(e) => { e.target.style.borderColor = "#333"; e.target.style.color = "#666"; }}
+          >
+            QUIT
+          </button>
         </div>
       )}
     </div>
