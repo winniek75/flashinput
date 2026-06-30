@@ -2,14 +2,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { VOCAB_DB as BASE_VOCAB } from "./vocabData.js";
 import { EXTRA_VOCAB } from "./vocabDataExtra.js";
 
-// Merge extra units into base vocab
+// Merge all extra units into base vocab
 const VOCAB_DB = Object.fromEntries(
   Object.entries(BASE_VOCAB).map(([gradeKey, gradeData]) => {
-    const extra = EXTRA_VOCAB[gradeKey] || {};
-    const extraSuffix = EXTRA_VOCAB[gradeKey + "_extra"] || {};
+    const extras = Object.keys(EXTRA_VOCAB)
+      .filter(k => k === gradeKey || k.startsWith(gradeKey + "_"))
+      .reduce((acc, k) => ({ ...acc, ...EXTRA_VOCAB[k] }), {});
     return [gradeKey, {
       ...gradeData,
-      units: { ...gradeData.units, ...extra, ...extraSuffix },
+      units: { ...gradeData.units, ...extras },
     }];
   })
 );
