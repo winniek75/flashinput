@@ -1,5 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { VOCAB_DB } from "./vocabData.js";
+import { VOCAB_DB as BASE_VOCAB } from "./vocabData.js";
+import { EXTRA_VOCAB } from "./vocabDataExtra.js";
+
+// Merge extra units into base vocab
+const VOCAB_DB = Object.fromEntries(
+  Object.entries(BASE_VOCAB).map(([gradeKey, gradeData]) => {
+    const extra = EXTRA_VOCAB[gradeKey] || {};
+    return [gradeKey, {
+      ...gradeData,
+      units: { ...gradeData.units, ...extra },
+    }];
+  })
+);
 
 // ─────────────────────────────────────────────────────────────
 // SOUND EFFECTS — Web Audio API
@@ -63,6 +75,16 @@ function loadProgress() {
 
 function saveProgress(data) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* storage full */ }
+}
+
+// Fisher-Yates shuffle
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 // PHASE CONFIG
@@ -353,6 +375,7 @@ export default function FlashcardApp() {
       } else {
         if (round < 2) {
           setRound(2);
+          setCurrentWords((prev) => shuffleArray(prev));
           setWordIdx(0);
           setPhaseIdx(0);
         } else {
@@ -427,6 +450,7 @@ export default function FlashcardApp() {
   };
 
   const handleStart = () => {
+    setCurrentWords((prev) => shuffleArray(prev));
     setWordIdx(0); setPhaseIdx(0); setRound(1);
     setReveal(false); setPaused(false);
     setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
@@ -436,6 +460,7 @@ export default function FlashcardApp() {
   };
 
   const handleStartSpeedQuiz = () => {
+    setCurrentWords((prev) => shuffleArray(prev));
     setWordIdx(0); setRound(1);
     setReveal(false); setPaused(false);
     setRecallInput(""); setRecallResult(null); setRecallSubmitted(false);
@@ -456,7 +481,7 @@ export default function FlashcardApp() {
   const selectGradeUnit = (grade, unitKey) => {
     setSelectedGrade(grade);
     setSelectedUnit(unitKey);
-    setCurrentWords(grade.units[unitKey]);
+    setCurrentWords(shuffleArray(grade.units[unitKey]));
     setScreen("start");
   };
 
