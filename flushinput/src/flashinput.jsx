@@ -6,9 +6,10 @@ import { EXTRA_VOCAB } from "./vocabDataExtra.js";
 const VOCAB_DB = Object.fromEntries(
   Object.entries(BASE_VOCAB).map(([gradeKey, gradeData]) => {
     const extra = EXTRA_VOCAB[gradeKey] || {};
+    const extraSuffix = EXTRA_VOCAB[gradeKey + "_extra"] || {};
     return [gradeKey, {
       ...gradeData,
-      units: { ...gradeData.units, ...extra },
+      units: { ...gradeData.units, ...extra, ...extraSuffix },
     }];
   })
 );
