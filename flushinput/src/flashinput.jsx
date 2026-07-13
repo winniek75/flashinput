@@ -400,6 +400,14 @@ export default function FlashcardApp() {
           if (window.WiseXP) {
             window.WiseXP.reportGame({ score: sessionCorrect, correct: sessionCorrect, total: sessionTotal, maxCombo: 0, grade: selectedGrade?.shortLabel || '' });
           }
+          // → MoWISE portal へスコア送信 (WiseGame Bridge)
+          try {
+            const acc = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
+            window.WiseGame && window.WiseGame.reportComplete({
+              score: sessionCorrect, maxScore: sessionTotal, accuracy: acc,
+              metadata: { grade: selectedGrade?.shortLabel || '', unit: selectedUnit || '' }
+            });
+          } catch(e) {}
         }
       }
     }, 250);
