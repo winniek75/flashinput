@@ -405,7 +405,8 @@ export default function FlashcardApp() {
             const acc = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
             window.WiseGame && window.WiseGame.reportComplete({
               score: sessionCorrect, maxScore: sessionTotal, accuracy: acc,
-              metadata: { grade: selectedGrade?.shortLabel || '', unit: selectedUnit || '' }
+              metadata: { grade: selectedGrade?.shortLabel || '', unit: selectedUnit || '',
+                wrongAnswers: sessionWrong.slice(0, 20).map(w => ({ q: w.japanese || '', correct: w.word || '', chosen: '', tag: 'sight_word' })) }
             });
           } catch(e) {}
         }
