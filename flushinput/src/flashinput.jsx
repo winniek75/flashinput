@@ -79,7 +79,12 @@ const DEFAULT_PROGRESS = {
   completedUnits: {}, wrongAnswers: {},
   stats: { totalSessions: 0, totalWords: 0 },
   unitStars: {}, highScores: {}, tutorialSeen: false,
+  // こたえかた: "tiles"（もじを ならべる） | "type"（タイプする）
+  // すすみかた: "auto"（おとが おわったら じどう） | "manual"（ボタンで すすむ）
+  settings: { inputMode: "tiles", advanceMode: "auto" },
 };
+
+const PORTAL_URL = "https://wise-english-portal.vercel.app";
 
 function loadProgress() {
   try {
@@ -93,6 +98,7 @@ function loadProgress() {
     });
     return { ...DEFAULT_PROGRESS, ...parsed, unitStars,
       highScores: parsed.highScores || {},
+      settings: { ...DEFAULT_PROGRESS.settings, ...(parsed.settings || {}) },
       stats: { ...DEFAULT_PROGRESS.stats, ...(parsed.stats || {}) } };
   } catch { return { ...DEFAULT_PROGRESS }; }
 }
@@ -130,6 +136,36 @@ const GRADES = [
   { key: "grade5", ...VOCAB_DB.grade5 },
   { key: "grade4", ...VOCAB_DB.grade4 },
 ];
+
+// ─────────────────────────────────────────────────────────────
+// DEEP LINK — ?grade=5&unit=2&input=tiles&advance=manual
+//   grade   : 5 | 4（省略時は 5）
+//   unit    : 1〜5（その級のユニット番号。解放制に関係なく直接ひらく）
+//   input   : tiles | type
+//   advance : auto | manual
+// ─────────────────────────────────────────────────────────────
+function parseDeepLink() {
+  const out = { grade: null, unitKey: null, inputMode: null, advanceMode: null };
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const digits = (v) => (v || "").replace(/[^0-9]/g, "");
+    const g = digits(p.get("grade"));
+    const grade = GRADES.find((x) => x.key === `grade${g}`) || null;
+    const u = parseInt(digits(p.get("unit")), 10);
+    if (u >= 1) {
+      const target = grade || GRADES[0];
+      const keys = Object.keys(target.units);
+      if (u <= keys.length) { out.grade = target; out.unitKey = keys[u - 1]; }
+    }
+    if (!out.grade && grade) out.grade = grade;
+    const input = (p.get("input") || "").toLowerCase();
+    if (input === "tiles" || input === "type") out.inputMode = input;
+    const adv = (p.get("advance") || "").toLowerCase();
+    if (adv === "auto" || adv === "manual") out.advanceMode = adv;
+  } catch { /* ignore */ }
+  return out;
+}
+const DEEP_LINK = parseDeepLink();
 
 // スコア計算
 function calcScore(combo, timeLeft = 0) {
@@ -189,15 +225,26 @@ function initVoice() {
   }
 }
 
-function speak(text, rate = 0.88) {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "en-US";
-  u.rate = rate;
-  u.pitch = 1.0;
-  if (cachedVoice) u.voice = cachedVoice;
-  window.speechSynthesis.speak(u);
+// 再生中の発話を保持（Chrome で GC されて onend が来なくなるのを防ぐ）
+let currentUtterance = null;
+
+// onDone: 再生完了（または失敗・非対応）時に1回だけ呼ばれる
+function speak(text, rate = 0.88, onDone) {
+  let finished = false;
+  const done = () => { if (finished) return; finished = true; if (onDone) onDone(); };
+  if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") { done(); return; }
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = rate;
+    u.pitch = 1.0;
+    if (cachedVoice) u.voice = cachedVoice;
+    u.onend = done;
+    u.onerror = done;
+    currentUtterance = u;
+    window.speechSynthesis.speak(u);
+  } catch { done(); }
 }
 
 function stopSpeech() {
@@ -262,7 +309,7 @@ const TUTORIAL_STEPS = [
   {
     icon: "✏️",
     title: "さいごは おもいだしクイズ！",
-    body: "「？？？」が でたら、たんごを おもいだして\nキーボードで タイプしよう。\nせいかいすると スコアと コンボが たまるよ！",
+    body: "「？？？」が でたら、たんごを おもいだして\nもじを ならべるか、キーボードで タイプしよう。\nせいかいすると スコアと コンボが たまるよ！",
   },
   {
     icon: "⭐🔓",
@@ -341,6 +388,147 @@ function TutorialOverlay({ onClose }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// こたえの入力: 「もじを ならべる」（タップ）
+// ─────────────────────────────────────────────────────────────
+function LetterTiles({ answer, onChange, accent }) {
+  const [tiles] = useState(() => {
+    const chars = answer.split("").map((ch, id) => ({ ch, id }));
+    let t = shuffleArray(chars);
+    for (let n = 0; n < 8 && chars.length > 1 && t.map((x) => x.ch).join("") === answer; n++) t = shuffleArray(chars);
+    return t;
+  });
+  const [picked, setPicked] = useState([]); // えらんだ タイルid（じゅんばん）
+  const update = (next) => { setPicked(next); onChange(next.map((id) => answer[id]).join("")); };
+  const slot = {
+    width: 34, height: 44, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 22, fontWeight: 800, fontFamily: "'Space Mono', monospace", padding: 0,
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+      {/* こたえの わく（タップで もどせる） */}
+      <div data-testid="tile-slots" style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center", maxWidth: "92vw" }}>
+        {answer.split("").map((_, i) => {
+          const id = picked[i];
+          const filled = id !== undefined;
+          return (
+            <button type="button" key={i} disabled={!filled}
+              onClick={() => update(picked.filter((_, j) => j !== i))}
+              aria-label={filled ? `${answer[id]} を もどす` : "あき"}
+              style={{ ...slot,
+                background: filled ? `${accent}22` : "#141414",
+                border: filled ? `2px solid ${accent}` : "2px dashed #3a3a3a",
+                color: "#fff", cursor: filled ? "pointer" : "default",
+              }}>
+              {filled ? answer[id] : ""}
+            </button>
+          );
+        })}
+      </div>
+      {/* もじタイル */}
+      <div data-testid="tile-pool" style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: "92vw" }}>
+        {tiles.map((t) => {
+          const used = picked.includes(t.id);
+          return (
+            <button type="button" key={t.id} disabled={used}
+              onClick={() => update([...picked, t.id])}
+              style={{ ...slot, width: 46, height: 50, fontSize: 24,
+                background: used ? "#151515" : "#262626",
+                border: used ? "2px solid #1e1e1e" : "2px solid #555",
+                color: used ? "#2a2a2a" : "#fff", cursor: used ? "default" : "pointer",
+              }}>
+              {t.ch}
+            </button>
+          );
+        })}
+      </div>
+      <button type="button" disabled={!picked.length} onClick={() => update(picked.slice(0, -1))} style={{
+        background: "none", border: "1px solid #333", borderRadius: 8, padding: "6px 14px",
+        color: picked.length ? "#aaa" : "#333", fontSize: 12, fontWeight: 700,
+        cursor: picked.length ? "pointer" : "default",
+      }}>
+        ⌫ ひとつ もどす
+      </button>
+    </div>
+  );
+}
+
+// こたえの入力エリア（ならべる / タイプ 共通）
+function AnswerArea({ word, inputMode, value, onChange, onSubmit, inputRef, accent, accentDark }) {
+  const tilesMode = inputMode === "tiles";
+  const canSubmit = tilesMode ? value.length === word.word.length : !!value.trim();
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); if (canSubmit) onSubmit(); }} onClick={(e) => e.stopPropagation()}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      {tilesMode ? (
+        <LetterTiles answer={word.word} onChange={onChange} accent={accent} />
+      ) : (
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="ここに にゅうりょく..."
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          autoFocus
+          style={{
+            width: "min(80vw, 320px)", padding: "12px 18px",
+            fontSize: 20, fontWeight: 700, textAlign: "center",
+            background: "#1a1a1a", border: "2px solid #333",
+            borderRadius: 12, color: "#fff", outline: "none",
+            fontFamily: "'Inter', sans-serif", letterSpacing: 1,
+          }}
+          onFocus={(e) => { e.target.style.borderColor = accent; }}
+          onBlur={(e) => { e.target.style.borderColor = "#333"; }}
+        />
+      )}
+      <button type="submit" disabled={!canSubmit} style={{
+        padding: "10px 36px", fontSize: 14, fontWeight: 700,
+        border: "none", borderRadius: 10,
+        background: canSubmit ? `linear-gradient(135deg, ${accent}, ${accentDark})` : "#222",
+        color: canSubmit ? "#0a0a0a" : "#555",
+        cursor: canSubmit ? "pointer" : "default",
+        letterSpacing: 2, transition: "all 0.2s",
+      }}>
+        こたえる！
+      </button>
+    </form>
+  );
+}
+
+// 設定の えらぶボタン列
+function SettingRow({ label, options, value, onSelect }) {
+  return (
+    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
+      <span style={{ fontSize: 11, color: "#777", fontWeight: 700, minWidth: 70, textAlign: "right" }}>{label}</span>
+      {options.map((o) => (
+        <button key={o.val} onClick={() => onSelect(o.val)} aria-pressed={value === o.val} style={{
+          padding: "7px 12px", borderRadius: 8,
+          border: value === o.val ? "1px solid #00d4aa" : "1px solid #333",
+          background: value === o.val ? "#00d4aa15" : "transparent",
+          color: value === o.val ? "#00d4aa" : "#777",
+          fontSize: 12, fontWeight: 700, cursor: "pointer",
+        }}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PortalLink({ style }) {
+  return (
+    <a href={PORTAL_URL} style={{
+      display: "inline-block", fontSize: 12, color: "#777", textDecoration: "none",
+      border: "1px solid #2a2a2a", borderRadius: 10, padding: "8px 16px", ...style,
+    }}>
+      🏠 学習ホームにもどる
+    </a>
+  );
+}
+
 // 星の表示コンポーネント
 function Stars({ count, size = 22, animate = false }) {
   return (
@@ -370,11 +558,15 @@ function Stars({ count, size = 22, animate = false }) {
 // ─────────────────────────────────────────────────────────────
 export default function FlashcardApp() {
   // Navigation state
-  const [screen, setScreen] = useState("levelSelect"); // levelSelect | unitSelect | start | play | speedQuiz | done
+  // ディープリンク（?grade=5&unit=2）があれば そのユニットの スタート画面から はじめる
+  const [screen, setScreen] = useState(DEEP_LINK.unitKey ? "start" : DEEP_LINK.grade ? "unitSelect" : "levelSelect"); // levelSelect | unitSelect | start | play | speedQuiz | done
   const [gameMode, setGameMode] = useState("flash"); // "flash" | "speedQuiz"
-  const [selectedGrade, setSelectedGrade] = useState(null);
-  const [selectedUnit, setSelectedUnit] = useState(null);
-  const [currentWords, setCurrentWords] = useState([]);
+  const [selectedGrade, setSelectedGrade] = useState(DEEP_LINK.grade);
+  const [selectedUnit, setSelectedUnit] = useState(DEEP_LINK.unitKey);
+  const [currentWords, setCurrentWords] = useState(() =>
+    DEEP_LINK.unitKey ? shuffleArray(DEEP_LINK.grade.units[DEEP_LINK.unitKey]) : []);
+  // 先生がリンクで指定したユニット（解放制に関係なく ひらける）
+  const teacherUnitKey = DEEP_LINK.unitKey ? `${DEEP_LINK.grade.key}_${DEEP_LINK.unitKey}` : null;
 
   // Play state
   const [wordIdx, setWordIdx]       = useState(0);
@@ -408,6 +600,8 @@ export default function FlashcardApp() {
   // スピードクイズ: タイムアタック
   const [sqTimeLeft, setSqTimeLeft] = useState(SQ_TIME_LIMIT);
   const sqTimerRef = useRef(null);
+  const [sqTimedOut, setSqTimedOut] = useState(false);   // いまの もんだいが じかんぎれ か
+  const [sessionTimeouts, setSessionTimeouts] = useState(0); // じかんぎれの かず（まちがいと べつに かぞえる）
 
   // 結果画面用（星確定値）
   const [earnedStars, setEarnedStars] = useState(0);
@@ -422,11 +616,32 @@ export default function FlashcardApp() {
   const [timingAdjust, setTimingAdjust]           = useState(0);
 
   // localStorage persistence
-  const [savedProgress, setSavedProgress] = useState(() => loadProgress());
+  const [savedProgress, setSavedProgress] = useState(() => {
+    const p = loadProgress();
+    if (DEEP_LINK.inputMode || DEEP_LINK.advanceMode) {
+      p.settings = { ...p.settings,
+        ...(DEEP_LINK.inputMode ? { inputMode: DEEP_LINK.inputMode } : {}),
+        ...(DEEP_LINK.advanceMode ? { advanceMode: DEEP_LINK.advanceMode } : {}) };
+      saveProgress(p);
+    }
+    return p;
+  });
+  const inputMode = savedProgress.settings.inputMode;
+  const advanceMode = savedProgress.settings.advanceMode;
+  const updateSetting = (key, val) => {
+    setSavedProgress((prev) => {
+      const updated = { ...prev, settings: { ...prev.settings, [key]: val } };
+      saveProgress(updated);
+      return updated;
+    });
+  };
 
   const timerRef     = useRef(null);
   const progressRef  = useRef(null);
   const startTimeRef = useRef(null);
+  const advanceRef   = useRef(null);   // さいしんの advance
+  const advLockRef   = useRef(false);  // にじゅう すすみ ぼうし
+  const replayRef    = useRef(null);   // いまの フェーズの おとを もういちど
 
   const word  = currentWords[wordIdx] || null;
   const phase = PHASES[phaseIdx];
@@ -545,14 +760,13 @@ export default function FlashcardApp() {
     setEarnedStars(stars);
     if (stars > 0) setTimeout(() => playStarSound(stars), 500);
 
-    let newRecord = false;
     if (selectedGrade && selectedUnit) {
       const key = `${selectedGrade.key}_${selectedUnit}`;
+      setIsNewRecord(finalScore > (savedProgress.highScores[key] || 0));
       setSavedProgress((prev) => {
         const completedUnits = { ...prev.completedUnits, [key]: Date.now() };
         const unitStars = { ...prev.unitStars, [key]: Math.max(prev.unitStars[key] || 0, stars) };
         const prevHigh = prev.highScores[key] || 0;
-        newRecord = finalScore > prevHigh;
         const highScores = { ...prev.highScores, [key]: Math.max(prevHigh, finalScore) };
         const stats = {
           ...prev.stats,
@@ -563,7 +777,6 @@ export default function FlashcardApp() {
         saveProgress(updated);
         return updated;
       });
-      setIsNewRecord(newRecord);
     }
     setScreen("done");
 
@@ -577,12 +790,15 @@ export default function FlashcardApp() {
           wrongAnswers: finalWrong.slice(0, 20).map(w => ({ q: w.japanese || '', correct: w.word || '', chosen: '', tag: 'sight_word' })) }
       });
     } catch(e) {}
-  }, [selectedGrade, selectedUnit, currentWords.length]);
+  }, [selectedGrade, selectedUnit, currentWords.length, savedProgress.highScores]);
 
   // ── ADVANCE (phase/word/round) ──────────────────────────────
   const advance = useCallback(() => {
+    if (advLockRef.current) return;
+    advLockRef.current = true;
     setTransitioning(true);
     setTimeout(() => {
+      advLockRef.current = false;
       setReveal(false);
       setRecallInput("");
       setRecallResult(null);
@@ -606,35 +822,78 @@ export default function FlashcardApp() {
     }, 250);
   }, [phaseIdx, wordIdx, round, currentWords, sessionCorrect, sessionTotal, score, maxCombo, sessionWrong, finishSession]);
 
+  advanceRef.current = advance;
+
   // ── PLAY TIMER EFFECT ──────────────────────────────────────
+  // word / sentence フェーズは「さいてい ひょうじ時間」と「おんせいの さいせい かんりょう」の
+  // りょうほうを まってから すすむ。てどうモードでは ボタンを おすまで すすまない。
   useEffect(() => {
     if (screen !== "play" || paused || !word) return;
 
-    const baseDur = phase.id === "word" ? Math.max(1000, phase.duration + timingAdjust) : phase.duration;
-    const dur = baseDur / speed;
-    startTimeRef.current = Date.now();
-
-    if (phase.id === "word")     setTimeout(() => speak(word.word, 0.8), 300);
-    if (phase.id === "sentence") setTimeout(() => speak(word.sentence, 0.92), 300);
-
     if (phase.id === "recall") {
       setTimeout(() => { if (inputRef.current) inputRef.current.focus(); }, 100);
-      if (recallSubmitted) {
-        timerRef.current = setTimeout(advance, recallResult === "correct" ? 1500 : 2500);
+      if (recallSubmitted && advanceMode === "auto") {
+        timerRef.current = setTimeout(() => advanceRef.current(), recallResult === "correct" ? 1500 : 2500);
         return () => { clearTimeout(timerRef.current); };
       }
       return;
     }
 
-    setProgress(0);
-    progressRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      setProgress(Math.min(elapsed / dur, 1));
-    }, 30);
-    timerRef.current = setTimeout(advance, dur);
+    const baseDur = phase.id === "word" ? Math.max(1000, phase.duration + timingAdjust) : phase.duration;
+    const dur = baseDur / speed;
+    const speechText = phase.id === "word" ? word.word : phase.id === "sentence" ? word.sentence : null;
+    const speechRate = phase.id === "word" ? 0.8 : 0.92;
 
-    return () => { clearTimeout(timerRef.current); clearInterval(progressRef.current); };
-  }, [screen, wordIdx, phaseIdx, paused, speed, round, recallSubmitted, recallResult, timingAdjust]);
+    let alive = true;
+    let minDone = false;
+    let speechDone = !speechText;
+    let playId = 0;
+    const timers = [];
+    const later = (fn, ms) => { timers.push(setTimeout(() => { if (alive) fn(); }, ms)); };
+    const tryAdvance = () => {
+      if (alive && advanceMode === "auto" && minDone && speechDone) advanceRef.current();
+    };
+    const playSpeech = () => {
+      const id = ++playId;
+      speechDone = false;
+      let settled = false;
+      const settle = () => {
+        if (!alive || settled || id !== playId) return;
+        settled = true;
+        // よみおわってから ひとこきゅう おいて すすむ
+        later(() => { if (id === playId) { speechDone = true; tryAdvance(); } }, 600);
+      };
+      speak(speechText, speechRate, settle);
+      // onend が こない ブラウザむけの ほけん（もじ数から ながさを みつもる）
+      later(settle, 1500 + speechText.length * 120);
+    };
+    replayRef.current = speechText ? playSpeech : null;
+    if (speechText) later(playSpeech, 300);
+
+    setProgress(0);
+    if (advanceMode === "auto") {
+      startTimeRef.current = Date.now();
+      progressRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTimeRef.current;
+        setProgress(Math.min(elapsed / dur, 1));
+      }, 30);
+    }
+    later(() => { minDone = true; tryAdvance(); }, dur);
+
+    return () => {
+      alive = false;
+      timers.forEach(clearTimeout);
+      clearInterval(progressRef.current);
+      replayRef.current = null;
+    };
+  }, [screen, wordIdx, phaseIdx, paused, speed, round, recallSubmitted, recallResult, timingAdjust, advanceMode]);
+
+  // てどうで つぎへ
+  const handleManualNext = (e) => {
+    if (e) e.stopPropagation();
+    stopSpeech();
+    advance();
+  };
 
   const togglePause = () => {
     if (paused) {
@@ -654,6 +913,8 @@ export default function FlashcardApp() {
     setSessionWrong([]); setSessionCorrect(0); setSessionTotal(0);
     setCombo(0); setMaxCombo(0); setScore(0); setScorePopup(null);
     setEarnedStars(0); setIsNewRecord(false);
+    setSqTimedOut(false); setSessionTimeouts(0);
+    advLockRef.current = false;
     setConsecutiveWrong(0); setConsecutiveCorrect(0); setTimingAdjust(0);
   };
 
@@ -691,6 +952,7 @@ export default function FlashcardApp() {
   // ユニットのアンロック判定: 最初のユニット or 前のユニットで★1以上
   const isUnitUnlocked = (grade, unitIndex, unitKeys) => {
     if (unitIndex === 0) return true;
+    if (teacherUnitKey && teacherUnitKey === `${grade.key}_${unitKeys[unitIndex]}`) return true;
     const prevKey = `${grade.key}_${unitKeys[unitIndex - 1]}`;
     return (savedProgress.unitStars[prevKey] || 0) >= 1;
   };
@@ -791,6 +1053,7 @@ export default function FlashcardApp() {
         <p style={{ marginTop: 40, fontSize: 12, color: "#333", fontFamily: "'Space Mono', monospace", textAlign: "center" }}>
           5-PHASE MEMORY ENCODING · 2-ROUND SYSTEM
         </p>
+        <PortalLink style={{ marginTop: 8 }} />
       </div>
     );
   }
@@ -944,8 +1207,13 @@ export default function FlashcardApp() {
           )}
           <p style={{ fontSize: 14, color: "#888", margin: "0 0 28px 0", lineHeight: 1.8 }}>
             {currentWords.length}この たんごに チャレンジ！<br />
-            みて → きいて → おもいだして タイプしよう
+            みて → きいて → おもいだして こたえよう
           </p>
+          {teacherUnitKey === unitStorageKey && (
+            <div style={{ fontSize: 12, color: "#00d4aa", fontWeight: 700, marginTop: -18, marginBottom: 20 }}>
+              📌 きょうの ユニット（せんせいの してい）
+            </div>
+          )}
 
           {/* Thumbnail grid */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 32 }}>
@@ -965,6 +1233,10 @@ export default function FlashcardApp() {
           </div>
 
           {/* Speed selector */}
+          <SettingRow label="こたえかた" value={inputMode} onSelect={(v) => updateSetting("inputMode", v)}
+            options={[{ label: "🔤 もじを ならべる", val: "tiles" }, { label: "⌨️ タイプする", val: "type" }]} />
+          <SettingRow label="すすみかた" value={advanceMode} onSelect={(v) => updateSetting("advanceMode", v)}
+            options={[{ label: "▶ じどう（おとの あと）", val: "auto" }, { label: "👆 じぶんで（ボタン）", val: "manual" }]} />
           <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center", marginBottom: 28 }}>
             <span style={{ fontSize: 11, color: "#555", fontFamily: "'Space Mono', monospace" }}>SPEED</span>
             {[{ label: "×0.8", val: 0.8 }, { label: "×1.0", val: 1 }, { label: "×1.5", val: 1.5 }].map((s) => (
@@ -1005,8 +1277,9 @@ export default function FlashcardApp() {
           </div>
           <div style={{ fontSize: 12, color: "#666", marginTop: 14, lineHeight: 1.8, textAlign: "center" }}>
             おぼえるモード: じっくり 2しゅうで おぼえる<br/>
-            タイムアタック: {SQ_TIME_LIMIT}びょう いないに タイプ！はやいほど こうとくてん
+            タイムアタック: {SQ_TIME_LIMIT}びょう いないに こたえよう！はやいほど こうとくてん
           </div>
+          <PortalLink style={{ marginTop: 18 }} />
         </div>
       </div>
     );
@@ -1031,6 +1304,8 @@ export default function FlashcardApp() {
       setRecallResult(correct ? "correct" : "wrong");
       setRecallSubmitted(true);
       setSessionTotal((t) => t + 1);
+      setSqTimedOut(timedOut);
+      if (timedOut) setSessionTimeouts((n) => n + 1);
 
       let nextCorrect = sessionCorrect;
       let nextScore = score;
@@ -1074,8 +1349,7 @@ export default function FlashcardApp() {
       }, correct ? 1200 : 2200);
     };
 
-    const handleSpeedQuizSubmit = (e) => {
-      if (e) e.preventDefault();
+    const handleSpeedQuizSubmit = () => {
       if (!recallInput.trim()) return;
       handleSpeedQuizAnswer(recallInput);
     };
@@ -1175,37 +1449,12 @@ export default function FlashcardApp() {
                   style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
               </div>
               <div style={{ fontSize: 20, color: "#888", fontWeight: 600, marginBottom: 4 }}>{sqWord.japanese}</div>
-              <div style={{ fontSize: 12, color: "#555", marginBottom: 14 }}>えいごで タイプしよう！</div>
-              <form onSubmit={handleSpeedQuizSubmit} onClick={(e) => e.stopPropagation()}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                <input
-                  ref={inputRef}
-                  type="text" value={recallInput}
-                  onChange={(e) => setRecallInput(e.target.value)}
-                  placeholder="ここに にゅうりょく..."
-                  autoComplete="off" autoCapitalize="off" spellCheck="false"
-                  autoFocus
-                  style={{
-                    width: "min(80vw, 320px)", padding: "12px 18px",
-                    fontSize: 20, fontWeight: 700, textAlign: "center",
-                    background: "#1a1a1a", border: "2px solid #333",
-                    borderRadius: 12, color: "#fff", outline: "none",
-                    letterSpacing: 1,
-                  }}
-                  onFocus={(e) => { e.target.style.borderColor = "#f59e0b"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "#333"; }}
-                />
-                <button type="submit" disabled={!recallInput.trim()} style={{
-                  padding: "10px 36px", fontSize: 14, fontWeight: 700,
-                  border: "none", borderRadius: 10,
-                  background: recallInput.trim() ? "linear-gradient(135deg, #f59e0b, #d97706)" : "#222",
-                  color: recallInput.trim() ? "#0a0a0a" : "#555",
-                  cursor: recallInput.trim() ? "pointer" : "default",
-                  letterSpacing: 2,
-                }}>
-                  こたえる！
-                </button>
-              </form>
+              <div style={{ fontSize: 12, color: "#555", marginBottom: 14 }}>
+                {inputMode === "tiles" ? "もじを ならべて えいごに しよう！" : "えいごで タイプしよう！"}
+              </div>
+              <AnswerArea key={`sq-${wordIdx}-${sqWord.word}`} word={sqWord} inputMode={inputMode}
+                value={recallInput} onChange={setRecallInput} onSubmit={handleSpeedQuizSubmit}
+                inputRef={inputRef} accent="#f59e0b" accentDark="#d97706" />
             </>
           ) : recallResult === "correct" ? (
             <div style={{ textAlign: "center" }}>
@@ -1222,7 +1471,7 @@ export default function FlashcardApp() {
             </div>
           ) : (
             <div style={{ textAlign: "center" }}>
-              {recallInput ? (
+              {!sqTimedOut && recallInput ? (
                 <div style={{ fontSize: 16, color: "#f87171", fontWeight: 600, marginBottom: 8, textDecoration: "line-through" }}>
                   {recallInput}
                 </div>
@@ -1382,6 +1631,11 @@ export default function FlashcardApp() {
               </div>
             </div>
           )}
+          {gameMode === "speedQuiz" && sessionTotal > sessionCorrect && (
+            <div style={{ fontSize: 12, color: "#888", marginTop: -14, marginBottom: 20 }}>
+              まちがい {sessionTotal - sessionCorrect - sessionTimeouts}こ ・ じかんぎれ {sessionTimeouts}こ
+            </div>
+          )}
 
           {/* Wrong answers review */}
           {sessionWrong.length > 0 && (
@@ -1460,9 +1714,10 @@ export default function FlashcardApp() {
               border: "1px solid #00d4aa44", borderRadius: 10,
               background: "#00d4aa12", color: "#00d4aa", cursor: "pointer", letterSpacing: 1,
             }}>
-              つぎのユニットへ
+              ユニットを えらぶ
             </button>
           </div>
+          <PortalLink style={{ marginTop: 20 }} />
 
           <div style={{ marginTop: 24, fontSize: 11, color: "#333", fontFamily: "'Space Mono', monospace" }}>
             TOTAL SESSIONS: {savedProgress.stats.totalSessions} · TOTAL WORDS: {savedProgress.stats.totalWords}
@@ -1517,7 +1772,7 @@ export default function FlashcardApp() {
           ✕ やめる
         </button>
         <span style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", color: "#00d4aa", letterSpacing: 3 }}>
-          {round === 1 ? "ラウンド 1" : "ラウンド 2 — スピード"}
+          {round === 1 ? "ラウンド 1／2" : "ラウンド 2／2 — もういちど"}
         </span>
         <span style={{ fontSize: 13, fontFamily: "'Space Mono', monospace", color: "#f59e0b", letterSpacing: 1, fontWeight: 700 }}>
           {score}pt
@@ -1679,38 +1934,12 @@ export default function FlashcardApp() {
                   {"?".repeat(word.word.length)}
                 </div>
                 <div style={{ fontSize: 22, color: "#888", fontWeight: 600, marginBottom: 6 }}>{word.japanese}</div>
-                <div style={{ fontSize: 13, color: "#bbb", fontWeight: 700, marginBottom: 16 }}>✏️ おもいだして タイプしよう！</div>
-                <form onSubmit={handleRecallSubmit} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={recallInput}
-                    onChange={(e) => setRecallInput(e.target.value)}
-                    placeholder="ここに にゅうりょく..."
-                    autoComplete="off"
-                    autoCapitalize="off"
-                    spellCheck="false"
-                    style={{
-                      width: "min(80vw, 320px)", padding: "12px 18px",
-                      fontSize: 20, fontWeight: 700, textAlign: "center",
-                      background: "#1a1a1a", border: "2px solid #333",
-                      borderRadius: 12, color: "#fff", outline: "none",
-                      fontFamily: "'Inter', sans-serif", letterSpacing: 1,
-                    }}
-                    onFocus={(e) => { e.target.style.borderColor = "#00d4aa"; }}
-                    onBlur={(e) => { e.target.style.borderColor = "#333"; }}
-                  />
-                  <button type="submit" style={{
-                    padding: "10px 36px", fontSize: 14, fontWeight: 700,
-                    border: "none", borderRadius: 10,
-                    background: recallInput.trim() ? "linear-gradient(135deg, #00d4aa, #00b894)" : "#222",
-                    color: recallInput.trim() ? "#0a0a0a" : "#555",
-                    cursor: recallInput.trim() ? "pointer" : "default",
-                    letterSpacing: 2, transition: "all 0.2s",
-                  }} disabled={!recallInput.trim()}>
-                    こたえる！
-                  </button>
-                </form>
+                <div style={{ fontSize: 13, color: "#bbb", fontWeight: 700, marginBottom: 16 }}>
+                  {inputMode === "tiles" ? "✏️ おもいだして もじを ならべよう！" : "✏️ おもいだして タイプしよう！"}
+                </div>
+                <AnswerArea key={`r${round}-${wordIdx}-${word.word}`} word={word} inputMode={inputMode}
+                  value={recallInput} onChange={setRecallInput} onSubmit={handleRecallSubmit}
+                  inputRef={inputRef} accent="#00d4aa" accentDark="#00b894" />
               </>
             ) : recallResult === "correct" ? (
               <>
@@ -1750,6 +1979,28 @@ export default function FlashcardApp() {
           </div>
         )}
       </div>
+
+      {/* てどう送り・もういちど きく */}
+      {(!isRecall || recallSubmitted) && !paused && (
+        <div style={{ position: "relative", zIndex: 30, display: "flex", gap: 10, justifyContent: "center", padding: "0 20px 28px" }}>
+          {!isRecall && (phase.id === "word" || phase.id === "sentence") && (
+            <button onClick={(e) => { e.stopPropagation(); if (replayRef.current) replayRef.current(); }} style={{
+              padding: "12px 18px", fontSize: 14, fontWeight: 700, borderRadius: 12,
+              border: "1px solid #444", background: "rgba(0,0,0,0.55)", color: "#ddd", cursor: "pointer",
+            }}>
+              🔊 もういちど
+            </button>
+          )}
+          <button onClick={handleManualNext} style={{
+            padding: "12px 28px", fontSize: 15, fontWeight: 800, borderRadius: 12, cursor: "pointer",
+            border: advanceMode === "manual" ? "none" : "1px solid #00d4aa66",
+            background: advanceMode === "manual" ? "linear-gradient(135deg, #00d4aa, #00b894)" : "rgba(0,0,0,0.55)",
+            color: advanceMode === "manual" ? "#0a0a0a" : "#00d4aa",
+          }}>
+            つぎへ ▶
+          </button>
+        </div>
+      )}
 
       {/* TIMER BAR */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 3, background: "#111", zIndex: 20 }}>
