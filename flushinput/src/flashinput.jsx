@@ -949,6 +949,24 @@ export default function FlashcardApp() {
     setScreen("start");
   };
 
+  // ?unit=5-1 で自動選択（FlashInput 共通語彙の直接起動）
+  const unitAutoStarted = useRef(false);
+  useEffect(() => {
+    if (unitAutoStarted.current) return;
+    const p = new URLSearchParams(window.location.search);
+    const u = p.get("unit");
+    if (!u) return;
+    const m = u.match(/^([45])-([1-5])$/);
+    if (!m) return;
+    const gradeKey = m[1] === "5" ? "grade5" : "grade4";
+    const unitKey = `Unit0${m[2]}`;
+    const grade = VOCAB_DB[gradeKey];
+    if (grade && grade.units[unitKey]) {
+      unitAutoStarted.current = true;
+      selectGradeUnit(grade, unitKey);
+    }
+  }, []);
+
   // ユニットのアンロック判定: 最初のユニット or 前のユニットで★1以上
   const isUnitUnlocked = (grade, unitIndex, unitKeys) => {
     if (unitIndex === 0) return true;
