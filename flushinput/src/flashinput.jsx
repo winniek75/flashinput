@@ -326,12 +326,13 @@ function TutorialOverlay({ onClose }) {
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
       background: "rgba(0,0,0,0.92)", zIndex: 200,
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(10px, 3vw, 20px)",
     }}>
       <div style={{
         maxWidth: 420, width: "100%", textAlign: "center",
         background: "#141414", border: "1px solid #2a2a2a", borderRadius: 24,
-        padding: "36px 28px 28px",
+        padding: "clamp(20px, 4vw, 36px) clamp(16px, 3vw, 28px) clamp(16px, 3vw, 28px)",
+        maxHeight: "90vh", overflowY: "auto", WebkitOverflowScrolling: "touch",
         animation: "tutorialPop 0.35s ease-out",
       }}>
         <style>{`
@@ -474,7 +475,7 @@ function AnswerArea({ word, inputMode, value, onChange, onSubmit, inputRef, acce
           spellCheck="false"
           autoFocus
           style={{
-            width: "min(80vw, 320px)", padding: "12px 18px",
+            width: "min(85vw, 320px)", padding: "12px 18px",
             fontSize: 20, fontWeight: 700, textAlign: "center",
             background: "#1a1a1a", border: "2px solid #333",
             borderRadius: 12, color: "#fff", outline: "none",
@@ -977,17 +978,29 @@ export default function FlashcardApp() {
 
   // ── FONT LINK ────────────────────────────────────────────
   const fontLink = (
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
+      <style>{`
+        @media (max-width: 640px) {
+          html { -webkit-text-size-adjust: 100%; }
+          body { font-size: 14px; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+          button { min-height: 44px; }
+          input, textarea, select { font-size: 16px !important; }
+        }
+      `}</style>
+    </>
   );
 
   const base = {
-    minHeight: "100vh",
+    minHeight: "100dvh",
     background: "#0a0a0a",
     fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
     color: "#fff",
+    overflowX: "hidden",
+    WebkitOverflowScrolling: "touch",
   };
 
   const tutorialOverlay = showTutorial ? <TutorialOverlay onClose={closeTutorial} /> : null;
@@ -997,14 +1010,14 @@ export default function FlashcardApp() {
   // ══════════════════════════════════════════════════════════
   if (screen === "levelSelect") {
     return (
-      <div style={{ ...base, display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" }}>
+      <div style={{ ...base, display: "flex", flexDirection: "column", alignItems: "center", padding: "clamp(20px, 5vw, 40px) clamp(12px, 3vw, 20px)" }}>
         {fontLink}
         {tutorialOverlay}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ textAlign: "center", marginBottom: "clamp(20px, 5vw, 40px)" }}>
           <div style={{ fontSize: 10, letterSpacing: 6, color: "#555", fontFamily: "'Space Mono', monospace", marginBottom: 16 }}>
             VOCABULARY INPUT SYSTEM
           </div>
-          <h1 style={{ fontSize: "clamp(32px, 8vw, 52px)", fontWeight: 900, margin: 0, letterSpacing: -1 }}>
+          <h1 style={{ fontSize: "clamp(28px, 7vw, 52px)", fontWeight: 900, margin: 0, letterSpacing: -1 }}>
             Flash<span style={{ color: "#00d4aa" }}>Input</span>
           </h1>
           <p style={{ color: "#888", fontSize: 14, marginTop: 8 }}>しゃしんで たんごを おぼえよう！レベルを えらんでね</p>
@@ -1082,10 +1095,10 @@ export default function FlashcardApp() {
   if (screen === "unitSelect" && selectedGrade) {
     const unitKeys = Object.keys(selectedGrade.units);
     return (
-      <div style={{ ...base, display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" }}>
+      <div style={{ ...base, display: "flex", flexDirection: "column", alignItems: "center", padding: "clamp(20px, 5vw, 40px) clamp(12px, 3vw, 20px)" }}>
         {fontLink}
         {tutorialOverlay}
-        <div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
+        <div style={{ width: "100%", maxWidth: 480, marginBottom: 24 }}>
           <button
             onClick={() => setScreen("levelSelect")}
             style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 13, fontFamily: "'Space Mono', monospace", letterSpacing: 2, padding: 0, marginBottom: 24, display: "flex", alignItems: "center", gap: 6 }}
